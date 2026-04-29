@@ -1,0 +1,42 @@
+name: primarie-env-${ENV_KEY}
+
+services:
+  env-nginx:
+    image: nginx:1.27-alpine
+    depends_on:
+      - admin
+      - api
+      - web
+    ports:
+      - "127.0.0.1:${ENV_PORT}:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    environment:
+      ENV_KEY: ${ENV_KEY}
+      ROOT_DOMAIN: ${ROOT_DOMAIN}
+
+  admin:
+    image: nginx:1.27-alpine
+    volumes:
+      - ./mock/admin.html:/usr/share/nginx/html/index.html:ro
+
+  api:
+    image: nginx:1.27-alpine
+    volumes:
+      - ./mock/api.json:/usr/share/nginx/html/index.html:ro
+
+  web:
+    image: nginx:1.27-alpine
+    volumes:
+      - ./mock/web.html:/usr/share/nginx/html/index.html:ro
+
+  mongo:
+    image: mongo:7
+    command: ["mongod", "--quiet"]
+    volumes:
+      - mongo-data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: ${MONGO_DATABASE}
+
+volumes:
+  mongo-data:

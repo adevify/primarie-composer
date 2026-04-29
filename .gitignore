@@ -1,0 +1,7 @@
+.env
+node_modules
+dist
+apps/electron/out
+runtime/environments/*
+!runtime/environments/.gitkeep
+npm-debug.log*

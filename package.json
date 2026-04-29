@@ -1,0 +1,9 @@
+{
+  "name": "primarie-composer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "composer": "env -u ELECTRON_RUN_AS_NODE npm --prefix apps/electron run dev"
+  }
+}
