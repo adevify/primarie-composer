@@ -14,7 +14,7 @@ app.use(cors());
 app.use(express.json({ limit: "1mb" }));
 
 app.get("/health", (_req, res) => {
-  res.json({ ok: true, service: "primarie-envforge-api" });
+  res.json({ ok: true, service: "primarie-composer-api" });
 });
 
 app.use("/auth", createAuthRouter());
@@ -29,7 +29,7 @@ app.use((err: unknown, _req: express.Request, res: express.Response, _next: expr
 await connectMongo();
 
 const server = app.listen(env.PORT, () => {
-  console.log(`primarie-envforge API listening on :${env.PORT}`);
+  console.log(`primarie-composer API listening on :${env.PORT}`);
 });
 
 const shutdown = async () => {

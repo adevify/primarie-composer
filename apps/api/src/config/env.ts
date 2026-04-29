@@ -11,8 +11,8 @@ const workspaceRoot = path.resolve(appRoot, "../..");
 const envSchema = z.object({
   NODE_ENV: z.string().default("development"),
   PORT: z.coerce.number().int().positive().default(3000),
-  MONGO_URI: z.string().default("mongodb://mongo:27017/primarie_envforge"),
-  MONGO_DB_NAME: z.string().default("primarie_envforge"),
+  MONGO_URI: z.string().default("mongodb://mongo:27017/primarie_composer"),
+  MONGO_DB_NAME: z.string().default("primarie_composer"),
   JWT_SECRET: z.string().min(16, "JWT_SECRET must be at least 16 characters"),
   JWT_EXPIRES_IN: z.string().default("12h"),
   ELECTRON_ACCESS_KEY: z.string().min(8, "ELECTRON_ACCESS_KEY must be at least 8 characters"),

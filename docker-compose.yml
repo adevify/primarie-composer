@@ -16,8 +16,8 @@ services:
       - ./seeds:/app/seeds
     environment:
       PORT: 3000
-      MONGO_URI: mongodb://mongo:27017/primarie_envforge
-      MONGO_DB_NAME: primarie_envforge
+      MONGO_URI: mongodb://mongo:27017/primarie_composer
+      MONGO_DB_NAME: primarie_composer
       RUNTIME_DIR: /app/runtime/environments
       TEMPLATE_DIR: /app/templates/environment
       SEEDS_DIR: /app/seeds

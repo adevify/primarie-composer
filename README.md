@@ -1,4 +1,4 @@
-# primarie-envforge
+# primarie-composer
 
 Initial environment orchestration service for `primarie.md`.
 
