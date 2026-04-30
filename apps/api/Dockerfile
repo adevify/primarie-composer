@@ -21,7 +21,7 @@ ENV NODE_ENV=production
 # docker.io provides the docker CLI; docker-compose is a fallback for hosts
 # where the compose plugin is unavailable in the image package repository.
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends docker.io docker-compose \
+  && apt-get install -y --no-install-recommends docker.io docker-compose git openssh-client ca-certificates \
   && rm -rf /var/lib/apt/lists/*
 
 COPY --from=deps /app/node_modules ./node_modules

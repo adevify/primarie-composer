@@ -3,5 +3,20 @@
     "id": "admin",
     "email": "admin@example.local",
     "role": "admin"
+  },
+  {
+    "id": "arsenii",
+    "email": "arsenii@example.local",
+    "role": "admin"
+  },
+  {
+    "id": "editor",
+    "email": "editor@example.local",
+    "role": "editor"
+  },
+  {
+    "id": "viewer",
+    "email": "viewer@example.local",
+    "role": "viewer"
   }
 ]

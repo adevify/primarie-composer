@@ -9,13 +9,14 @@ import { GitStatusCard } from "./components/GitStatusCard";
 import { LoginView } from "./components/LoginView";
 import { RepoPicker } from "./components/RepoPicker";
 import { SyncStatusCard } from "./components/SyncStatusCard";
-import type { AuthSession, ChangedFilePayload, EnvironmentRecord, GitState, SyncState } from "./types";
+import type { AuthSession, ChangedFilePayload, EnvironmentRecord, GitState, RepoSyncSnapshot, SyncState } from "./types";
 
 const AUTH_STORAGE_KEY = "primarie-composer.auth";
 const REPO_STORAGE_KEY = "primarie-composer.repoPath";
 const ACTIVE_ENV_STORAGE_KEY = "primarie-composer.activeEnvironmentKey";
 
 export default function App() {
+  const electronBridge = window.primarieElectron;
   const [session, setSession] = useState<AuthSession | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [loginLoading, setLoginLoading] = useState(false);
@@ -40,11 +41,11 @@ export default function App() {
   const api = useMemo(() => (session ? new ComposerApiClient(session) : null), [session]);
 
   const logout = useCallback(() => {
-    void window.primarieElectron.stopWatchingRepo();
+    void electronBridge?.stopWatchingRepo();
     localStorage.removeItem(AUTH_STORAGE_KEY);
     setSession(null);
     setSyncState((current) => ({ ...current, watching: false }));
-  }, []);
+  }, [electronBridge]);
 
   const refreshEnvironments = useCallback(async () => {
     if (!api) {
@@ -73,7 +74,10 @@ export default function App() {
     setGitLoading(true);
     setGitError(undefined);
     try {
-      const nextGitState = await window.primarieElectron.getGitState(repoPath);
+      if (!electronBridge) {
+        throw new Error("Electron preload bridge is unavailable.");
+      }
+      const nextGitState = await electronBridge.getGitState(repoPath);
       setGitState(nextGitState);
       return nextGitState;
     } catch (error) {
@@ -82,7 +86,7 @@ export default function App() {
     } finally {
       setGitLoading(false);
     }
-  }, [repoPath]);
+  }, [electronBridge, repoPath]);
 
   useEffect(() => {
     async function verifySavedSession(): Promise<void> {
@@ -124,10 +128,20 @@ export default function App() {
   }, [session, repoPath, refreshGitState]);
 
   useEffect(() => {
-    const unsubscribe = window.primarieElectron.onRepoFileChanged((files) => {
-      void handleRepoFilesChanged(files);
+    if (session && repoPath && syncState.activeEnvironmentKey && !syncState.watching) {
+      void startSync(syncState.activeEnvironmentKey);
+    }
+  }, [session, repoPath, syncState.activeEnvironmentKey, syncState.watching]);
+
+  useEffect(() => {
+    if (!electronBridge) {
+      return undefined;
+    }
+
+    const unsubscribe = electronBridge.onRepoSyncSnapshot((snapshot) => {
+      void handleRepoSyncSnapshot(snapshot);
     });
-    const unsubscribeErrors = window.primarieElectron.onRepoWatchError((message) => {
+    const unsubscribeErrors = electronBridge.onRepoWatchError((message) => {
       pushSyncError(message);
     });
 
@@ -135,9 +149,9 @@ export default function App() {
       unsubscribe();
       unsubscribeErrors();
     };
-  });
+  }, [electronBridge, api, repoPath, syncState.activeEnvironmentKey]);
 
-  async function handleLogin(baseUrl: string, accessKey: string): Promise<void> {
+  async function handleLogin(baseUrl: string, email: string, password: string): Promise<void> {
     setLoginLoading(true);
     setLoginError(undefined);
     try {
@@ -146,7 +160,7 @@ export default function App() {
         accessToken: "",
         expiresAt: undefined
       });
-      const nextSession = await client.login(baseUrl, accessKey);
+      const nextSession = await client.login(baseUrl, email, password);
       // TODO: Replace localStorage with OS keychain or encrypted storage.
       localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(nextSession));
       setSession(nextSession);
@@ -160,8 +174,11 @@ export default function App() {
   async function chooseRepo(): Promise<void> {
     setRepoError(undefined);
     try {
-      await window.primarieElectron.stopWatchingRepo();
-      const selectedPath = await window.primarieElectron.selectDirectory();
+      if (!electronBridge) {
+        throw new Error("Electron preload bridge is unavailable.");
+      }
+      await electronBridge.stopWatchingRepo();
+      const selectedPath = await electronBridge.selectDirectory();
       if (!selectedPath) {
         return;
       }
@@ -173,7 +190,7 @@ export default function App() {
     }
   }
 
-  async function createEnvironment(input: { key?: string; seed: string; tenants: string[]; useCurrentRepoState: boolean }): Promise<void> {
+  async function createEnvironment(input: { key?: string; useCurrentRepoState: boolean }): Promise<void> {
     if (!api) {
       return;
     }
@@ -187,7 +204,10 @@ export default function App() {
         if (!latestGitState || !repoPath) {
           throw new Error("Choose a valid repository before creating an environment from local state.");
         }
-        const changedFiles = await window.primarieElectron.readChangedFiles(repoPath);
+        if (!electronBridge) {
+          throw new Error("Electron preload bridge is unavailable.");
+        }
+        const changedFiles = await electronBridge.readChangedFiles(repoPath);
         source = {
           branch: latestGitState.branch,
           commit: latestGitState.commit,
@@ -198,8 +218,6 @@ export default function App() {
 
       const created = await api.createEnvironment({
         key: input.key,
-        seed: input.seed,
-        tenants: input.tenants,
         source
       });
 
@@ -219,7 +237,7 @@ export default function App() {
     }
   }
 
-  async function runEnvironmentAction(key: string, action: "start" | "stop" | "restart" | "delete"): Promise<void> {
+  async function runEnvironmentAction(key: string, action: "start" | "stop" | "restart" | "resume" | "delete"): Promise<void> {
     if (!api) {
       return;
     }
@@ -232,8 +250,14 @@ export default function App() {
         await api.stopEnvironment(key);
       } else if (action === "restart") {
         await api.restartEnvironment(key);
+      } else if (action === "resume") {
+        await api.resumeEnvironment(key);
       } else {
         await api.deleteEnvironment(key);
+      }
+      if (action === "start" || action === "restart" || action === "resume") {
+        setActiveEnvironment(key);
+        await startSync(key);
       }
       await refreshEnvironments();
     } catch (error) {
@@ -256,7 +280,10 @@ export default function App() {
     }
 
     try {
-      await window.primarieElectron.startWatchingRepo(repoPath);
+      if (!electronBridge) {
+        throw new Error("Electron preload bridge is unavailable.");
+      }
+      await electronBridge.startWatchingRepo(repoPath);
       setSyncState((current) => ({ ...current, watching: true, activeEnvironmentKey: key }));
     } catch (error) {
       pushSyncError(toErrorMessage(error));
@@ -264,35 +291,32 @@ export default function App() {
   }
 
   async function stopSync(): Promise<void> {
-    await window.primarieElectron.stopWatchingRepo();
+    await electronBridge?.stopWatchingRepo();
     setSyncState((current) => ({ ...current, watching: false }));
   }
 
-  async function handleRepoFilesChanged(files: ChangedFilePayload[]): Promise<void> {
-    if (!api || !repoPath || !syncState.activeEnvironmentKey || files.length === 0) {
+  async function handleRepoSyncSnapshot(snapshot: RepoSyncSnapshot): Promise<void> {
+    setGitState(snapshot.gitState);
+
+    if (!api || !repoPath || !syncState.activeEnvironmentKey) {
       return;
     }
 
     try {
-      const latestGitState = await window.primarieElectron.getGitState(repoPath);
-      setGitState(latestGitState);
-      const syncableFiles = files.filter((file) => !file.warning);
-      if (syncableFiles.length === 0) {
-        files.filter((file) => file.warning).forEach((file) => pushSyncError(`${file.path}: ${file.warning}`));
-        return;
-      }
+      const syncableFiles = snapshot.files.filter((file) => !file.warning);
+      snapshot.files.filter((file) => file.warning).forEach((file) => pushSyncError(`${file.path}: ${file.warning}`));
 
       await api.syncFiles(syncState.activeEnvironmentKey, {
-        branch: latestGitState.branch,
-        commit: latestGitState.commit,
+        branch: snapshot.gitState.branch,
+        commit: snapshot.gitState.commit,
         files: syncableFiles
       });
 
       setSyncState((current) => ({
         ...current,
-        lastSyncedFile: syncableFiles.at(-1)?.path,
+        lastSyncedFile: syncableFiles.at(-1)?.path ?? "Git state",
         lastSyncTime: new Date().toLocaleString(),
-        errors: files.filter((file) => file.warning).map((file) => `${file.path}: ${file.warning}`)
+        errors: snapshot.files.filter((file) => file.warning).map((file) => `${file.path}: ${file.warning}`)
       }));
     } catch (error) {
       pushSyncError(toErrorMessage(error));
@@ -313,6 +337,17 @@ export default function App() {
           <CircularProgress />
           <Typography color="text.secondary">Verifying saved session</Typography>
         </Stack>
+      </Box>
+    );
+  }
+
+  if (!electronBridge) {
+    return (
+      <Box sx={{ minHeight: "100vh", display: "grid", placeItems: "center", p: 3 }}>
+        <Alert severity="error" sx={{ maxWidth: 720 }}>
+          Electron preload bridge is unavailable. Restart the app with <strong>npm run composer</strong> and check the
+          terminal for preload errors.
+        </Alert>
       </Box>
     );
   }
@@ -377,7 +412,6 @@ function decorateEnvironment(environment: EnvironmentRecord): EnvironmentRecord 
   const domains = environment.domains ?? [
     `admin.${environment.key}.prmr.md`,
     `api.${environment.key}.prmr.md`,
-    ...environment.tenants.map((tenant) => `${tenant}.${environment.key}.prmr.md`)
   ];
   return { ...environment, domains };
 }

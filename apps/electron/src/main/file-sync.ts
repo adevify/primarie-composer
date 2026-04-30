@@ -1,13 +1,21 @@
 import chokidar, { type FSWatcher } from "chokidar";
 import path from "node:path";
 import { BrowserWindow } from "electron";
-import { assertRepoPath, isIgnoredRelativePath, readChangedFiles } from "./git.js";
+import { assertRepoPath, getGitState, isIgnoredRelativePath, readChangedFiles, type ChangedFilePayload, type GitState } from "./git.js";
 
 const DEBOUNCE_MS = 500;
+const GIT_STATE_POLL_MS = 1000;
+
+export type RepoSyncSnapshot = {
+  gitState: GitState;
+  files: ChangedFilePayload[];
+};
 
 let watcher: FSWatcher | null = null;
 let watchedRepoPath: string | null = null;
 let debounceTimer: NodeJS.Timeout | null = null;
+let gitStatePollTimer: NodeJS.Timeout | null = null;
+let lastGitSignature = "";
 const pendingPaths = new Set<string>();
 
 export function startWatchingRepo(repoPath: string): void {
@@ -34,6 +42,9 @@ export function startWatchingRepo(repoPath: string): void {
   watcher.on("error", (error) => {
     emitToRenderers("repo-watch-error", error instanceof Error ? error.message : String(error));
   });
+
+  startGitStatePolling();
+  void emitRepoSyncSnapshot(true);
 }
 
 export function stopWatchingRepo(): void {
@@ -42,6 +53,12 @@ export function stopWatchingRepo(): void {
     debounceTimer = null;
   }
 
+  if (gitStatePollTimer) {
+    clearInterval(gitStatePollTimer);
+    gitStatePollTimer = null;
+  }
+
+  lastGitSignature = "";
   pendingPaths.clear();
   void watcher?.close();
   watcher = null;
@@ -74,15 +91,44 @@ async function flushPendingPaths(): Promise<void> {
     return;
   }
 
-  const paths = [...pendingPaths];
   pendingPaths.clear();
+  await emitRepoSyncSnapshot(false);
+}
+
+function startGitStatePolling(): void {
+  gitStatePollTimer = setInterval(() => {
+    void emitRepoSyncSnapshot(false);
+  }, GIT_STATE_POLL_MS);
+}
+
+async function emitRepoSyncSnapshot(force: boolean): Promise<void> {
+  if (!watchedRepoPath) {
+    return;
+  }
 
   try {
-    const files = await readChangedFiles(watchedRepoPath, paths);
+    const gitState = await getGitState(watchedRepoPath);
+    const signature = toGitSignature(gitState);
+    if (!force && signature === lastGitSignature) {
+      return;
+    }
+
+    lastGitSignature = signature;
+    const files = await readChangedFiles(watchedRepoPath);
+    const snapshot: RepoSyncSnapshot = { gitState, files };
+    emitToRenderers("repo-sync-snapshot", snapshot);
     emitToRenderers("repo-file-changed", files);
   } catch (error) {
     emitToRenderers("repo-watch-error", error instanceof Error ? error.message : String(error));
   }
+}
+
+function toGitSignature(gitState: GitState): string {
+  return JSON.stringify({
+    branch: gitState.branch,
+    commit: gitState.commit,
+    changedFiles: [...gitState.changedFiles].sort()
+  });
 }
 
 function emitToRenderers(channel: string, payload: unknown): void {

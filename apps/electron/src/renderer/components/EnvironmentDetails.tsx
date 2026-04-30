@@ -23,9 +23,6 @@ export function EnvironmentDetails({ environment, open, onClose }: EnvironmentDe
                 <ListItemText primary="Seed" secondary={environment.seed} />
               </ListItem>
               <ListItem>
-                <ListItemText primary="Tenants" secondary={environment.tenants.join(", ") || "none"} />
-              </ListItem>
-              <ListItem>
                 <ListItemText primary="Port" secondary={environment.port ?? "n/a"} />
               </ListItem>
               <ListItem>
@@ -34,6 +31,18 @@ export function EnvironmentDetails({ environment, open, onClose }: EnvironmentDe
               <ListItem>
                 <ListItemText primary="Source" secondary={`${environment.branch ?? "n/a"} @ ${environment.commit ?? "n/a"}`} secondaryTypographyProps={{ sx: { wordBreak: "break-all" } }} />
               </ListItem>
+              <ListItem>
+                <ListItemText primary="Owner" secondary={environment.createdBy?.name ?? "Unknown"} />
+              </ListItem>
+              {environment.pullRequest ? (
+                <ListItem>
+                  <ListItemText
+                    primary={`GitHub PR #${environment.pullRequest.number}`}
+                    secondary={environment.pullRequest.url}
+                    secondaryTypographyProps={{ sx: { wordBreak: "break-all" } }}
+                  />
+                </ListItem>
+              ) : null}
             </List>
             <Divider />
             <Stack spacing={0.5}>
@@ -58,6 +67,5 @@ function buildDomains(environment: EnvironmentRecord): string[] {
   return [
     `admin.${environment.key}.prmr.md`,
     `api.${environment.key}.prmr.md`,
-    ...environment.tenants.map((tenant) => `${tenant}.${environment.key}.prmr.md`)
   ];
 }

@@ -13,18 +13,39 @@ function createWindow(): void {
     minHeight: 720,
     title: "Primarie Composer",
     webPreferences: {
-      preload: path.join(__dirname, "../preload/preload.mjs"),
+      preload: path.join(__dirname, "../preload/preload.js"),
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: true
     }
   });
 
+  attachDebugHandlers(mainWindow);
+  mainWindow.webContents.openDevTools({ mode: "detach" });
+
   if (process.env.ELECTRON_RENDERER_URL) {
     void mainWindow.loadURL(process.env.ELECTRON_RENDERER_URL);
   } else {
     void mainWindow.loadFile(path.join(__dirname, "../renderer/index.html"));
   }
+}
+
+function attachDebugHandlers(window: BrowserWindow): void {
+  window.webContents.on("console-message", (_event, level, message, line, sourceId) => {
+    console.log(`[renderer:${level}] ${message} (${sourceId}:${line})`);
+  });
+
+  window.webContents.on("did-fail-load", (_event, errorCode, errorDescription, validatedURL) => {
+    console.error(`[renderer:load-failed] ${errorCode} ${errorDescription} ${validatedURL}`);
+  });
+
+  window.webContents.on("render-process-gone", (_event, details) => {
+    console.error("[renderer:process-gone]", details);
+  });
+
+  window.webContents.on("preload-error", (_event, preloadPath, error) => {
+    console.error(`[preload:error] ${preloadPath}`, error);
+  });
 }
 
 app.whenReady().then(() => {

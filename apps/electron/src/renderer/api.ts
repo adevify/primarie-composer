@@ -1,4 +1,4 @@
-import type { AuthSession, CreateEnvironmentInput, EnvironmentRecord, SyncFilesInput } from "./types";
+import type { AuthSession, CreateEnvironmentInput, EnvironmentLog, EnvironmentRecord, SyncFilesInput } from "./types";
 
 type RequestOptions = {
   method?: string;
@@ -17,24 +17,25 @@ export class ApiError extends Error {
 }
 
 export class ComposerApiClient {
-  constructor(private session: AuthSession) {}
+  constructor(private session: AuthSession) { }
 
   updateSession(session: AuthSession): void {
     this.session = session;
   }
 
-  async login(baseUrl: string, accessKey: string): Promise<AuthSession> {
+  async login(baseUrl: string, email: string, password: string): Promise<AuthSession> {
     const response = await fetch(`${normalizeBaseUrl(baseUrl)}/auth/login`, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ accessKey })
+      body: JSON.stringify({ email, password })
     });
-    const data = await parseResponse<{ accessToken: string; expiresAt?: string; expiresIn?: string }>(response);
+    const data = await parseResponse<{ accessToken: string; expiresAt?: string; expiresIn?: string; user?: AuthSession["user"] }>(response);
 
     return {
       apiBaseUrl: normalizeBaseUrl(baseUrl),
       accessToken: data.accessToken,
-      expiresAt: data.expiresAt ?? data.expiresIn
+      expiresAt: data.expiresAt ?? data.expiresIn,
+      user: data.user
     };
   }
 
@@ -78,13 +79,20 @@ export class ComposerApiClient {
     return this.request<EnvironmentRecord>(`/environments/${encodeURIComponent(key)}/restart`, { method: "POST" });
   }
 
+  resumeEnvironment(key: string): Promise<EnvironmentRecord> {
+    return this.request<EnvironmentRecord>(`/environments/${encodeURIComponent(key)}/resume`, { method: "POST" });
+  }
+
+  logs(key: string): Promise<EnvironmentLog[]> {
+    return this.request<EnvironmentLog[]>(`/environments/${encodeURIComponent(key)}/logs`);
+  }
+
   async deleteEnvironment(key: string): Promise<void> {
     await this.request<void>(`/environments/${encodeURIComponent(key)}`, { method: "DELETE" });
   }
 
-  syncFiles(key: string, input: SyncFilesInput): Promise<{ ok?: boolean }> {
-    // TODO: Backend endpoint is assumed until server-side file sync is implemented.
-    return this.request<{ ok?: boolean }>(`/environments/${encodeURIComponent(key)}/sync-files`, {
+  syncFiles(key: string, input: SyncFilesInput): Promise<EnvironmentRecord> {
+    return this.request<EnvironmentRecord>(`/environments/${encodeURIComponent(key)}/sync-files`, {
       method: "POST",
       body: input
     });

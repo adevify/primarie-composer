@@ -4,17 +4,19 @@ import { FormEvent, useState } from "react";
 type LoginViewProps = {
   loading: boolean;
   error?: string;
-  onLogin: (baseUrl: string, accessKey: string) => Promise<void>;
+  onLogin: (baseUrl: string, email: string, password: string) => Promise<void>;
 };
 
 export function LoginView({ loading, error, onLogin }: LoginViewProps) {
-  const [baseUrl, setBaseUrl] = useState("http://localhost:3000");
-  const [accessKey, setAccessKey] = useState("");
+  const [baseUrl, setBaseUrl] = useState("http://localhost");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   async function submit(event: FormEvent): Promise<void> {
     event.preventDefault();
-    await onLogin(baseUrl, accessKey);
-    setAccessKey("");
+    await onLogin(baseUrl, email, password);
+    setEmail("");
+    setPassword("");
   }
 
   return (
@@ -39,10 +41,16 @@ export function LoginView({ loading, error, onLogin }: LoginViewProps) {
               required
             />
             <TextField
-              label="Access Key"
+              label="Email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              fullWidth
+            />
+            <TextField
+              label="Password"
               type="password"
-              value={accessKey}
-              onChange={(event) => setAccessKey(event.target.value)}
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
               fullWidth
               required
             />

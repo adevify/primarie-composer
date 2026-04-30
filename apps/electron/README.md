@@ -38,7 +38,8 @@ Body:
 
 ```json
 {
-  "accessKey": "..."
+  "accessKey": "...",
+  "operatorName": "Arsenii"
 }
 ```
 
@@ -60,6 +61,7 @@ Stored locally:
 - `expiresAt`
 
 The access key is not stored. The first version uses `localStorage` with TODOs to move JWT storage to OS keychain or encrypted storage.
+The optional operator name is used by the API to group environments by creator.
 
 ## Token Verification
 
@@ -130,18 +132,32 @@ When creating an environment with `Use current repo state` enabled, the app refr
 
 Expected backend behavior:
 
+- clone the configured remote repository into the generated environment folder
 - checkout server repo to `source.branch`
 - checkout exact `source.commit`
 - apply `changedFiles`
+- create a MongoDB seed dump folder from the selected seed key
+- start Docker Compose so MongoDB imports the seed collections
 - create and run the environment
 
-Docker, MongoDB seed setup, server-side Git checkout, changed-file application, and environment lifecycle are API responsibilities only.
+The response includes the generated unique environment key, assigned port, domains, and a `config` object that mirrors the runtime settings returned to the app.
+
+After login, the app loads all environments and groups them by GitHub PR when `pullRequest` metadata exists, otherwise by creator. Operators can stop environments and reuse environments they own.
+
+Docker, seed setup, server-side Git checkout, changed-file application, and environment lifecycle are API responsibilities only.
 
 ## Continuous Sync
 
 After an environment is created, it becomes the active sync target and the app starts watching the selected local repo. Operators can also select an active environment manually and use Start sync / Stop sync.
 
-The watcher runs in the Electron main process with `chokidar`, debounces changes by 500ms, batches file changes, reads changed file content, and sends:
+The watcher runs in the Electron main process with `chokidar` and a lightweight Git-state poller. On startup, file changes, branch changes, commit changes, or `git status` changes, it refreshes:
+
+- current branch
+- current commit
+- `git status --porcelain`
+- changed file payloads for files Git reports as changed
+
+It then sends only those Git-status changed files:
 
 ```http
 POST /environments/:key/sync-files
@@ -163,7 +179,7 @@ Body:
 }
 ```
 
-TODO: The sync endpoint is assumed until the backend implements server-side file application.
+The first API implementation records the latest branch, commit, and changed-file payload metadata for the environment. Server-side file application can be expanded behind the same endpoint.
 
 ## Ignored Folders and Files
 

@@ -1,5 +1,6 @@
 import { contextBridge, ipcRenderer } from "electron";
 import type { ChangedFilePayload, GitState } from "./git.js";
+import type { RepoSyncSnapshot } from "./file-sync.js";
 
 const electronAPI = {
   selectDirectory: (): Promise<string | null> => ipcRenderer.invoke("repo:select-directory"),
@@ -12,6 +13,11 @@ const electronAPI = {
     const listener = (_event: Electron.IpcRendererEvent, files: ChangedFilePayload[]) => callback(files);
     ipcRenderer.on("repo-file-changed", listener);
     return () => ipcRenderer.removeListener("repo-file-changed", listener);
+  },
+  onRepoSyncSnapshot: (callback: (snapshot: RepoSyncSnapshot) => void): (() => void) => {
+    const listener = (_event: Electron.IpcRendererEvent, snapshot: RepoSyncSnapshot) => callback(snapshot);
+    ipcRenderer.on("repo-sync-snapshot", listener);
+    return () => ipcRenderer.removeListener("repo-sync-snapshot", listener);
   },
   onRepoWatchError: (callback: (message: string) => void): (() => void) => {
     const listener = (_event: Electron.IpcRendererEvent, message: string) => callback(message);

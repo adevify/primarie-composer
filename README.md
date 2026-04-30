@@ -2,7 +2,7 @@
 
 Initial environment orchestration service for `primarie.md`.
 
-The central API accepts authenticated requests from the local Electron app, creates isolated Docker Compose environments from templates and seed JSON files, and stores environment metadata in MongoDB.
+The central API accepts authenticated requests from the local Electron app, creates isolated Docker Compose environments from templates and seed JSON files, and stores environment metadata in `runtime/environments.json`.
 
 ## Structure
 
@@ -11,6 +11,8 @@ apps/api                 TypeScript Express API
 templates/environment   Per-environment Docker Compose template
 seeds/default           Seed JSON copied into generated environments
 runtime/environments    Generated environment folders, gitignored in normal use
+runtime/environments.json File-backed environment registry
+proxy                   Nginx proxy that asks the API before routing subdomains
 ```
 
 ## Run the central API
@@ -21,15 +23,17 @@ Create a local env file:
 cp .env.example .env
 ```
 
-Edit `JWT_SECRET` and `ELECTRON_ACCESS_KEY`, then start:
+Edit `JWT_SECRET`, `ELECTRON_ACCESS_KEY`, and `SOURCE_REPO_URL`, then start:
 
 ```sh
 docker compose up --build
 ```
 
-The API listens on `http://localhost:3000` by default. MongoDB is only exposed to the Docker network, not to the host.
+The API listens on `http://localhost:3000` by default. The proxy listens on port `80` by default, configurable with `PROXY_HTTP_PORT`.
 
 The API container mounts `/var/run/docker.sock` so it can run `docker compose` for generated environments. This is powerful and should only be used on trusted local/dev hosts.
+
+The API does not require a database. Existing environments are stored in `runtime/environments.json`.
 
 ## Electron authentication
 
@@ -38,7 +42,7 @@ The Electron app calls `POST /auth/login` with the local access key from `ELECTR
 ```sh
 curl -X POST http://localhost:3000/auth/login \
   -H 'content-type: application/json' \
-  -d '{"accessKey":"replace-with-local-electron-access-key"}'
+  -d '{"accessKey":"replace-with-local-electron-access-key","operatorName":"Arsenii"}'
 ```
 
 The response contains a JWT bearer token. Send it on environment routes:
@@ -53,7 +57,22 @@ Authorization: Bearer <accessToken>
 curl -X POST http://localhost:3000/environments \
   -H 'content-type: application/json' \
   -H "authorization: Bearer $TOKEN" \
-  -d '{"key":"zg22i","seed":"default","tenants":["bardar"]}'
+  -d '{
+    "seed":"default",
+    "tenants":["bardar"],
+    "source":{
+      "branch":"feature/some-branch",
+      "commit":"abc1234567890",
+      "dirty":true,
+      "changedFiles":[
+        {
+          "path":"apps/web/src/App.tsx",
+          "status":"modified",
+          "contentBase64":"..."
+        }
+      ]
+    }
+  }'
 ```
 
 If `key` is omitted, the API generates a short lowercase key. Keys must be 4-12 lowercase letters or numbers.
@@ -63,10 +82,84 @@ The API will:
 1. assign the next available local port from `BASE_ENV_PORT` (`8001` by default),
 2. create `runtime/environments/{key}`,
 3. copy `templates/environment`,
-4. copy `seeds/{seed}` into `runtime/environments/{key}/seeds`,
-5. write `.env`,
-6. run `docker compose up -d`,
-7. store metadata in MongoDB.
+4. clone `SOURCE_REPO_URL` into `runtime/environments/{key}/repo`,
+5. checkout `source.branch`,
+6. checkout exact `source.commit`,
+7. apply `source.changedFiles` over the cloned repo,
+8. copy `seeds/{seed}` into `runtime/environments/{key}/seeds`,
+9. create `runtime/environments/{key}/mongo-dump` from seed JSON files,
+10. write `.env` and `source.json`,
+11. run `docker compose up -d`,
+12. store metadata in `runtime/environments.json`.
+
+The create response includes the generated key and runtime config:
+
+```json
+{
+  "key": "zg22i",
+  "port": 8001,
+  "status": "running",
+  "seed": "default",
+  "tenants": ["bardar"],
+  "branch": "feature/some-branch",
+  "commit": "abc1234567890",
+  "dirty": true,
+  "domains": [
+    "admin.zg22i.prmr.md",
+    "api.zg22i.prmr.md",
+    "bardar.zg22i.prmr.md"
+  ],
+  "config": {
+    "key": "zg22i",
+    "port": 8001,
+    "rootDomain": "prmr.md",
+    "seed": "default",
+    "tenants": ["bardar"],
+    "domains": [
+      "admin.zg22i.prmr.md",
+      "api.zg22i.prmr.md",
+      "bardar.zg22i.prmr.md"
+    ],
+    "runtimePath": "/app/runtime/environments/zg22i",
+    "repoPath": "/app/runtime/environments/zg22i/repo",
+    "mongoDumpPath": "/app/runtime/environments/zg22i/mongo-dump",
+    "source": {
+      "branch": "feature/some-branch",
+      "commit": "abc1234567890",
+      "dirty": true,
+      "changedFiles": []
+    }
+  }
+}
+```
+
+The API stores who created the environment from the login `operatorName`:
+
+```json
+{
+  "createdBy": {
+    "id": "electron-operator",
+    "name": "Electron operator"
+  }
+}
+```
+
+If an environment is created for a GitHub PR, include `pullRequest`:
+
+```json
+{
+  "pullRequest": {
+    "provider": "github",
+    "repository": "org/repo",
+    "number": 42,
+    "title": "Add feature",
+    "url": "https://github.com/org/repo/pull/42",
+    "headSha": "abc1234567890"
+  }
+}
+```
+
+The Electron app lists all environments after login and groups them by GitHub PR when PR metadata exists, otherwise by creating user.
 
 Example generated `.env`:
 
@@ -76,7 +169,12 @@ ENV_PORT=8001
 ROOT_DOMAIN=prmr.md
 MONGO_DATABASE=primarie_env_zg22i
 TENANTS=bardar
+SOURCE_BRANCH=feature/some-branch
+SOURCE_COMMIT=abc1234567890
+SOURCE_DIRTY=true
 ```
+
+The generated `mongo-dump` folder is mounted into the environment MongoDB container at `/docker-entrypoint-initdb.d`. Its import script loads each seed JSON file as a Mongo collection when the environment Mongo container starts with an empty data volume.
 
 ## Environment routes
 
@@ -89,8 +187,20 @@ GET    /environments/:key
 POST   /environments/:key/stop
 POST   /environments/:key/start
 POST   /environments/:key/restart
+POST   /environments/:key/reuse
+POST   /environments/:key/sync-files
 DELETE /environments/:key
+POST   /environments/pr/update
+POST   /environments/pr/merged
 ```
+
+`POST /environments/:key/reuse` can be used by the owner to start and reuse their own stopped environment.
+
+`POST /environments/:key/sync-files` receives the Electron app's latest branch, commit, and Git-status changed files for the active environment.
+
+`POST /environments/pr/update` is for GitHub PR automation. It deletes the previous environment for the same PR, then creates a new environment with a fresh generated key and the latest branch, commit, changed files, seed, and tenants.
+
+`POST /environments/pr/merged` removes environments for a PR after it is merged or closed.
 
 ## Domain model
 
@@ -101,7 +211,9 @@ zg22i -> 127.0.0.1:8001
 next  -> 127.0.0.1:8002
 ```
 
-Public domains can then be forwarded by the future main server proxy:
+Generated environments publish their assigned HTTP port on the Docker host. The top-level proxy container reaches that port through `host.docker.internal` after the API authorizes the requested host.
+
+Public domains are handled by the `proxy` service:
 
 ```text
 admin.zg22i.prmr.md  -> 127.0.0.1:8001
@@ -109,15 +221,47 @@ api.zg22i.prmr.md    -> 127.0.0.1:8001
 bardar.zg22i.prmr.md -> 127.0.0.1:8001
 ```
 
-The main proxy will terminate HTTPS on port 443 and forward plain HTTP to the assigned local environment port. It must preserve the original `Host` header because the environment-local Nginx proxy uses that header to route:
+The proxy receives requests for `*.{ENV_KEY}.{ROOT_DOMAIN}` and asks the API whether the host is allowed:
 
 ```text
-admin.{ENV_KEY}.prmr.md -> admin service
-api.{ENV_KEY}.prmr.md   -> api service
-*.{ENV_KEY}.prmr.md     -> web service
+GET /proxy/authorize
+X-Original-Host: admin.zg22i.prmr.md
 ```
 
-This repository does not implement the public `*.prmr.md` proxy yet.
+If the environment exists and is running, the API returns `204` with routing headers:
+
+```text
+X-Environment-Key: zg22i
+X-Environment-Port: 8001
+X-Upstream-Host: admin.prmr.md
+```
+
+For example, `admin.zg22i.prmr.md` is authorized as environment `zg22i`, forwarded to the assigned local environment port, and sent upstream with:
+
+```text
+Host: admin.prmr.md
+X-Original-Host: admin.zg22i.prmr.md
+```
+
+The environment-local Nginx proxy uses the rewritten `Host` header to route:
+
+```text
+admin.prmr.md -> admin service
+api.prmr.md   -> api service
+*.prmr.md     -> web service
+```
+
+Requests for unknown, stopped, or malformed environment hosts are rejected by the proxy because the API authorization check fails.
+
+The server proxy also exposes central API routes directly, without environment authorization:
+
+```text
+/health
+/auth/*
+/environments*
+```
+
+Use these through the proxy for login and environment lifecycle operations such as create, list, stop, reuse, and delete. All `/environments*` routes still require the API JWT bearer token.
 
 ## Local API development
 
@@ -127,4 +271,4 @@ npm install
 npm run dev
 ```
 
-For local development outside Docker, set `MONGO_URI`, `JWT_SECRET`, and `ELECTRON_ACCESS_KEY`. The API still expects Docker to be available on the host when creating environments.
+For local development outside Docker, set `JWT_SECRET` and `ELECTRON_ACCESS_KEY`. The API still expects Docker to be available on the host when creating environments.

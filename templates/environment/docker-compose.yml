@@ -8,7 +8,7 @@ services:
       - api
       - web
     ports:
-      - "127.0.0.1:${ENV_PORT}:80"
+      - "${ENV_PORT}:80"
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
     environment:
@@ -19,22 +19,26 @@ services:
     image: nginx:1.27-alpine
     volumes:
       - ./mock/admin.html:/usr/share/nginx/html/index.html:ro
+      - ./repo:/workspace/repo:ro
 
   api:
     image: nginx:1.27-alpine
     volumes:
       - ./mock/api.json:/usr/share/nginx/html/index.html:ro
+      - ./repo:/workspace/repo:ro
 
   web:
     image: nginx:1.27-alpine
     volumes:
       - ./mock/web.html:/usr/share/nginx/html/index.html:ro
+      - ./repo:/workspace/repo:ro
 
   mongo:
     image: mongo:7
     command: ["mongod", "--quiet"]
     volumes:
       - mongo-data:/data/db
+      - ./mongo-dump:/docker-entrypoint-initdb.d:ro
     environment:
       MONGO_INITDB_DATABASE: ${MONGO_DATABASE}
 
