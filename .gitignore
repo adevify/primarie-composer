@@ -9,3 +9,5 @@ runtime/db/*
 runtime/environments.json
 npm-debug.log*
 source
+proxy/ssl/*
+!proxy/ssl/.gitkeep
