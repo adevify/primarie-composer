@@ -193,7 +193,7 @@ export class EnvironmentsService {
       log: "Stopping environment",
     });
 
-    await this.docker.down(path.join(env.RUNTIME_DIR, record.key));
+    await this.docker.down(path.join(env.RUNTIME_DIR, record.key), this.composeLogger(key));
 
     await EnvironmentLogCollection.add({
       environmentKey: key,
@@ -216,7 +216,7 @@ export class EnvironmentsService {
     });
 
     if (record.status !== "running") {
-      await this.docker.up(path.join(env.RUNTIME_DIR, key));
+      await this.docker.up(path.join(env.RUNTIME_DIR, key), this.composeLogger(key));
 
       await EnvironmentLogCollection.add({
         environmentKey: key,
@@ -233,7 +233,7 @@ export class EnvironmentsService {
         environmentKey: key,
         log: "Starting environment",
       });
-      await this.docker.up(path.join(env.RUNTIME_DIR, key));
+      await this.docker.up(path.join(env.RUNTIME_DIR, key), this.composeLogger(key));
       await EnvironmentLogCollection.add({
         environmentKey: key,
         log: "Environment started",
@@ -257,7 +257,7 @@ export class EnvironmentsService {
       log: "Restarting environment",
     });
 
-    await this.docker.restart(path.join(env.RUNTIME_DIR, key));
+    await this.docker.restart(path.join(env.RUNTIME_DIR, key), this.composeLogger(key));
 
     await EnvironmentLogCollection.add({
       environmentKey: key,
@@ -306,7 +306,7 @@ export class EnvironmentsService {
       log: "Stopping environment",
     });
 
-    await this.docker.down(path.join(env.RUNTIME_DIR, record.key)).catch(() => undefined);
+    await this.docker.down(path.join(env.RUNTIME_DIR, record.key), this.composeLogger(key)).catch(() => undefined);
 
     await EnvironmentLogCollection.add({
       environmentKey: key,
@@ -420,6 +420,17 @@ export class EnvironmentsService {
 
     const lines = Object.entries(content).map(([name, value]) => `${name}=${escapeEnvValue(value)}`);
     await fs.writeFile(path.join(runtimePath, ".env"), `${lines.join("\n")}\n`, "utf8");
+  }
+
+  private composeLogger(environmentKey: string) {
+    return async ({ log, level }: { log: string; level: "info" | "error" }) => {
+      await EnvironmentLogCollection.add({
+        environmentKey,
+        log,
+        level,
+        system: true,
+      });
+    };
   }
 
   toOwner(user: AuthenticatedUser): EnvironmentOwner {

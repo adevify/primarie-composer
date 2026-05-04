@@ -1,19 +1,21 @@
-import { execFile } from "node:child_process";
+import { execFile, spawn } from "node:child_process";
 import { promisify } from "node:util";
 
 const execFileAsync = promisify(execFile);
 
+type ComposeLogHandler = (entry: { log: string; level: "info" | "error" }) => Promise<void> | void;
+
 export class DockerComposeService {
-  async up(composePath: string): Promise<void> {
-    await this.runCompose(composePath, ["up", "-d", "--build"]);
+  async up(composePath: string, onLog?: ComposeLogHandler): Promise<void> {
+    await this.runCompose(composePath, ["up", "-d", "--build"], onLog);
   }
 
-  async down(composePath: string): Promise<void> {
-    await this.runCompose(composePath, ["down"]);
+  async down(composePath: string, onLog?: ComposeLogHandler): Promise<void> {
+    await this.runCompose(composePath, ["down"], onLog);
   }
 
-  async restart(composePath: string): Promise<void> {
-    await this.runCompose(composePath, ["restart"]);
+  async restart(composePath: string, onLog?: ComposeLogHandler): Promise<void> {
+    await this.runCompose(composePath, ["restart"], onLog);
   }
 
   async listContainers(composePath: string): Promise<unknown[]> {
@@ -74,22 +76,70 @@ export class DockerComposeService {
     }
   }
 
-  private async runCompose(cwd: string, args: string[]): Promise<void> {
+  private async runCompose(cwd: string, args: string[], onLog?: ComposeLogHandler): Promise<void> {
     try {
-      await execFileAsync("docker compose", args, {
-        cwd,
-        maxBuffer: 1024 * 1024 * 5
-      });
+      await this.spawnCompose(cwd, "docker-compose", args, onLog);
     } catch (primaryError) {
       try {
-        await execFileAsync("docker", ["compose", ...args], {
-          cwd,
-          maxBuffer: 1024 * 1024 * 5
-        });
+        await this.spawnCompose(cwd, "docker", ["compose", ...args], onLog);
       } catch (fallbackError) {
         throw new Error(this.formatComposeError(args, primaryError, fallbackError));
       }
     }
+  }
+
+  private async spawnCompose(cwd: string, command: string, args: string[], onLog?: ComposeLogHandler): Promise<void> {
+    const child = spawn(command, args, { cwd });
+    const output: string[] = [];
+    let logQueue = Promise.resolve();
+
+    const emitLine = (line: string, level: "info" | "error") => {
+      const trimmed = line.trimEnd();
+      if (!trimmed) {
+        return;
+      }
+
+      output.push(trimmed);
+      if (onLog) {
+        logQueue = logQueue
+          .then(() => onLog({ log: `[docker compose] ${trimmed}`, level }))
+          .then(() => undefined, () => undefined);
+      }
+    };
+
+    const attachLineReader = (stream: NodeJS.ReadableStream, level: "info" | "error") => {
+      let buffer = "";
+      stream.setEncoding("utf8");
+      stream.on("data", (chunk: string) => {
+        buffer += chunk;
+        const lines = buffer.split(/\r?\n/);
+        buffer = lines.pop() ?? "";
+        for (const line of lines) {
+          emitLine(line, level);
+        }
+      });
+      stream.on("end", () => {
+        emitLine(buffer, level);
+        buffer = "";
+      });
+    };
+
+    attachLineReader(child.stdout, "info");
+    attachLineReader(child.stderr, "error");
+
+    await new Promise<void>((resolve, reject) => {
+      child.once("error", reject);
+      child.once("close", (code) => {
+        if (code === 0) {
+          resolve();
+          return;
+        }
+
+        reject(new Error(`${command} ${args.join(" ")} exited with code ${code ?? "unknown"}\n${output.join("\n")}`));
+      });
+    });
+
+    await logQueue;
   }
 
   private async runComposeWithOutput(cwd: string, args: string[]): Promise<string> {
