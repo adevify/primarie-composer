@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from "electron";
-import type { ChangedFilePayload, GitState } from "./git.js";
+import type { ChangedFilePayload, EnvExampleEntry, GitState } from "./git.js";
 import type { RepoSyncSnapshot } from "./file-sync.js";
 
 const electronAPI = {
@@ -7,6 +7,7 @@ const electronAPI = {
   getGitState: (repoPath: string): Promise<GitState> => ipcRenderer.invoke("repo:get-git-state", repoPath),
   readChangedFiles: (repoPath: string): Promise<ChangedFilePayload[]> =>
     ipcRenderer.invoke("repo:read-changed-files", repoPath),
+  readEnvExample: (repoPath: string): Promise<EnvExampleEntry[]> => ipcRenderer.invoke("repo:read-env-example", repoPath),
   startWatchingRepo: (repoPath: string): Promise<void> => ipcRenderer.invoke("repo:start-watching", repoPath),
   stopWatchingRepo: (): Promise<void> => ipcRenderer.invoke("repo:stop-watching"),
   onRepoFileChanged: (callback: (files: ChangedFilePayload[]) => void): (() => void) => {

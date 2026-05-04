@@ -189,6 +189,9 @@ POST   /environments/:key/start
 POST   /environments/:key/restart
 POST   /environments/:key/reuse
 POST   /environments/:key/sync-files
+GET    /environments/:key/containers
+GET    /environments/:key/containers/:container/files?path=/
+POST   /environments/:key/containers/:container/exec
 DELETE /environments/:key
 POST   /environments/pr/update
 POST   /environments/pr/merged
@@ -197,6 +200,8 @@ POST   /environments/pr/merged
 `POST /environments/:key/reuse` can be used by the owner to start and reuse their own stopped environment.
 
 `POST /environments/:key/sync-files` receives the Electron app's latest branch, commit, and Git-status changed files for the active environment.
+
+Container toolbox routes allow operators to inspect environment containers, browse files inside a selected container, and execute shell commands through the API. The current implementation executes commands and returns stdout/stderr; a fully interactive TTY can be layered on top later with a streaming terminal transport.
 
 `POST /environments/pr/update` is for GitHub PR automation. It deletes the previous environment for the same PR, then creates a new environment with a fresh generated key and the latest branch, commit, changed files, seed, and tenants.
 

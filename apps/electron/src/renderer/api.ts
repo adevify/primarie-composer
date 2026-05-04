@@ -1,4 +1,13 @@
-import type { AuthSession, CreateEnvironmentInput, EnvironmentLog, EnvironmentRecord, SyncFilesInput } from "./types";
+import type {
+  AuthSession,
+  ContainerExecResult,
+  ContainerFileEntry,
+  CreateEnvironmentInput,
+  EnvironmentContainer,
+  EnvironmentLogsPage,
+  EnvironmentRecord,
+  SyncFilesInput
+} from "./types";
 
 type RequestOptions = {
   method?: string;
@@ -83,8 +92,26 @@ export class ComposerApiClient {
     return this.request<EnvironmentRecord>(`/environments/${encodeURIComponent(key)}/resume`, { method: "POST" });
   }
 
-  logs(key: string): Promise<EnvironmentLog[]> {
-    return this.request<EnvironmentLog[]>(`/environments/${encodeURIComponent(key)}/logs`);
+  logs(key: string): Promise<EnvironmentLogsPage> {
+    return this.request<EnvironmentLogsPage>(`/environments/${encodeURIComponent(key)}/logs`);
+  }
+
+  listContainers(key: string): Promise<EnvironmentContainer[]> {
+    return this.request<EnvironmentContainer[]>(`/environments/${encodeURIComponent(key)}/containers`);
+  }
+
+  listContainerFiles(key: string, container: string, path: string): Promise<ContainerFileEntry[]> {
+    const params = new URLSearchParams({ path });
+    return this.request<ContainerFileEntry[]>(
+      `/environments/${encodeURIComponent(key)}/containers/${encodeURIComponent(container)}/files?${params.toString()}`
+    );
+  }
+
+  execInContainer(key: string, container: string, command: string): Promise<ContainerExecResult> {
+    return this.request<ContainerExecResult>(
+      `/environments/${encodeURIComponent(key)}/containers/${encodeURIComponent(container)}/exec`,
+      { method: "POST", body: { command } }
+    );
   }
 
   async deleteEnvironment(key: string): Promise<void> {

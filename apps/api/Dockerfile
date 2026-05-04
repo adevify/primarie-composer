@@ -21,7 +21,21 @@ ENV NODE_ENV=production
 # docker.io provides the docker CLI; docker-compose is a fallback for hosts
 # where the compose plugin is unavailable in the image package repository.
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends docker.io docker-compose git openssh-client ca-certificates \
+  && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    curl \
+    gnupg \
+    git \
+    openssh-client \
+  && install -m 0755 -d /etc/apt/keyrings \
+  && curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc \
+  && chmod a+r /etc/apt/keyrings/docker.asc \
+  && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian $(. /etc/os-release && echo "$VERSION_CODENAME") stable" \
+    > /etc/apt/sources.list.d/docker.list \
+  && apt-get update \
+  && apt-get install -y --no-install-recommends \
+    docker-ce-cli \
+    docker-compose-plugin \
   && rm -rf /var/lib/apt/lists/*
 
 COPY --from=deps /app/node_modules ./node_modules

@@ -1,6 +1,6 @@
 import { app, BrowserWindow, dialog, ipcMain, type OpenDialogOptions } from "electron";
 import path from "node:path";
-import { assertRepoPath, getGitState, readChangedFiles } from "./git.js";
+import { assertRepoPath, getGitState, readChangedFiles, readEnvExample } from "./git.js";
 import { startWatchingRepo, stopWatchingRepo } from "./file-sync.js";
 
 let mainWindow: BrowserWindow | null = null;
@@ -93,6 +93,10 @@ function registerIpcHandlers(): void {
 
   ipcMain.handle("repo:read-changed-files", async (_event, repoPath: unknown) => {
     return readChangedFiles(validateRepoPathInput(repoPath));
+  });
+
+  ipcMain.handle("repo:read-env-example", async (_event, repoPath: unknown) => {
+    return readEnvExample(validateRepoPathInput(repoPath));
   });
 
   ipcMain.handle("repo:start-watching", (_event, repoPath: unknown) => {

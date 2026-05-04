@@ -7,7 +7,7 @@ export type EnvironmentOwner = {
   name: string;
 };
 
-export const keySchema = z.string().regex(/^[a-z0-9]{4,12}$/);
+export const keySchema = z.string().regex(/^[a-z]+-[a-z]+$/);
 export const changedFileSchema = z.object({
   path: z.string().min(1),
   status: z.enum(["modified", "added", "deleted"]),
@@ -26,7 +26,7 @@ export type EnvironmentSource = z.infer<typeof sourceSchema>;
 export const syncFilesSchema = z.object({
   branch: z.string().min(1),
   commit: z.string().min(7),
-  files: z.array(changedFileSchema).default([])
+  files: z.array(changedFileSchema)
 });
 
 export type SyncFilesPayload = z.infer<typeof syncFilesSchema>;
@@ -40,7 +40,8 @@ export type PullRequestRef = z.infer<typeof pullRequestSchema>;
 
 export const createEnvironmentSchema = z.object({
   seed: z.string().regex(/^[a-zA-Z0-9_-]+$/).default("default"),
-  source: sourceSchema
+  source: sourceSchema,
+  env: z.record(z.string(), z.string()).default({})
 });
 
 export type CreateEnvironmentPayload = z.infer<typeof createEnvironmentSchema>;

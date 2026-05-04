@@ -1,4 +1,4 @@
-import { Alert, Button, Card, CardContent, Stack, Typography } from "@mui/material";
+import { Alert, Card, CardContent, IconButton, Stack, Tooltip, Typography } from "@mui/material";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 
 type RepoPickerProps = {
@@ -10,16 +10,24 @@ type RepoPickerProps = {
 export function RepoPicker({ repoPath, error, onChooseRepo }: RepoPickerProps) {
   return (
     <Card>
-      <CardContent>
-        <Stack spacing={2}>
-          <Typography variant="h6">Local repository</Typography>
+      <CardContent sx={{ p: 1.5, "&:last-child": { pb: 1.5 } }}>
+        <Stack spacing={1}>
           {error ? <Alert severity="error">{error}</Alert> : null}
-          <Typography variant="body2" color={repoPath ? "text.primary" : "text.secondary"} sx={{ wordBreak: "break-all" }}>
-            {repoPath || "Choose the repository whose branch, commit, and local changes should be mirrored."}
-          </Typography>
-          <Button variant="contained" startIcon={<FolderOpenIcon />} onClick={onChooseRepo} sx={{ alignSelf: "flex-start" }}>
-            Choose local repository
-          </Button>
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Stack spacing={0.25} sx={{ minWidth: 0, flex: 1 }}>
+              <Typography variant="caption" color="text.secondary" fontWeight={800}>
+                Local repository
+              </Typography>
+              <Typography variant="body2" color={repoPath ? "text.primary" : "text.secondary"} noWrap title={repoPath || undefined}>
+                {repoPath || "Not selected"}
+              </Typography>
+            </Stack>
+            <Tooltip title="Choose local repository">
+              <IconButton aria-label="choose local repository" onClick={onChooseRepo} size="small">
+                <FolderOpenIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          </Stack>
         </Stack>
       </CardContent>
     </Card>

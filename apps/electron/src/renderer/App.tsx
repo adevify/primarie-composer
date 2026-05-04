@@ -1,19 +1,22 @@
-import { Alert, Box, CircularProgress, Grid, Stack, Typography } from "@mui/material";
+import { Alert, Box, Button, CircularProgress, Dialog, DialogContent, DialogTitle, Stack, Typography } from "@mui/material";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ApiError, ComposerApiClient, isSessionExpired, normalizeBaseUrl } from "./api";
+import { ActiveEnvironmentCard } from "./components/ActiveEnvironmentCard";
 import { DashboardLayout } from "./components/DashboardLayout";
 import { EnvironmentCreateForm } from "./components/EnvironmentCreateForm";
 import { EnvironmentDetails } from "./components/EnvironmentDetails";
+import { EnvironmentEnvDialog } from "./components/EnvironmentEnvDialog";
 import { EnvironmentList } from "./components/EnvironmentList";
 import { GitStatusCard } from "./components/GitStatusCard";
+import { LatestChangesCard, type LatestChangeEvent } from "./components/LatestChangesCard";
 import { LoginView } from "./components/LoginView";
 import { RepoPicker } from "./components/RepoPicker";
-import { SyncStatusCard } from "./components/SyncStatusCard";
-import type { AuthSession, ChangedFilePayload, EnvironmentRecord, GitState, RepoSyncSnapshot, SyncState } from "./types";
+import type { AuthSession, ChangedFilePayload, EnvExampleEntry, EnvironmentLog, EnvironmentRecord, EnvironmentSource, GitState, RepoSyncSnapshot, SyncState } from "./types";
 
 const AUTH_STORAGE_KEY = "primarie-composer.auth";
 const REPO_STORAGE_KEY = "primarie-composer.repoPath";
 const ACTIVE_ENV_STORAGE_KEY = "primarie-composer.activeEnvironmentKey";
+const MAX_SYNC_CHUNK_CONTENT_LENGTH = 750 * 1024;
 
 export default function App() {
   const electronBridge = window.primarieElectron;
@@ -31,7 +34,17 @@ export default function App() {
   const [environmentsError, setEnvironmentsError] = useState<string>();
   const [createLoading, setCreateLoading] = useState(false);
   const [createError, setCreateError] = useState<string>();
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [pendingCreate, setPendingCreate] = useState<{ seed: string; source: EnvironmentSource }>();
+  const [envExampleEntries, setEnvExampleEntries] = useState<EnvExampleEntry[]>([]);
+  const [envDialogOpen, setEnvDialogOpen] = useState(false);
+  const [monitoredEnvironmentKey, setMonitoredEnvironmentKey] = useState<string>();
+  const [monitoredEnvironment, setMonitoredEnvironment] = useState<EnvironmentRecord>();
+  const [creationLogs, setCreationLogs] = useState<EnvironmentLog[]>([]);
+  const [creationMonitorLoading, setCreationMonitorLoading] = useState(false);
+  const [creationMonitorError, setCreationMonitorError] = useState<string>();
   const [detailsEnvironment, setDetailsEnvironment] = useState<EnvironmentRecord>();
+  const [latestChanges, setLatestChanges] = useState<LatestChangeEvent[]>([]);
   const [syncState, setSyncState] = useState<SyncState>({
     watching: false,
     activeEnvironmentKey: localStorage.getItem(ACTIVE_ENV_STORAGE_KEY) ?? "",
@@ -122,16 +135,73 @@ export default function App() {
   }, [api, refreshEnvironments]);
 
   useEffect(() => {
+    if (!api || !monitoredEnvironmentKey) {
+      return undefined;
+    }
+
+    let cancelled = false;
+    let interval: NodeJS.Timeout | undefined;
+
+    async function pollCreation(): Promise<void> {
+      if (!api || !monitoredEnvironmentKey || cancelled) {
+        return;
+      }
+
+      setCreationMonitorLoading(true);
+      setCreationMonitorError(undefined);
+      try {
+        const [environment, logsPage] = await Promise.all([
+          api.getEnvironment(monitoredEnvironmentKey),
+          api.logs(monitoredEnvironmentKey)
+        ]);
+
+        if (cancelled) {
+          return;
+        }
+
+        setMonitoredEnvironment(environment);
+        setCreationLogs(logsPage.items);
+        setEnvironments((current) => [environment, ...current.filter((item) => item.key !== environment.key)]);
+        if (detailsEnvironment?.key === environment.key) {
+          setDetailsEnvironment(environment);
+        }
+
+        if (environment.status !== "creating" && interval) {
+          clearInterval(interval);
+          interval = undefined;
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setCreationMonitorError(toErrorMessage(error));
+          if (isUnauthorized(error)) {
+            logout();
+          }
+        }
+      } finally {
+        if (!cancelled) {
+          setCreationMonitorLoading(false);
+        }
+      }
+    }
+
+    void pollCreation();
+    interval = setInterval(() => {
+      void pollCreation();
+    }, 1500);
+
+    return () => {
+      cancelled = true;
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [api, monitoredEnvironmentKey, detailsEnvironment?.key, logout]);
+
+  useEffect(() => {
     if (session && repoPath) {
       void refreshGitState();
     }
   }, [session, repoPath, refreshGitState]);
-
-  useEffect(() => {
-    if (session && repoPath && syncState.activeEnvironmentKey && !syncState.watching) {
-      void startSync(syncState.activeEnvironmentKey);
-    }
-  }, [session, repoPath, syncState.activeEnvironmentKey, syncState.watching]);
 
   useEffect(() => {
     if (!electronBridge) {
@@ -190,7 +260,7 @@ export default function App() {
     }
   }
 
-  async function createEnvironment(input: { key?: string; useCurrentRepoState: boolean }): Promise<void> {
+  async function createEnvironment(input: { seed: string; useCurrentRepoState: boolean }): Promise<void> {
     if (!api) {
       return;
     }
@@ -207,25 +277,57 @@ export default function App() {
         if (!electronBridge) {
           throw new Error("Electron preload bridge is unavailable.");
         }
-        const changedFiles = await electronBridge.readChangedFiles(repoPath);
         source = {
           branch: latestGitState.branch,
-          commit: latestGitState.commit,
-          dirty: latestGitState.isDirty,
-          changedFiles: changedFiles.filter((file) => !file.warning)
+          commit: latestGitState.commit
         };
       }
 
+      if (!source) {
+        throw new Error("Current repo state is required to create an environment.");
+      }
+
+      if (!electronBridge) {
+        throw new Error("Electron preload bridge is unavailable.");
+      }
+
+      const envEntries = await readEnvExampleEntries(repoPath);
+      setPendingCreate({ seed: input.seed, source });
+      setEnvExampleEntries(envEntries);
+      setEnvDialogOpen(true);
+      setCreateDialogOpen(false);
+    } catch (error) {
+      setCreateError(toErrorMessage(error));
+      if (isUnauthorized(error)) {
+        logout();
+      }
+    } finally {
+      setCreateLoading(false);
+    }
+  }
+
+  async function submitPendingCreate(envValues: Record<string, string>): Promise<void> {
+    if (!api || !pendingCreate) {
+      return;
+    }
+
+    setCreateLoading(true);
+    setCreateError(undefined);
+    try {
       const created = await api.createEnvironment({
-        key: input.key,
-        source
+        ...pendingCreate,
+        env: envValues
       });
 
-      setEnvironments((current) => [decorateEnvironment(created), ...current.filter((item) => item.key !== created.key)]);
+      setEnvDialogOpen(false);
+      setPendingCreate(undefined);
+      setEnvironments((current) => [created, ...current.filter((item) => item.key !== created.key)]);
+      setMonitoredEnvironment(created);
+      setMonitoredEnvironmentKey(created.key);
+      setCreationLogs([]);
+      setCreationMonitorError(undefined);
+      setDetailsEnvironment(created);
       setActiveEnvironment(created.key);
-      if (repoPath) {
-        await startSync(created.key);
-      }
       await refreshEnvironments();
     } catch (error) {
       setCreateError(toErrorMessage(error));
@@ -244,20 +346,28 @@ export default function App() {
 
     setEnvironmentsError(undefined);
     try {
+      let updatedEnvironment: EnvironmentRecord | undefined;
       if (action === "start") {
-        await api.startEnvironment(key);
+        updatedEnvironment = await api.startEnvironment(key);
       } else if (action === "stop") {
-        await api.stopEnvironment(key);
+        updatedEnvironment = await api.stopEnvironment(key);
       } else if (action === "restart") {
-        await api.restartEnvironment(key);
+        updatedEnvironment = await api.restartEnvironment(key);
       } else if (action === "resume") {
-        await api.resumeEnvironment(key);
+        updatedEnvironment = await api.resumeEnvironment(key);
       } else {
         await api.deleteEnvironment(key);
       }
       if (action === "start" || action === "restart" || action === "resume") {
         setActiveEnvironment(key);
-        await startSync(key);
+      }
+      if ((action === "stop" || action === "delete") && syncState.activeEnvironmentKey === key) {
+        await stopSync();
+      }
+      if (updatedEnvironment) {
+        setDetailsEnvironment(updatedEnvironment);
+      } else if (detailsEnvironment?.key === key) {
+        setDetailsEnvironment(undefined);
       }
       await refreshEnvironments();
     } catch (error) {
@@ -268,9 +378,59 @@ export default function App() {
     }
   }
 
+  async function listContainers(key: string) {
+    if (!api) {
+      throw new Error("API client is unavailable.");
+    }
+    return api.listContainers(key);
+  }
+
+  async function listContainerFiles(key: string, container: string, path: string) {
+    if (!api) {
+      throw new Error("API client is unavailable.");
+    }
+    return api.listContainerFiles(key, container, path);
+  }
+
+  async function execInContainer(key: string, container: string, command: string) {
+    if (!api) {
+      throw new Error("API client is unavailable.");
+    }
+    return api.execInContainer(key, container, command);
+  }
+
+  async function getEnvironmentLogs(key: string): Promise<EnvironmentLog[]> {
+    if (!api) {
+      throw new Error("API client is unavailable.");
+    }
+    return (await api.logs(key)).items;
+  }
+
+  async function readEnvExampleEntries(path: string): Promise<EnvExampleEntry[]> {
+    if (!electronBridge) {
+      throw new Error("Electron preload bridge is unavailable.");
+    }
+
+    try {
+      return await electronBridge.readEnvExample(path);
+    } catch (error) {
+      const message = toErrorMessage(error);
+      if (message.includes("No handler registered for 'repo:read-env-example'")) {
+        pushSyncError("Restart Electron to enable .env reading. Continuing without env defaults.");
+        return [];
+      }
+      throw error;
+    }
+  }
+
   function setActiveEnvironment(key: string): void {
-    localStorage.setItem(ACTIVE_ENV_STORAGE_KEY, key);
-    setSyncState((current) => ({ ...current, activeEnvironmentKey: key }));
+    void electronBridge?.stopWatchingRepo();
+    if (key) {
+      localStorage.setItem(ACTIVE_ENV_STORAGE_KEY, key);
+    } else {
+      localStorage.removeItem(ACTIVE_ENV_STORAGE_KEY);
+    }
+    setSyncState((current) => ({ ...current, activeEnvironmentKey: key, watching: false }));
   }
 
   async function startSync(overrideKey?: string): Promise<void> {
@@ -297,6 +457,7 @@ export default function App() {
 
   async function handleRepoSyncSnapshot(snapshot: RepoSyncSnapshot): Promise<void> {
     setGitState(snapshot.gitState);
+    recordLatestChanges(snapshot.files);
 
     if (!api || !repoPath || !syncState.activeEnvironmentKey) {
       return;
@@ -305,12 +466,15 @@ export default function App() {
     try {
       const syncableFiles = snapshot.files.filter((file) => !file.warning);
       snapshot.files.filter((file) => file.warning).forEach((file) => pushSyncError(`${file.path}: ${file.warning}`));
+      const chunks = chunkChangedFiles(syncableFiles);
 
-      await api.syncFiles(syncState.activeEnvironmentKey, {
-        branch: snapshot.gitState.branch,
-        commit: snapshot.gitState.commit,
-        files: syncableFiles
-      });
+      for (const files of chunks) {
+        await api.syncFiles(syncState.activeEnvironmentKey, {
+          branch: snapshot.gitState.branch,
+          commit: snapshot.gitState.commit,
+          files
+        });
+      }
 
       setSyncState((current) => ({
         ...current,
@@ -328,6 +492,22 @@ export default function App() {
 
   function pushSyncError(message: string): void {
     setSyncState((current) => ({ ...current, errors: [...current.errors.slice(-4), message] }));
+  }
+
+  function recordLatestChanges(files: ChangedFilePayload[]): void {
+    if (files.length === 0) {
+      return;
+    }
+
+    const at = new Date().toISOString();
+    const events = files.map((file, index) => ({
+      id: `${at}-${index}-${file.path}`,
+      path: file.path,
+      status: file.warning ? "skipped" : file.status,
+      at,
+      warning: file.warning
+    }));
+    setLatestChanges((current) => [...events, ...current].slice(0, 12));
   }
 
   if (authLoading) {
@@ -357,35 +537,74 @@ export default function App() {
   }
 
   return (
-    <DashboardLayout apiBaseUrl={session.apiBaseUrl} onLogout={logout}>
+    <DashboardLayout
+      apiBaseUrl={session.apiBaseUrl}
+      onLogout={logout}
+      sidebar={
+        <Stack spacing={2}>
+          <RepoPicker repoPath={repoPath} error={repoError} onChooseRepo={chooseRepo} />
+          <ActiveEnvironmentCard
+            environments={environments}
+            activeEnvironmentKey={syncState.activeEnvironmentKey}
+            repoPath={repoPath}
+            syncState={syncState}
+            onStartSync={() => startSync()}
+            onStopSync={stopSync}
+          />
+          <GitStatusCard gitState={gitState} loading={gitLoading} error={gitError} />
+          <LatestChangesCard events={latestChanges} />
+        </Stack>
+      }
+    >
       <Stack spacing={3}>
-        <RepoPicker repoPath={repoPath} error={repoError} onChooseRepo={chooseRepo} />
         {!repoPath ? <Alert severity="info">Choose a local repository before creating or syncing environments.</Alert> : null}
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={4}>
-            <Stack spacing={3}>
-              <GitStatusCard gitState={gitState} loading={gitLoading} error={gitError} />
-              <SyncStatusCard repoPath={repoPath} gitState={gitState} syncState={syncState} onStart={() => startSync()} onStop={stopSync} />
-            </Stack>
-          </Grid>
-          <Grid item xs={12} md={8}>
-            <Stack spacing={3}>
-              <EnvironmentCreateForm disabled={!repoPath} loading={createLoading} error={createError} onCreate={createEnvironment} />
-              <EnvironmentList
-                environments={environments.map(decorateEnvironment)}
-                loading={environmentsLoading}
-                error={environmentsError}
-                activeEnvironmentKey={syncState.activeEnvironmentKey}
-                onRefresh={refreshEnvironments}
-                onSelectActive={setActiveEnvironment}
-                onDetails={setDetailsEnvironment}
-                onAction={runEnvironmentAction}
-              />
-            </Stack>
-          </Grid>
-        </Grid>
+        <Stack direction="row" justifyContent="flex-end">
+          <Button variant="contained" disabled={!repoPath} onClick={() => setCreateDialogOpen(true)}>
+            Create environment
+          </Button>
+        </Stack>
+        {detailsEnvironment ? (
+          <EnvironmentDetails
+            environment={detailsEnvironment}
+            open={Boolean(detailsEnvironment)}
+            onClose={() => setDetailsEnvironment(undefined)}
+            onListContainers={listContainers}
+            onListContainerFiles={listContainerFiles}
+            onExecInContainer={execInContainer}
+            onGetLogs={getEnvironmentLogs}
+            onAction={runEnvironmentAction}
+          />
+        ) : (
+          <EnvironmentList
+            environments={environments}
+            loading={environmentsLoading}
+            error={environmentsError}
+            activeEnvironmentKey={syncState.activeEnvironmentKey}
+            onRefresh={refreshEnvironments}
+            onSelectActive={setActiveEnvironment}
+            onDetails={setDetailsEnvironment}
+            onAction={runEnvironmentAction}
+          />
+        )}
       </Stack>
-      <EnvironmentDetails environment={detailsEnvironment ? decorateEnvironment(detailsEnvironment) : undefined} open={Boolean(detailsEnvironment)} onClose={() => setDetailsEnvironment(undefined)} />
+      <Dialog open={createDialogOpen} onClose={createLoading ? undefined : () => setCreateDialogOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Create environment</DialogTitle>
+        <DialogContent>
+          <EnvironmentCreateForm disabled={!repoPath} loading={createLoading} error={createError} onCreate={createEnvironment} />
+        </DialogContent>
+      </Dialog>
+      <EnvironmentEnvDialog
+        open={envDialogOpen}
+        entries={envExampleEntries}
+        loading={createLoading}
+        onCancel={() => {
+          if (!createLoading) {
+            setEnvDialogOpen(false);
+            setPendingCreate(undefined);
+          }
+        }}
+        onSubmit={submitPendingCreate}
+      />
     </DashboardLayout>
   );
 }
@@ -408,14 +627,6 @@ function clearSavedSession(): void {
   localStorage.removeItem(AUTH_STORAGE_KEY);
 }
 
-function decorateEnvironment(environment: EnvironmentRecord): EnvironmentRecord {
-  const domains = environment.domains ?? [
-    `admin.${environment.key}.prmr.md`,
-    `api.${environment.key}.prmr.md`,
-  ];
-  return { ...environment, domains };
-}
-
 function toErrorMessage(error: unknown): string {
   if (error instanceof Error) {
     return error.message;
@@ -425,4 +636,28 @@ function toErrorMessage(error: unknown): string {
 
 function isUnauthorized(error: unknown): boolean {
   return error instanceof ApiError && error.status === 401;
+}
+
+function chunkChangedFiles(files: ChangedFilePayload[]): ChangedFilePayload[][] {
+  const chunks: ChangedFilePayload[][] = [];
+  let currentChunk: ChangedFilePayload[] = [];
+  let currentLength = 0;
+
+  for (const file of files) {
+    const contentLength = file.contentBase64?.length ?? 0;
+    if (currentChunk.length > 0 && currentLength + contentLength > MAX_SYNC_CHUNK_CONTENT_LENGTH) {
+      chunks.push(currentChunk);
+      currentChunk = [];
+      currentLength = 0;
+    }
+
+    currentChunk.push(file);
+    currentLength += contentLength;
+  }
+
+  if (currentChunk.length > 0) {
+    chunks.push(currentChunk);
+  }
+
+  return chunks;
 }

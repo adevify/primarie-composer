@@ -21,6 +21,11 @@ export type RepoSyncSnapshot = {
   files: ChangedFilePayload[];
 };
 
+export type EnvExampleEntry = {
+  key: string;
+  value: string;
+};
+
 export type AuthSession = {
   apiBaseUrl: string;
   accessToken: string;
@@ -33,65 +38,73 @@ export type EnvironmentStatus = "creating" | "running" | "stopped" | "error";
 export type EnvironmentSource = {
   branch: string;
   commit: string;
-  dirty: boolean;
-  changedFiles: ChangedFilePayload[];
 };
 
 export type EnvironmentOwner = {
-  id: string;
+  email: string;
   name: string;
 };
 
 export type PullRequestRef = {
-  provider: "github";
-  repository: string;
-  number: number;
   title?: string;
   url: string;
-  headSha?: string;
-  state?: "open" | "merged" | "closed";
 };
 
 export type EnvironmentRecord = {
   key: string;
-  port?: number;
+  port: number;
   status: EnvironmentStatus;
   seed: string;
-  createdBy?: EnvironmentOwner;
-  pullRequest?: PullRequestRef;
-  branch?: string;
-  commit?: string;
-  dirty?: boolean;
-  source?: EnvironmentSource;
-  createdAt?: string;
-  updatedAt?: string;
-  runtimePath?: string;
-  domains?: string[];
-  config?: {
-    key: string;
-    port: number;
-    rootDomain: string;
-    seed: string;
-    domains: string[];
-    runtimePath: string;
-    repoPath: string;
-    mongoDumpPath: string;
-    createdBy: EnvironmentOwner;
-    pullRequest?: PullRequestRef;
-    source?: EnvironmentSource;
-  };
+  createdBy: EnvironmentOwner | PullRequestRef;
+  source: EnvironmentSource;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type EnvironmentLog = {
+  environmentKey: string;
   createdAt: string;
   log: string;
-  level: "info" | "warn" | "error" | "debug";
+  level: "info" | "warn" | "error";
+  system: boolean;
+};
 
+export type EnvironmentLogsPage = {
+  total: number;
+  page: number;
+  perPage: number;
+  pages: number;
+  items: EnvironmentLog[];
+};
+
+export type EnvironmentContainer = {
+  ID?: string;
+  Name?: string;
+  Service?: string;
+  Image?: string;
+  State?: string;
+  Status?: string;
+  Names?: string;
+};
+
+export type ContainerFileEntry = {
+  path: string;
+  name: string;
+  type: string;
+  size?: number;
+};
+
+export type ContainerExecResult = {
+  command: string;
+  exitCode: number;
+  stdout: string;
+  stderr: string;
 };
 
 export type CreateEnvironmentInput = {
-  key?: string;
-  source?: EnvironmentSource;
+  seed: string;
+  source: EnvironmentSource;
+  env?: Record<string, string>;
 };
 
 export type SyncFilesInput = {

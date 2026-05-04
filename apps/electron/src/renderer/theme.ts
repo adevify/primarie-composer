@@ -2,19 +2,31 @@ import { createTheme } from "@mui/material/styles";
 
 export const theme = createTheme({
   palette: {
-    mode: "light",
+    mode: "dark",
     primary: {
-      main: "#2457a6"
+      main: "#1d63ed"
     },
     secondary: {
-      main: "#117865"
+      main: "#00a389"
     },
     background: {
-      default: "#f5f7fb"
+      default: "#11191f",
+      paper: "#17232c"
+    },
+    text: {
+      primary: "#edf4fa",
+      secondary: "#9fb3c3"
+    },
+    divider: "rgba(159, 179, 195, 0.18)",
+    success: {
+      main: "#00a389"
+    },
+    warning: {
+      main: "#f5a524"
     }
   },
   shape: {
-    borderRadius: 8
+    borderRadius: 6
   },
   typography: {
     fontFamily: [
@@ -26,10 +38,43 @@ export const theme = createTheme({
     ].join(",")
   },
   components: {
+    MuiCssBaseline: {
+      styleOverrides: {
+        body: {
+          backgroundColor: "#11191f"
+        },
+        "*": {
+          scrollbarColor: "#405362 #11191f"
+        }
+      }
+    },
     MuiCard: {
       styleOverrides: {
         root: {
-          boxShadow: "0 1px 3px rgba(15, 23, 42, 0.08)"
+          border: "1px solid rgba(159, 179, 195, 0.14)",
+          boxShadow: "none"
+        }
+      }
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          textTransform: "none",
+          fontWeight: 700
+        }
+      }
+    },
+    MuiChip: {
+      styleOverrides: {
+        root: {
+          fontWeight: 700
+        }
+      }
+    },
+    MuiTableCell: {
+      styleOverrides: {
+        root: {
+          borderColor: "rgba(159, 179, 195, 0.16)"
         }
       }
     }

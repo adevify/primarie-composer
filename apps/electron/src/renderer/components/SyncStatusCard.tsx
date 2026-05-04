@@ -29,7 +29,7 @@ export function SyncStatusCard({ repoPath, gitState, syncState, onStart, onStop 
               <ListItemText primary="Commit" secondary={gitState?.commit ?? "n/a"} secondaryTypographyProps={{ sx: { wordBreak: "break-all" } }} />
             </ListItem>
             <ListItem disableGutters>
-              <ListItemText primary="Dirty status" secondary={gitState?.isDirty ? "Dirty" : "Clean"} />
+              <ListItemText primary="Local changes" secondary={gitState ? `${gitState.changedFiles.length} changed files` : "n/a"} />
             </ListItem>
             <ListItem disableGutters>
               <ListItemText primary="Active environment key" secondary={syncState.activeEnvironmentKey || "None"} />

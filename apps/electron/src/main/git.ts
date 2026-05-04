@@ -24,6 +24,11 @@ export type ChangedFilePayload = {
   warning?: string;
 };
 
+export type EnvExampleEntry = {
+  key: string;
+  value: string;
+};
+
 type PorcelainEntry = {
   path: string;
   status: ChangedFileStatus;
@@ -113,6 +118,35 @@ export async function readChangedFiles(repoPath: string, specificPaths?: string[
   return payloads.filter((payload): payload is ChangedFilePayload => Boolean(payload));
 }
 
+export async function readEnvExample(repoPath: string): Promise<EnvExampleEntry[]> {
+  const resolvedRepo = assertRepoPath(repoPath);
+  const envPath = path.join(resolvedRepo, ".env");
+  const envExamplePath = path.join(resolvedRepo, ".env.example");
+  const sourcePath = existsSync(envPath) ? envPath : envExamplePath;
+
+  if (!existsSync(sourcePath)) {
+    return [];
+  }
+
+  const content = await fs.readFile(sourcePath, "utf8");
+  return content
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line && !line.startsWith("#"))
+    .map((line) => line.replace(/^export\s+/, ""))
+    .map((line) => {
+      const separatorIndex = line.indexOf("=");
+      if (separatorIndex === -1) {
+        return { key: line, value: "" };
+      }
+      return {
+        key: line.slice(0, separatorIndex).trim(),
+        value: unquoteEnvValue(line.slice(separatorIndex + 1).trim())
+      };
+    })
+    .filter((entry) => /^[A-Za-z_][A-Za-z0-9_]*$/.test(entry.key));
+}
+
 async function readChangedFile(repoPath: string, entry: PorcelainEntry): Promise<ChangedFilePayload | null> {
   const relativePath = normalizeRelativePath(entry.path);
   const absolutePath = ensureInsideRepo(repoPath, relativePath);
@@ -192,4 +226,11 @@ function isProbablyBinary(buffer: Buffer): boolean {
     }
   }
   return false;
+}
+
+function unquoteEnvValue(value: string): string {
+  if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+    return value.slice(1, -1);
+  }
+  return value;
 }

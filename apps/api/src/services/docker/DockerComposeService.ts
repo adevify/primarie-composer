@@ -5,7 +5,7 @@ const execFileAsync = promisify(execFile);
 
 export class DockerComposeService {
   async up(composePath: string): Promise<void> {
-    await this.runCompose(composePath, ["up", "-d"]);
+    await this.runCompose(composePath, ["up", "-d", "--build"]);
   }
 
   async down(composePath: string): Promise<void> {
@@ -16,21 +16,112 @@ export class DockerComposeService {
     await this.runCompose(composePath, ["restart"]);
   }
 
+  async listContainers(composePath: string): Promise<unknown[]> {
+    const output = await this.runComposeWithOutput(composePath, ["ps", "--format", "json"]);
+    return parseComposeJsonOutput(output);
+  }
+
+  async listContainerFiles(container: string, targetPath: string): Promise<Array<{ path: string; name: string; type: string; size?: number }>> {
+    this.assertContainerName(container);
+    const output = await this.runDockerWithOutput([
+      "exec",
+      "-e",
+      `TARGET_PATH=${targetPath || "/"}`,
+      container,
+      "sh",
+      "-lc",
+      [
+        'p="${TARGET_PATH:-/}"',
+        `if [ ! -e "$p" ]; then echo "Path not found: $p" >&2; exit 2; fi`,
+        `if [ -d "$p" ]; then`,
+        `  find "$p" -maxdepth 1 -mindepth 1 -exec sh -c 'for item do if [ -d "$item" ]; then type=directory; elif [ -f "$item" ]; then type=file; else type=other; fi; size=$(wc -c < "$item" 2>/dev/null || echo 0); name=$(basename "$item"); printf "%s\\t%s\\t%s\\t%s\\n" "$type" "$size" "$name" "$item"; done' sh {} +`,
+        `else`,
+        `  if [ -f "$p" ]; then type=file; elif [ -d "$p" ]; then type=directory; else type=other; fi`,
+        `  size=$(wc -c < "$p" 2>/dev/null || echo 0); name=$(basename "$p"); printf "%s\\t%s\\t%s\\t%s\\n" "$type" "$size" "$name" "$p"`,
+        `fi`
+      ].join("; ")
+    ]);
+
+    return output
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .map((line) => {
+        const [type, size, name, filePath] = line.split("\t");
+        return { type, size: Number(size), name, path: filePath };
+      });
+  }
+
+  async execInContainer(container: string, command: string): Promise<{ command: string; exitCode: number; stdout: string; stderr: string }> {
+    this.assertContainerName(container);
+    if (!command.trim()) {
+      throw Object.assign(new Error("Command is required"), { status: 400 });
+    }
+
+    try {
+      const { stdout, stderr } = await execFileAsync("docker", ["exec", "-i", container, "sh", "-lc", command], {
+        maxBuffer: 1024 * 1024 * 5
+      });
+      return { command, exitCode: 0, stdout, stderr };
+    } catch (error) {
+      const maybe = error as { code?: number; stdout?: string; stderr?: string };
+      return {
+        command,
+        exitCode: typeof maybe.code === "number" ? maybe.code : 1,
+        stdout: maybe.stdout ?? "",
+        stderr: maybe.stderr ?? (error instanceof Error ? error.message : String(error))
+      };
+    }
+  }
+
   private async runCompose(cwd: string, args: string[]): Promise<void> {
     try {
-      await execFileAsync("docker", ["compose", ...args], {
+      await execFileAsync("docker compose", args, {
         cwd,
         maxBuffer: 1024 * 1024 * 5
       });
     } catch (primaryError) {
       try {
-        await execFileAsync("docker-compose", args, {
+        await execFileAsync("docker", ["compose", ...args], {
           cwd,
           maxBuffer: 1024 * 1024 * 5
         });
       } catch (fallbackError) {
         throw new Error(this.formatComposeError(args, primaryError, fallbackError));
       }
+    }
+  }
+
+  private async runComposeWithOutput(cwd: string, args: string[]): Promise<string> {
+    try {
+      const { stdout } = await execFileAsync("docker-compose", args, {
+        cwd,
+        maxBuffer: 1024 * 1024 * 5
+      });
+      return stdout;
+    } catch (primaryError) {
+      try {
+        const { stdout } = await execFileAsync("docker", ["compose", ...args], {
+          cwd,
+          maxBuffer: 1024 * 1024 * 5
+        });
+        return stdout;
+      } catch (fallbackError) {
+        throw new Error(this.formatComposeError(args, primaryError, fallbackError));
+      }
+    }
+  }
+
+  private async runDockerWithOutput(args: string[]): Promise<string> {
+    const { stdout } = await execFileAsync("docker", args, {
+      maxBuffer: 1024 * 1024 * 5
+    });
+    return stdout;
+  }
+
+  private assertContainerName(container: string): void {
+    if (!/^[a-zA-Z0-9_.-]+$/.test(container)) {
+      throw Object.assign(new Error("Invalid container name"), { status: 400 });
     }
   }
 
@@ -46,6 +137,24 @@ export class DockerComposeService {
       .filter(Boolean)
       .join("\n--- fallback ---\n");
 
-    return `docker compose ${args.join(" ")} failed:\n${details}`;
+    return `docker-compose ${args.join(" ")} failed:\n${details}`;
+  }
+}
+
+function parseComposeJsonOutput(output: string): unknown[] {
+  const trimmed = output.trim();
+  if (!trimmed) {
+    return [];
+  }
+
+  try {
+    const parsed = JSON.parse(trimmed);
+    return Array.isArray(parsed) ? parsed : [parsed];
+  } catch {
+    return trimmed
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .map((line) => JSON.parse(line) as unknown);
   }
 }

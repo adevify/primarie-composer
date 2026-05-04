@@ -20,17 +20,16 @@ export class GitRepositoryService {
     await this.git(["reset", "--hard"], repoPath);
     await this.git(["clean", "-fd"], repoPath);
     await this.checkoutSource(repoPath, source);
-    await this.applyChangedFiles(repoPath, source.files);
   }
 
   private async checkoutSource(repoPath: string, source: EnvironmentSource): Promise<void> {
     if (source.branch && source.branch !== "HEAD") {
-      await this.git(["checkout", "-B", source.branch, `origin/${source.branch}`], repoPath);
+      await this.git(["checkout", "-f", `origin/${source.branch}`], repoPath);
     }
-    await this.git(["-c", "advice.detachedHead=false", "checkout", source.commit], repoPath);
+    await this.git(["reset", "--hard", source.commit], repoPath);
   }
 
-  private async applyChangedFiles(repoPath: string, files: ChangedFilePayload[]): Promise<void> {
+  async applyChangedFiles(repoPath: string, files: ChangedFilePayload[]): Promise<void> {
     for (const file of files) {
       const destinationPath = this.resolveInsideRepo(repoPath, file.path);
 

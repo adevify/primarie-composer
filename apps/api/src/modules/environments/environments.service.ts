@@ -1,4 +1,3 @@
-import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import net from "node:net";
 import path from "node:path";
@@ -10,7 +9,63 @@ import type { AuthenticatedUser } from "../auth/auth.middleware.js";
 import type { CreateEnvironmentPayload, EnvironmentOwner, EnvironmentSource, PullRequestRef, SyncFilesPayload } from "./environment.dtos.js";
 import { EnvironmentLogCollection } from "../../db/environment-logs.js";
 
-const keyPattern = /^[a-z0-9]{4,12}$/;
+const keyPattern = /^[a-z]+-[a-z]+$/;
+
+const keyAdjectives = [
+  "agile",
+  "brave",
+  "bright",
+  "calm",
+  "clever",
+  "cosmic",
+  "curious",
+  "daring",
+  "eager",
+  "electric",
+  "fantastic",
+  "gentle",
+  "golden",
+  "happy",
+  "lucky",
+  "magic",
+  "mighty",
+  "nimble",
+  "rapid",
+  "silent",
+  "silver",
+  "smart",
+  "steady",
+  "vivid",
+  "wild"
+];
+
+const keyNouns = [
+  "badger",
+  "beacon",
+  "comet",
+  "falcon",
+  "forest",
+  "fox",
+  "harbor",
+  "lantern",
+  "meadow",
+  "meteor",
+  "mountain",
+  "nova",
+  "otter",
+  "panda",
+  "pixel",
+  "river",
+  "rocket",
+  "sparrow",
+  "summit",
+  "tiger",
+  "valley",
+  "voyager",
+  "willow",
+  "wizard",
+  "zebra"
+];
 
 export class EnvironmentsService {
   constructor(
@@ -22,7 +77,7 @@ export class EnvironmentsService {
     const key = await this.generateKey();
 
     if (!keyPattern.test(key)) {
-      throw Object.assign(new Error("Environment key must be 4-12 lowercase letters or numbers"), { status: 400 });
+      throw Object.assign(new Error("Environment key must be a lowercase adjective-noun slug"), { status: 400 });
     }
 
     const existing = await EnvironmentCollection.getSilent(key);
@@ -52,36 +107,47 @@ export class EnvironmentsService {
       log: "Environment created",
     });
 
-    await this.git.prepareRepository(runtimePath, input.source);
+    void this.prepareEnvironment(key, runtimePath, input.source, input.env).catch(async (error) => {
+      await EnvironmentLogCollection.add({
+        environmentKey: key,
+        log: `Environment creation failed: ${error instanceof Error ? error.message : String(error)}`,
+        level: "error",
+      });
+      await this.updateStatus(key, "error").catch(() => undefined);
+    });
+
+    return record;
+  }
+
+  private async prepareEnvironment(
+    key: string,
+    runtimePath: string,
+    source: EnvironmentSource,
+    environmentVariables: Record<string, string>
+  ): Promise<void> {
+    await EnvironmentLogCollection.add({
+      environmentKey: key,
+      log: "Preparing repository",
+    });
+
+    await this.git.prepareRepository(runtimePath, source);
 
     await EnvironmentLogCollection.add({
       environmentKey: key,
       log: "Repository prepared",
     });
 
-    try {
-      await EnvironmentLogCollection.add({
-        environmentKey: key,
-        log: "Starting environment",
-      });
-      await this.docker.up(runtimePath);
+    await this.writeEnvironmentFile(runtimePath, key, {
+      ...environmentVariables,
+      HOST_1: 'prmr.md',
+      HOST_2: 'adevify.md',
+      NETWORK_NAME: `primarie-${key}-net`
+    });
 
-      await EnvironmentLogCollection.add({
-        environmentKey: key,
-        log: "Environment started",
-      });
-
-      return await this.updateStatus(key, "running");
-    } catch (error) {
-      await EnvironmentLogCollection.add({
-        environmentKey: key,
-        log: `Environment failed to start: ${error}`,
-        level: "error",
-      });
-
-      await this.updateStatus(key, "error");
-      throw error;
-    }
+    await EnvironmentLogCollection.add({
+      environmentKey: key,
+      log: "Environment variables written",
+    });
   }
 
   async list(): Promise<EnvironmentRecord[]> {
@@ -98,6 +164,25 @@ export class EnvironmentsService {
 
   async getLogs(key: string, page: number, perPage: number) {
     return EnvironmentLogCollection.list(key, page, perPage);
+  }
+
+  async listContainers(key: string): Promise<unknown[]> {
+    await this.get(key);
+    return this.docker.listContainers(path.join(env.RUNTIME_DIR, key));
+  }
+
+  async listContainerFiles(key: string, container: string, targetPath: string) {
+    await this.get(key);
+    return this.docker.listContainerFiles(container, targetPath);
+  }
+
+  async execInContainer(key: string, container: string, command: string) {
+    await this.get(key);
+    await EnvironmentLogCollection.add({
+      environmentKey: key,
+      log: `Executing in ${container}: ${command}`,
+    });
+    return this.docker.execInContainer(container, command);
   }
 
   async stop(key: string): Promise<EnvironmentRecord> {
@@ -143,16 +228,27 @@ export class EnvironmentsService {
   }
 
   async start(key: string): Promise<EnvironmentRecord> {
-    await EnvironmentLogCollection.add({
-      environmentKey: key,
-      log: "Starting environment",
-    });
-    await this.docker.up(path.join(env.RUNTIME_DIR, key));
-    await EnvironmentLogCollection.add({
-      environmentKey: key,
-      log: "Environment started",
-    });
-    return this.updateStatus(key, "running");
+    try {
+      await EnvironmentLogCollection.add({
+        environmentKey: key,
+        log: "Starting environment",
+      });
+      await this.docker.up(path.join(env.RUNTIME_DIR, key));
+      await EnvironmentLogCollection.add({
+        environmentKey: key,
+        log: "Environment started",
+      });
+      return this.updateStatus(key, "running");
+    } catch (error) {
+      await EnvironmentLogCollection.add({
+        environmentKey: key,
+        log: `Environment start failed: ${error instanceof Error ? error.message : String(error)}`,
+        level: "error",
+      });
+      await this.updateStatus(key, "error");
+
+      throw error;
+    }
   }
 
   async restart(key: string): Promise<EnvironmentRecord> {
@@ -176,14 +272,21 @@ export class EnvironmentsService {
 
     await EnvironmentLogCollection.add({
       environmentKey: key,
-      log: `Syncing files: ${input.branch}@${input.commit}${input.files.length ? ' with changed files: ' + JSON.stringify(input.files.map((file) => file.path), null, 2) : ''}`,
+      log: `Preparing environment with ${input.branch}@${input.commit}`,
     });
 
-    await this.git.updateRepository(path.join(env.RUNTIME_DIR, current.key, "repo"), input);
+    await this.git.updateRepository(path.join(env.RUNTIME_DIR, current.key), input);
 
     await EnvironmentLogCollection.add({
       environmentKey: key,
-      log: "Files synced",
+      log: "Environment prepared successfully",
+    });
+
+    await this.git.applyChangedFiles(path.join(env.RUNTIME_DIR, current.key), input.files);
+
+    await EnvironmentLogCollection.add({
+      environmentKey: key,
+      log: "Environment synced successfully",
     });
 
     return EnvironmentCollection.update(current.key, (record) => {
@@ -241,7 +344,8 @@ export class EnvironmentsService {
 
     return this.create({
       source,
-      seed: "default"
+      seed: "default",
+      env: {}
     }, pullRequest);
   }
 
@@ -286,8 +390,8 @@ export class EnvironmentsService {
   }
 
   private async generateKey(): Promise<string> {
-    for (let attempt = 0; attempt < 10; attempt += 1) {
-      const key = crypto.randomBytes(4).toString("hex").slice(0, 5);
+    for (let attempt = 0; attempt < keyAdjectives.length * keyNouns.length; attempt += 1) {
+      const key = `${randomItem(keyAdjectives)}-${randomItem(keyNouns)}`;
       const existing = await EnvironmentCollection.getSilent(key);
 
       if (!existing) return key;
@@ -305,6 +409,19 @@ export class EnvironmentsService {
     });
   }
 
+  private async writeEnvironmentFile(runtimePath: string, key: string, environmentVariables: Record<string, string>): Promise<void> {
+    const content = {
+      ...environmentVariables,
+      ENV_KEY: environmentVariables.ENV_KEY ?? key,
+      ENV_PORT: environmentVariables.ENV_PORT ?? String((await EnvironmentCollection.get(key)).port),
+      ROOT_DOMAIN: environmentVariables.ROOT_DOMAIN ?? env.ROOT_DOMAIN,
+      MONGO_DATABASE: environmentVariables.MONGO_DATABASE ?? `primarie_env_${key}`
+    };
+
+    const lines = Object.entries(content).map(([name, value]) => `${name}=${escapeEnvValue(value)}`);
+    await fs.writeFile(path.join(runtimePath, ".env"), `${lines.join("\n")}\n`, "utf8");
+  }
+
   toOwner(user: AuthenticatedUser): EnvironmentOwner {
     return {
       email: user.email,
@@ -315,4 +432,16 @@ export class EnvironmentsService {
   private samePullRequest(left: PullRequestRef, right: PullRequestRef): boolean {
     return left.url === right.url;
   }
+}
+
+function escapeEnvValue(value: string): string {
+  if (/^[A-Za-z0-9_./:@-]*$/.test(value)) {
+    return value;
+  }
+
+  return JSON.stringify(value);
+}
+
+function randomItem<T>(items: T[]): T {
+  return items[Math.floor(Math.random() * items.length)];
 }

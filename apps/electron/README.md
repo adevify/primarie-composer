@@ -6,23 +6,21 @@ The app uses Electron, React, TypeScript, Vite, MUI, and MUI icons. It does not 
 
 ## Run Electron Dev Mode
 
-Install dependencies inside this package:
+From the repository root:
 
 ```sh
-cd apps/electron
-npm install
-npm run dev
+npm run composer
 ```
 
 The API should be running separately, usually at:
 
 ```text
-http://localhost:3000
+http://localhost
 ```
 
 ## API Base URL
 
-The login screen has an API Base URL field. The default is `http://localhost:3000`.
+The login screen has an API Base URL field. The default is `http://localhost`.
 
 The value is stored after login as `apiBaseUrl`.
 
@@ -38,8 +36,8 @@ Body:
 
 ```json
 {
-  "accessKey": "...",
-  "operatorName": "Arsenii"
+  "email": "operator@example.com",
+  "password": "..."
 }
 ```
 
@@ -58,10 +56,10 @@ Stored locally:
 
 - `apiBaseUrl`
 - `accessToken`
-- `expiresAt`
+- `expiresAt` or `expiresIn`
 
-The access key is not stored. The first version uses `localStorage` with TODOs to move JWT storage to OS keychain or encrypted storage.
-The optional operator name is used by the API to group environments by creator.
+The password is not stored. The first version uses `localStorage` with TODOs to move JWT storage to OS keychain or encrypted storage.
+The API groups environments by the authenticated user.
 
 ## Token Verification
 
@@ -112,20 +110,25 @@ The renderer receives only typed data:
 }
 ```
 
-## Changed Files During Environment Creation
+## Environment Variables Before Compose
 
-When creating an environment with `Use current repo state` enabled, the app refreshes Git state, reads changed local files, base64-encodes safe text files, and sends:
+Before an environment is created, Electron reads `.env` from the selected local repository through the safe preload API. If `.env` is missing, it falls back to `.env.example`. The renderer shows a dialog for every variable in that file, allowing each environment to use different values.
+
+Those values are sent with the create request as `env`. The API writes them to `{runtime environment}/.env`, adds server defaults such as `ENV_KEY`, `ENV_PORT`, `ROOT_DOMAIN`, and `MONGO_DATABASE` when missing, and only then runs Docker Compose.
+
+## Environment Creation
+
+When creating an environment with `Use current repo state` enabled, the app refreshes Git state and sends the branch and commit:
 
 ```json
 {
-  "key": "zg22i",
   "seed": "default",
-  "tenants": ["bardar"],
   "source": {
     "branch": "feature/some-branch",
-    "commit": "abc123...",
-    "dirty": true,
-    "changedFiles": []
+    "commit": "abc1234567890"
+  },
+  "env": {
+    "SOME_APP_SETTING": "local value"
   }
 }
 ```
@@ -135,12 +138,11 @@ Expected backend behavior:
 - clone the configured remote repository into the generated environment folder
 - checkout server repo to `source.branch`
 - checkout exact `source.commit`
-- apply `changedFiles`
-- create a MongoDB seed dump folder from the selected seed key
-- start Docker Compose so MongoDB imports the seed collections
+- write `.env` from the Electron-provided values and server defaults
+- start Docker Compose for that environment folder
 - create and run the environment
 
-The response includes the generated unique environment key, assigned port, domains, and a `config` object that mirrors the runtime settings returned to the app.
+The create response immediately includes the generated unique environment key and `creating` status. The app then polls environment logs to show repository preparation, env writing, Compose startup, and final running/error state.
 
 After login, the app loads all environments and groups them by GitHub PR when `pullRequest` metadata exists, otherwise by creator. Operators can stop environments and reuse environments they own.
 

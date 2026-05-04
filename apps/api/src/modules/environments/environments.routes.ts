@@ -1,8 +1,13 @@
 import { Router } from "express";
+import z from "zod";
 import { EnvironmentsService } from "./environments.service.js";
 import { createEnvironmentSchema, syncFilesSchema } from "./environment.dtos.js";
 import { EnvironmentSource, PullRequestRef } from "./environment.dtos.js";
 
+const containerNameSchema = z.string().regex(/^[a-zA-Z0-9_.-]+$/);
+const execSchema = z.object({
+  command: z.string().min(1)
+});
 
 export function createEnvironmentRouter(): Router {
   const router = Router();
@@ -44,6 +49,44 @@ export function createEnvironmentRouter(): Router {
       const perPage = parseInt(req.query.perPage as string || "50");
 
       return res.json(await service.getLogs(req.params.key, page, perPage));
+    } catch (error) {
+      return next(error);
+    }
+  });
+
+  router.get("/:key/containers", async (req, res, next) => {
+    try {
+      return res.json(await service.listContainers(req.params.key));
+    } catch (error) {
+      return next(error);
+    }
+  });
+
+  router.get("/:key/containers/:container/files", async (req, res, next) => {
+    try {
+      const parsed = containerNameSchema.safeParse(req.params.container);
+      if (!parsed.success) {
+        return res.status(400).json({ error: parsed.error.flatten() });
+      }
+
+      return res.json(await service.listContainerFiles(req.params.key, parsed.data, String(req.query.path ?? "/")));
+    } catch (error) {
+      return next(error);
+    }
+  });
+
+  router.post("/:key/containers/:container/exec", async (req, res, next) => {
+    try {
+      const container = containerNameSchema.safeParse(req.params.container);
+      const body = execSchema.safeParse(req.body);
+      if (!container.success) {
+        return res.status(400).json({ error: container.error.flatten() });
+      }
+      if (!body.success) {
+        return res.status(400).json({ error: body.error.flatten() });
+      }
+
+      return res.json(await service.execInContainer(req.params.key, container.data, body.data.command));
     } catch (error) {
       return next(error);
     }
