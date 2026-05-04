@@ -60,6 +60,34 @@ function parseEnvironmentHost(host: string): { environmentKey: string; subdomain
   }
 
   const subdomainLabels = hostLabels.slice(0, -rootLabels.length);
+  const wildcardSafeHost = parseWildcardSafeEnvironmentHost(subdomainLabels);
+  if (wildcardSafeHost) {
+    return wildcardSafeHost;
+  }
+
+  return parseLegacyEnvironmentHost(subdomainLabels);
+}
+
+function parseWildcardSafeEnvironmentHost(subdomainLabels: string[]): { environmentKey: string; subdomain: string } | null {
+  if (subdomainLabels.length !== 1) {
+    return null;
+  }
+
+  const separatorIndex = subdomainLabels[0].lastIndexOf("_");
+  if (separatorIndex <= 0 || separatorIndex === subdomainLabels[0].length - 1) {
+    return null;
+  }
+
+  const subdomain = subdomainLabels[0].slice(0, separatorIndex);
+  const environmentKey = subdomainLabels[0].slice(separatorIndex + 1);
+  if (!keyPattern.test(environmentKey)) {
+    return null;
+  }
+
+  return { environmentKey, subdomain };
+}
+
+function parseLegacyEnvironmentHost(subdomainLabels: string[]): { environmentKey: string; subdomain: string } | null {
   if (subdomainLabels.length < 2) {
     return null;
   }

@@ -34,6 +34,7 @@ type EnvironmentDetailsProps = {
   onExecInContainer: (key: string, container: string, command: string) => Promise<ContainerExecResult>;
   onGetLogs: (key: string) => Promise<EnvironmentLog[]>;
   onAction: (key: string, action: "start" | "stop" | "restart" | "resume" | "delete") => Promise<void>;
+  logRefreshToken: number;
 };
 
 export function EnvironmentDetails({
@@ -44,7 +45,8 @@ export function EnvironmentDetails({
   onListContainerFiles,
   onExecInContainer,
   onGetLogs,
-  onAction
+  onAction,
+  logRefreshToken
 }: EnvironmentDetailsProps) {
   const [containers, setContainers] = useState<EnvironmentContainer[]>([]);
   const [logs, setLogs] = useState<EnvironmentLog[]>([]);
@@ -80,6 +82,14 @@ export function EnvironmentDetails({
 
     return () => clearInterval(interval);
   }, [open, environment?.key]);
+
+  useEffect(() => {
+    if (!open || !environment) {
+      return;
+    }
+
+    void loadLogs();
+  }, [logRefreshToken]);
 
   async function loadLogs(showSpinner = true): Promise<void> {
     if (!environment) {
@@ -398,8 +408,8 @@ export function EnvironmentDetails({
 
 function buildDomains(environment: EnvironmentRecord): string[] {
   return [
-    `admin.${environment.key}.prmr.md`,
-    `api.${environment.key}.prmr.md`,
+    `admin_${environment.key}.prmr.md`,
+    `api_${environment.key}.prmr.md`,
   ];
 }
 

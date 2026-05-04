@@ -105,9 +105,9 @@ The create response includes the generated key and runtime config:
   "commit": "abc1234567890",
   "dirty": true,
   "domains": [
-    "admin.zg22i.prmr.md",
-    "api.zg22i.prmr.md",
-    "bardar.zg22i.prmr.md"
+    "admin_zg22i.prmr.md",
+    "api_zg22i.prmr.md",
+    "bardar_zg22i.prmr.md"
   ],
   "config": {
     "key": "zg22i",
@@ -116,9 +116,9 @@ The create response includes the generated key and runtime config:
     "seed": "default",
     "tenants": ["bardar"],
     "domains": [
-      "admin.zg22i.prmr.md",
-      "api.zg22i.prmr.md",
-      "bardar.zg22i.prmr.md"
+      "admin_zg22i.prmr.md",
+      "api_zg22i.prmr.md",
+      "bardar_zg22i.prmr.md"
     ],
     "runtimePath": "/app/runtime/environments/zg22i",
     "repoPath": "/app/runtime/environments/zg22i/repo",
@@ -221,16 +221,16 @@ Generated environments publish their assigned HTTP port on the Docker host. The 
 Public domains are handled by the `proxy` service:
 
 ```text
-admin.zg22i.prmr.md  -> 127.0.0.1:8001
-api.zg22i.prmr.md    -> 127.0.0.1:8001
-bardar.zg22i.prmr.md -> 127.0.0.1:8001
+admin_zg22i.prmr.md  -> 127.0.0.1:8001
+api_zg22i.prmr.md    -> 127.0.0.1:8001
+bardar_zg22i.prmr.md -> 127.0.0.1:8001
 ```
 
-The proxy receives requests for `*.{ENV_KEY}.{ROOT_DOMAIN}` and asks the API whether the host is allowed:
+The proxy receives requests for `{SUBDOMAIN}_{ENV_KEY}.{ROOT_DOMAIN}` and asks the API whether the host is allowed. Keeping the environment key in the same DNS label as the requested app subdomain allows a wildcard certificate for `*.{ROOT_DOMAIN}` to cover environment URLs.
 
 ```text
 GET /proxy/authorize
-X-Original-Host: admin.zg22i.prmr.md
+X-Original-Host: admin_zg22i.prmr.md
 ```
 
 If the environment exists and is running, the API returns `204` with routing headers:
@@ -241,11 +241,11 @@ X-Environment-Port: 8001
 X-Upstream-Host: admin.prmr.md
 ```
 
-For example, `admin.zg22i.prmr.md` is authorized as environment `zg22i`, forwarded to the assigned local environment port, and sent upstream with:
+For example, `admin_zg22i.prmr.md` is authorized as environment `zg22i`, forwarded to the assigned local environment port, and sent upstream with:
 
 ```text
 Host: admin.prmr.md
-X-Original-Host: admin.zg22i.prmr.md
+X-Original-Host: admin_zg22i.prmr.md
 ```
 
 The environment-local Nginx proxy uses the rewritten `Host` header to route:

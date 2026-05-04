@@ -44,6 +44,7 @@ export default function App() {
   const [creationMonitorLoading, setCreationMonitorLoading] = useState(false);
   const [creationMonitorError, setCreationMonitorError] = useState<string>();
   const [detailsEnvironment, setDetailsEnvironment] = useState<EnvironmentRecord>();
+  const [detailsLogRefreshToken, setDetailsLogRefreshToken] = useState(0);
   const [latestChanges, setLatestChanges] = useState<LatestChangeEvent[]>([]);
   const [syncState, setSyncState] = useState<SyncState>({
     watching: false,
@@ -348,6 +349,14 @@ export default function App() {
     try {
       let updatedEnvironment: EnvironmentRecord | undefined;
       if (action === "start") {
+        const environment = environments.find((item) => item.key === key);
+        if (environment) {
+          setDetailsEnvironment(environment);
+        }
+        setDetailsLogRefreshToken((current) => current + 1);
+      }
+
+      if (action === "start") {
         updatedEnvironment = await api.startEnvironment(key);
       } else if (action === "stop") {
         updatedEnvironment = await api.stopEnvironment(key);
@@ -573,6 +582,7 @@ export default function App() {
             onExecInContainer={execInContainer}
             onGetLogs={getEnvironmentLogs}
             onAction={runEnvironmentAction}
+            logRefreshToken={detailsLogRefreshToken}
           />
         ) : (
           <EnvironmentList
