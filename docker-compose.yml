@@ -31,7 +31,6 @@ services:
       NODE_ENV: ${NODE_ENV:-production}
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-12h}
-      ELECTRON_ACCESS_KEY: ${ELECTRON_ACCESS_KEY:?ELECTRON_ACCESS_KEY is required}
       SOURCE_REPO_URL: ${SOURCE_REPO_URL:-git@github.com:org/repo.git}
       BASE_ENV_PORT: ${BASE_ENV_PORT:-8001}
       ROOT_DOMAIN: ${ROOT_DOMAIN:-prmr.md}

@@ -23,7 +23,7 @@ Create a local env file:
 cp .env.example .env
 ```
 
-Edit `JWT_SECRET`, `ELECTRON_ACCESS_KEY`, and `SOURCE_REPO_URL`, then start:
+Edit `JWT_SECRET` and `SOURCE_REPO_URL`, then start:
 
 ```sh
 docker compose up --build
@@ -37,7 +37,7 @@ The API does not require a database. Existing environments are stored in `runtim
 
 ## Electron authentication
 
-The Electron app calls `POST /auth/login` with the local access key from `ELECTRON_ACCESS_KEY`.
+The Electron app calls `POST /auth/login`.
 
 ```sh
 curl -X POST http://localhost:3000/auth/login \
@@ -276,4 +276,4 @@ npm install
 npm run dev
 ```
 
-For local development outside Docker, set `JWT_SECRET` and `ELECTRON_ACCESS_KEY`. The API still expects Docker to be available on the host when creating environments.
+For local development outside Docker, set `JWT_SECRET`. The API still expects Docker to be available on the host when creating environments.
