@@ -18,38 +18,48 @@ import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import CloseIcon from "@mui/icons-material/Close";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
+import type { EnvExampleEntry } from "../types";
 
 type EnvironmentCreateFormProps = {
   open: boolean;
   disabled: boolean;
   loading: boolean;
+  envLoading: boolean;
+  envEntries: EnvExampleEntry[];
   error?: string;
   onCancel: () => void;
-  onCreate: (input: { seed: string; useCurrentRepoState: boolean }) => Promise<void>;
+  onCreate: (input: { seed: string; useCurrentRepoState: boolean; env: Record<string, string> }) => Promise<void>;
 };
 
-const databaseSidOptions = [
-  { label: "ORCL_PROD_MASTER", seed: "default" }
+const databaseSeedOptions = [
+  { label: "default", seed: "default" }
 ];
 
 const createSteps = [
-  { label: "Preparing environment", state: "done" },
-  { label: "Creating folder", state: "done" },
-  { label: "Starting Docker Compose", state: "active" },
-  { label: "Registering proxy URLs", state: "pending" },
-  { label: "Ready", state: "pending" }
+  { label: "Preparing repository", state: "done" },
+  { label: "Writing env file", state: "done" },
+  { label: "Creating environment record", state: "active" },
+  { label: "Opening environment page", state: "pending" },
+  { label: "Ready to start", state: "pending" }
 ] as const;
 
-export function EnvironmentCreateForm({ open, disabled, loading, error, onCancel, onCreate }: EnvironmentCreateFormProps) {
-  const [seed, setSeed] = useState(databaseSidOptions[0].seed);
-  const [environmentName, setEnvironmentName] = useState("");
+export function EnvironmentCreateForm({ open, disabled, loading, envLoading, envEntries, error, onCancel, onCreate }: EnvironmentCreateFormProps) {
+  const [seed, setSeed] = useState(databaseSeedOptions[0].seed);
+  const [envValues, setEnvValues] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    if (open) {
+      setEnvValues(Object.fromEntries(envEntries.map((entry) => [entry.key, entry.value])));
+    }
+  }, [envEntries, open]);
 
   async function submit(event: FormEvent): Promise<void> {
     event.preventDefault();
     await onCreate({
       seed: seed.trim() || "default",
-      useCurrentRepoState: true
+      useCurrentRepoState: true,
+      env: envValues
     });
   }
 
@@ -124,7 +134,7 @@ export function EnvironmentCreateForm({ open, disabled, loading, error, onCancel
           {error ? <Alert severity="error">{error}</Alert> : null}
 
           <Stack spacing={1.4}>
-            <FieldLabel>Select database SID</FieldLabel>
+            <FieldLabel>Database seed</FieldLabel>
             <Select
               value={seed}
               onChange={(event) => setSeed(event.target.value)}
@@ -132,7 +142,7 @@ export function EnvironmentCreateForm({ open, disabled, loading, error, onCancel
               IconComponent={ExpandMoreIcon}
               sx={fieldSx}
             >
-              {databaseSidOptions.map((option) => (
+              {databaseSeedOptions.map((option) => (
                 <MenuItem key={option.seed} value={option.seed}>
                   {option.label}
                 </MenuItem>
@@ -141,14 +151,26 @@ export function EnvironmentCreateForm({ open, disabled, loading, error, onCancel
           </Stack>
 
           <Stack spacing={1.4}>
-            <FieldLabel>Environment name</FieldLabel>
-            <TextField
-              value={environmentName}
-              onChange={(event) => setEnvironmentName(event.target.value)}
-              placeholder="e.g. dev-cluster-west-01"
-              disabled={disabled || loading}
-              sx={fieldSx}
-            />
+            <FieldLabel>Environment variables</FieldLabel>
+            <Stack spacing={1.2} sx={{ maxHeight: 260, overflow: "auto", pr: 0.5 }}>
+              {envLoading ? (
+                <Stack direction="row" spacing={1.5} alignItems="center" sx={{ border: "1px solid rgba(113, 136, 165, 0.42)", bgcolor: "#0d211f", px: 2, py: 1.5 }}>
+                  <CircularProgress size={18} />
+                  <Typography color="text.secondary">Loading environment values</Typography>
+                </Stack>
+              ) : envEntries.length === 0 ? (
+                <Alert severity="info">No `.env` or `.env.example` values were found. Server defaults will still be applied.</Alert>
+              ) : envEntries.map((entry) => (
+                <TextField
+                  key={entry.key}
+                  label={entry.key}
+                  value={envValues[entry.key] ?? ""}
+                  onChange={(event) => setEnvValues((current) => ({ ...current, [entry.key]: event.target.value }))}
+                  disabled={disabled || loading}
+                  sx={fieldSx}
+                />
+              ))}
+            </Stack>
           </Stack>
 
           <Stack spacing={2} sx={{ border: "1px solid rgba(113, 136, 165, 0.42)", bgcolor: "#0e2420", px: 2.5, py: 2.25 }}>
@@ -179,7 +201,7 @@ export function EnvironmentCreateForm({ open, disabled, loading, error, onCancel
         <Button onClick={onCancel} disabled={loading} sx={ghostButtonSx}>
           Cancel
         </Button>
-        <Button type="submit" variant="contained" disabled={disabled || loading} sx={createButtonSx}>
+        <Button type="submit" variant="contained" disabled={disabled || loading || envLoading} sx={createButtonSx}>
           Create
         </Button>
       </DialogActions>

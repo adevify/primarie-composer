@@ -5,7 +5,6 @@ import { ActiveEnvironmentCard } from "./components/ActiveEnvironmentCard";
 import { DashboardLayout } from "./components/DashboardLayout";
 import { EnvironmentCreateForm } from "./components/EnvironmentCreateForm";
 import { EnvironmentDetails } from "./components/EnvironmentDetails";
-import { EnvironmentEnvDialog } from "./components/EnvironmentEnvDialog";
 import { EnvironmentsPage } from "./components/EnvironmentsPage";
 import { EnvironmentList } from "./components/EnvironmentList";
 import { GitStatusCard } from "./components/GitStatusCard";
@@ -13,7 +12,7 @@ import { LatestChangesCard, type LatestChangeEvent } from "./components/LatestCh
 import { LoginView } from "./components/LoginView";
 import { RepoPicker } from "./components/RepoPicker";
 import { UsersPage } from "./components/UsersPage";
-import type { AuthSession, ChangedFilePayload, EnvExampleEntry, EnvironmentLog, EnvironmentLogsPage, EnvironmentRecord, EnvironmentSource, GitState, LifecycleAction, LiveLogSession, RepoSyncSnapshot, StreamLogEvent, SyncState, SystemMetrics, UserDirectoryRecord } from "./types";
+import type { AuthSession, ChangedFilePayload, EnvExampleEntry, EnvironmentLog, EnvironmentLogsPage, EnvironmentRecord, GitState, LifecycleAction, LiveLogSession, RepoSyncSnapshot, StreamLogEvent, SyncState, SystemMetrics, UserDirectoryRecord } from "./types";
 
 const AUTH_STORAGE_KEY = "primarie-composer.auth";
 const REPO_STORAGE_KEY = "primarie-composer.repoPath";
@@ -45,9 +44,8 @@ export default function App() {
   const [createLoading, setCreateLoading] = useState(false);
   const [createError, setCreateError] = useState<string>();
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [pendingCreate, setPendingCreate] = useState<{ seed: string; source: EnvironmentSource }>();
   const [envExampleEntries, setEnvExampleEntries] = useState<EnvExampleEntry[]>([]);
-  const [envDialogOpen, setEnvDialogOpen] = useState(false);
+  const [envExampleLoading, setEnvExampleLoading] = useState(false);
   const [monitoredEnvironmentKey, setMonitoredEnvironmentKey] = useState<string>();
   const [monitoredEnvironment, setMonitoredEnvironment] = useState<EnvironmentRecord>();
   const [creationLogs, setCreationLogs] = useState<EnvironmentLog[]>([]);
@@ -358,7 +356,29 @@ export default function App() {
     }
   }
 
-  async function createEnvironment(input: { seed: string; useCurrentRepoState: boolean }): Promise<void> {
+  async function openCreateDialog(): Promise<void> {
+    setCreateDialogOpen(true);
+    setCreateError(undefined);
+    setEnvExampleEntries([]);
+
+    if (!repoPath) {
+      return;
+    }
+
+    setEnvExampleLoading(true);
+    try {
+      setEnvExampleEntries(await readEnvExampleEntries(repoPath));
+    } catch (error) {
+      setCreateError(toErrorMessage(error));
+      if (isUnauthorized(error)) {
+        logout();
+      }
+    } finally {
+      setEnvExampleLoading(false);
+    }
+  }
+
+  async function createEnvironment(input: { seed: string; useCurrentRepoState: boolean; env: Record<string, string> }): Promise<void> {
     if (!api) {
       return;
     }
@@ -389,11 +409,24 @@ export default function App() {
         throw new Error("Electron preload bridge is unavailable.");
       }
 
-      const envEntries = await readEnvExampleEntries(repoPath);
-      setPendingCreate({ seed: input.seed, source });
-      setEnvExampleEntries(envEntries);
-      setEnvDialogOpen(true);
+      const created = await api.createEnvironment({
+        seed: input.seed,
+        source,
+        env: input.env
+      });
+      setEnvironments((current) => [created, ...current.filter((item) => item.key !== created.key)]);
+      setMonitoredEnvironment(created);
+      setMonitoredEnvironmentKey(created.key);
+      setCreationLogs([]);
+      setCreationMonitorError(undefined);
+
+      const readyEnvironment = await waitForEnvironmentPrepared(created.key);
       setCreateDialogOpen(false);
+      setEnvironments((current) => [readyEnvironment, ...current.filter((item) => item.key !== readyEnvironment.key)]);
+      setDetailsEnvironment(readyEnvironment);
+      setActivePage("environments");
+      setActiveEnvironment(readyEnvironment.key);
+      await refreshEnvironments();
     } catch (error) {
       setCreateError(toErrorMessage(error));
       if (isUnauthorized(error)) {
@@ -404,37 +437,18 @@ export default function App() {
     }
   }
 
-  async function submitPendingCreate(envValues: Record<string, string>): Promise<void> {
-    if (!api || !pendingCreate) {
-      return;
+  async function waitForEnvironmentPrepared(key: string): Promise<EnvironmentRecord> {
+    if (!api) {
+      throw new Error("API client is unavailable.");
     }
 
-    setCreateLoading(true);
-    setCreateError(undefined);
-    try {
-      const created = await api.createEnvironment({
-        ...pendingCreate,
-        env: envValues
-      });
-
-      setEnvDialogOpen(false);
-      setPendingCreate(undefined);
-      setEnvironments((current) => [created, ...current.filter((item) => item.key !== created.key)]);
-      setMonitoredEnvironment(created);
-      setMonitoredEnvironmentKey(created.key);
-      setCreationLogs([]);
-      setCreationMonitorError(undefined);
-      setDetailsEnvironment(created);
-      setActiveEnvironment(created.key);
-      await refreshEnvironments();
-    } catch (error) {
-      setCreateError(toErrorMessage(error));
-      if (isUnauthorized(error)) {
-        logout();
-      }
-    } finally {
-      setCreateLoading(false);
+    let latest = await api.getEnvironment(key);
+    for (let attempt = 0; attempt < 60 && latest.status === "creating"; attempt += 1) {
+      await delay(1000);
+      latest = await api.getEnvironment(key);
     }
+
+    return latest;
   }
 
   async function runEnvironmentAction(key: string, action: "start" | "stop" | "restart" | "resume" | "delete"): Promise<void> {
@@ -859,7 +873,7 @@ export default function App() {
               activeEnvironmentKey={syncState.activeEnvironmentKey}
               metrics={systemMetrics}
               repoPath={repoPath}
-              onCreate={() => setCreateDialogOpen(true)}
+              onCreate={() => void openCreateDialog()}
               onDetails={setDetailsEnvironment}
               onSelectActive={setActiveEnvironment}
               onAction={runEnvironmentAction}
@@ -903,21 +917,11 @@ export default function App() {
         open={createDialogOpen}
         disabled={!repoPath}
         loading={createLoading}
+        envLoading={envExampleLoading}
+        envEntries={envExampleEntries}
         error={createError}
         onCancel={() => setCreateDialogOpen(false)}
         onCreate={createEnvironment}
-      />
-      <EnvironmentEnvDialog
-        open={envDialogOpen}
-        entries={envExampleEntries}
-        loading={createLoading}
-        onCancel={() => {
-          if (!createLoading) {
-            setEnvDialogOpen(false);
-            setPendingCreate(undefined);
-          }
-        }}
-        onSubmit={submitPendingCreate}
       />
     </DashboardLayout>
   );
@@ -954,6 +958,10 @@ function isUnauthorized(error: unknown): boolean {
 
 function capitalize(value: string): string {
   return `${value.slice(0, 1).toUpperCase()}${value.slice(1)}`;
+}
+
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 function mergeLogs(primary: EnvironmentLog[], secondary: EnvironmentLog[]): EnvironmentLog[] {

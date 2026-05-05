@@ -153,6 +153,13 @@ export class EnvironmentsService {
       environmentKey: key,
       log: "Environment variables written",
     });
+
+    await EnvironmentLogCollection.add({
+      environmentKey: key,
+      log: "Environment is ready to start",
+    });
+
+    await this.updateStatus(key, "stopped");
   }
 
   async list(): Promise<EnvironmentRecord[]> {
