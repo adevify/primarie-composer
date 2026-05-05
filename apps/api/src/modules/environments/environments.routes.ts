@@ -36,6 +36,17 @@ export function createEnvironmentRouter(): Router {
     }
   });
 
+  router.get("/logs/all", async (req, res, next) => {
+    try {
+      const page = parseInt(req.query.page as string || "0");
+      const perPage = parseInt(req.query.perPage as string || "100");
+
+      return res.json(await service.getAllLogs(page, perPage));
+    } catch (error) {
+      return next(error);
+    }
+  });
+
   router.get("/:key", async (req, res, next) => {
     try {
       return res.json(await service.get(req.params.key));

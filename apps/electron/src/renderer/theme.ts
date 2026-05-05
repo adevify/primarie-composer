@@ -7,11 +7,11 @@ export const theme = createTheme({
       main: "#1d63ed"
     },
     secondary: {
-      main: "#00a389"
+      main: "#00e5ff"
     },
     background: {
-      default: "#11191f",
-      paper: "#17232c"
+      default: "#0f1d1b",
+      paper: "#172322"
     },
     text: {
       primary: "#edf4fa",
@@ -41,10 +41,10 @@ export const theme = createTheme({
     MuiCssBaseline: {
       styleOverrides: {
         body: {
-          backgroundColor: "#11191f"
+          backgroundColor: "#0f1d1b"
         },
         "*": {
-          scrollbarColor: "#405362 #11191f"
+          scrollbarColor: "#405362 #0f1d1b"
         }
       }
     },
@@ -52,6 +52,7 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           border: "1px solid rgba(159, 179, 195, 0.14)",
+          borderRadius: 6,
           boxShadow: "none"
         }
       }

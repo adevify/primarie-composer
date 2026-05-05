@@ -11,21 +11,12 @@ import { GitStatusCard } from "./components/GitStatusCard";
 import { LatestChangesCard, type LatestChangeEvent } from "./components/LatestChangesCard";
 import { LoginView } from "./components/LoginView";
 import { RepoPicker } from "./components/RepoPicker";
-import type { AuthSession, ChangedFilePayload, EnvExampleEntry, EnvironmentLog, EnvironmentRecord, EnvironmentSource, GitState, LifecycleAction, RepoSyncSnapshot, StreamLogEvent, SyncState } from "./types";
+import type { AuthSession, ChangedFilePayload, EnvExampleEntry, EnvironmentLog, EnvironmentRecord, EnvironmentSource, GitState, LifecycleAction, LiveLogSession, RepoSyncSnapshot, StreamLogEvent, SyncState } from "./types";
 
 const AUTH_STORAGE_KEY = "primarie-composer.auth";
 const REPO_STORAGE_KEY = "primarie-composer.repoPath";
 const ACTIVE_ENV_STORAGE_KEY = "primarie-composer.activeEnvironmentKey";
 const MAX_SYNC_CHUNK_CONTENT_LENGTH = 750 * 1024;
-
-export type LiveLogSession = {
-  id: string;
-  environmentKey: string;
-  title: string;
-  subtitle: string;
-  status: "running" | "complete" | "error" | "stopped";
-  entries: Array<{ at: string; log: string; level: "info" | "error" }>;
-};
 
 export default function App() {
   const electronBridge = window.primarieElectron;
@@ -39,6 +30,7 @@ export default function App() {
   const [gitLoading, setGitLoading] = useState(false);
   const [gitError, setGitError] = useState<string>();
   const [environments, setEnvironments] = useState<EnvironmentRecord[]>([]);
+  const [dashboardLogs, setDashboardLogs] = useState<EnvironmentLog[]>([]);
   const [environmentsLoading, setEnvironmentsLoading] = useState(false);
   const [environmentsError, setEnvironmentsError] = useState<string>();
   const [createLoading, setCreateLoading] = useState(false);
@@ -89,7 +81,12 @@ export default function App() {
     setEnvironmentsLoading(true);
     setEnvironmentsError(undefined);
     try {
-      setEnvironments(await api.listEnvironments());
+      const [nextEnvironments, nextLogs] = await Promise.all([
+        api.listEnvironments(),
+        api.allLogs(100)
+      ]);
+      setEnvironments(nextEnvironments);
+      setDashboardLogs(nextLogs.items);
     } catch (error) {
       setEnvironmentsError(toErrorMessage(error));
       if (isUnauthorized(error)) {
@@ -99,6 +96,24 @@ export default function App() {
       setEnvironmentsLoading(false);
     }
   }, [api, logout]);
+
+  useEffect(() => {
+    if (!api || detailsEnvironment) {
+      return undefined;
+    }
+
+    const interval = setInterval(() => {
+      void api.allLogs(100).then((page) => {
+        setDashboardLogs(page.items);
+      }).catch((error) => {
+        if (isUnauthorized(error)) {
+          logout();
+        }
+      });
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [api, detailsEnvironment, logout]);
 
   const refreshGitState = useCallback(async (): Promise<GitState | undefined> => {
     if (!repoPath) {
@@ -727,6 +742,7 @@ export default function App() {
         ) : (
           <EnvironmentList
             environments={environments}
+            logs={dashboardLogs}
             loading={environmentsLoading}
             error={environmentsError}
             activeEnvironmentKey={syncState.activeEnvironmentKey}

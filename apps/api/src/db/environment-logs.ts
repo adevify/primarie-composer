@@ -37,5 +37,20 @@ export const EnvironmentLogCollection = (() => {
                     .toArray(),
             };
         }),
+        listAll: async (page = 0, perPage = 100) => withCol(async col => {
+            const total = await col.countDocuments({});
+
+            return {
+                total,
+                page,
+                perPage,
+                pages: Math.ceil(total / perPage),
+                items: await col.find({})
+                    .sort({ createdAt: -1 })
+                    .skip(page * perPage)
+                    .limit(perPage)
+                    .toArray(),
+            };
+        }),
     }
 })()

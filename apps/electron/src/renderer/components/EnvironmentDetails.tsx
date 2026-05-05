@@ -12,6 +12,8 @@ import {
   ListItemButton,
   ListItemText,
   Stack,
+  Tab,
+  Tabs,
   TextField,
   Typography
 } from "@mui/material";
@@ -21,9 +23,10 @@ import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import StopIcon from "@mui/icons-material/Stop";
+import TerminalIcon from "@mui/icons-material/Terminal";
 import ViewInArIcon from "@mui/icons-material/ViewInAr";
 import { useEffect, useState } from "react";
-import type { ContainerExecResult, ContainerFileEntry, EnvironmentContainer, EnvironmentLog, EnvironmentRecord } from "../types";
+import type { ContainerExecResult, ContainerFileEntry, EnvironmentContainer, EnvironmentLog, EnvironmentRecord, LiveLogSession } from "../types";
 
 type EnvironmentDetailsProps = {
   environment?: EnvironmentRecord;
@@ -34,6 +37,9 @@ type EnvironmentDetailsProps = {
   onExecInContainer: (key: string, container: string, command: string) => Promise<ContainerExecResult>;
   onGetLogs: (key: string) => Promise<EnvironmentLog[]>;
   onAction: (key: string, action: "start" | "stop" | "restart" | "resume" | "delete") => Promise<void>;
+  liveLogSessions: LiveLogSession[];
+  onStartContainerLogStream: (key: string, container: string) => void;
+  onStopLiveLogSession: (id: string) => void;
   logRefreshToken: number;
 };
 
@@ -46,6 +52,9 @@ export function EnvironmentDetails({
   onExecInContainer,
   onGetLogs,
   onAction,
+  liveLogSessions,
+  onStartContainerLogStream,
+  onStopLiveLogSession,
   logRefreshToken
 }: EnvironmentDetailsProps) {
   const [containers, setContainers] = useState<EnvironmentContainer[]>([]);
@@ -59,6 +68,7 @@ export function EnvironmentDetails({
   const [loadingLogs, setLoadingLogs] = useState(false);
   const [loadingFiles, setLoadingFiles] = useState(false);
   const [executing, setExecuting] = useState(false);
+  const [selectedLiveLogId, setSelectedLiveLogId] = useState("");
   const [toolError, setToolError] = useState<string>();
   const [logError, setLogError] = useState<string>();
 
@@ -90,6 +100,14 @@ export function EnvironmentDetails({
 
     void loadLogs();
   }, [logRefreshToken]);
+
+  useEffect(() => {
+    if (liveLogSessions.length === 0) {
+      setSelectedLiveLogId("");
+      return;
+    }
+    setSelectedLiveLogId((current) => liveLogSessions.some((session) => session.id === current) ? current : liveLogSessions[0].id);
+  }, [liveLogSessions]);
 
   async function loadLogs(showSpinner = true): Promise<void> {
     if (!environment) {
@@ -198,7 +216,7 @@ export function EnvironmentDetails({
             </Stack>
             <Stack direction="row" spacing={1}>
               <Button variant="outlined" onClick={() => void loadLogs()} disabled={loadingLogs} startIcon={loadingLogs ? <CircularProgress size={14} /> : <RefreshIcon />}>
-                Refresh logs
+                Refresh history
               </Button>
               <IconButton aria-label="start environment" onClick={() => void onAction(environment.key, "start")}>
                 <PlayArrowIcon />
@@ -332,6 +350,9 @@ export function EnvironmentDetails({
                   <Button variant="contained" onClick={() => void runCommand()} disabled={!selectedContainer || executing}>
                     {executing ? "Running..." : "Exec in container"}
                   </Button>
+                  <Button variant="outlined" onClick={() => environment ? onStartContainerLogStream(environment.key, selectedContainer) : undefined} disabled={!selectedContainer} startIcon={<TerminalIcon />}>
+                    Stream container logs
+                  </Button>
                   {execResult ? (
                     <Box
                       component="pre"
@@ -355,9 +376,15 @@ export function EnvironmentDetails({
 
             <Box sx={{ minWidth: 0, position: "relative" }}>
               {logError ? <Alert severity="warning">{logError}</Alert> : null}
+              <LiveLogWorkspace
+                sessions={liveLogSessions}
+                selectedId={selectedLiveLogId}
+                onSelect={setSelectedLiveLogId}
+                onStop={onStopLiveLogSession}
+              />
               <Box
                 sx={{
-                  height: 650,
+                  height: 330,
                   overflow: "auto",
                   bgcolor: "#0f171d",
                   fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
@@ -367,7 +394,7 @@ export function EnvironmentDetails({
               >
                 {logs.length === 0 ? (
                   <Typography variant="body2" color="text.secondary" sx={{ p: 3 }}>
-                    No logs yet.
+                    No persisted history yet.
                   </Typography>
                 ) : (
                   <Box>
@@ -403,6 +430,90 @@ export function EnvironmentDetails({
         </Box>
       ) : null}
     </Card>
+  );
+}
+
+function LiveLogWorkspace({
+  sessions,
+  selectedId,
+  onSelect,
+  onStop
+}: {
+  sessions: LiveLogSession[];
+  selectedId: string;
+  onSelect: (id: string) => void;
+  onStop: (id: string) => void;
+}) {
+  const selected = sessions.find((session) => session.id === selectedId) ?? sessions[0];
+
+  return (
+    <Box sx={{ borderBottom: "1px solid", borderColor: "divider", bgcolor: "#071312" }}>
+      <Box sx={{ px: 2, py: 1.5, borderBottom: "1px solid", borderColor: "divider" }}>
+        <Stack direction="row" spacing={1.5} alignItems="center" justifyContent="space-between">
+          <Stack direction="row" spacing={1} alignItems="center">
+            <TerminalIcon color="secondary" />
+            <Typography fontWeight={900} sx={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}>
+              LIVE DOCKER STREAMS
+            </Typography>
+          </Stack>
+          {selected?.status === "running" ? (
+            <Button size="small" variant="outlined" color="warning" onClick={() => onStop(selected.id)}>
+              Stop stream
+            </Button>
+          ) : null}
+        </Stack>
+      </Box>
+      {sessions.length > 0 ? (
+        <Tabs
+          value={selected?.id ?? false}
+          onChange={(_event, value: string) => onSelect(value)}
+          variant="scrollable"
+          scrollButtons="auto"
+          sx={{ minHeight: 42, borderBottom: "1px solid", borderColor: "divider" }}
+        >
+          {sessions.map((session) => (
+            <Tab
+              key={session.id}
+              value={session.id}
+              label={`${session.title} · ${session.status}`}
+              sx={{ minHeight: 42, fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}
+            />
+          ))}
+        </Tabs>
+      ) : null}
+      <Box
+        sx={{
+          height: 300,
+          overflow: "auto",
+          p: 2,
+          fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+          fontSize: 12.5,
+          lineHeight: 1.65,
+          bgcolor: "#06100f"
+        }}
+      >
+        {!selected ? (
+          <Typography variant="body2" color="text.secondary">
+            Start, stop, restart, resume, or open a container stream to create a separated live log page.
+          </Typography>
+        ) : selected.entries.length === 0 ? (
+          <Typography variant="body2" color="text.secondary">
+            Waiting for stream output from {selected.subtitle}.
+          </Typography>
+        ) : (
+          selected.entries.map((entry, index) => (
+            <Box key={`${entry.at}-${index}`} sx={{ display: "grid", gridTemplateColumns: "92px 1fr", gap: 1.5, color: entry.level === "error" ? "error.main" : "text.primary" }}>
+              <Box sx={{ color: entry.level === "error" ? "error.main" : "secondary.main" }}>
+                {entry.level}
+              </Box>
+              <Box component="pre" sx={{ m: 0, whiteSpace: "pre-wrap", wordBreak: "break-word", font: "inherit" }}>
+                {entry.log}
+              </Box>
+            </Box>
+          ))
+        )}
+      </Box>
+    </Box>
   );
 }
 

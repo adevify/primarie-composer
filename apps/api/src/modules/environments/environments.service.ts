@@ -166,6 +166,10 @@ export class EnvironmentsService {
     return EnvironmentLogCollection.list(key, page, perPage);
   }
 
+  async getAllLogs(page: number, perPage: number) {
+    return EnvironmentLogCollection.listAll(page, perPage);
+  }
+
   async listContainers(key: string): Promise<unknown[]> {
     await this.get(key);
     return this.docker.listContainers(path.join(env.RUNTIME_DIR, key));

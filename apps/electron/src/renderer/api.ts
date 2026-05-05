@@ -98,6 +98,10 @@ export class ComposerApiClient {
     return this.request<EnvironmentLogsPage>(`/environments/${encodeURIComponent(key)}/logs`);
   }
 
+  allLogs(perPage = 100): Promise<EnvironmentLogsPage> {
+    return this.request<EnvironmentLogsPage>(`/environments/logs/all?${new URLSearchParams({ perPage: String(perPage) }).toString()}`);
+  }
+
   listContainers(key: string): Promise<EnvironmentContainer[]> {
     return this.request<EnvironmentContainer[]>(`/environments/${encodeURIComponent(key)}/containers`);
   }
