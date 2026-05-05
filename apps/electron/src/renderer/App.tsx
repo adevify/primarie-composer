@@ -397,7 +397,8 @@ export default function App() {
         }
         source = {
           branch: latestGitState.branch,
-          commit: latestGitState.commit
+          commit: latestGitState.commit,
+          repoPath
         };
       }
 

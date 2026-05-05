@@ -201,8 +201,9 @@ export class EnvironmentsService {
   }
 
   async listContainers(key: string): Promise<unknown[]> {
-    await this.get(key);
-    return this.docker.listContainers(path.join(env.RUNTIME_DIR, key));
+    const record = await this.get(key);
+    const compose = await this.composeConfig(record);
+    return this.docker.listContainers(compose.cwd, compose.envFile);
   }
 
   async listContainerFiles(key: string, container: string, targetPath: string) {
@@ -252,7 +253,7 @@ export class EnvironmentsService {
     signal?: AbortSignal
   ): Promise<EnvironmentRecord> {
     const record = await this.get(key);
-    const composePath = path.join(env.RUNTIME_DIR, key);
+    const compose = await this.composeConfig(record);
 
     if (action === "resume") {
       const owner = this.toOwner(user);
@@ -269,18 +270,18 @@ export class EnvironmentsService {
           await onLog({ log: "Environment is already running", level: "info" });
           return record;
         }
-        await this.docker.up(composePath, onLog, signal);
+        await this.docker.up(compose.cwd, onLog, signal, compose.envFile);
         await onLog({ log: `Environment ${action === "resume" ? "resumed" : "started"}`, level: "info" });
         return this.updateStatus(key, "running");
       }
 
       if (action === "restart") {
-        await this.docker.restart(composePath, onLog, signal);
+        await this.docker.restart(compose.cwd, onLog, signal, compose.envFile);
         await onLog({ log: "Environment restarted", level: "info" });
         return this.updateStatus(key, "running");
       }
 
-      await this.docker.down(composePath, onLog, signal);
+      await this.docker.down(compose.cwd, onLog, signal, compose.envFile);
       await onLog({ log: "Environment stopped", level: "info" });
       return this.updateStatus(key, "stopped");
     } catch (error) {
@@ -306,18 +307,21 @@ export class EnvironmentsService {
     onLog: (entry: { log: string; level: "info" | "error" }) => Promise<void> | void,
     signal?: AbortSignal
   ): Promise<void> {
-    await this.get(key);
-    await this.docker.streamComposeLogs(path.join(env.RUNTIME_DIR, key), onLog, signal);
+    const record = await this.get(key);
+    const compose = await this.composeConfig(record);
+    await this.docker.streamComposeLogs(compose.cwd, onLog, signal, compose.envFile);
   }
 
   async listComposeLogs(key: string) {
-    await this.get(key);
-    return this.docker.listComposeLogs(path.join(env.RUNTIME_DIR, key));
+    const record = await this.get(key);
+    const compose = await this.composeConfig(record);
+    return this.docker.listComposeLogs(compose.cwd, compose.envFile);
   }
 
   async inspectMongo(key: string) {
-    await this.get(key);
-    const containers = await this.docker.listContainers(path.join(env.RUNTIME_DIR, key)).catch(() => []);
+    const record = await this.get(key);
+    const compose = await this.composeConfig(record);
+    const containers = await this.docker.listContainers(compose.cwd, compose.envFile).catch(() => []);
     const mongoContainer = containers
       .map((container) => container as { Name?: string; Names?: string; Service?: string; State?: string; Image?: string })
       .find((container) => {
@@ -345,13 +349,14 @@ export class EnvironmentsService {
 
   async stop(key: string): Promise<EnvironmentRecord> {
     const record = await this.get(key);
+    const compose = await this.composeConfig(record);
 
     await EnvironmentLogCollection.add({
       environmentKey: key,
       log: "Stopping environment",
     });
 
-    await this.docker.down(path.join(env.RUNTIME_DIR, record.key), this.composeLogger(key));
+    await this.docker.down(compose.cwd, this.composeLogger(key), undefined, compose.envFile);
 
     await EnvironmentLogCollection.add({
       environmentKey: key,
@@ -363,6 +368,7 @@ export class EnvironmentsService {
 
   async resume(key: string, user: AuthenticatedUser): Promise<EnvironmentRecord> {
     const record = await this.get(key);
+    const compose = await this.composeConfig(record);
     const owner = this.toOwner(user);
     if (!("email" in record.createdBy) || record.createdBy.email !== owner.email) {
       throw Object.assign(new Error("Only the owner can reuse this environment"), { status: 403 });
@@ -374,7 +380,7 @@ export class EnvironmentsService {
     });
 
     if (record.status !== "running") {
-      await this.docker.up(path.join(env.RUNTIME_DIR, key), this.composeLogger(key));
+      await this.docker.up(compose.cwd, this.composeLogger(key), undefined, compose.envFile);
 
       await EnvironmentLogCollection.add({
         environmentKey: key,
@@ -387,11 +393,13 @@ export class EnvironmentsService {
 
   async start(key: string): Promise<EnvironmentRecord> {
     try {
+      const record = await this.get(key);
+      const compose = await this.composeConfig(record);
       await EnvironmentLogCollection.add({
         environmentKey: key,
         log: "Starting environment",
       });
-      await this.docker.up(path.join(env.RUNTIME_DIR, key), this.composeLogger(key));
+      await this.docker.up(compose.cwd, this.composeLogger(key), undefined, compose.envFile);
       await EnvironmentLogCollection.add({
         environmentKey: key,
         log: "Environment started",
@@ -410,12 +418,15 @@ export class EnvironmentsService {
   }
 
   async restart(key: string): Promise<EnvironmentRecord> {
+    const record = await this.get(key);
+    const compose = await this.composeConfig(record);
+
     await EnvironmentLogCollection.add({
       environmentKey: key,
       log: "Restarting environment",
     });
 
-    await this.docker.restart(path.join(env.RUNTIME_DIR, key), this.composeLogger(key));
+    await this.docker.restart(compose.cwd, this.composeLogger(key), undefined, compose.envFile);
 
     await EnvironmentLogCollection.add({
       environmentKey: key,
@@ -458,13 +469,14 @@ export class EnvironmentsService {
 
   async delete(key: string): Promise<void> {
     const record = await this.get(key);
+    const compose = await this.composeConfig(record);
 
     await EnvironmentLogCollection.add({
       environmentKey: key,
       log: "Stopping environment",
     });
 
-    await this.docker.down(path.join(env.RUNTIME_DIR, record.key), this.composeLogger(key)).catch(() => undefined);
+    await this.docker.down(compose.cwd, this.composeLogger(key), undefined, compose.envFile).catch(() => undefined);
 
     await EnvironmentLogCollection.add({
       environmentKey: key,
@@ -521,6 +533,22 @@ export class EnvironmentsService {
       environmentKey: matching.key,
       log: "Pull request environment deleted",
     });
+  }
+
+  private async composeConfig(record: EnvironmentRecord): Promise<{ cwd: string; envFile: string }> {
+    const runtimePath = path.join(env.RUNTIME_DIR, record.key);
+    const envFile = path.join(runtimePath, ".env");
+    const sourceRepoPath = record.source.repoPath ? path.resolve(record.source.repoPath) : undefined;
+
+    if (sourceRepoPath && await fileExists(path.join(sourceRepoPath, "docker-compose.yml"))) {
+      return { cwd: sourceRepoPath, envFile };
+    }
+
+    if (sourceRepoPath && await fileExists(path.join(sourceRepoPath, "compose.yml"))) {
+      return { cwd: sourceRepoPath, envFile };
+    }
+
+    return { cwd: runtimePath, envFile };
   }
 
   private async nextAvailablePort(): Promise<number> {
@@ -633,6 +661,10 @@ function resolveInside(rootPath: string, targetPath: string): string {
 
 function isNodeError(error: unknown): error is NodeJS.ErrnoException {
   return error instanceof Error && "code" in error;
+}
+
+async function fileExists(filePath: string): Promise<boolean> {
+  return fs.access(filePath).then(() => true, () => false);
 }
 
 function sampleCpuUsage() {

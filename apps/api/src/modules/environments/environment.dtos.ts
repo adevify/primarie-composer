@@ -18,7 +18,8 @@ export type ChangedFilePayload = z.infer<typeof changedFileSchema>;
 
 export const sourceSchema = z.object({
   branch: z.string().min(1),
-  commit: z.string().min(7)
+  commit: z.string().min(7),
+  repoPath: z.string().min(1).optional()
 });
 
 export type EnvironmentSource = z.infer<typeof sourceSchema>;

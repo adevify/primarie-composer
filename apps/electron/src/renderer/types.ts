@@ -38,6 +38,7 @@ export type EnvironmentStatus = "creating" | "running" | "stopped" | "error";
 export type EnvironmentSource = {
   branch: string;
   commit: string;
+  repoPath?: string;
 };
 
 export type EnvironmentOwner = {

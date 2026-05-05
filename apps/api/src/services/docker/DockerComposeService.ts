@@ -20,16 +20,16 @@ export type MongoPreview = {
 };
 
 export class DockerComposeService {
-  async up(composePath: string, onLog?: ComposeLogHandler, signal?: AbortSignal): Promise<void> {
-    await this.runCompose(composePath, ["up", "-d", "--build"], onLog, signal);
+  async up(composePath: string, onLog?: ComposeLogHandler, signal?: AbortSignal, envFilePath?: string): Promise<void> {
+    await this.runCompose(composePath, ["up", "-d", "--build"], onLog, signal, envFilePath);
   }
 
-  async down(composePath: string, onLog?: ComposeLogHandler, signal?: AbortSignal): Promise<void> {
-    await this.runCompose(composePath, ["down"], onLog, signal);
+  async down(composePath: string, onLog?: ComposeLogHandler, signal?: AbortSignal, envFilePath?: string): Promise<void> {
+    await this.runCompose(composePath, ["down"], onLog, signal, envFilePath);
   }
 
-  async restart(composePath: string, onLog?: ComposeLogHandler, signal?: AbortSignal): Promise<void> {
-    await this.runCompose(composePath, ["restart"], onLog, signal);
+  async restart(composePath: string, onLog?: ComposeLogHandler, signal?: AbortSignal, envFilePath?: string): Promise<void> {
+    await this.runCompose(composePath, ["restart"], onLog, signal, envFilePath);
   }
 
   async streamContainerLogs(container: string, onLog: ComposeLogHandler, signal?: AbortSignal): Promise<void> {
@@ -37,12 +37,12 @@ export class DockerComposeService {
     await this.spawnProcess("docker", ["logs", "--follow", "--tail", "200", "--timestamps", container], undefined, onLog, signal);
   }
 
-  async streamComposeLogs(composePath: string, onLog: ComposeLogHandler, signal?: AbortSignal): Promise<void> {
-    await this.runCompose(composePath, ["logs", "--follow", "--tail", "200", "--timestamps"], onLog, signal);
+  async streamComposeLogs(composePath: string, onLog: ComposeLogHandler, signal?: AbortSignal, envFilePath?: string): Promise<void> {
+    await this.runCompose(composePath, ["logs", "--follow", "--tail", "200", "--timestamps"], onLog, signal, envFilePath);
   }
 
-  async listComposeLogs(composePath: string): Promise<ComposeLogEntry[]> {
-    const output = await this.runComposeWithOutput(composePath, ["logs", "--tail", "200", "--timestamps"]);
+  async listComposeLogs(composePath: string, envFilePath?: string): Promise<ComposeLogEntry[]> {
+    const output = await this.runComposeWithOutput(composePath, ["logs", "--tail", "200", "--timestamps"], envFilePath);
     return output
       .split(/\r?\n/)
       .map((line) => line.trimEnd())
@@ -50,8 +50,8 @@ export class DockerComposeService {
       .map((log) => ({ log, level: "info" }));
   }
 
-  async listContainers(composePath: string): Promise<unknown[]> {
-    const output = await this.runComposeWithOutput(composePath, ["ps", "--format", "json"]);
+  async listContainers(composePath: string, envFilePath?: string): Promise<unknown[]> {
+    const output = await this.runComposeWithOutput(composePath, ["ps", "--format", "json"], envFilePath);
     return parseComposeJsonOutput(output);
   }
 
@@ -127,12 +127,13 @@ export class DockerComposeService {
     return JSON.parse(result.stdout.trim()) as MongoPreview;
   }
 
-  private async runCompose(cwd: string, args: string[], onLog?: ComposeLogHandler, signal?: AbortSignal): Promise<void> {
+  private async runCompose(cwd: string, args: string[], onLog?: ComposeLogHandler, signal?: AbortSignal, envFilePath?: string): Promise<void> {
+    const composeArgs = withEnvFile(args, envFilePath);
     try {
-      await this.spawnCompose(cwd, "docker-compose", args, onLog, signal);
+      await this.spawnCompose(cwd, "docker", ["compose", ...composeArgs], onLog, signal);
     } catch (primaryError) {
       try {
-        await this.spawnCompose(cwd, "docker", ["compose", ...args], onLog, signal);
+        await this.spawnCompose(cwd, "docker-compose", composeArgs, onLog, signal);
       } catch (fallbackError) {
         throw new Error(this.formatComposeError(args, primaryError, fallbackError));
       }
@@ -220,16 +221,17 @@ export class DockerComposeService {
     await logQueue;
   }
 
-  private async runComposeWithOutput(cwd: string, args: string[]): Promise<string> {
+  private async runComposeWithOutput(cwd: string, args: string[], envFilePath?: string): Promise<string> {
+    const composeArgs = withEnvFile(args, envFilePath);
     try {
-      const { stdout } = await execFileAsync("docker-compose", args, {
+      const { stdout } = await execFileAsync("docker", ["compose", ...composeArgs], {
         cwd,
         maxBuffer: 1024 * 1024 * 5
       });
       return stdout;
     } catch (primaryError) {
       try {
-        const { stdout } = await execFileAsync("docker", ["compose", ...args], {
+        const { stdout } = await execFileAsync("docker-compose", composeArgs, {
           cwd,
           maxBuffer: 1024 * 1024 * 5
         });
@@ -265,7 +267,7 @@ export class DockerComposeService {
       .filter(Boolean)
       .join("\n--- fallback ---\n");
 
-    return `docker-compose ${args.join(" ")} failed:\n${details}`;
+    return `docker compose ${args.join(" ")} failed:\n${details}`;
   }
 }
 
@@ -285,4 +287,8 @@ function parseComposeJsonOutput(output: string): unknown[] {
       .filter(Boolean)
       .map((line) => JSON.parse(line) as unknown);
   }
+}
+
+function withEnvFile(args: string[], envFilePath?: string): string[] {
+  return envFilePath ? ["--env-file", envFilePath, ...args] : args;
 }
