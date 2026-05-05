@@ -11,12 +11,13 @@ import { GitStatusCard } from "./components/GitStatusCard";
 import { LatestChangesCard, type LatestChangeEvent } from "./components/LatestChangesCard";
 import { LoginView } from "./components/LoginView";
 import { RepoPicker } from "./components/RepoPicker";
-import type { AuthSession, ChangedFilePayload, EnvExampleEntry, EnvironmentLog, EnvironmentRecord, EnvironmentSource, GitState, LifecycleAction, LiveLogSession, RepoSyncSnapshot, StreamLogEvent, SyncState } from "./types";
+import type { AuthSession, ChangedFilePayload, EnvExampleEntry, EnvironmentLog, EnvironmentLogsPage, EnvironmentRecord, EnvironmentSource, GitState, LifecycleAction, LiveLogSession, RepoSyncSnapshot, StreamLogEvent, SyncState, SystemMetrics } from "./types";
 
 const AUTH_STORAGE_KEY = "primarie-composer.auth";
 const REPO_STORAGE_KEY = "primarie-composer.repoPath";
 const ACTIVE_ENV_STORAGE_KEY = "primarie-composer.activeEnvironmentKey";
 const MAX_SYNC_CHUNK_CONTENT_LENGTH = 750 * 1024;
+const DASHBOARD_LOGS_PER_PAGE = 50;
 
 export default function App() {
   const electronBridge = window.primarieElectron;
@@ -31,6 +32,9 @@ export default function App() {
   const [gitError, setGitError] = useState<string>();
   const [environments, setEnvironments] = useState<EnvironmentRecord[]>([]);
   const [dashboardLogs, setDashboardLogs] = useState<EnvironmentLog[]>([]);
+  const [dashboardLogsPage, setDashboardLogsPage] = useState<EnvironmentLogsPage>();
+  const [dashboardLogsLoadingMore, setDashboardLogsLoadingMore] = useState(false);
+  const [systemMetrics, setSystemMetrics] = useState<SystemMetrics>();
   const [environmentsLoading, setEnvironmentsLoading] = useState(false);
   const [environmentsError, setEnvironmentsError] = useState<string>();
   const [createLoading, setCreateLoading] = useState(false);
@@ -81,12 +85,15 @@ export default function App() {
     setEnvironmentsLoading(true);
     setEnvironmentsError(undefined);
     try {
-      const [nextEnvironments, nextLogs] = await Promise.all([
+      const [nextEnvironments, nextLogs, nextMetrics] = await Promise.all([
         api.listEnvironments(),
-        api.allLogs(100)
+        api.allLogs(0, DASHBOARD_LOGS_PER_PAGE),
+        api.systemMetrics()
       ]);
       setEnvironments(nextEnvironments);
       setDashboardLogs(nextLogs.items);
+      setDashboardLogsPage(nextLogs);
+      setSystemMetrics(nextMetrics);
     } catch (error) {
       setEnvironmentsError(toErrorMessage(error));
       if (isUnauthorized(error)) {
@@ -97,14 +104,39 @@ export default function App() {
     }
   }, [api, logout]);
 
+  async function loadMoreDashboardLogs(): Promise<void> {
+    if (!api || dashboardLogsLoadingMore || !dashboardLogsPage || dashboardLogsPage.page + 1 >= dashboardLogsPage.pages) {
+      return;
+    }
+
+    setDashboardLogsLoadingMore(true);
+    try {
+      const nextPage = await api.allLogs(dashboardLogsPage.page + 1, DASHBOARD_LOGS_PER_PAGE);
+      setDashboardLogs((current) => mergeLogs(current, nextPage.items));
+      setDashboardLogsPage(nextPage);
+    } catch (error) {
+      setEnvironmentsError(toErrorMessage(error));
+      if (isUnauthorized(error)) {
+        logout();
+      }
+    } finally {
+      setDashboardLogsLoadingMore(false);
+    }
+  }
+
   useEffect(() => {
     if (!api || detailsEnvironment) {
       return undefined;
     }
 
     const interval = setInterval(() => {
-      void api.allLogs(100).then((page) => {
-        setDashboardLogs(page.items);
+      void Promise.all([
+        api.allLogs(0, DASHBOARD_LOGS_PER_PAGE),
+        api.systemMetrics()
+      ]).then(([page, metrics]) => {
+        setDashboardLogs((current) => mergeLogs(page.items, current).slice(0, Math.max(current.length, DASHBOARD_LOGS_PER_PAGE)));
+        setDashboardLogsPage((current) => current ? { ...page, page: current.page, pages: page.pages, total: page.total } : page);
+        setSystemMetrics(metrics);
       }).catch((error) => {
         if (isUnauthorized(error)) {
           logout();
@@ -743,6 +775,10 @@ export default function App() {
           <EnvironmentList
             environments={environments}
             logs={dashboardLogs}
+            logsTotal={dashboardLogsPage?.total ?? dashboardLogs.length}
+            logsHasMore={Boolean(dashboardLogsPage && dashboardLogsPage.page + 1 < dashboardLogsPage.pages)}
+            logsLoadingMore={dashboardLogsLoadingMore}
+            metrics={systemMetrics}
             loading={environmentsLoading}
             error={environmentsError}
             activeEnvironmentKey={syncState.activeEnvironmentKey}
@@ -750,6 +786,7 @@ export default function App() {
             onSelectActive={setActiveEnvironment}
             onDetails={setDetailsEnvironment}
             onAction={runEnvironmentAction}
+            onLoadMoreLogs={loadMoreDashboardLogs}
           />
         )}
       </Stack>
@@ -806,6 +843,22 @@ function isUnauthorized(error: unknown): boolean {
 
 function capitalize(value: string): string {
   return `${value.slice(0, 1).toUpperCase()}${value.slice(1)}`;
+}
+
+function mergeLogs(primary: EnvironmentLog[], secondary: EnvironmentLog[]): EnvironmentLog[] {
+  const seen = new Set<string>();
+  const merged: EnvironmentLog[] = [];
+
+  for (const log of [...primary, ...secondary]) {
+    const id = `${log.createdAt}:${log.environmentKey}:${log.level}:${log.log}`;
+    if (seen.has(id)) {
+      continue;
+    }
+    seen.add(id);
+    merged.push(log);
+  }
+
+  return merged;
 }
 
 function chunkChangedFiles(files: ChangedFilePayload[]): ChangedFilePayload[][] {

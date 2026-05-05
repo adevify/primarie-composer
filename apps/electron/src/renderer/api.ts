@@ -8,6 +8,7 @@ import type {
   EnvironmentRecord,
   LifecycleAction,
   StreamLogEvent,
+  SystemMetrics,
   SyncFilesInput
 } from "./types";
 
@@ -98,8 +99,12 @@ export class ComposerApiClient {
     return this.request<EnvironmentLogsPage>(`/environments/${encodeURIComponent(key)}/logs`);
   }
 
-  allLogs(perPage = 100): Promise<EnvironmentLogsPage> {
-    return this.request<EnvironmentLogsPage>(`/environments/logs/all?${new URLSearchParams({ perPage: String(perPage) }).toString()}`);
+  allLogs(page = 0, perPage = 50): Promise<EnvironmentLogsPage> {
+    return this.request<EnvironmentLogsPage>(`/environments/logs/all?${new URLSearchParams({ page: String(page), perPage: String(perPage) }).toString()}`);
+  }
+
+  systemMetrics(): Promise<SystemMetrics> {
+    return this.request<SystemMetrics>("/environments/system/metrics");
   }
 
   listContainers(key: string): Promise<EnvironmentContainer[]> {

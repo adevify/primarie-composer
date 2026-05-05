@@ -1,6 +1,9 @@
 import fs from "node:fs/promises";
 import net from "node:net";
+import os from "node:os";
 import path from "node:path";
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
 import { env } from "../../config/env.js";
 import { EnvironmentCollection, EnvironmentRecord } from "../../db/environments.js";
 import { DockerComposeService } from "../../services/docker/DockerComposeService.js";
@@ -10,6 +13,8 @@ import type { CreateEnvironmentPayload, EnvironmentOwner, EnvironmentSource, Pul
 import { EnvironmentLogCollection } from "../../db/environment-logs.js";
 
 const keyPattern = /^[a-z]+-[a-z]+$/;
+const execFileAsync = promisify(execFile);
+let previousCpuSnapshot = readCpuSnapshot();
 
 const keyAdjectives = [
   "agile",
@@ -168,6 +173,24 @@ export class EnvironmentsService {
 
   async getAllLogs(page: number, perPage: number) {
     return EnvironmentLogCollection.listAll(page, perPage);
+  }
+
+  async getSystemMetrics() {
+    const cpu = sampleCpuUsage();
+    const totalMemoryBytes = os.totalmem();
+    const freeMemoryBytes = os.freemem();
+    const usedMemoryBytes = totalMemoryBytes - freeMemoryBytes;
+    const storage = await readStorageUsage(env.RUNTIME_DIR);
+
+    return {
+      cpu,
+      memory: {
+        usedBytes: usedMemoryBytes,
+        totalBytes: totalMemoryBytes,
+        percent: percent(usedMemoryBytes, totalMemoryBytes),
+      },
+      storage
+    };
   }
 
   async listContainers(key: string): Promise<unknown[]> {
@@ -520,4 +543,51 @@ function randomItem<T>(items: T[]): T {
 
 function capitalize(value: string): string {
   return `${value.slice(0, 1).toUpperCase()}${value.slice(1)}`;
+}
+
+function sampleCpuUsage() {
+  const current = readCpuSnapshot();
+  const idleDelta = current.idle - previousCpuSnapshot.idle;
+  const totalDelta = current.total - previousCpuSnapshot.total;
+  previousCpuSnapshot = current;
+
+  const usagePercent = totalDelta <= 0 ? 0 : percent(totalDelta - idleDelta, totalDelta);
+  return {
+    percent: usagePercent,
+    loadAverage: os.loadavg(),
+    cores: os.cpus().length
+  };
+}
+
+function readCpuSnapshot(): { idle: number; total: number } {
+  return os.cpus().reduce((snapshot, cpu) => {
+    const total = Object.values(cpu.times).reduce((sum, value) => sum + value, 0);
+    return {
+      idle: snapshot.idle + cpu.times.idle,
+      total: snapshot.total + total
+    };
+  }, { idle: 0, total: 0 });
+}
+
+async function readStorageUsage(targetPath: string) {
+  const { stdout } = await execFileAsync("df", ["-k", targetPath], { maxBuffer: 1024 * 64 });
+  const [, line] = stdout.trim().split(/\r?\n/);
+  const parts = line?.trim().split(/\s+/) ?? [];
+  const totalBytes = Number(parts[1] ?? 0) * 1024;
+  const usedBytes = Number(parts[2] ?? 0) * 1024;
+  const availableBytes = Number(parts[3] ?? 0) * 1024;
+
+  return {
+    usedBytes,
+    availableBytes,
+    totalBytes,
+    percent: percent(usedBytes, totalBytes)
+  };
+}
+
+function percent(used: number, total: number): number {
+  if (!Number.isFinite(used) || !Number.isFinite(total) || total <= 0) {
+    return 0;
+  }
+  return Math.max(0, Math.min(100, Number(((used / total) * 100).toFixed(1))));
 }

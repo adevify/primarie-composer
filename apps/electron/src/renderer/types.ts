@@ -77,6 +77,25 @@ export type EnvironmentLogsPage = {
   items: EnvironmentLog[];
 };
 
+export type SystemMetrics = {
+  cpu: {
+    percent: number;
+    loadAverage: number[];
+    cores: number;
+  };
+  memory: {
+    usedBytes: number;
+    totalBytes: number;
+    percent: number;
+  };
+  storage: {
+    usedBytes: number;
+    availableBytes: number;
+    totalBytes: number;
+    percent: number;
+  };
+};
+
 export type EnvironmentContainer = {
   ID?: string;
   Name?: string;

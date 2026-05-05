@@ -47,6 +47,14 @@ export function createEnvironmentRouter(): Router {
     }
   });
 
+  router.get("/system/metrics", async (_req, res, next) => {
+    try {
+      return res.json(await service.getSystemMetrics());
+    } catch (error) {
+      return next(error);
+    }
+  });
+
   router.get("/:key", async (req, res, next) => {
     try {
       return res.json(await service.get(req.params.key));

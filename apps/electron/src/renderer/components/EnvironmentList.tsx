@@ -20,12 +20,16 @@ import {
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import SyncIcon from "@mui/icons-material/Sync";
-import { useMemo, useState } from "react";
-import type { EnvironmentLog, EnvironmentRecord } from "../types";
+import { useMemo, useState, type UIEvent } from "react";
+import type { EnvironmentLog, EnvironmentRecord, SystemMetrics } from "../types";
 
 type EnvironmentListProps = {
   environments: EnvironmentRecord[];
   logs: EnvironmentLog[];
+  logsTotal: number;
+  logsHasMore: boolean;
+  logsLoadingMore: boolean;
+  metrics?: SystemMetrics;
   loading: boolean;
   error?: string;
   activeEnvironmentKey: string;
@@ -33,15 +37,21 @@ type EnvironmentListProps = {
   onSelectActive: (key: string) => void;
   onDetails: (environment: EnvironmentRecord) => void;
   onAction: (key: string, action: "start" | "stop" | "restart" | "resume" | "delete") => Promise<void>;
+  onLoadMoreLogs: () => Promise<void>;
 };
 
 export function EnvironmentList({
   environments,
   logs,
+  logsTotal,
+  logsHasMore,
+  logsLoadingMore,
+  metrics,
   loading,
   error,
   onRefresh,
   onDetails,
+  onLoadMoreLogs,
 }: EnvironmentListProps) {
   const [query, setQuery] = useState("");
   const environmentByKey = useMemo(() => new Map(environments.map((environment) => [environment.key, environment])), [environments]);
@@ -53,7 +63,15 @@ export function EnvironmentList({
 
     return logs.filter((log) => logSearchText(log).includes(normalizedQuery));
   }, [logs, query]);
-  const stats = useMemo(() => buildStats(environments), [environments]);
+  const stats = useMemo(() => buildStats(environments, metrics), [environments, metrics]);
+
+  function handleLogsScroll(event: UIEvent<HTMLDivElement>): void {
+    const target = event.currentTarget;
+    const distanceFromBottom = target.scrollHeight - target.scrollTop - target.clientHeight;
+    if (distanceFromBottom < 160 && logsHasMore && !logsLoadingMore) {
+      void onLoadMoreLogs();
+    }
+  }
 
   return (
     <Stack spacing={3}>
@@ -82,6 +100,11 @@ export function EnvironmentList({
             <Typography variant="h6" color={stat.color} sx={{ mt: 0.5, fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}>
               {stat.value}
             </Typography>
+            {stat.detail ? (
+              <Typography variant="caption" color="text.secondary" noWrap sx={{ display: "block", mt: 0.35, fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}>
+                {stat.detail}
+              </Typography>
+            ) : null}
             {stat.progress !== undefined ? <LinearProgress variant="determinate" value={stat.progress} sx={{ mt: 1.5, bgcolor: "rgba(255,255,255,0.18)", height: 5, "& .MuiLinearProgress-bar": { bgcolor: stat.color } }} /> : null}
           </Box>
         ))}
@@ -138,7 +161,7 @@ export function EnvironmentList({
                 <Alert severity="error">{error}</Alert>
               </Box>
             ) : null}
-            <TableContainer>
+            <TableContainer onScroll={handleLogsScroll} sx={{ maxHeight: 560, overflow: "auto" }}>
               <Table size="small" sx={{ minWidth: 1040 }}>
               <TableHead>
                 <TableRow sx={{ bgcolor: "rgba(255,255,255,0.035)" }}>
@@ -202,8 +225,10 @@ export function EnvironmentList({
             </Table>
           </TableContainer>
             <Stack direction="row" justifyContent="space-between" sx={{ px: 2.5, py: 1.5, borderTop: "1px solid rgba(159,179,195,0.24)", bgcolor: "rgba(255,255,255,0.035)" }}>
-              <Typography variant="caption" color="text.secondary" sx={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}>DISPLAYING LATEST {filteredLogs.length} LOGS ACROSS {environments.length} ENVS</Typography>
-              <Typography variant="caption" color="text.secondary" sx={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}>STATUS: STREAMING</Typography>
+              <Typography variant="caption" color="text.secondary" sx={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}>DISPLAYING {filteredLogs.length} OF {logsTotal} LOGS ACROSS {environments.length} ENVS</Typography>
+              <Typography variant="caption" color="text.secondary" sx={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}>
+                {logsLoadingMore ? "STATUS: LOADING" : logsHasMore ? "STATUS: STREAMING" : "STATUS: END OF BUFFER"}
+              </Typography>
             </Stack>
         </Stack>
       </CardContent>
@@ -231,12 +256,15 @@ function levelColor(level: EnvironmentLog["level"]): string {
   return "#65ffc9";
 }
 
-function buildStats(environments: EnvironmentRecord[]): Array<{ label: string; value: string; color: string; progress?: number }> {
+function buildStats(environments: EnvironmentRecord[], metrics?: SystemMetrics): Array<{ label: string; value: string; color: string; progress?: number; detail?: string }> {
   const today = new Date().toDateString();
   const running = environments.filter((environment) => environment.status === "running").length;
   const stopped = environments.filter((environment) => environment.status === "stopped").length;
   const failed = environments.filter((environment) => environment.status === "error").length;
   const createdToday = environments.filter((environment) => new Date(environment.createdAt).toDateString() === today).length;
+  const cpuPercent = metrics?.cpu.percent ?? 0;
+  const memoryPercent = metrics?.memory.percent ?? 0;
+  const storagePercent = metrics?.storage.percent ?? 0;
 
   return [
     { label: "Total envs", value: pad(environments.length), color: "#00e5ff" },
@@ -245,9 +273,25 @@ function buildStats(environments: EnvironmentRecord[]): Array<{ label: string; v
     { label: "Failed envs", value: pad(failed), color: "#ffc4b7" },
     { label: "Created today", value: pad(createdToday), color: "#00e5ff" },
     { label: "Containers", value: String(Math.max(environments.length * 3, running)), color: "#edf4fa" },
-    { label: "CPU usage", value: `${Math.min(98, 18 + running * 4)}%`, color: "#00e5ff", progress: Math.min(98, 18 + running * 4) },
-    { label: "RAM usage", value: `${Math.min(96, 28 + environments.length * 3)}%`, color: "#ffd900", progress: Math.min(96, 28 + environments.length * 3) }
+    { label: "CPU usage", value: `${formatMetric(cpuPercent)}%`, color: "#00e5ff", progress: cpuPercent, detail: metrics ? `${metrics.cpu.cores} cores` : "loading" },
+    { label: "RAM usage", value: `${formatMetric(memoryPercent)}%`, color: "#65ffc9", progress: memoryPercent, detail: metrics ? `${formatBytes(metrics.memory.usedBytes)} / ${formatBytes(metrics.memory.totalBytes)}` : "loading" },
+    { label: "Storage", value: `${formatMetric(storagePercent)}%`, color: "#ffd900", progress: storagePercent, detail: metrics ? `${formatBytes(metrics.storage.usedBytes)} / ${formatBytes(metrics.storage.totalBytes)}` : "loading" }
   ];
+}
+
+function formatMetric(value: number): string {
+  return Number.isInteger(value) ? String(value) : value.toFixed(1);
+}
+
+function formatBytes(value: number): string {
+  const units = ["B", "KB", "MB", "GB", "TB"];
+  let nextValue = value;
+  let unitIndex = 0;
+  while (nextValue >= 1024 && unitIndex < units.length - 1) {
+    nextValue /= 1024;
+    unitIndex += 1;
+  }
+  return `${nextValue >= 10 || unitIndex === 0 ? nextValue.toFixed(0) : nextValue.toFixed(1)} ${units[unitIndex]}`;
 }
 
 function pad(value: number): string {
