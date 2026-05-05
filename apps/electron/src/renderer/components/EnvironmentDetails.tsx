@@ -439,7 +439,7 @@ function DataCell({ children, strong = false, accent = false }: { children: Reac
   );
 }
 
-function LogTerminal({ logs }: { logs: Array<{ at: string; label: string; message: string; level: "info" | "error"; system: boolean }> }) {
+function LogTerminal({ logs }: { logs: Array<{ at: string; message: string; level: "info" | "error"; system: boolean }>; }) {
   return (
     <Box sx={{ minHeight: 460, maxHeight: 560, overflow: "auto", bgcolor: "#02051d", p: 2, fontFamily: monoFont, fontSize: 14, lineHeight: 1.7 }}>
       {logs.length === 0 ? (
@@ -451,11 +451,8 @@ function LogTerminal({ logs }: { logs: Array<{ at: string; label: string; messag
           <Box component="span" sx={{ color: "#8ea0b3", flexShrink: 0 }}>
             [{formatTimestamp(log.at)}]
           </Box>
-          <Box component="span" sx={{ color: log.system ? "#9fb3c3" : labelColor(log.label), fontWeight: 900, flexShrink: 0 }}>
-            {log.label}
-          </Box>
           <Box component="span" sx={{ color: log.level === "error" ? "#ffc4b7" : "text.primary", wordBreak: "break-word" }}>
-            | {log.message}
+            {log.message}
           </Box>
         </Box>
       ))}

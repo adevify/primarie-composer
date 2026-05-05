@@ -130,10 +130,10 @@ export class DockerComposeService {
   private async runCompose(cwd: string, args: string[], onLog?: ComposeLogHandler, signal?: AbortSignal, envFilePath?: string): Promise<void> {
     const composeArgs = withEnvFile(args, envFilePath);
     try {
-      await this.spawnCompose(cwd, "docker", ["compose", ...composeArgs], onLog, signal);
+      await this.spawnCompose(cwd, "DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker", ["compose", ...composeArgs], onLog, signal);
     } catch (primaryError) {
       try {
-        await this.spawnCompose(cwd, "docker-compose", composeArgs, onLog, signal);
+        await this.spawnCompose(cwd, "DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker-compose", composeArgs, onLog, signal);
       } catch (fallbackError) {
         throw new Error(this.formatComposeError(args, primaryError, fallbackError));
       }
