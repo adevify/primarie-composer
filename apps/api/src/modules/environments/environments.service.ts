@@ -270,7 +270,7 @@ export class EnvironmentsService {
           await onLog({ log: "Environment is already running", level: "info" });
           return record;
         }
-        await this.docker.up(compose.cwd, onLog, signal, compose.envFile);
+        await this.docker.up(key, compose.cwd, onLog, signal, compose.envFile);
         await onLog({ log: `Environment ${action === "resume" ? "resumed" : "started"}`, level: "info" });
         return this.updateStatus(key, "running");
       }
@@ -281,7 +281,7 @@ export class EnvironmentsService {
         return this.updateStatus(key, "running");
       }
 
-      await this.docker.down(compose.cwd, onLog, signal, compose.envFile);
+      await this.docker.down(key, compose.cwd, onLog, signal, compose.envFile);
       await onLog({ log: "Environment stopped", level: "info" });
       return this.updateStatus(key, "stopped");
     } catch (error) {
@@ -356,7 +356,7 @@ export class EnvironmentsService {
       log: "Stopping environment",
     });
 
-    await this.docker.down(compose.cwd, this.composeLogger(key), undefined, compose.envFile);
+    await this.docker.down(key, compose.cwd, this.composeLogger(key), undefined, compose.envFile);
 
     await EnvironmentLogCollection.add({
       environmentKey: key,
@@ -380,7 +380,7 @@ export class EnvironmentsService {
     });
 
     if (record.status !== "running") {
-      await this.docker.up(compose.cwd, this.composeLogger(key), undefined, compose.envFile);
+      await this.docker.up(key, compose.cwd, this.composeLogger(key), undefined, compose.envFile);
 
       await EnvironmentLogCollection.add({
         environmentKey: key,
@@ -399,7 +399,7 @@ export class EnvironmentsService {
         environmentKey: key,
         log: "Starting environment",
       });
-      await this.docker.up(compose.cwd, this.composeLogger(key), undefined, compose.envFile);
+      await this.docker.up(key, compose.cwd, this.composeLogger(key), undefined, compose.envFile);
       await EnvironmentLogCollection.add({
         environmentKey: key,
         log: "Environment started",
@@ -476,7 +476,7 @@ export class EnvironmentsService {
       log: "Stopping environment",
     });
 
-    await this.docker.down(compose.cwd, this.composeLogger(key), undefined, compose.envFile).catch(() => undefined);
+    await this.docker.down(key, compose.cwd, this.composeLogger(key), undefined, compose.envFile).catch(() => undefined);
 
     await EnvironmentLogCollection.add({
       environmentKey: key,
