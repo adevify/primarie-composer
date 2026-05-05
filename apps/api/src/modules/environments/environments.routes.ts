@@ -82,6 +82,53 @@ export function createEnvironmentRouter(): Router {
     }
   });
 
+  router.get("/:key/files", async (req, res, next) => {
+    try {
+      return res.json(await service.listEnvironmentFiles(req.params.key, String(req.query.path ?? "/")));
+    } catch (error) {
+      return next(error);
+    }
+  });
+
+  router.get("/:key/mongo", async (req, res, next) => {
+    try {
+      return res.json(await service.inspectMongo(req.params.key));
+    } catch (error) {
+      return next(error);
+    }
+  });
+
+  router.get("/:key/compose/logs/stream", async (req, res) => {
+    const controller = new AbortController();
+    let closed = false;
+    req.once("close", () => {
+      closed = true;
+      controller.abort();
+    });
+    prepareStreamResponse(res);
+
+    try {
+      await service.streamComposeLogs(
+        req.params.key,
+        (entry) => writeStreamEvent(res, { type: "line", ...entry }),
+        controller.signal
+      );
+      writeStreamEvent(res, { type: "complete" });
+    } catch (error) {
+      if (!closed) {
+        writeStreamEvent(res, {
+          type: "error",
+          log: error instanceof Error ? error.message : String(error),
+          level: "error"
+        });
+      }
+    } finally {
+      if (!closed) {
+        res.end();
+      }
+    }
+  });
+
   router.get("/:key/actions/:action/stream", async (req, res) => {
     const parsed = lifecycleActionSchema.safeParse(req.params.action);
     if (!parsed.success) {

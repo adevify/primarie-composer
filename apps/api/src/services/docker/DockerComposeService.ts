@@ -5,6 +5,15 @@ const execFileAsync = promisify(execFile);
 
 type ComposeLogHandler = (entry: { log: string; level: "info" | "error" }) => Promise<void> | void;
 
+export type MongoPreview = {
+  database: string;
+  collections: Array<{
+    name: string;
+    count: number;
+    sample: unknown;
+  }>;
+};
+
 export class DockerComposeService {
   async up(composePath: string, onLog?: ComposeLogHandler, signal?: AbortSignal): Promise<void> {
     await this.runCompose(composePath, ["up", "-d", "--build"], onLog, signal);
@@ -21,6 +30,10 @@ export class DockerComposeService {
   async streamContainerLogs(container: string, onLog: ComposeLogHandler, signal?: AbortSignal): Promise<void> {
     this.assertContainerName(container);
     await this.spawnProcess("docker", ["logs", "--follow", "--tail", "200", "--timestamps", container], undefined, onLog, signal);
+  }
+
+  async streamComposeLogs(composePath: string, onLog: ComposeLogHandler, signal?: AbortSignal): Promise<void> {
+    await this.runCompose(composePath, ["logs", "--follow", "--tail", "200", "--timestamps"], onLog, signal);
   }
 
   async listContainers(composePath: string): Promise<unknown[]> {
@@ -79,6 +92,25 @@ export class DockerComposeService {
         stderr: maybe.stderr ?? (error instanceof Error ? error.message : String(error))
       };
     }
+  }
+
+  async inspectMongo(container: string): Promise<MongoPreview> {
+    const script = [
+      "const collections = db.getCollectionNames();",
+      "const result = { database: db.getName(), collections: collections.map((name) => ({ name, count: db.getCollection(name).countDocuments(), sample: db.getCollection(name).findOne() })) };",
+      "print(JSON.stringify(result));"
+    ].join(" ");
+    const command = `dbName="\${MONGO_INITDB_DATABASE:-test}"; mongosh --quiet "$dbName" --eval '${script.replace(/'/g, "'\\''")}'`;
+    const result = await this.execInContainer(
+      container,
+      command
+    );
+
+    if (result.exitCode !== 0) {
+      throw new Error(result.stderr || result.stdout || "MongoDB inspection failed.");
+    }
+
+    return JSON.parse(result.stdout.trim()) as MongoPreview;
   }
 
   private async runCompose(cwd: string, args: string[], onLog?: ComposeLogHandler, signal?: AbortSignal): Promise<void> {

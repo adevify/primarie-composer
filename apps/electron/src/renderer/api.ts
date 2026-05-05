@@ -7,6 +7,7 @@ import type {
   EnvironmentLogsPage,
   EnvironmentRecord,
   LifecycleAction,
+  MongoPreview,
   StreamLogEvent,
   SystemMetrics,
   SyncFilesInput,
@@ -123,6 +124,15 @@ export class ComposerApiClient {
     );
   }
 
+  listEnvironmentFiles(key: string, path: string): Promise<ContainerFileEntry[]> {
+    const params = new URLSearchParams({ path });
+    return this.request<ContainerFileEntry[]>(`/environments/${encodeURIComponent(key)}/files?${params.toString()}`);
+  }
+
+  inspectMongo(key: string): Promise<MongoPreview> {
+    return this.request<MongoPreview>(`/environments/${encodeURIComponent(key)}/mongo`);
+  }
+
   execInContainer(key: string, container: string, command: string): Promise<ContainerExecResult> {
     return this.request<ContainerExecResult>(
       `/environments/${encodeURIComponent(key)}/containers/${encodeURIComponent(container)}/exec`,
@@ -147,6 +157,18 @@ export class ComposerApiClient {
   ): Promise<void> {
     return this.streamNdjson(
       `/environments/${encodeURIComponent(key)}/containers/${encodeURIComponent(container)}/logs/stream`,
+      onEvent,
+      signal
+    );
+  }
+
+  streamComposeLogs(
+    key: string,
+    onEvent: (event: StreamLogEvent) => void,
+    signal?: AbortSignal
+  ): Promise<void> {
+    return this.streamNdjson(
+      `/environments/${encodeURIComponent(key)}/compose/logs/stream`,
       onEvent,
       signal
     );

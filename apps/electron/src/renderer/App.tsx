@@ -1,4 +1,4 @@
-import { Alert, Box, Button, CircularProgress, Dialog, DialogContent, DialogTitle, Stack, Typography } from "@mui/material";
+import { Alert, Box, CircularProgress, Stack, Typography } from "@mui/material";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ApiError, ComposerApiClient, isSessionExpired, normalizeBaseUrl } from "./api";
 import { ActiveEnvironmentCard } from "./components/ActiveEnvironmentCard";
@@ -6,6 +6,7 @@ import { DashboardLayout } from "./components/DashboardLayout";
 import { EnvironmentCreateForm } from "./components/EnvironmentCreateForm";
 import { EnvironmentDetails } from "./components/EnvironmentDetails";
 import { EnvironmentEnvDialog } from "./components/EnvironmentEnvDialog";
+import { EnvironmentsPage } from "./components/EnvironmentsPage";
 import { EnvironmentList } from "./components/EnvironmentList";
 import { GitStatusCard } from "./components/GitStatusCard";
 import { LatestChangesCard, type LatestChangeEvent } from "./components/LatestChangesCard";
@@ -22,7 +23,7 @@ const DASHBOARD_LOGS_PER_PAGE = 50;
 
 export default function App() {
   const electronBridge = window.primarieElectron;
-  const [activePage, setActivePage] = useState<"dashboard" | "users">("dashboard");
+  const [activePage, setActivePage] = useState<"dashboard" | "environments" | "users">("dashboard");
   const [session, setSession] = useState<AuthSession | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [loginLoading, setLoginLoading] = useState(false);
@@ -564,6 +565,47 @@ export default function App() {
     });
   }
 
+  function startComposeLogStream(key: string): void {
+    if (!api) {
+      return;
+    }
+
+    const existing = liveLogSessions.find((session) => session.environmentKey === key && session.subtitle === "Docker Compose logs" && session.status === "running");
+    if (existing) {
+      return;
+    }
+
+    const sessionId = `${Date.now()}-compose-${key}`;
+    const controller = new AbortController();
+    streamControllers.current.set(sessionId, controller);
+    addLiveLogSession({
+      id: sessionId,
+      environmentKey: key,
+      title: "docker compose",
+      subtitle: "Docker Compose logs",
+      status: "running",
+      entries: []
+    });
+
+    void api.streamComposeLogs(
+      key,
+      (event) => handleStreamEvent(sessionId, event),
+      controller.signal
+    ).then(() => {
+      markLiveLogSession(sessionId, "complete");
+    }).catch((error) => {
+      if (controller.signal.aborted) {
+        appendLiveLogEntry(sessionId, "Stream stopped by operator.", "error");
+        markLiveLogSession(sessionId, "stopped");
+        return;
+      }
+      appendLiveLogEntry(sessionId, toErrorMessage(error), "error");
+      markLiveLogSession(sessionId, "error");
+    }).finally(() => {
+      streamControllers.current.delete(sessionId);
+    });
+  }
+
   function stopLiveLogSession(id: string): void {
     streamControllers.current.get(id)?.abort();
   }
@@ -612,6 +654,20 @@ export default function App() {
       throw new Error("API client is unavailable.");
     }
     return api.listContainerFiles(key, container, path);
+  }
+
+  async function listEnvironmentFiles(key: string, path: string) {
+    if (!api) {
+      throw new Error("API client is unavailable.");
+    }
+    return api.listEnvironmentFiles(key, path);
+  }
+
+  async function inspectMongo(key: string) {
+    if (!api) {
+      throw new Error("API client is unavailable.");
+    }
+    return api.inspectMongo(key);
   }
 
   async function execInContainer(key: string, container: string, command: string) {
@@ -789,29 +845,35 @@ export default function App() {
             {environmentsError ? <Alert severity="error">{environmentsError}</Alert> : null}
             <UsersPage users={users} loading={usersLoading} onRefresh={refreshUsers} />
           </>
+        ) : activePage === "environments" && !detailsEnvironment ? (
+          <>
+            {!repoPath ? <Alert severity="info">Choose a local repository before creating environments.</Alert> : null}
+            <EnvironmentsPage
+              environments={environments}
+              activeEnvironmentKey={syncState.activeEnvironmentKey}
+              metrics={systemMetrics}
+              repoPath={repoPath}
+              onCreate={() => setCreateDialogOpen(true)}
+              onDetails={setDetailsEnvironment}
+              onSelectActive={setActiveEnvironment}
+              onAction={runEnvironmentAction}
+            />
+          </>
         ) : detailsEnvironment ? (
           <EnvironmentDetails
             environment={detailsEnvironment}
             open={Boolean(detailsEnvironment)}
             onClose={() => setDetailsEnvironment(undefined)}
             onListContainers={listContainers}
-            onListContainerFiles={listContainerFiles}
-            onExecInContainer={execInContainer}
-            onGetLogs={getEnvironmentLogs}
+            onListEnvironmentFiles={listEnvironmentFiles}
+            onInspectMongo={inspectMongo}
             onAction={runEnvironmentAction}
             liveLogSessions={liveLogSessions.filter((session) => session.environmentKey === detailsEnvironment.key)}
-            onStartContainerLogStream={startContainerLogStream}
+            onStartComposeLogStream={startComposeLogStream}
             onStopLiveLogSession={stopLiveLogSession}
-            logRefreshToken={detailsLogRefreshToken}
           />
         ) : (
           <>
-            {!repoPath ? <Alert severity="info">Choose a local repository before creating or syncing environments.</Alert> : null}
-            <Stack direction="row" justifyContent="flex-end">
-              <Button variant="contained" disabled={!repoPath} onClick={() => setCreateDialogOpen(true)}>
-                Create environment
-              </Button>
-            </Stack>
             <EnvironmentList
               environments={environments}
               logs={dashboardLogs}
@@ -831,12 +893,14 @@ export default function App() {
           </>
         )}
       </Stack>
-      <Dialog open={createDialogOpen} onClose={createLoading ? undefined : () => setCreateDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Create environment</DialogTitle>
-        <DialogContent>
-          <EnvironmentCreateForm disabled={!repoPath} loading={createLoading} error={createError} onCreate={createEnvironment} />
-        </DialogContent>
-      </Dialog>
+      <EnvironmentCreateForm
+        open={createDialogOpen}
+        disabled={!repoPath}
+        loading={createLoading}
+        error={createError}
+        onCancel={() => setCreateDialogOpen(false)}
+        onCreate={createEnvironment}
+      />
       <EnvironmentEnvDialog
         open={envDialogOpen}
         entries={envExampleEntries}

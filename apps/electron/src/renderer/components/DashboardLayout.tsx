@@ -10,11 +10,11 @@ import type { ReactNode } from "react";
 
 type DashboardLayoutProps = {
   apiBaseUrl: string;
-  activePage: "dashboard" | "users";
+  activePage: "dashboard" | "environments" | "users";
   sidebar?: ReactNode;
   children: ReactNode;
   onLogout: () => void;
-  onNavigate: (page: "dashboard" | "users") => void;
+  onNavigate: (page: "dashboard" | "environments" | "users") => void;
 };
 
 export function DashboardLayout({ apiBaseUrl, activePage, sidebar, children, onLogout, onNavigate }: DashboardLayoutProps) {
@@ -48,7 +48,7 @@ export function DashboardLayout({ apiBaseUrl, activePage, sidebar, children, onL
           </Box>
           <Stack spacing={0.5} sx={{ py: 2 }}>
             <NavItem icon={<DashboardIcon />} label="Dashboard" active={activePage === "dashboard"} onClick={() => onNavigate("dashboard")} />
-            <NavItem icon={<LayersIcon />} label="Environments" />
+            <NavItem icon={<LayersIcon />} label="Environments" active={activePage === "environments"} onClick={() => onNavigate("environments")} />
             <NavItem icon={<PeopleIcon />} label="Users" active={activePage === "users"} onClick={() => onNavigate("users")} />
             <NavItem icon={<TerminalIcon />} label="System Logs" />
             <NavItem icon={<SettingsIcon />} label="Settings" />

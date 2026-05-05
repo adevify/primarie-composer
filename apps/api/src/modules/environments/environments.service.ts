@@ -203,6 +203,31 @@ export class EnvironmentsService {
     return this.docker.listContainerFiles(container, targetPath);
   }
 
+  async listEnvironmentFiles(key: string, targetPath: string) {
+    await this.get(key);
+    const rootPath = path.resolve(env.RUNTIME_DIR, key);
+    const absolutePath = resolveInside(rootPath, targetPath || "/");
+    const entries = await fs.readdir(absolutePath, { withFileTypes: true }).catch((error) => {
+      if (isNodeError(error) && error.code === "ENOENT") {
+        return [];
+      }
+      throw error;
+    });
+
+    return Promise.all(entries.map(async (entry) => {
+      const entryPath = path.join(absolutePath, entry.name);
+      const stats = await fs.stat(entryPath);
+      const relativePath = `/${path.relative(rootPath, entryPath).split(path.sep).join("/")}`;
+      return {
+        path: relativePath,
+        name: entry.name,
+        type: entry.isDirectory() ? "directory" : entry.isFile() ? "file" : "other",
+        size: stats.size,
+        modifiedAt: stats.mtime.toISOString()
+      };
+    }));
+  }
+
   async execInContainer(key: string, container: string, command: string) {
     await this.get(key);
     await EnvironmentLogCollection.add({
@@ -267,6 +292,43 @@ export class EnvironmentsService {
   ): Promise<void> {
     await this.get(key);
     await this.docker.streamContainerLogs(container, onLog, signal);
+  }
+
+  async streamComposeLogs(
+    key: string,
+    onLog: (entry: { log: string; level: "info" | "error" }) => Promise<void> | void,
+    signal?: AbortSignal
+  ): Promise<void> {
+    await this.get(key);
+    await this.docker.streamComposeLogs(path.join(env.RUNTIME_DIR, key), onLog, signal);
+  }
+
+  async inspectMongo(key: string) {
+    await this.get(key);
+    const containers = await this.docker.listContainers(path.join(env.RUNTIME_DIR, key)).catch(() => []);
+    const mongoContainer = containers
+      .map((container) => container as { Name?: string; Names?: string; Service?: string; State?: string; Image?: string })
+      .find((container) => {
+        const service = container.Service?.toLowerCase() ?? "";
+        const name = (container.Name ?? container.Names ?? "").toLowerCase();
+        const image = container.Image?.toLowerCase() ?? "";
+        return container.State === "running" && (service === "mongo" || name.includes("mongo") || image.includes("mongo"));
+      });
+
+    if (!mongoContainer) {
+      return { available: false, reason: "MongoDB container is not running" };
+    }
+
+    const containerName = mongoContainer.Name ?? mongoContainer.Names;
+    if (!containerName) {
+      return { available: false, reason: "MongoDB container name is unavailable" };
+    }
+
+    return {
+      available: true,
+      container: containerName,
+      ...(await this.docker.inspectMongo(containerName))
+    };
   }
 
   async stop(key: string): Promise<EnvironmentRecord> {
@@ -543,6 +605,22 @@ function randomItem<T>(items: T[]): T {
 
 function capitalize(value: string): string {
   return `${value.slice(0, 1).toUpperCase()}${value.slice(1)}`;
+}
+
+function resolveInside(rootPath: string, targetPath: string): string {
+  const normalizedTarget = targetPath.startsWith("/") ? targetPath.slice(1) : targetPath;
+  const resolvedPath = path.resolve(rootPath, normalizedTarget);
+  const relativePath = path.relative(rootPath, resolvedPath);
+
+  if (relativePath.startsWith("..") || path.isAbsolute(relativePath)) {
+    throw Object.assign(new Error("Path is outside the environment runtime directory"), { status: 400 });
+  }
+
+  return resolvedPath;
+}
+
+function isNodeError(error: unknown): error is NodeJS.ErrnoException {
+  return error instanceof Error && "code" in error;
 }
 
 function sampleCpuUsage() {

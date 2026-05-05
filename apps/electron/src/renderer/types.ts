@@ -117,6 +117,19 @@ export type ContainerFileEntry = {
   name: string;
   type: string;
   size?: number;
+  modifiedAt?: string;
+};
+
+export type MongoPreview = {
+  available: boolean;
+  reason?: string;
+  container?: string;
+  database?: string;
+  collections?: Array<{
+    name: string;
+    count: number;
+    sample: unknown;
+  }>;
 };
 
 export type ContainerExecResult = {
