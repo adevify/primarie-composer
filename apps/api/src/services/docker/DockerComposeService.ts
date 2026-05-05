@@ -34,7 +34,7 @@ export class DockerComposeService {
 
   async streamContainerLogs(container: string, onLog: ComposeLogHandler, signal?: AbortSignal): Promise<void> {
     this.assertContainerName(container);
-    await this.spawnProcess("docker", ["logs", "--follow", "--tail", "200", "--timestamps", container], undefined, onLog, signal);
+    await this.spawnProcess("docker", ["logs", "--follow", "--tail", "200", "--timestamps", container], undefined, {}, onLog, signal);
   }
 
   async streamComposeLogs(composePath: string, onLog: ComposeLogHandler, signal?: AbortSignal, envFilePath?: string): Promise<void> {
@@ -130,22 +130,22 @@ export class DockerComposeService {
   private async runCompose(cwd: string, args: string[], onLog?: ComposeLogHandler, signal?: AbortSignal, envFilePath?: string): Promise<void> {
     const composeArgs = withEnvFile(args, envFilePath);
     try {
-      await this.spawnCompose(cwd, "DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker", ["compose", ...composeArgs], onLog, signal);
+      await this.spawnCompose(cwd, "docker", ["compose", ...composeArgs], { DOCKER_BUILDKIT: "1", COMPOSE_DOCKER_CLI_BUILD: "1" }, onLog, signal);
     } catch (primaryError) {
       try {
-        await this.spawnCompose(cwd, "DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker-compose", composeArgs, onLog, signal);
+        await this.spawnCompose(cwd, "docker-compose", composeArgs, { DOCKER_BUILDKIT: "1", COMPOSE_DOCKER_CLI_BUILD: "1" }, onLog, signal);
       } catch (fallbackError) {
         throw new Error(this.formatComposeError(args, primaryError, fallbackError));
       }
     }
   }
 
-  private async spawnCompose(cwd: string, command: string, args: string[], onLog?: ComposeLogHandler, signal?: AbortSignal): Promise<void> {
-    await this.spawnProcess(command, args, cwd, onLog, signal);
+  private async spawnCompose(cwd: string, command: string, args: string[], env: Record<string, string> = {}, onLog?: ComposeLogHandler, signal?: AbortSignal): Promise<void> {
+    await this.spawnProcess(command, args, cwd, env, onLog, signal);
   }
 
-  private async spawnProcess(command: string, args: string[], cwd: string | undefined, onLog?: ComposeLogHandler, signal?: AbortSignal): Promise<void> {
-    const child = spawn(command, args, { cwd });
+  private async spawnProcess(command: string, args: string[], cwd: string | undefined, env: Record<string, string> = {}, onLog?: ComposeLogHandler, signal?: AbortSignal): Promise<void> {
+    const child = spawn(command, args, { cwd, env });
     const output: string[] = [];
     let logQueue = Promise.resolve();
     let aborted = false;
