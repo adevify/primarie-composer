@@ -101,6 +101,23 @@ export type ContainerExecResult = {
   stderr: string;
 };
 
+export type LifecycleAction = "start" | "stop" | "restart" | "resume";
+
+export type StreamLogEvent =
+  | { type: "line"; log: string; level: "info" | "error" }
+  | { type: "environment"; environment: EnvironmentRecord }
+  | { type: "complete" }
+  | { type: "error"; log: string; level: "error" };
+
+export type LiveLogSession = {
+  id: string;
+  environmentKey: string;
+  title: string;
+  subtitle: string;
+  status: "running" | "complete" | "error" | "stopped";
+  entries: Array<{ at: string; log: string; level: "info" | "error" }>;
+};
+
 export type CreateEnvironmentInput = {
   seed: string;
   source: EnvironmentSource;

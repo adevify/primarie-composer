@@ -5,6 +5,7 @@ import { createEnvironmentSchema, syncFilesSchema } from "./environment.dtos.js"
 import { EnvironmentSource, PullRequestRef } from "./environment.dtos.js";
 
 const containerNameSchema = z.string().regex(/^[a-zA-Z0-9_.-]+$/);
+const lifecycleActionSchema = z.enum(["start", "stop", "restart", "resume"]);
 const execSchema = z.object({
   command: z.string().min(1)
 });
@@ -62,6 +63,46 @@ export function createEnvironmentRouter(): Router {
     }
   });
 
+  router.get("/:key/actions/:action/stream", async (req, res) => {
+    const parsed = lifecycleActionSchema.safeParse(req.params.action);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.flatten() });
+      return;
+    }
+
+    const controller = new AbortController();
+    let closed = false;
+    req.once("close", () => {
+      closed = true;
+      controller.abort();
+    });
+    prepareStreamResponse(res);
+
+    try {
+      const environment = await service.streamLifecycleAction(
+        req.params.key,
+        parsed.data,
+        req.user!,
+        (entry) => writeStreamEvent(res, { type: "line", ...entry }),
+        controller.signal
+      );
+      writeStreamEvent(res, { type: "environment", environment });
+      writeStreamEvent(res, { type: "complete" });
+    } catch (error) {
+      if (!closed) {
+        writeStreamEvent(res, {
+          type: "error",
+          log: error instanceof Error ? error.message : String(error),
+          level: "error"
+        });
+      }
+    } finally {
+      if (!closed) {
+        res.end();
+      }
+    }
+  });
+
   router.get("/:key/containers/:container/files", async (req, res, next) => {
     try {
       const parsed = containerNameSchema.safeParse(req.params.container);
@@ -72,6 +113,44 @@ export function createEnvironmentRouter(): Router {
       return res.json(await service.listContainerFiles(req.params.key, parsed.data, String(req.query.path ?? "/")));
     } catch (error) {
       return next(error);
+    }
+  });
+
+  router.get("/:key/containers/:container/logs/stream", async (req, res) => {
+    const parsed = containerNameSchema.safeParse(req.params.container);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.flatten() });
+      return;
+    }
+
+    const controller = new AbortController();
+    let closed = false;
+    req.once("close", () => {
+      closed = true;
+      controller.abort();
+    });
+    prepareStreamResponse(res);
+
+    try {
+      await service.streamContainerLogs(
+        req.params.key,
+        parsed.data,
+        (entry) => writeStreamEvent(res, { type: "line", ...entry }),
+        controller.signal
+      );
+      writeStreamEvent(res, { type: "complete" });
+    } catch (error) {
+      if (!closed) {
+        writeStreamEvent(res, {
+          type: "error",
+          log: error instanceof Error ? error.message : String(error),
+          level: "error"
+        });
+      }
+    } finally {
+      if (!closed) {
+        res.end();
+      }
     }
   });
 
@@ -193,4 +272,16 @@ export function createEnvironmentRouter(): Router {
   });
 
   return router;
+}
+
+function prepareStreamResponse(res: import("express").Response): void {
+  res.status(200);
+  res.setHeader("content-type", "application/x-ndjson; charset=utf-8");
+  res.setHeader("cache-control", "no-cache, no-transform");
+  res.setHeader("connection", "keep-alive");
+  res.flushHeaders?.();
+}
+
+function writeStreamEvent(res: import("express").Response, event: unknown): void {
+  res.write(`${JSON.stringify(event)}\n`);
 }

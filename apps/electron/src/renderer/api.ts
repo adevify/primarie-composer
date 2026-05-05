@@ -6,6 +6,8 @@ import type {
   EnvironmentContainer,
   EnvironmentLogsPage,
   EnvironmentRecord,
+  LifecycleAction,
+  StreamLogEvent,
   SyncFilesInput
 } from "./types";
 
@@ -114,6 +116,28 @@ export class ComposerApiClient {
     );
   }
 
+  streamLifecycleAction(
+    key: string,
+    action: LifecycleAction,
+    onEvent: (event: StreamLogEvent) => void,
+    signal?: AbortSignal
+  ): Promise<void> {
+    return this.streamNdjson(`/environments/${encodeURIComponent(key)}/actions/${encodeURIComponent(action)}/stream`, onEvent, signal);
+  }
+
+  streamContainerLogs(
+    key: string,
+    container: string,
+    onEvent: (event: StreamLogEvent) => void,
+    signal?: AbortSignal
+  ): Promise<void> {
+    return this.streamNdjson(
+      `/environments/${encodeURIComponent(key)}/containers/${encodeURIComponent(container)}/logs/stream`,
+      onEvent,
+      signal
+    );
+  }
+
   async deleteEnvironment(key: string): Promise<void> {
     await this.request<void>(`/environments/${encodeURIComponent(key)}`, { method: "DELETE" });
   }
@@ -136,6 +160,45 @@ export class ComposerApiClient {
     });
 
     return parseResponse<T>(response);
+  }
+
+  private async streamNdjson(path: string, onEvent: (event: StreamLogEvent) => void, signal?: AbortSignal): Promise<void> {
+    const response = await fetch(`${this.session.apiBaseUrl}${path}`, {
+      headers: {
+        authorization: `Bearer ${this.session.accessToken}`
+      },
+      signal
+    });
+
+    if (!response.ok || !response.body) {
+      await parseResponse<never>(response);
+      throw new ApiError(`Stream failed with status ${response.status}.`, response.status);
+    }
+
+    const reader = response.body.pipeThrough(new TextDecoderStream()).getReader();
+    let buffer = "";
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) {
+        break;
+      }
+
+      buffer += value;
+      const lines = buffer.split(/\r?\n/);
+      buffer = lines.pop() ?? "";
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (trimmed) {
+          onEvent(JSON.parse(trimmed) as StreamLogEvent);
+        }
+      }
+    }
+
+    const trimmed = buffer.trim();
+    if (trimmed) {
+      onEvent(JSON.parse(trimmed) as StreamLogEvent);
+    }
   }
 }
 

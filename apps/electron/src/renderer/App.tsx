@@ -1,5 +1,5 @@
 import { Alert, Box, Button, CircularProgress, Dialog, DialogContent, DialogTitle, Stack, Typography } from "@mui/material";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ApiError, ComposerApiClient, isSessionExpired, normalizeBaseUrl } from "./api";
 import { ActiveEnvironmentCard } from "./components/ActiveEnvironmentCard";
 import { DashboardLayout } from "./components/DashboardLayout";
@@ -11,12 +11,21 @@ import { GitStatusCard } from "./components/GitStatusCard";
 import { LatestChangesCard, type LatestChangeEvent } from "./components/LatestChangesCard";
 import { LoginView } from "./components/LoginView";
 import { RepoPicker } from "./components/RepoPicker";
-import type { AuthSession, ChangedFilePayload, EnvExampleEntry, EnvironmentLog, EnvironmentRecord, EnvironmentSource, GitState, RepoSyncSnapshot, SyncState } from "./types";
+import type { AuthSession, ChangedFilePayload, EnvExampleEntry, EnvironmentLog, EnvironmentRecord, EnvironmentSource, GitState, LifecycleAction, RepoSyncSnapshot, StreamLogEvent, SyncState } from "./types";
 
 const AUTH_STORAGE_KEY = "primarie-composer.auth";
 const REPO_STORAGE_KEY = "primarie-composer.repoPath";
 const ACTIVE_ENV_STORAGE_KEY = "primarie-composer.activeEnvironmentKey";
 const MAX_SYNC_CHUNK_CONTENT_LENGTH = 750 * 1024;
+
+export type LiveLogSession = {
+  id: string;
+  environmentKey: string;
+  title: string;
+  subtitle: string;
+  status: "running" | "complete" | "error" | "stopped";
+  entries: Array<{ at: string; log: string; level: "info" | "error" }>;
+};
 
 export default function App() {
   const electronBridge = window.primarieElectron;
@@ -45,7 +54,9 @@ export default function App() {
   const [creationMonitorError, setCreationMonitorError] = useState<string>();
   const [detailsEnvironment, setDetailsEnvironment] = useState<EnvironmentRecord>();
   const [detailsLogRefreshToken, setDetailsLogRefreshToken] = useState(0);
+  const [liveLogSessions, setLiveLogSessions] = useState<LiveLogSession[]>([]);
   const [latestChanges, setLatestChanges] = useState<LatestChangeEvent[]>([]);
+  const streamControllers = useRef(new Map<string, AbortController>());
   const [syncState, setSyncState] = useState<SyncState>({
     watching: false,
     activeEnvironmentKey: localStorage.getItem(ACTIVE_ENV_STORAGE_KEY) ?? "",
@@ -53,6 +64,15 @@ export default function App() {
   });
 
   const api = useMemo(() => (session ? new ComposerApiClient(session) : null), [session]);
+
+  useEffect(() => {
+    return () => {
+      for (const controller of streamControllers.current.values()) {
+        controller.abort();
+      }
+      streamControllers.current.clear();
+    };
+  }, []);
 
   const logout = useCallback(() => {
     void electronBridge?.stopWatchingRepo();
@@ -348,24 +368,17 @@ export default function App() {
     setEnvironmentsError(undefined);
     try {
       let updatedEnvironment: EnvironmentRecord | undefined;
-      if (action === "start") {
+      if (action !== "delete") {
         const environment = environments.find((item) => item.key === key);
         if (environment) {
           setDetailsEnvironment(environment);
         }
-        setDetailsLogRefreshToken((current) => current + 1);
       }
 
-      if (action === "start") {
-        updatedEnvironment = await api.startEnvironment(key);
-      } else if (action === "stop") {
-        updatedEnvironment = await api.stopEnvironment(key);
-      } else if (action === "restart") {
-        updatedEnvironment = await api.restartEnvironment(key);
-      } else if (action === "resume") {
-        updatedEnvironment = await api.resumeEnvironment(key);
-      } else {
+      if (action === "delete") {
         await api.deleteEnvironment(key);
+      } else {
+        updatedEnvironment = await streamLifecycleAction(key, action);
       }
       if (action === "start" || action === "restart" || action === "resume") {
         setActiveEnvironment(key);
@@ -385,6 +398,130 @@ export default function App() {
         logout();
       }
     }
+  }
+
+  async function streamLifecycleAction(key: string, action: LifecycleAction): Promise<EnvironmentRecord | undefined> {
+    if (!api) {
+      return undefined;
+    }
+
+    const sessionId = `${Date.now()}-${action}-${key}`;
+    const controller = new AbortController();
+    let latestEnvironment: EnvironmentRecord | undefined;
+
+    streamControllers.current.set(sessionId, controller);
+    addLiveLogSession({
+      id: sessionId,
+      environmentKey: key,
+      title: `${capitalize(action)} ${key}`,
+      subtitle: "Docker Compose lifecycle",
+      status: "running",
+      entries: []
+    });
+
+    try {
+      await api.streamLifecycleAction(
+        key,
+        action,
+        (event) => {
+          if (event.type === "environment") {
+            latestEnvironment = event.environment;
+            setDetailsEnvironment(event.environment);
+            setEnvironments((current) => current.map((item) => item.key === event.environment.key ? event.environment : item));
+            return;
+          }
+          handleStreamEvent(sessionId, event);
+        },
+        controller.signal
+      );
+      markLiveLogSession(sessionId, "complete");
+      setDetailsLogRefreshToken((current) => current + 1);
+      return latestEnvironment;
+    } catch (error) {
+      if (controller.signal.aborted) {
+        appendLiveLogEntry(sessionId, "Stream stopped by operator.", "error");
+        markLiveLogSession(sessionId, "stopped");
+        return latestEnvironment;
+      }
+      appendLiveLogEntry(sessionId, toErrorMessage(error), "error");
+      markLiveLogSession(sessionId, "error");
+      throw error;
+    } finally {
+      streamControllers.current.delete(sessionId);
+    }
+  }
+
+  function startContainerLogStream(key: string, container: string): void {
+    if (!api || !container) {
+      return;
+    }
+
+    const sessionId = `${Date.now()}-container-${container}`;
+    const controller = new AbortController();
+    streamControllers.current.set(sessionId, controller);
+    addLiveLogSession({
+      id: sessionId,
+      environmentKey: key,
+      title: container,
+      subtitle: "Container logs",
+      status: "running",
+      entries: []
+    });
+
+    void api.streamContainerLogs(
+      key,
+      container,
+      (event) => handleStreamEvent(sessionId, event),
+      controller.signal
+    ).then(() => {
+      markLiveLogSession(sessionId, "complete");
+    }).catch((error) => {
+      if (controller.signal.aborted) {
+        appendLiveLogEntry(sessionId, "Stream stopped by operator.", "error");
+        markLiveLogSession(sessionId, "stopped");
+        return;
+      }
+      appendLiveLogEntry(sessionId, toErrorMessage(error), "error");
+      markLiveLogSession(sessionId, "error");
+    }).finally(() => {
+      streamControllers.current.delete(sessionId);
+    });
+  }
+
+  function stopLiveLogSession(id: string): void {
+    streamControllers.current.get(id)?.abort();
+  }
+
+  function handleStreamEvent(sessionId: string, event: StreamLogEvent): void {
+    if (event.type === "line" || event.type === "error") {
+      appendLiveLogEntry(sessionId, event.log, event.level);
+    }
+    if (event.type === "error") {
+      markLiveLogSession(sessionId, "error");
+    }
+    if (event.type === "complete") {
+      markLiveLogSession(sessionId, "complete");
+    }
+  }
+
+  function addLiveLogSession(session: LiveLogSession): void {
+    setLiveLogSessions((current) => [session, ...current].slice(0, 20));
+  }
+
+  function appendLiveLogEntry(id: string, log: string, level: "info" | "error"): void {
+    setLiveLogSessions((current) => current.map((session) => {
+      if (session.id !== id) {
+        return session;
+      }
+      return {
+        ...session,
+        entries: [...session.entries, { at: new Date().toISOString(), log, level }].slice(-800)
+      };
+    }));
+  }
+
+  function markLiveLogSession(id: string, status: LiveLogSession["status"]): void {
+    setLiveLogSessions((current) => current.map((session) => session.id === id ? { ...session, status } : session));
   }
 
   async function listContainers(key: string) {
@@ -582,6 +719,9 @@ export default function App() {
             onExecInContainer={execInContainer}
             onGetLogs={getEnvironmentLogs}
             onAction={runEnvironmentAction}
+            liveLogSessions={liveLogSessions.filter((session) => session.environmentKey === detailsEnvironment.key)}
+            onStartContainerLogStream={startContainerLogStream}
+            onStopLiveLogSession={stopLiveLogSession}
             logRefreshToken={detailsLogRefreshToken}
           />
         ) : (
@@ -646,6 +786,10 @@ function toErrorMessage(error: unknown): string {
 
 function isUnauthorized(error: unknown): boolean {
   return error instanceof ApiError && error.status === 401;
+}
+
+function capitalize(value: string): string {
+  return `${value.slice(0, 1).toUpperCase()}${value.slice(1)}`;
 }
 
 function chunkChangedFiles(files: ChangedFilePayload[]): ChangedFilePayload[][] {

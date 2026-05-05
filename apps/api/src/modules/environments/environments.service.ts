@@ -185,6 +185,63 @@ export class EnvironmentsService {
     return this.docker.execInContainer(container, command);
   }
 
+  async streamLifecycleAction(
+    key: string,
+    action: "start" | "stop" | "restart" | "resume",
+    user: AuthenticatedUser,
+    onLog: (entry: { log: string; level: "info" | "error" }) => Promise<void> | void,
+    signal?: AbortSignal
+  ): Promise<EnvironmentRecord> {
+    const record = await this.get(key);
+    const composePath = path.join(env.RUNTIME_DIR, key);
+
+    if (action === "resume") {
+      const owner = this.toOwner(user);
+      if (!("email" in record.createdBy) || record.createdBy.email !== owner.email) {
+        throw Object.assign(new Error("Only the owner can reuse this environment"), { status: 403 });
+      }
+    }
+
+    await onLog({ log: `${capitalize(action)} environment ${key}`, level: "info" });
+
+    try {
+      if (action === "start" || action === "resume") {
+        if (record.status === "running") {
+          await onLog({ log: "Environment is already running", level: "info" });
+          return record;
+        }
+        await this.docker.up(composePath, onLog, signal);
+        await onLog({ log: `Environment ${action === "resume" ? "resumed" : "started"}`, level: "info" });
+        return this.updateStatus(key, "running");
+      }
+
+      if (action === "restart") {
+        await this.docker.restart(composePath, onLog, signal);
+        await onLog({ log: "Environment restarted", level: "info" });
+        return this.updateStatus(key, "running");
+      }
+
+      await this.docker.down(composePath, onLog, signal);
+      await onLog({ log: "Environment stopped", level: "info" });
+      return this.updateStatus(key, "stopped");
+    } catch (error) {
+      if (action !== "stop") {
+        await this.updateStatus(key, "error").catch(() => undefined);
+      }
+      throw error;
+    }
+  }
+
+  async streamContainerLogs(
+    key: string,
+    container: string,
+    onLog: (entry: { log: string; level: "info" | "error" }) => Promise<void> | void,
+    signal?: AbortSignal
+  ): Promise<void> {
+    await this.get(key);
+    await this.docker.streamContainerLogs(container, onLog, signal);
+  }
+
   async stop(key: string): Promise<EnvironmentRecord> {
     const record = await this.get(key);
 
@@ -455,4 +512,8 @@ function escapeEnvValue(value: string): string {
 
 function randomItem<T>(items: T[]): T {
   return items[Math.floor(Math.random() * items.length)];
+}
+
+function capitalize(value: string): string {
+  return `${value.slice(0, 1).toUpperCase()}${value.slice(1)}`;
 }
