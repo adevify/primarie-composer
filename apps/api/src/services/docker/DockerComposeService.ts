@@ -5,6 +5,11 @@ const execFileAsync = promisify(execFile);
 
 type ComposeLogHandler = (entry: { log: string; level: "info" | "error" }) => Promise<void> | void;
 
+export type ComposeLogEntry = {
+  log: string;
+  level: "info" | "error";
+};
+
 export type MongoPreview = {
   database: string;
   collections: Array<{
@@ -34,6 +39,15 @@ export class DockerComposeService {
 
   async streamComposeLogs(composePath: string, onLog: ComposeLogHandler, signal?: AbortSignal): Promise<void> {
     await this.runCompose(composePath, ["logs", "--follow", "--tail", "200", "--timestamps"], onLog, signal);
+  }
+
+  async listComposeLogs(composePath: string): Promise<ComposeLogEntry[]> {
+    const output = await this.runComposeWithOutput(composePath, ["logs", "--tail", "200", "--timestamps"]);
+    return output
+      .split(/\r?\n/)
+      .map((line) => line.trimEnd())
+      .filter(Boolean)
+      .map((log) => ({ log, level: "info" }));
   }
 
   async listContainers(composePath: string): Promise<unknown[]> {

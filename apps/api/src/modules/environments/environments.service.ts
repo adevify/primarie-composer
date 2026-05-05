@@ -303,6 +303,11 @@ export class EnvironmentsService {
     await this.docker.streamComposeLogs(path.join(env.RUNTIME_DIR, key), onLog, signal);
   }
 
+  async listComposeLogs(key: string) {
+    await this.get(key);
+    return this.docker.listComposeLogs(path.join(env.RUNTIME_DIR, key));
+  }
+
   async inspectMongo(key: string) {
     await this.get(key);
     const containers = await this.docker.listContainers(path.join(env.RUNTIME_DIR, key)).catch(() => []);

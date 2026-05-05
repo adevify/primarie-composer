@@ -15,6 +15,7 @@ import FolderIcon from "@mui/icons-material/Folder";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import PauseCircleOutlineIcon from "@mui/icons-material/PauseCircleOutline";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import StorageIcon from "@mui/icons-material/Storage";
 import StopCircleIcon from "@mui/icons-material/StopCircle";
@@ -58,19 +59,26 @@ export function EnvironmentDetails({
   const [loadingMongo, setLoadingMongo] = useState(false);
   const [toolError, setToolError] = useState<string>();
 
-  const composeLogSessions = liveLogSessions.filter((session) => session.subtitle === "Docker Compose logs");
+  const composeLogSessions = useMemo(
+    () => liveLogSessions.filter((session) => session.subtitle === "Docker Compose logs"),
+    [liveLogSessions]
+  );
+  const displayedLogSessions = useMemo(
+    () => liveLogSessions.filter((session) => session.subtitle === "Docker Compose logs" || isDockerComposeLifecycleSession(session)),
+    [liveLogSessions]
+  );
   const selectedLiveSession = composeLogSessions.find((session) => session.status === "running") ?? composeLogSessions[0];
   const combinedLogs = useMemo(() => {
-    return composeLogSessions.flatMap((session) =>
+    return displayedLogSessions.flatMap((session) =>
       session.entries.map((entry) => ({
         at: entry.at,
-        label: "docker compose",
+        label: session.subtitle === "Docker Compose lifecycle" ? session.title : "docker compose",
         message: entry.log,
         level: entry.level,
         system: false
       }))
     ).slice(-120);
-  }, [composeLogSessions]);
+  }, [displayedLogSessions]);
 
   useEffect(() => {
     if (!open || !environment) {
@@ -80,8 +88,22 @@ export function EnvironmentDetails({
     void loadContainers();
     void loadFiles("/");
     void loadMongo();
-    onStartComposeLogStream(environment.key);
   }, [open, environment?.key]);
+
+  useEffect(() => {
+    if (!open || !environment) {
+      return;
+    }
+
+    if (environment.status === "running") {
+      onStartComposeLogStream(environment.key);
+      return;
+    }
+
+    composeLogSessions
+      .filter((session) => session.status === "running")
+      .forEach((session) => onStopLiveLogSession(session.id));
+  }, [open, environment?.key, environment?.status, composeLogSessions, onStartComposeLogStream, onStopLiveLogSession]);
 
   useEffect(() => {
     if (!open || !environment) {
@@ -207,12 +229,28 @@ export function EnvironmentDetails({
               {buildDomains(environment)[1]}
             </Typography>
           </Box>
-          <Button variant="outlined" onClick={() => void onAction(environment.key, "stop")} startIcon={<PauseCircleOutlineIcon />} sx={actionButtonSx}>
-            Pause
+          <Button
+            variant="outlined"
+            disabled={environment.status === "running" || environment.status === "creating"}
+            onClick={() => void onAction(environment.key, "start")}
+            startIcon={<PlayArrowIcon />}
+            sx={startButtonSx}
+          >
+            Start
           </Button>
-          <Button variant="outlined" onClick={() => void onAction(environment.key, "stop")} startIcon={<StopCircleIcon />} sx={actionButtonSx}>
-            Stop
-          </Button>
+          {environment.status === "running" ? (
+            <>
+              <Button variant="outlined" onClick={() => void onAction(environment.key, "stop")} startIcon={<PauseCircleOutlineIcon />} sx={actionButtonSx}>
+                Pause
+              </Button>
+              <Button variant="outlined" onClick={() => void onAction(environment.key, "stop")} startIcon={<StopCircleIcon />} sx={actionButtonSx}>
+                Stop
+              </Button>
+              <Button variant="outlined" onClick={() => onStartComposeLogStream(environment.key)} startIcon={<TerminalIcon />} sx={logsButtonSx}>
+                Logs
+              </Button>
+            </>
+          ) : null}
           <Button variant="contained" color="error" onClick={() => void onAction(environment.key, "delete")} startIcon={<DeleteOutlineIcon />} sx={deleteButtonSx}>
             Delete
           </Button>
@@ -252,7 +290,12 @@ export function EnvironmentDetails({
                   <Box sx={{ width: 10, height: 10, borderRadius: "50%", bgcolor: "#65ffc9" }} />
                   <Typography variant="caption" color="text.secondary" fontWeight={900}>LIVE</Typography>
                 </Stack>
-                <IconButton aria-label="Start Docker Compose logs" onClick={() => onStartComposeLogStream(environment.key)} sx={iconButtonSx}>
+                <IconButton
+                  aria-label="Start Docker Compose logs"
+                  disabled={environment.status !== "running"}
+                  onClick={() => onStartComposeLogStream(environment.key)}
+                  sx={iconButtonSx}
+                >
                   <RefreshIcon />
                 </IconButton>
               </Stack>
@@ -598,7 +641,17 @@ function statusColor(status: EnvironmentRecord["status"]): string {
 function labelColor(label: string): string {
   if (label.includes("api")) return "#ffd900";
   if (label.includes("db")) return "#65ffc9";
+  if (label.toLowerCase().startsWith("start") || label.toLowerCase().startsWith("resume") || label.toLowerCase().startsWith("restart")) return "#65ffc9";
   return "#00e5ff";
+}
+
+function isDockerComposeLifecycleSession(session: LiveLogSession): boolean {
+  if (session.subtitle !== "Docker Compose lifecycle") {
+    return false;
+  }
+
+  const title = session.title.toLowerCase();
+  return title.startsWith("start ") || title.startsWith("resume ") || title.startsWith("restart ");
 }
 
 function toErrorMessage(error: unknown): string {
@@ -626,6 +679,18 @@ const actionButtonSx = {
   fontFamily: monoFont,
   textTransform: "uppercase",
   letterSpacing: 1
+};
+
+const startButtonSx = {
+  ...actionButtonSx,
+  borderColor: "rgba(101, 255, 201, 0.82)",
+  color: "#65ffc9"
+};
+
+const logsButtonSx = {
+  ...actionButtonSx,
+  borderColor: "rgba(0, 229, 255, 0.72)",
+  color: "#00e5ff"
 };
 
 const deleteButtonSx = {

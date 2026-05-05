@@ -147,6 +147,11 @@ export type StreamLogEvent =
   | { type: "complete" }
   | { type: "error"; log: string; level: "error" };
 
+export type ComposeLogEntry = {
+  log: string;
+  level: "info" | "error";
+};
+
 export type LiveLogSession = {
   id: string;
   environmentKey: string;

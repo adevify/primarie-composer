@@ -98,6 +98,14 @@ export function createEnvironmentRouter(): Router {
     }
   });
 
+  router.get("/:key/compose/logs", async (req, res, next) => {
+    try {
+      return res.json(await service.listComposeLogs(req.params.key));
+    } catch (error) {
+      return next(error);
+    }
+  });
+
   router.get("/:key/compose/logs/stream", async (req, res) => {
     const controller = new AbortController();
     let closed = false;

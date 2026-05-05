@@ -587,6 +587,12 @@ export default function App() {
       entries: []
     });
 
+    void api.composeLogs(key).then((entries) => {
+      entries.forEach((entry) => appendLiveLogEntry(sessionId, entry.log, entry.level));
+    }).catch((error) => {
+      appendLiveLogEntry(sessionId, `Unable to load Docker Compose log tail: ${toErrorMessage(error)}`, "error");
+    });
+
     void api.streamComposeLogs(
       key,
       (event) => handleStreamEvent(sessionId, event),

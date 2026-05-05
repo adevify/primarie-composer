@@ -1,5 +1,6 @@
 import type {
   AuthSession,
+  ComposeLogEntry,
   ContainerExecResult,
   ContainerFileEntry,
   CreateEnvironmentInput,
@@ -131,6 +132,10 @@ export class ComposerApiClient {
 
   inspectMongo(key: string): Promise<MongoPreview> {
     return this.request<MongoPreview>(`/environments/${encodeURIComponent(key)}/mongo`);
+  }
+
+  composeLogs(key: string): Promise<ComposeLogEntry[]> {
+    return this.request<ComposeLogEntry[]>(`/environments/${encodeURIComponent(key)}/compose/logs`);
   }
 
   execInContainer(key: string, container: string, command: string): Promise<ContainerExecResult> {
