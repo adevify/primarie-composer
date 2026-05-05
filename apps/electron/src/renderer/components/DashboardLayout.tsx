@@ -10,12 +10,14 @@ import type { ReactNode } from "react";
 
 type DashboardLayoutProps = {
   apiBaseUrl: string;
+  activePage: "dashboard" | "users";
   sidebar?: ReactNode;
   children: ReactNode;
   onLogout: () => void;
+  onNavigate: (page: "dashboard" | "users") => void;
 };
 
-export function DashboardLayout({ apiBaseUrl, sidebar, children, onLogout }: DashboardLayoutProps) {
+export function DashboardLayout({ apiBaseUrl, activePage, sidebar, children, onLogout, onNavigate }: DashboardLayoutProps) {
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "#0f1d1b", color: "text.primary" }}>
       <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "320px 1fr" }, minHeight: "100vh" }}>
@@ -45,9 +47,9 @@ export function DashboardLayout({ apiBaseUrl, sidebar, children, onLogout }: Das
             </Stack>
           </Box>
           <Stack spacing={0.5} sx={{ py: 2 }}>
-            <NavItem icon={<DashboardIcon />} label="Dashboard" active />
+            <NavItem icon={<DashboardIcon />} label="Dashboard" active={activePage === "dashboard"} onClick={() => onNavigate("dashboard")} />
             <NavItem icon={<LayersIcon />} label="Environments" />
-            <NavItem icon={<PeopleIcon />} label="Users" />
+            <NavItem icon={<PeopleIcon />} label="Users" active={activePage === "users"} onClick={() => onNavigate("users")} />
             <NavItem icon={<TerminalIcon />} label="System Logs" />
             <NavItem icon={<SettingsIcon />} label="Settings" />
           </Stack>
@@ -86,9 +88,12 @@ export function DashboardLayout({ apiBaseUrl, sidebar, children, onLogout }: Das
   );
 }
 
-function NavItem({ icon, label, active = false }: { icon: ReactNode; label: string; active?: boolean }) {
+function NavItem({ icon, label, active = false, onClick }: { icon: ReactNode; label: string; active?: boolean; onClick?: () => void }) {
   return (
     <Box
+      component="button"
+      type="button"
+      onClick={onClick}
       sx={{
         display: "flex",
         alignItems: "center",
@@ -99,7 +104,13 @@ function NavItem({ icon, label, active = false }: { icon: ReactNode; label: stri
         bgcolor: active ? "rgba(0, 229, 255, 0.08)" : "transparent",
         borderRight: active ? "3px solid #00e5ff" : "3px solid transparent",
         fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
-        fontWeight: 900
+        fontWeight: 900,
+        width: "100%",
+        borderTop: 0,
+        borderLeft: 0,
+        borderBottom: 0,
+        cursor: onClick ? "pointer" : "default",
+        textAlign: "left"
       }}
     >
       {icon}

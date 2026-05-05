@@ -11,7 +11,8 @@ import { GitStatusCard } from "./components/GitStatusCard";
 import { LatestChangesCard, type LatestChangeEvent } from "./components/LatestChangesCard";
 import { LoginView } from "./components/LoginView";
 import { RepoPicker } from "./components/RepoPicker";
-import type { AuthSession, ChangedFilePayload, EnvExampleEntry, EnvironmentLog, EnvironmentLogsPage, EnvironmentRecord, EnvironmentSource, GitState, LifecycleAction, LiveLogSession, RepoSyncSnapshot, StreamLogEvent, SyncState, SystemMetrics } from "./types";
+import { UsersPage } from "./components/UsersPage";
+import type { AuthSession, ChangedFilePayload, EnvExampleEntry, EnvironmentLog, EnvironmentLogsPage, EnvironmentRecord, EnvironmentSource, GitState, LifecycleAction, LiveLogSession, RepoSyncSnapshot, StreamLogEvent, SyncState, SystemMetrics, UserDirectoryRecord } from "./types";
 
 const AUTH_STORAGE_KEY = "primarie-composer.auth";
 const REPO_STORAGE_KEY = "primarie-composer.repoPath";
@@ -21,6 +22,7 @@ const DASHBOARD_LOGS_PER_PAGE = 50;
 
 export default function App() {
   const electronBridge = window.primarieElectron;
+  const [activePage, setActivePage] = useState<"dashboard" | "users">("dashboard");
   const [session, setSession] = useState<AuthSession | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [loginLoading, setLoginLoading] = useState(false);
@@ -35,6 +37,8 @@ export default function App() {
   const [dashboardLogsPage, setDashboardLogsPage] = useState<EnvironmentLogsPage>();
   const [dashboardLogsLoadingMore, setDashboardLogsLoadingMore] = useState(false);
   const [systemMetrics, setSystemMetrics] = useState<SystemMetrics>();
+  const [users, setUsers] = useState<UserDirectoryRecord[]>([]);
+  const [usersLoading, setUsersLoading] = useState(false);
   const [environmentsLoading, setEnvironmentsLoading] = useState(false);
   const [environmentsError, setEnvironmentsError] = useState<string>();
   const [createLoading, setCreateLoading] = useState(false);
@@ -104,6 +108,25 @@ export default function App() {
     }
   }, [api, logout]);
 
+  const refreshUsers = useCallback(async () => {
+    if (!api) {
+      return;
+    }
+
+    setUsersLoading(true);
+    setEnvironmentsError(undefined);
+    try {
+      setUsers(await api.listUsers());
+    } catch (error) {
+      setEnvironmentsError(toErrorMessage(error));
+      if (isUnauthorized(error)) {
+        logout();
+      }
+    } finally {
+      setUsersLoading(false);
+    }
+  }, [api, logout]);
+
   async function loadMoreDashboardLogs(): Promise<void> {
     if (!api || dashboardLogsLoadingMore || !dashboardLogsPage || dashboardLogsPage.page + 1 >= dashboardLogsPage.pages) {
       return;
@@ -146,6 +169,12 @@ export default function App() {
 
     return () => clearInterval(interval);
   }, [api, detailsEnvironment, logout]);
+
+  useEffect(() => {
+    if (activePage === "users") {
+      void refreshUsers();
+    }
+  }, [activePage, refreshUsers]);
 
   const refreshGitState = useCallback(async (): Promise<GitState | undefined> => {
     if (!repoPath) {
@@ -732,6 +761,11 @@ export default function App() {
   return (
     <DashboardLayout
       apiBaseUrl={session.apiBaseUrl}
+      activePage={activePage}
+      onNavigate={(page) => {
+        setDetailsEnvironment(undefined);
+        setActivePage(page);
+      }}
       onLogout={logout}
       sidebar={
         <Stack spacing={2}>
@@ -750,13 +784,12 @@ export default function App() {
       }
     >
       <Stack spacing={3}>
-        {!repoPath ? <Alert severity="info">Choose a local repository before creating or syncing environments.</Alert> : null}
-        <Stack direction="row" justifyContent="flex-end">
-          <Button variant="contained" disabled={!repoPath} onClick={() => setCreateDialogOpen(true)}>
-            Create environment
-          </Button>
-        </Stack>
-        {detailsEnvironment ? (
+        {activePage === "users" ? (
+          <>
+            {environmentsError ? <Alert severity="error">{environmentsError}</Alert> : null}
+            <UsersPage users={users} loading={usersLoading} onRefresh={refreshUsers} />
+          </>
+        ) : detailsEnvironment ? (
           <EnvironmentDetails
             environment={detailsEnvironment}
             open={Boolean(detailsEnvironment)}
@@ -772,22 +805,30 @@ export default function App() {
             logRefreshToken={detailsLogRefreshToken}
           />
         ) : (
-          <EnvironmentList
-            environments={environments}
-            logs={dashboardLogs}
-            logsTotal={dashboardLogsPage?.total ?? dashboardLogs.length}
-            logsHasMore={Boolean(dashboardLogsPage && dashboardLogsPage.page + 1 < dashboardLogsPage.pages)}
-            logsLoadingMore={dashboardLogsLoadingMore}
-            metrics={systemMetrics}
-            loading={environmentsLoading}
-            error={environmentsError}
-            activeEnvironmentKey={syncState.activeEnvironmentKey}
-            onRefresh={refreshEnvironments}
-            onSelectActive={setActiveEnvironment}
-            onDetails={setDetailsEnvironment}
-            onAction={runEnvironmentAction}
-            onLoadMoreLogs={loadMoreDashboardLogs}
-          />
+          <>
+            {!repoPath ? <Alert severity="info">Choose a local repository before creating or syncing environments.</Alert> : null}
+            <Stack direction="row" justifyContent="flex-end">
+              <Button variant="contained" disabled={!repoPath} onClick={() => setCreateDialogOpen(true)}>
+                Create environment
+              </Button>
+            </Stack>
+            <EnvironmentList
+              environments={environments}
+              logs={dashboardLogs}
+              logsTotal={dashboardLogsPage?.total ?? dashboardLogs.length}
+              logsHasMore={Boolean(dashboardLogsPage && dashboardLogsPage.page + 1 < dashboardLogsPage.pages)}
+              logsLoadingMore={dashboardLogsLoadingMore}
+              metrics={systemMetrics}
+              loading={environmentsLoading}
+              error={environmentsError}
+              activeEnvironmentKey={syncState.activeEnvironmentKey}
+              onRefresh={refreshEnvironments}
+              onSelectActive={setActiveEnvironment}
+              onDetails={setDetailsEnvironment}
+              onAction={runEnvironmentAction}
+              onLoadMoreLogs={loadMoreDashboardLogs}
+            />
+          </>
         )}
       </Stack>
       <Dialog open={createDialogOpen} onClose={createLoading ? undefined : () => setCreateDialogOpen(false)} maxWidth="sm" fullWidth>

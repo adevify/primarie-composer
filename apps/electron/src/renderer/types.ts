@@ -45,6 +45,12 @@ export type EnvironmentOwner = {
   name: string;
 };
 
+export type UserDirectoryRecord = EnvironmentOwner & {
+  provisionedAt?: string;
+  role?: string;
+  status?: "online" | "idle" | "locked";
+};
+
 export type PullRequestRef = {
   title?: string;
   url: string;

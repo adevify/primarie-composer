@@ -1,6 +1,9 @@
 import { Alert, Box, Button, Card, CardContent, CircularProgress, Stack, TextField, Typography } from "@mui/material";
 import { FormEvent, useState } from "react";
 
+const DEFAULT_API_BASE_URL = "https://prmr.md";
+const LAST_EMAIL_STORAGE_KEY = "primarie-composer.lastEmail";
+
 type LoginViewProps = {
   loading: boolean;
   error?: string;
@@ -8,14 +11,14 @@ type LoginViewProps = {
 };
 
 export function LoginView({ loading, error, onLogin }: LoginViewProps) {
-  const [baseUrl, setBaseUrl] = useState("http://localhost");
-  const [email, setEmail] = useState("");
+  const [baseUrl, setBaseUrl] = useState(DEFAULT_API_BASE_URL);
+  const [email, setEmail] = useState(() => localStorage.getItem(LAST_EMAIL_STORAGE_KEY) ?? "");
   const [password, setPassword] = useState("");
 
   async function submit(event: FormEvent): Promise<void> {
     event.preventDefault();
+    localStorage.setItem(LAST_EMAIL_STORAGE_KEY, email);
     await onLogin(baseUrl, email, password);
-    setEmail("");
     setPassword("");
   }
 

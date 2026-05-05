@@ -9,7 +9,8 @@ import type {
   LifecycleAction,
   StreamLogEvent,
   SystemMetrics,
-  SyncFilesInput
+  SyncFilesInput,
+  UserDirectoryRecord
 } from "./types";
 
 type RequestOptions = {
@@ -65,6 +66,10 @@ export class ComposerApiClient {
       }
       throw error;
     }
+  }
+
+  listUsers(): Promise<UserDirectoryRecord[]> {
+    return this.request<UserDirectoryRecord[]>("/auth/users");
   }
 
   listEnvironments(): Promise<EnvironmentRecord[]> {

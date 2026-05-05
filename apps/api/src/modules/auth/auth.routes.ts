@@ -6,6 +6,7 @@ import jwt from "jsonwebtoken";
 import { z } from "zod";
 import { env } from "../../config/env.js";
 import { UserCollection } from "../../db/users.js";
+import { authenticateJwt } from "./auth.middleware.js";
 
 const loginSchema = z.object({
   password: z.string().min(1),
@@ -14,6 +15,14 @@ const loginSchema = z.object({
 
 export function createAuthRouter(): Router {
   const router = Router();
+
+  router.get("/users", authenticateJwt, async (_req, res, next) => {
+    try {
+      return res.json(await UserCollection.listPublic());
+    } catch (error) {
+      return next(error);
+    }
+  });
 
   router.post(
     "/login",
@@ -77,4 +86,3 @@ export function createAuthRouter(): Router {
 function comparePassword(password: string, hash: string): boolean {
   return bcrypt.compareSync(password, hash);
 }
-
