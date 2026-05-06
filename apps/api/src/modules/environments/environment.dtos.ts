@@ -40,7 +40,6 @@ export const pullRequestSchema = z.object({
 export type PullRequestRef = z.infer<typeof pullRequestSchema>;
 
 export const createEnvironmentSchema = z.object({
-  name: keySchema.optional(),
   seed: z.string().regex(/^[a-zA-Z0-9_-]+$/).default("default"),
   source: sourceSchema,
   env: z.record(z.string(), z.string()).default({})

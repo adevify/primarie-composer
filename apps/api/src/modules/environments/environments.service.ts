@@ -228,7 +228,7 @@ export class EnvironmentsService {
   ) { }
 
   async create(input: CreateEnvironmentPayload, createdBy: EnvironmentOwner | PullRequestRef): Promise<EnvironmentRecord> {
-    const key = input.name ?? await this.generateKey();
+    const key = await this.generateKey();
 
     if (!keyPattern.test(key)) {
       throw Object.assign(new Error("Environment key must be a lowercase slug"), { status: 400 });

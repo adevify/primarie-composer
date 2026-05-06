@@ -378,7 +378,7 @@ export default function App() {
     }
   }
 
-  async function createEnvironment(input: { name: string; seed: string; useCurrentRepoState: boolean; env: Record<string, string> }): Promise<void> {
+  async function createEnvironment(input: { seed: string; useCurrentRepoState: boolean; env: Record<string, string> }): Promise<void> {
     if (!api) {
       return;
     }
@@ -411,7 +411,6 @@ export default function App() {
       }
 
       const created = await api.createEnvironment({
-        name: input.name,
         seed: input.seed,
         source,
         env: input.env
