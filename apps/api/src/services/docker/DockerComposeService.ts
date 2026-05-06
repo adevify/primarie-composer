@@ -21,7 +21,7 @@ export type MongoPreview = {
 
 export class DockerComposeService {
   async up(envName: string, composePath: string, onLog?: ComposeLogHandler, signal?: AbortSignal, envFilePath?: string): Promise<void> {
-    await this.runCompose(composePath, ["-p", envName, "up", "-d", "--build", "--progress=plain"], onLog, signal, envFilePath);
+    await this.runCompose(composePath, ["-p", envName, "up", "-d", "--build"], onLog, signal, envFilePath);
   }
 
   async down(envName: string, composePath: string, onLog?: ComposeLogHandler, signal?: AbortSignal, envFilePath?: string): Promise<void> {
