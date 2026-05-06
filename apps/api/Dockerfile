@@ -1,20 +1,20 @@
 FROM node:22-bookworm-slim AS deps
 
-WORKDIR /app
+WORKDIR /code/primarie-composer
 COPY package.json package-lock.json* ./
 RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
 
 FROM node:22-bookworm-slim AS build
 
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
+WORKDIR /code/primarie-composer
+COPY --from=deps /code/primarie-composer/node_modules ./node_modules
 COPY package.json tsconfig.json ./
 COPY src ./src
 RUN npm run build
 
 FROM node:22-bookworm-slim AS runtime
 
-WORKDIR /app
+WORKDIR /code/primarie-composer
 ENV NODE_ENV=production
 
 # The API controls sibling Docker Compose projects through the host socket.
@@ -39,8 +39,8 @@ RUN apt-get update \
     docker-buildx-plugin \
   && rm -rf /var/lib/apt/lists/*
 
-COPY --from=deps /app/node_modules ./node_modules
-COPY --from=build /app/dist ./dist
+COPY --from=deps /code/primarie-composer/node_modules ./node_modules
+COPY --from=build /code/primarie-composer/dist ./dist
 COPY package.json ./
 
 EXPOSE 3000
