@@ -261,7 +261,10 @@ export class EnvironmentsService {
       log: "Environment created",
     });
 
-    void this.prepareEnvironment(key, runtimePath, input.source, input.env).catch(async (error) => {
+    void this.prepareEnvironment(key, runtimePath, input.source, {
+      ...input.env,
+      PROXY_EXTERNAL_PORT: String(port),
+    }).catch(async (error) => {
       await EnvironmentLogCollection.add({
         environmentKey: key,
         log: `Environment creation failed: ${error instanceof Error ? error.message : String(error)}`,
