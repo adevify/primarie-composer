@@ -21,7 +21,7 @@ export type MongoPreview = {
 
 export class DockerComposeService {
   async up(envName: string, composePath: string, onLog?: ComposeLogHandler, signal?: AbortSignal, envFilePath?: string): Promise<void> {
-    await this.runCompose(composePath, ["-p", envName, "up", "-d", "--build"], onLog, signal, envFilePath);
+    await this.runCompose(composePath, ["-p", envName, "up", "-d", "--build", "--progress=plain"], onLog, signal, envFilePath);
   }
 
   async down(envName: string, composePath: string, onLog?: ComposeLogHandler, signal?: AbortSignal, envFilePath?: string): Promise<void> {
@@ -130,10 +130,10 @@ export class DockerComposeService {
   private async runCompose(cwd: string, args: string[], onLog?: ComposeLogHandler, signal?: AbortSignal, envFilePath?: string): Promise<void> {
     const composeArgs = withEnvFile(args, envFilePath);
     try {
-      await this.spawnCompose(cwd, "docker", ["compose", ...composeArgs, "--progress=plain"], { DOCKER_BUILDKIT: "1", COMPOSE_DOCKER_CLI_BUILD: "1", COMPOSE_PARALLEL_LIMIT: "1" }, onLog, signal);
+      await this.spawnCompose(cwd, "docker", ["compose", ...composeArgs], { DOCKER_BUILDKIT: "1", COMPOSE_DOCKER_CLI_BUILD: "1", COMPOSE_PARALLEL_LIMIT: "1" }, onLog, signal);
     } catch (primaryError) {
       try {
-        await this.spawnCompose(cwd, "docker-compose", [...composeArgs, "--progress=plain"], { DOCKER_BUILDKIT: "1", COMPOSE_DOCKER_CLI_BUILD: "1", COMPOSE_PARALLEL_LIMIT: "1" }, onLog, signal);
+        await this.spawnCompose(cwd, "docker-compose", composeArgs, { DOCKER_BUILDKIT: "1", COMPOSE_DOCKER_CLI_BUILD: "1", COMPOSE_PARALLEL_LIMIT: "1" }, onLog, signal);
       } catch (fallbackError) {
         throw new Error(this.formatComposeError(args, primaryError, fallbackError));
       }
