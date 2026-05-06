@@ -173,6 +173,14 @@ export type EnvironmentActionLogsPage = {
   items: EnvironmentActionLog[];
 };
 
+export type EnvironmentActionsPage = {
+  total: number;
+  page: number;
+  perPage: number;
+  pages: number;
+  items: EnvironmentActionRecord[];
+};
+
 export type StreamLogEvent =
   | { type: "line"; log: string; level: "info" | "error" }
   | { type: "environment"; environment: EnvironmentRecord }

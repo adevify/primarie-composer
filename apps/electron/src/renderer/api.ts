@@ -7,6 +7,7 @@ import type {
   EnvironmentContainer,
   EnvironmentActionLogsPage,
   EnvironmentActionRecord,
+  EnvironmentActionsPage,
   EnvironmentLogsPage,
   EnvironmentRecord,
   LifecycleAction,
@@ -109,6 +110,11 @@ export class ComposerApiClient {
       `/environments/${encodeURIComponent(key)}/actions/${encodeURIComponent(action)}`,
       { method: "POST" }
     );
+  }
+
+  lifecycleActions(key: string, page = 0, perPage = 20): Promise<EnvironmentActionsPage> {
+    const params = new URLSearchParams({ page: String(page), perPage: String(perPage) });
+    return this.request<EnvironmentActionsPage>(`/environments/${encodeURIComponent(key)}/actions?${params.toString()}`);
   }
 
   getLifecycleAction(id: string): Promise<EnvironmentActionRecord> {

@@ -12,7 +12,7 @@ import { LatestChangesCard, type LatestChangeEvent } from "./components/LatestCh
 import { LoginView } from "./components/LoginView";
 import { RepoPicker } from "./components/RepoPicker";
 import { UsersPage } from "./components/UsersPage";
-import type { AuthSession, ChangedFilePayload, EnvExampleEntry, EnvironmentLog, EnvironmentLogsPage, EnvironmentRecord, GitState, LifecycleAction, LiveLogSession, RepoSyncSnapshot, StreamLogEvent, SyncState, SystemMetrics, UserDirectoryRecord } from "./types";
+import type { AuthSession, ChangedFilePayload, EnvExampleEntry, EnvironmentActionLogsPage, EnvironmentActionsPage, EnvironmentLog, EnvironmentLogsPage, EnvironmentRecord, GitState, LifecycleAction, LiveLogSession, RepoSyncSnapshot, StreamLogEvent, SyncState, SystemMetrics, UserDirectoryRecord } from "./types";
 
 const AUTH_STORAGE_KEY = "primarie-composer.auth";
 const REPO_STORAGE_KEY = "primarie-composer.repoPath";
@@ -502,6 +502,7 @@ export default function App() {
     let latestEnvironment: EnvironmentRecord | undefined;
     let latestLogSequence = -1;
 
+    setDetailsLogRefreshToken((current) => current + 1);
     addLiveLogSession({
       id: sessionId,
       environmentKey: key,
@@ -704,6 +705,20 @@ export default function App() {
     return api.inspectMongo(key);
   }
 
+  async function listLifecycleActions(key: string, page = 0, perPage = 20): Promise<EnvironmentActionsPage> {
+    if (!api) {
+      throw new Error("API client is unavailable.");
+    }
+    return api.lifecycleActions(key, page, perPage);
+  }
+
+  async function getLifecycleActionLogs(id: string, page = 0, perPage = 500): Promise<EnvironmentActionLogsPage> {
+    if (!api) {
+      throw new Error("API client is unavailable.");
+    }
+    return api.lifecycleActionLogs(id, page, perPage);
+  }
+
   async function execInContainer(key: string, container: string, command: string) {
     if (!api) {
       throw new Error("API client is unavailable.");
@@ -901,7 +916,10 @@ export default function App() {
             onListContainers={listContainers}
             onListEnvironmentFiles={listEnvironmentFiles}
             onInspectMongo={inspectMongo}
+            onListLifecycleActions={listLifecycleActions}
+            onGetLifecycleActionLogs={getLifecycleActionLogs}
             onAction={runEnvironmentAction}
+            actionRefreshToken={detailsLogRefreshToken}
             liveLogSessions={liveLogSessions.filter((session) => session.environmentKey === detailsEnvironment.key)}
             onStartComposeLogStream={startComposeLogStream}
             onStopLiveLogSession={stopLiveLogSession}

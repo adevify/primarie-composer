@@ -53,6 +53,20 @@ export const EnvironmentActionCollection = (() => {
       }
       return record;
     }),
+    listByEnvironment: async (environmentKey: string, page = 0, perPage = 20) => withActionsCol(async col => {
+      const total = await col.countDocuments({ environmentKey });
+      return {
+        total,
+        page,
+        perPage,
+        pages: Math.ceil(total / perPage),
+        items: await col.find({ environmentKey })
+          .sort({ createdAt: -1 })
+          .skip(page * perPage)
+          .limit(perPage)
+          .toArray()
+      };
+    }),
     update: async (id: string, patch: Partial<Omit<EnvironmentActionRecord, "id" | "createdAt">>) => withActionsCol(async col => {
       await col.updateOne({ id }, { $set: { ...patch, updatedAt: new Date() } });
       const record = await col.findOne({ id });
@@ -94,6 +108,7 @@ export const EnvironmentActionCollection = (() => {
     countLogs: async (actionId: string) => withLogsCol(col => col.countDocuments({ actionId })),
     ensureIndexes: async () => {
       await withActionsCol(col => col.createIndex({ id: 1 }, { unique: true }));
+      await withActionsCol(col => col.createIndex({ environmentKey: 1, createdAt: -1 }));
       await withLogsCol(col => col.createIndex({ actionId: 1, sequence: 1 }, { unique: true }));
     }
   };

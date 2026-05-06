@@ -199,6 +199,16 @@ export function createEnvironmentRouter(): Router {
     }
   });
 
+  router.get("/:key/actions", async (req, res, next) => {
+    try {
+      const page = parseInt(req.query.page as string || "0");
+      const perPage = parseInt(req.query.perPage as string || "20");
+      return res.json(await service.getLifecycleActions(req.params.key, page, perPage));
+    } catch (error) {
+      return next(error);
+    }
+  });
+
   router.get("/:key/actions/:action/stream", async (req, res) => {
     const parsed = lifecycleActionSchema.safeParse(req.params.action);
     if (!parsed.success) {

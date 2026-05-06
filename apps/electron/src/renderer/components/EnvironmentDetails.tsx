@@ -22,7 +22,17 @@ import StopCircleIcon from "@mui/icons-material/StopCircle";
 import TerminalIcon from "@mui/icons-material/Terminal";
 import ViewInArIcon from "@mui/icons-material/ViewInAr";
 import { useEffect, useMemo, useState } from "react";
-import type { ContainerFileEntry, EnvironmentContainer, EnvironmentRecord, LiveLogSession, MongoPreview as MongoPreviewPayload } from "../types";
+import type {
+  ContainerFileEntry,
+  EnvironmentActionLog,
+  EnvironmentActionLogsPage,
+  EnvironmentActionRecord,
+  EnvironmentActionsPage,
+  EnvironmentContainer,
+  EnvironmentRecord,
+  LiveLogSession,
+  MongoPreview as MongoPreviewPayload
+} from "../types";
 
 type EnvironmentDetailsProps = {
   environment?: EnvironmentRecord;
@@ -31,7 +41,10 @@ type EnvironmentDetailsProps = {
   onListContainers: (key: string) => Promise<EnvironmentContainer[]>;
   onListEnvironmentFiles: (key: string, path: string) => Promise<ContainerFileEntry[]>;
   onInspectMongo: (key: string) => Promise<MongoPreviewPayload>;
+  onListLifecycleActions: (key: string, page?: number, perPage?: number) => Promise<EnvironmentActionsPage>;
+  onGetLifecycleActionLogs: (id: string, page?: number, perPage?: number) => Promise<EnvironmentActionLogsPage>;
   onAction: (key: string, action: "start" | "stop" | "restart" | "resume" | "delete") => Promise<void>;
+  actionRefreshToken: number;
   liveLogSessions: LiveLogSession[];
   onStartComposeLogStream: (key: string) => void;
   onStopLiveLogSession: (id: string) => void;
@@ -44,7 +57,10 @@ export function EnvironmentDetails({
   onListContainers,
   onListEnvironmentFiles,
   onInspectMongo,
+  onListLifecycleActions,
+  onGetLifecycleActionLogs,
   onAction,
+  actionRefreshToken,
   liveLogSessions,
   onStartComposeLogStream,
   onStopLiveLogSession
@@ -58,27 +74,26 @@ export function EnvironmentDetails({
   const [loadingFiles, setLoadingFiles] = useState(false);
   const [loadingMongo, setLoadingMongo] = useState(false);
   const [toolError, setToolError] = useState<string>();
+  const [actions, setActions] = useState<EnvironmentActionRecord[]>([]);
+  const [actionsPage, setActionsPage] = useState<EnvironmentActionsPage>();
+  const [selectedActionId, setSelectedActionId] = useState("");
+  const [actionLogs, setActionLogs] = useState<EnvironmentActionLog[]>([]);
+  const [actionLogsPage, setActionLogsPage] = useState<EnvironmentActionLogsPage>();
+  const [loadingActions, setLoadingActions] = useState(false);
+  const [loadingActionLogs, setLoadingActionLogs] = useState(false);
 
   const composeLogSessions = useMemo(
     () => liveLogSessions.filter((session) => session.subtitle === "Docker Compose logs"),
     [liveLogSessions]
   );
-  const displayedLogSessions = useMemo(
-    () => liveLogSessions.filter((session) => session.subtitle === "Docker Compose logs" || isDockerComposeLifecycleSession(session)),
-    [liveLogSessions]
-  );
   const selectedLiveSession = composeLogSessions.find((session) => session.status === "running") ?? composeLogSessions[0];
-  const combinedLogs = useMemo(() => {
-    return displayedLogSessions.flatMap((session) =>
-      session.entries.map((entry) => ({
-        at: entry.at,
-        label: session.subtitle === "Docker Compose lifecycle" ? session.title : "docker compose",
-        message: entry.log,
-        level: entry.level,
-        system: false
-      }))
-    ).slice(-120);
-  }, [displayedLogSessions]);
+  const selectedAction = actions.find((action) => action.id === selectedActionId);
+  const displayedActionLogs = useMemo(() => actionLogs.map((entry) => ({
+    at: entry.createdAt,
+    message: entry.log,
+    level: entry.level,
+    system: false
+  })), [actionLogs]);
 
   useEffect(() => {
     if (!open || !environment) {
@@ -89,6 +104,35 @@ export function EnvironmentDetails({
     void loadFiles("/");
     void loadMongo();
   }, [open, environment?.key]);
+
+  useEffect(() => {
+    if (!open || !environment) {
+      return;
+    }
+
+    void loadActions();
+  }, [open, environment?.key, actionRefreshToken]);
+
+  useEffect(() => {
+    if (!open || !selectedActionId) {
+      return;
+    }
+
+    void loadActionLogs(selectedActionId);
+  }, [open, selectedActionId]);
+
+  useEffect(() => {
+    if (!open || !selectedActionId || !selectedAction || (selectedAction.status !== "queued" && selectedAction.status !== "running")) {
+      return undefined;
+    }
+
+    const interval = setInterval(() => {
+      void loadActions(false, selectedActionId);
+      void loadActionLogs(selectedActionId, 0, true, false);
+    }, 1500);
+
+    return () => clearInterval(interval);
+  }, [open, selectedActionId, selectedAction?.status]);
 
   useEffect(() => {
     if (!open || !environment) {
@@ -170,6 +214,76 @@ export function EnvironmentDetails({
       setToolError(toErrorMessage(error));
     } finally {
       setLoadingFiles(false);
+    }
+  }
+
+  async function loadActions(showSpinner = true, preferredActionId = selectedActionId): Promise<void> {
+    if (!environment) {
+      return;
+    }
+
+    if (showSpinner) {
+      setLoadingActions(true);
+    }
+    setToolError(undefined);
+    try {
+      const page = await onListLifecycleActions(environment.key, 0, 30);
+      setActionsPage(page);
+      setActions(page.items);
+      const nextSelectedId = preferredActionId && page.items.some((action) => action.id === preferredActionId)
+        ? preferredActionId
+        : page.items[0]?.id ?? "";
+      setSelectedActionId(nextSelectedId);
+      if (!nextSelectedId) {
+        setActionLogs([]);
+        setActionLogsPage(undefined);
+      }
+    } catch (error) {
+      setToolError(toErrorMessage(error));
+    } finally {
+      if (showSpinner) {
+        setLoadingActions(false);
+      }
+    }
+  }
+
+  async function loadActionLogs(actionId = selectedActionId, page = 0, replace = true, showSpinner = true): Promise<void> {
+    if (!actionId) {
+      return;
+    }
+
+    if (showSpinner) {
+      setLoadingActionLogs(true);
+    }
+    setToolError(undefined);
+    try {
+      const nextPage = await onGetLifecycleActionLogs(actionId, page, 500);
+      setActionLogsPage(nextPage);
+      setActionLogs((current) => replace ? nextPage.items : appendUniqueLogs(current, nextPage.items));
+    } catch (error) {
+      setToolError(toErrorMessage(error));
+    } finally {
+      if (showSpinner) {
+        setLoadingActionLogs(false);
+      }
+    }
+  }
+
+  async function loadMoreActions(): Promise<void> {
+    if (!environment || !actionsPage || actionsPage.page + 1 >= actionsPage.pages) {
+      return;
+    }
+
+    setLoadingActions(true);
+    setToolError(undefined);
+    try {
+      const page = await onListLifecycleActions(environment.key, actionsPage.page + 1, actionsPage.perPage);
+      setActionsPage(page);
+      setActions((current) => appendUniqueActions(current, page.items));
+    } catch (error) {
+      setToolError(toErrorMessage(error));
+    } finally {
+      setLoadingActions(false);
     }
   }
 
@@ -282,26 +396,61 @@ export function EnvironmentDetails({
 
         <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", xl: "2.08fr 1fr" }, gap: 3 }}>
           <Panel
-            title="DOCKER COMPOSE LOGS"
+            title="ACTION LOGS"
             icon={<TerminalIcon />}
             action={
               <Stack direction="row" spacing={1.5} alignItems="center">
-                <Stack direction="row" spacing={0.75} alignItems="center">
-                  <Box sx={{ width: 10, height: 10, borderRadius: "50%", bgcolor: "#65ffc9" }} />
-                  <Typography variant="caption" color="text.secondary" fontWeight={900}>LIVE</Typography>
-                </Stack>
+                {selectedAction ? <Chip size="small" label={selectedAction.status.toUpperCase()} sx={{ ...statusChipSx, color: statusColor(selectedAction.status) }} /> : null}
                 <IconButton
-                  aria-label="Start Docker Compose logs"
-                  disabled={environment.status !== "running"}
-                  onClick={() => onStartComposeLogStream(environment.key)}
+                  aria-label="Refresh action logs"
+                  onClick={() => {
+                    void loadActions();
+                    if (selectedActionId) {
+                      void loadActionLogs(selectedActionId);
+                    }
+                  }}
                   sx={iconButtonSx}
                 >
-                  <RefreshIcon />
+                  {loadingActions || loadingActionLogs ? <CircularProgress size={18} /> : <RefreshIcon />}
                 </IconButton>
               </Stack>
             }
           >
-            <LogTerminal logs={combinedLogs} />
+            <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", lg: "260px 1fr" }, minHeight: 460 }}>
+              <ActionHistory
+                actions={actions}
+                selectedActionId={selectedActionId}
+                total={actionsPage?.total ?? actions.length}
+                loading={loadingActions}
+                onSelect={setSelectedActionId}
+                hasMore={Boolean(actionsPage && actionsPage.page + 1 < actionsPage.pages)}
+                onLoadMore={() => void loadMoreActions()}
+              />
+              <Box sx={{ minWidth: 0 }}>
+                <Box sx={{ px: 2, py: 1.2, borderBottom: "1px solid rgba(159, 179, 195, 0.18)", bgcolor: "#111d1b", display: "flex", justifyContent: "space-between", gap: 2, alignItems: "center" }}>
+                  <Typography variant="caption" color="text.secondary" sx={{ fontFamily: monoFont }} noWrap>
+                    {selectedAction ? `${selectedAction.action.toUpperCase()} / ${selectedAction.id}` : "NO REGISTERED ACTION"}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary" sx={{ fontFamily: monoFont }}>
+                    {actionLogsPage ? `${actionLogs.length}/${actionLogsPage.total}` : "0/0"}
+                  </Typography>
+                </Box>
+                <LogTerminal logs={displayedActionLogs} emptyText={selectedAction ? "Waiting for registered action log output." : "No actions registered for this environment yet."} />
+                {actionLogsPage && actionLogsPage.page + 1 < actionLogsPage.pages ? (
+                  <Box sx={{ px: 2, py: 1.5, borderTop: "1px solid rgba(159, 179, 195, 0.18)", bgcolor: "#111d1b" }}>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      disabled={loadingActionLogs}
+                      onClick={() => void loadActionLogs(selectedActionId, actionLogsPage.page + 1, false)}
+                      sx={smallButtonSx}
+                    >
+                      Load More
+                    </Button>
+                  </Box>
+                ) : null}
+              </Box>
+            </Box>
           </Panel>
 
           <Stack spacing={3}>
@@ -355,6 +504,82 @@ function Panel({ title, icon, action, children }: { title: string; icon: React.R
       </Box>
       {children}
     </Box>
+  );
+}
+
+function ActionHistory({
+  actions,
+  selectedActionId,
+  total,
+  loading,
+  onSelect,
+  hasMore,
+  onLoadMore
+}: {
+  actions: EnvironmentActionRecord[];
+  selectedActionId: string;
+  total: number;
+  loading: boolean;
+  onSelect: (id: string) => void;
+  hasMore: boolean;
+  onLoadMore: () => void;
+}) {
+  return (
+    <Stack sx={{ bgcolor: "#172321", borderRight: { lg: "1px solid rgba(159, 179, 195, 0.24)" }, borderBottom: { xs: "1px solid rgba(159, 179, 195, 0.24)", lg: "none" }, maxHeight: { lg: 620 }, overflow: "auto" }}>
+      <Box sx={{ px: 1.5, py: 1.2, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 1 }}>
+        <Typography variant="caption" color="text.secondary" sx={{ fontFamily: monoFont, fontWeight: 900 }}>
+          REGISTERED ACTIONS
+        </Typography>
+        {loading ? <CircularProgress size={14} /> : <Typography variant="caption" color="text.secondary" sx={{ fontFamily: monoFont }}>{total}</Typography>}
+      </Box>
+      {actions.length === 0 ? (
+        <Box sx={{ px: 1.5, py: 2, color: "text.secondary", fontFamily: monoFont, fontSize: 13 }}>
+          No actions yet.
+        </Box>
+      ) : actions.map((action) => {
+        const selected = action.id === selectedActionId;
+        return (
+          <Button
+            key={action.id}
+            onClick={() => onSelect(action.id)}
+            sx={{
+              justifyContent: "flex-start",
+              alignItems: "stretch",
+              textAlign: "left",
+              borderRadius: 0,
+              px: 1.5,
+              py: 1.25,
+              borderTop: "1px solid rgba(159, 179, 195, 0.12)",
+              bgcolor: selected ? "rgba(0, 229, 255, 0.08)" : "transparent",
+              color: "text.primary",
+              "&:hover": { bgcolor: "rgba(0, 229, 255, 0.11)" }
+            }}
+          >
+            <Stack spacing={0.55} sx={{ width: "100%", minWidth: 0 }}>
+              <Stack direction="row" spacing={1} alignItems="center" justifyContent="space-between">
+                <Typography sx={{ fontFamily: monoFont, fontWeight: 900, color: "#00e5ff" }}>
+                  {action.action.toUpperCase()}
+                </Typography>
+                <Box sx={{ width: 9, height: 9, borderRadius: "50%", bgcolor: statusColor(action.status), boxShadow: action.status === "running" ? "0 0 10px rgba(101, 255, 201, 0.75)" : "none" }} />
+              </Stack>
+              <Typography variant="caption" color="text.secondary" sx={{ fontFamily: monoFont }} noWrap>
+                {shortId(action.id)} / {action.status}
+              </Typography>
+              <Typography variant="caption" color="text.secondary" sx={{ fontFamily: monoFont }}>
+                {formatTimestamp(action.createdAt)}
+              </Typography>
+            </Stack>
+          </Button>
+        );
+      })}
+      {hasMore ? (
+        <Box sx={{ p: 1.25, borderTop: "1px solid rgba(159, 179, 195, 0.12)" }}>
+          <Button size="small" variant="outlined" disabled={loading} onClick={onLoadMore} sx={{ ...smallButtonSx, width: "100%" }}>
+            More
+          </Button>
+        </Box>
+      ) : null}
+    </Stack>
   );
 }
 
@@ -439,12 +664,12 @@ function DataCell({ children, strong = false, accent = false }: { children: Reac
   );
 }
 
-function LogTerminal({ logs }: { logs: Array<{ at: string; message: string; level: "info" | "error"; system: boolean }>; }) {
+function LogTerminal({ logs, emptyText = "Waiting for Docker Compose log output." }: { logs: Array<{ at: string; message: string; level: "info" | "error"; system: boolean }>; emptyText?: string; }) {
   return (
     <Box sx={{ minHeight: 460, maxHeight: 560, overflow: "auto", bgcolor: "#02051d", p: 2, fontFamily: monoFont, fontSize: 14, lineHeight: 1.7 }}>
       {logs.length === 0 ? (
         <Typography color="text.secondary" sx={{ fontFamily: monoFont }}>
-          Waiting for Docker Compose log output.
+          {emptyText}
         </Typography>
       ) : logs.map((log, index) => (
         <Box key={`${log.at}-${index}`} sx={{ display: "flex", gap: 0.5, minWidth: 0 }}>
@@ -614,6 +839,35 @@ function formatTimestamp(value: string): string {
   return date.toISOString().slice(0, 19).replace("T", " ");
 }
 
+function shortId(value: string): string {
+  return value.slice(0, 8);
+}
+
+function appendUniqueLogs(current: EnvironmentActionLog[], next: EnvironmentActionLog[]): EnvironmentActionLog[] {
+  const seen = new Set(current.map((entry) => `${entry.actionId}:${entry.sequence}`));
+  const merged = [...current];
+  next.forEach((entry) => {
+    const key = `${entry.actionId}:${entry.sequence}`;
+    if (!seen.has(key)) {
+      seen.add(key);
+      merged.push(entry);
+    }
+  });
+  return merged.sort((left, right) => left.sequence - right.sequence);
+}
+
+function appendUniqueActions(current: EnvironmentActionRecord[], next: EnvironmentActionRecord[]): EnvironmentActionRecord[] {
+  const seen = new Set(current.map((action) => action.id));
+  const merged = [...current];
+  next.forEach((action) => {
+    if (!seen.has(action.id)) {
+      seen.add(action.id);
+      merged.push(action);
+    }
+  });
+  return merged.sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime());
+}
+
 function relativeAge(value: string): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
@@ -628,27 +882,13 @@ function relativeAge(value: string): string {
   return `${Math.floor(hours / 24)} days`;
 }
 
-function statusColor(status: EnvironmentRecord["status"]): string {
+function statusColor(status: string): string {
   if (status === "running") return "#65ffc9";
   if (status === "error") return "#ffc4b7";
+  if (status === "queued") return "#00e5ff";
   if (status === "creating") return "#00e5ff";
+  if (status === "complete") return "#d7e3ee";
   return "#d7e3ee";
-}
-
-function labelColor(label: string): string {
-  if (label.includes("api")) return "#ffd900";
-  if (label.includes("db")) return "#65ffc9";
-  if (label.toLowerCase().startsWith("start") || label.toLowerCase().startsWith("resume") || label.toLowerCase().startsWith("restart")) return "#65ffc9";
-  return "#00e5ff";
-}
-
-function isDockerComposeLifecycleSession(session: LiveLogSession): boolean {
-  if (session.subtitle !== "Docker Compose lifecycle") {
-    return false;
-  }
-
-  const title = session.title.toLowerCase();
-  return title.startsWith("start ") || title.startsWith("resume ") || title.startsWith("restart ");
 }
 
 function toErrorMessage(error: unknown): string {

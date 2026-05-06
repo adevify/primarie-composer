@@ -419,6 +419,10 @@ export class EnvironmentsService {
     return EnvironmentActionCollection.get(id);
   }
 
+  getLifecycleActions(key: string, page: number, perPage: number) {
+    return EnvironmentActionCollection.listByEnvironment(key, page, perPage);
+  }
+
   getLifecycleActionLogs(id: string, page: number, perPage: number) {
     return EnvironmentActionCollection.listLogs(id, page, perPage);
   }
