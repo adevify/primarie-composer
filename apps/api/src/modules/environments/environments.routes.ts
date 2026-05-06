@@ -55,6 +55,68 @@ export function createEnvironmentRouter(): Router {
     }
   });
 
+  router.get("/actions/:id", async (req, res, next) => {
+    try {
+      return res.json(await service.getLifecycleAction(req.params.id));
+    } catch (error) {
+      return next(error);
+    }
+  });
+
+  router.get("/actions/:id/logs", async (req, res, next) => {
+    try {
+      const page = parseInt(req.query.page as string || "0");
+      const perPage = parseInt(req.query.perPage as string || "100");
+      return res.json(await service.getLifecycleActionLogs(req.params.id, page, perPage));
+    } catch (error) {
+      return next(error);
+    }
+  });
+
+  router.get("/actions/:id/logs/stream", async (req, res) => {
+    let closed = false;
+    let afterSequence = Number.parseInt(String(req.query.after ?? "-1"));
+    if (!Number.isInteger(afterSequence)) {
+      afterSequence = -1;
+    }
+
+    req.once("close", () => {
+      closed = true;
+    });
+    prepareStreamResponse(res);
+
+    try {
+      while (!closed) {
+        const entries = await service.getLifecycleActionLogsAfter(req.params.id, afterSequence, 100);
+        for (const entry of entries) {
+          writeStreamEvent(res, { type: "line", log: entry.log, level: entry.level, sequence: entry.sequence, createdAt: entry.createdAt });
+          afterSequence = entry.sequence;
+        }
+
+        const action = await service.getLifecycleAction(req.params.id);
+        if (action.status === "complete" || action.status === "error") {
+          writeStreamEvent(res, { type: "action", action });
+          writeStreamEvent(res, { type: action.status === "complete" ? "complete" : "error", log: action.error, level: "error" });
+          break;
+        }
+
+        await delay(1000);
+      }
+    } catch (error) {
+      if (!closed) {
+        writeStreamEvent(res, {
+          type: "error",
+          log: error instanceof Error ? error.message : String(error),
+          level: "error"
+        });
+      }
+    } finally {
+      if (!closed) {
+        res.end();
+      }
+    }
+  });
+
   router.get("/:key", async (req, res, next) => {
     try {
       return res.json(await service.get(req.params.key));
@@ -174,6 +236,19 @@ export function createEnvironmentRouter(): Router {
       if (!closed) {
         res.end();
       }
+    }
+  });
+
+  router.post("/:key/actions/:action", async (req, res, next) => {
+    try {
+      const parsed = lifecycleActionSchema.safeParse(req.params.action);
+      if (!parsed.success) {
+        return res.status(400).json({ error: parsed.error.flatten() });
+      }
+
+      return res.status(202).json(await service.createLifecycleAction(req.params.key, parsed.data, req.user!));
+    } catch (error) {
+      return next(error);
     }
   });
 
@@ -358,4 +433,8 @@ function prepareStreamResponse(res: import("express").Response): void {
 
 function writeStreamEvent(res: import("express").Response, event: unknown): void {
   res.write(`${JSON.stringify(event)}\n`);
+}
+
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }

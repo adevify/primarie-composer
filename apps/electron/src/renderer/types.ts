@@ -142,6 +142,37 @@ export type ContainerExecResult = {
 
 export type LifecycleAction = "start" | "stop" | "restart" | "resume";
 
+export type EnvironmentActionStatus = "queued" | "running" | "complete" | "error";
+
+export type EnvironmentActionRecord = {
+  id: string;
+  environmentKey: string;
+  action: LifecycleAction;
+  status: EnvironmentActionStatus;
+  environment?: EnvironmentRecord;
+  error?: string;
+  createdAt: string;
+  updatedAt: string;
+  completedAt?: string;
+};
+
+export type EnvironmentActionLog = {
+  actionId: string;
+  environmentKey: string;
+  createdAt: string;
+  sequence: number;
+  log: string;
+  level: "info" | "error";
+};
+
+export type EnvironmentActionLogsPage = {
+  total: number;
+  page: number;
+  perPage: number;
+  pages: number;
+  items: EnvironmentActionLog[];
+};
+
 export type StreamLogEvent =
   | { type: "line"; log: string; level: "info" | "error" }
   | { type: "environment"; environment: EnvironmentRecord }

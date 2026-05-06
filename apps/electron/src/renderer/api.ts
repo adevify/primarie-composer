@@ -5,6 +5,8 @@ import type {
   ContainerFileEntry,
   CreateEnvironmentInput,
   EnvironmentContainer,
+  EnvironmentActionLogsPage,
+  EnvironmentActionRecord,
   EnvironmentLogsPage,
   EnvironmentRecord,
   LifecycleAction,
@@ -100,6 +102,32 @@ export class ComposerApiClient {
 
   resumeEnvironment(key: string): Promise<EnvironmentRecord> {
     return this.request<EnvironmentRecord>(`/environments/${encodeURIComponent(key)}/resume`, { method: "POST" });
+  }
+
+  createLifecycleAction(key: string, action: LifecycleAction): Promise<EnvironmentActionRecord> {
+    return this.request<EnvironmentActionRecord>(
+      `/environments/${encodeURIComponent(key)}/actions/${encodeURIComponent(action)}`,
+      { method: "POST" }
+    );
+  }
+
+  getLifecycleAction(id: string): Promise<EnvironmentActionRecord> {
+    return this.request<EnvironmentActionRecord>(`/environments/actions/${encodeURIComponent(id)}`);
+  }
+
+  lifecycleActionLogs(id: string, page = 0, perPage = 500): Promise<EnvironmentActionLogsPage> {
+    const params = new URLSearchParams({ page: String(page), perPage: String(perPage) });
+    return this.request<EnvironmentActionLogsPage>(`/environments/actions/${encodeURIComponent(id)}/logs?${params.toString()}`);
+  }
+
+  streamLifecycleActionLogs(
+    id: string,
+    afterSequence: number,
+    onEvent: (event: StreamLogEvent) => void,
+    signal?: AbortSignal
+  ): Promise<void> {
+    const params = new URLSearchParams({ after: String(afterSequence) });
+    return this.streamNdjson(`/environments/actions/${encodeURIComponent(id)}/logs/stream?${params.toString()}`, onEvent, signal);
   }
 
   logs(key: string): Promise<EnvironmentLogsPage> {

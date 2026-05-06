@@ -1,4 +1,5 @@
 import fs from "node:fs/promises";
+import { randomUUID } from "node:crypto";
 import net from "node:net";
 import os from "node:os";
 import path from "node:path";
@@ -9,8 +10,9 @@ import { EnvironmentCollection, EnvironmentRecord } from "../../db/environments.
 import { DockerComposeService } from "../../services/docker/DockerComposeService.js";
 import { GitRepositoryService } from "../../services/git/GitRepositoryService.js";
 import type { AuthenticatedUser } from "../auth/auth.middleware.js";
-import type { CreateEnvironmentPayload, EnvironmentOwner, EnvironmentSource, PullRequestRef, SyncFilesPayload } from "./environment.dtos.js";
+import type { CreateEnvironmentPayload, EnvironmentOwner, EnvironmentSource, LifecycleAction, PullRequestRef, SyncFilesPayload } from "./environment.dtos.js";
 import { EnvironmentLogCollection } from "../../db/environment-logs.js";
+import { EnvironmentActionCollection } from "../../db/environment-actions.js";
 
 const keyPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const execFileAsync = promisify(execFile);
@@ -397,9 +399,76 @@ export class EnvironmentsService {
     return this.docker.execInContainer(container, command);
   }
 
+  async createLifecycleAction(key: string, action: LifecycleAction, user: AuthenticatedUser) {
+    await this.get(key);
+
+    const id = randomUUID();
+    await EnvironmentActionCollection.create({
+      id,
+      environmentKey: key,
+      action,
+      status: "queued",
+      requestedBy: this.toOwner(user)
+    });
+
+    void this.runLifecycleActionJob(id, key, action, user);
+    return EnvironmentActionCollection.get(id);
+  }
+
+  getLifecycleAction(id: string) {
+    return EnvironmentActionCollection.get(id);
+  }
+
+  getLifecycleActionLogs(id: string, page: number, perPage: number) {
+    return EnvironmentActionCollection.listLogs(id, page, perPage);
+  }
+
+  getLifecycleActionLogsAfter(id: string, afterSequence: number, limit: number) {
+    return EnvironmentActionCollection.listLogsAfter(id, afterSequence, limit);
+  }
+
+  private async runLifecycleActionJob(id: string, key: string, action: LifecycleAction, user: AuthenticatedUser): Promise<void> {
+    await EnvironmentActionCollection.update(id, { status: "running" });
+
+    try {
+      const environment = await this.streamLifecycleAction(
+        key,
+        action,
+        user,
+        async (entry) => {
+          await EnvironmentActionCollection.addLog({
+            actionId: id,
+            environmentKey: key,
+            log: entry.log,
+            level: entry.level
+          });
+        }
+      );
+
+      await EnvironmentActionCollection.update(id, {
+        status: "complete",
+        environment,
+        completedAt: new Date()
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      await EnvironmentActionCollection.addLog({
+        actionId: id,
+        environmentKey: key,
+        log: message,
+        level: "error"
+      }).catch(() => undefined);
+      await EnvironmentActionCollection.update(id, {
+        status: "error",
+        error: message,
+        completedAt: new Date()
+      }).catch(() => undefined);
+    }
+  }
+
   async streamLifecycleAction(
     key: string,
-    action: "start" | "stop" | "restart" | "resume",
+    action: LifecycleAction,
     user: AuthenticatedUser,
     onLog: (entry: { log: string; level: "info" | "error" }) => Promise<void> | void,
     signal?: AbortSignal

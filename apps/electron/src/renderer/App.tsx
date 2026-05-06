@@ -470,7 +470,7 @@ export default function App() {
       if (action === "delete") {
         await api.deleteEnvironment(key);
       } else {
-        updatedEnvironment = await streamLifecycleAction(key, action);
+        updatedEnvironment = await runLifecycleAction(key, action);
       }
       if (action === "start" || action === "restart" || action === "resume") {
         setActiveEnvironment(key);
@@ -492,16 +492,16 @@ export default function App() {
     }
   }
 
-  async function streamLifecycleAction(key: string, action: LifecycleAction): Promise<EnvironmentRecord | undefined> {
+  async function runLifecycleAction(key: string, action: LifecycleAction): Promise<EnvironmentRecord | undefined> {
     if (!api) {
       return undefined;
     }
 
-    const sessionId = `${Date.now()}-${action}-${key}`;
-    const controller = new AbortController();
+    const createdAction = await api.createLifecycleAction(key, action);
+    const sessionId = createdAction.id;
     let latestEnvironment: EnvironmentRecord | undefined;
+    let latestLogSequence = -1;
 
-    streamControllers.current.set(sessionId, controller);
     addLiveLogSession({
       id: sessionId,
       environmentKey: key,
@@ -512,34 +512,47 @@ export default function App() {
     });
 
     try {
-      await api.streamLifecycleAction(
-        key,
-        action,
-        (event) => {
-          if (event.type === "environment") {
-            latestEnvironment = event.environment;
-            setDetailsEnvironment(event.environment);
-            setEnvironments((current) => current.map((item) => item.key === event.environment.key ? event.environment : item));
-            return;
+      while (true) {
+        const [currentAction, logsPage] = await Promise.all([
+          api.getLifecycleAction(sessionId),
+          api.lifecycleActionLogs(sessionId, 0, 500)
+        ]);
+
+        for (const entry of logsPage.items) {
+          if (entry.sequence > latestLogSequence) {
+            appendLiveLogEntry(sessionId, entry.log, entry.level);
+            latestLogSequence = entry.sequence;
           }
-          handleStreamEvent(sessionId, event);
-        },
-        controller.signal
-      );
-      markLiveLogSession(sessionId, "complete");
+        }
+
+        if (currentAction.environment) {
+          latestEnvironment = currentAction.environment;
+          setDetailsEnvironment(currentAction.environment);
+          setEnvironments((current) => current.map((item) => item.key === currentAction.environment?.key ? currentAction.environment : item));
+        }
+
+        if (currentAction.status === "complete") {
+          markLiveLogSession(sessionId, "complete");
+          break;
+        }
+
+        if (currentAction.status === "error") {
+          if (currentAction.error) {
+            appendLiveLogEntry(sessionId, currentAction.error, "error");
+          }
+          markLiveLogSession(sessionId, "error");
+          throw new Error(currentAction.error ?? `${capitalize(action)} ${key} failed.`);
+        }
+
+        await delay(800);
+      }
+
       setDetailsLogRefreshToken((current) => current + 1);
       return latestEnvironment;
     } catch (error) {
-      if (controller.signal.aborted) {
-        appendLiveLogEntry(sessionId, "Stream stopped by operator.", "error");
-        markLiveLogSession(sessionId, "stopped");
-        return latestEnvironment;
-      }
       appendLiveLogEntry(sessionId, toErrorMessage(error), "error");
       markLiveLogSession(sessionId, "error");
       throw error;
-    } finally {
-      streamControllers.current.delete(sessionId);
     }
   }
 

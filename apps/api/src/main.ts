@@ -6,6 +6,7 @@ import { createEnvironmentRouter } from "./modules/environments/environments.rou
 import { authenticateJwt } from "./modules/auth/auth.middleware.js";
 import { createProxyRouter } from "./modules/proxy/proxy.routes.js";
 import { connect, disconnect } from "./db/client.js";
+import { EnvironmentActionCollection } from "./db/environment-actions.js";
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.use((err: unknown, _req: express.Request, res: express.Response, _next: expr
 });
 
 await connect();
+await EnvironmentActionCollection.ensureIndexes();
 
 const server = await app.listen(80);
 console.log(`primarie-composer API listening on :80`);

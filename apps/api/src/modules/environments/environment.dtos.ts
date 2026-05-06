@@ -1,6 +1,7 @@
 import z from "zod";
 
 export type EnvironmentStatus = "creating" | "running" | "stopped" | "error";
+export type LifecycleAction = "start" | "stop" | "restart" | "resume";
 
 export type EnvironmentOwner = {
   email: string;
