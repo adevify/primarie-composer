@@ -560,8 +560,8 @@ function MetaLabel({ icon, label, accent = false }: { icon: "user" | "branch" | 
 
 function buildDomains(environment: EnvironmentRecord): string[] {
   return [
-    `${environment.key}.electro.io`,
-    `api.${environment.key}.electro.io`
+    `admin-${environment.key}.prmr.md`,
+    `api-${environment.key}.prmr.md`
   ];
 }
 

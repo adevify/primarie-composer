@@ -3,7 +3,7 @@ import type { Request } from "express";
 import { env } from "../../config/env.js";
 import { EnvironmentCollection } from "../../db/environments.js";
 
-const keyPattern = /^[a-z]+-[a-z]+$/;
+const keyPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 export function createProxyRouter(): Router {
   const router = Router();

@@ -29,7 +29,7 @@ type EnvironmentCreateFormProps = {
   envEntries: EnvExampleEntry[];
   error?: string;
   onCancel: () => void;
-  onCreate: (input: { seed: string; useCurrentRepoState: boolean; env: Record<string, string> }) => Promise<void>;
+  onCreate: (input: { name: string; seed: string; useCurrentRepoState: boolean; env: Record<string, string> }) => Promise<void>;
 };
 
 const databaseSeedOptions = [
@@ -45,6 +45,7 @@ const createSteps = [
 ] as const;
 
 export function EnvironmentCreateForm({ open, disabled, loading, envLoading, envEntries, error, onCancel, onCreate }: EnvironmentCreateFormProps) {
+  const [environmentName, setEnvironmentName] = useState("");
   const [seed, setSeed] = useState(databaseSeedOptions[0].seed);
   const [envValues, setEnvValues] = useState<Record<string, string>>({});
 
@@ -57,6 +58,7 @@ export function EnvironmentCreateForm({ open, disabled, loading, envLoading, env
   async function submit(event: FormEvent): Promise<void> {
     event.preventDefault();
     await onCreate({
+      name: normalizeEnvironmentName(environmentName),
       seed: seed.trim() || "default",
       useCurrentRepoState: true,
       env: envValues
@@ -132,6 +134,18 @@ export function EnvironmentCreateForm({ open, disabled, loading, envLoading, env
       <DialogContent sx={{ px: 3, py: 4, bgcolor: "#151925" }}>
         <Stack spacing={3}>
           {error ? <Alert severity="error">{error}</Alert> : null}
+
+          <Stack spacing={1.4}>
+            <FieldLabel>Environment name</FieldLabel>
+            <TextField
+              value={environmentName}
+              onChange={(event) => setEnvironmentName(event.target.value)}
+              placeholder="pizza"
+              disabled={disabled || loading}
+              required
+              sx={fieldSx}
+            />
+          </Stack>
 
           <Stack spacing={1.4}>
             <FieldLabel>Database seed</FieldLabel>
@@ -219,6 +233,10 @@ function FieldLabel({ children }: { children: string }) {
       {children}
     </Typography>
   );
+}
+
+function normalizeEnvironmentName(value: string): string {
+  return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 }
 
 const fieldSx = {

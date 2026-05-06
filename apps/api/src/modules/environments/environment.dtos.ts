@@ -7,7 +7,7 @@ export type EnvironmentOwner = {
   name: string;
 };
 
-export const keySchema = z.string().regex(/^[a-z]+-[a-z]+$/);
+export const keySchema = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
 export const changedFileSchema = z.object({
   path: z.string().min(1),
   status: z.enum(["modified", "added", "deleted"]),
@@ -40,6 +40,7 @@ export const pullRequestSchema = z.object({
 export type PullRequestRef = z.infer<typeof pullRequestSchema>;
 
 export const createEnvironmentSchema = z.object({
+  name: keySchema.optional(),
   seed: z.string().regex(/^[a-zA-Z0-9_-]+$/).default("default"),
   source: sourceSchema,
   env: z.record(z.string(), z.string()).default({})

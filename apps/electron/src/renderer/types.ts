@@ -163,6 +163,7 @@ export type LiveLogSession = {
 };
 
 export type CreateEnvironmentInput = {
+  name?: string;
   seed: string;
   source: EnvironmentSource;
   env?: Record<string, string>;
