@@ -312,8 +312,8 @@ export class EnvironmentsService {
       sourceRepoUrl: env.SOURCE_REPO_URL,
       environmentVariables: {
         ...environmentVariables,
-        HOST_1: "prmr.md",
-        HOST_2: "adevify.md",
+        HOST_1: env.ROOT_DOMAIN,
+        HOST_2: env.ROOT_DOMAIN,
         NETWORK_NAME: `primarie-${key}-net`,
         ENV_KEY: key,
         ENV_PORT: String((await EnvironmentCollection.get(key)).port),
