@@ -48,18 +48,21 @@ export function createProxyRouter(): Router {
       }
 
       const upstreamHost = env.PROXY_UPSTREAM_HOST;
+      const serviceHost = `${parsed.subdomain}.${env.ROOT_DOMAIN}`;
       logProxyDecision("info", requestId, "allow", {
         host,
         parsed,
         environmentStatus: record.status,
         environmentPort: record.port,
-        upstreamHost
+        upstreamHost,
+        serviceHost
       });
 
       res.setHeader("x-environment-key", record.key);
       res.setHeader("x-environment-port", String(record.port));
       res.setHeader("x-environment-subdomain", parsed.subdomain);
       res.setHeader("x-upstream-host", upstreamHost);
+      res.setHeader("x-service-host", serviceHost);
       return res.status(204).send();
     } catch (error) {
       logProxyDecision("error", requestId, "error", {
