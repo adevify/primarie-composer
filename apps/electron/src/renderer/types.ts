@@ -194,6 +194,7 @@ export type EnvironmentActionsPage = {
 export type StreamLogEvent =
   | { type: "line"; log: string; level: "info" | "error" }
   | { type: "environment"; environment: EnvironmentRecord }
+  | { type: "action"; action: EnvironmentActionRecord }
   | { type: "complete" }
   | { type: "error"; log: string; level: "error" };
 

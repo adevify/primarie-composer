@@ -81,7 +81,7 @@ run_and_capture() {
   output_file="$(mktemp)"
   : > "$log_file"
   set +e
-  "$@" 2>&1 | tee "$output_file" "$log_file" >&2
+  "$@" 2>&1 | tee "$output_file" "$log_file" >/dev/null
   local code="${PIPESTATUS[0]}"
   set -e
   cat "$output_file"

@@ -500,7 +500,7 @@ export default function App() {
     const createdAction = await api.createLifecycleAction(key, action);
     const sessionId = createdAction.id;
     let latestEnvironment: EnvironmentRecord | undefined;
-    let latestLogSequence = -1;
+    let failedMessage: string | undefined;
 
     setDetailsLogRefreshToken((current) => current + 1);
     addLiveLogSession({
@@ -513,39 +513,38 @@ export default function App() {
     });
 
     try {
-      while (true) {
-        const [currentAction, logsPage] = await Promise.all([
-          api.getLifecycleAction(sessionId),
-          api.lifecycleActionLogs(sessionId, 0, 500)
-        ]);
+      await api.streamLifecycleActionLogs(sessionId, -1, (event) => {
+        if (event.type === "line") {
+          appendLiveLogEntry(sessionId, event.log, event.level);
+          return;
+        }
 
-        for (const entry of logsPage.items) {
-          if (entry.sequence > latestLogSequence) {
-            appendLiveLogEntry(sessionId, entry.log, entry.level);
-            latestLogSequence = entry.sequence;
+        if (event.type === "action") {
+          if (event.action.environment) {
+            latestEnvironment = event.action.environment;
+            setDetailsEnvironment(event.action.environment);
+            setEnvironments((current) => current.map((item) => item.key === event.action.environment?.key ? event.action.environment : item));
           }
+          if (event.action.status === "error") {
+            failedMessage = event.action.error ?? `${capitalize(action)} ${key} failed.`;
+          }
+          return;
         }
 
-        if (currentAction.environment) {
-          latestEnvironment = currentAction.environment;
-          setDetailsEnvironment(currentAction.environment);
-          setEnvironments((current) => current.map((item) => item.key === currentAction.environment?.key ? currentAction.environment : item));
-        }
-
-        if (currentAction.status === "complete") {
+        if (event.type === "complete") {
           markLiveLogSession(sessionId, "complete");
-          break;
+          return;
         }
 
-        if (currentAction.status === "error") {
-          if (currentAction.error) {
-            appendLiveLogEntry(sessionId, currentAction.error, "error");
-          }
+        if (event.type === "error") {
+          failedMessage = event.log;
+          appendLiveLogEntry(sessionId, event.log, "error");
           markLiveLogSession(sessionId, "error");
-          throw new Error(currentAction.error ?? `${capitalize(action)} ${key} failed.`);
         }
+      });
 
-        await delay(800);
+      if (failedMessage) {
+        throw new Error(failedMessage);
       }
 
       setDetailsLogRefreshToken((current) => current + 1);
