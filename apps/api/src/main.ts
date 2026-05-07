@@ -21,7 +21,9 @@ app.use(express.json({ limit: "25mb" }));
 app.get("/health", async (_req, res, next) => {
   try {
     const actionBus = await bus.health();
-    logApi("info", "health_checked", { actionBusReady: actionBus.ready, actionBusReason: actionBus.reason });
+    if (!actionBus.ready) {
+      logApi("warn", "health_checked", { actionBusReady: actionBus.ready, actionBusReason: actionBus.reason });
+    }
     res.json({ ok: true, service: "primarie-composer-api", actionBus });
   } catch (error) {
     next(error);

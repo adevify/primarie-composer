@@ -18,18 +18,12 @@ services:
     command: ["mongod", "--quiet"]
     volumes:
       - ./runtime/db:/data/db
-    healthcheck:
-      test: ["CMD-SHELL", "mongosh --quiet --eval 'db.runCommand({ ping: 1 }).ok' | grep 1"]
-      interval: 5s
-      timeout: 3s
-      retries: 20
 
   api:
     build:
       context: ./apps/api
     depends_on:
-      db:
-        condition: service_healthy
+      - db
     volumes:
       - ./runtime:/app/runtime
       - ./templates:/app/templates
