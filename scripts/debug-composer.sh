@@ -37,7 +37,6 @@ printf "[composer-debug] bus PID: %s\n" "$BUS_PID"
 printf "[composer-debug] starting docker compose attached. Press Ctrl+C to stop logs and bus.\n"
 
 export HOST_RUNTIME_DIR="${HOST_RUNTIME_DIR:-$ROOT_DIR/runtime/environments}"
-export HOST_TEMPLATE_DIR="${HOST_TEMPLATE_DIR:-$ROOT_DIR/templates/environment}"
 export HOST_SEEDS_DIR="${HOST_SEEDS_DIR:-$ROOT_DIR/seeds}"
 export SSH_AUTH_SOCK="${SSH_AUTH_SOCK:-/tmp/empty-ssh-agent.sock}"
 

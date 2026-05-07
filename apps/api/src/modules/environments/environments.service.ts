@@ -310,8 +310,6 @@ export class EnvironmentsService {
       runtimePath,
       source,
       sourceRepoUrl: env.SOURCE_REPO_URL,
-      templateDir: env.HOST_TEMPLATE_DIR,
-      seedsDir: env.HOST_SEEDS_DIR,
       environmentVariables: {
         ...environmentVariables,
         HOST_1: "prmr.md",

@@ -11,9 +11,8 @@ validate_env "$ENV_NAME"
 RUNTIME_PATH="$(jq -r '.runtimePath' "$PAYLOAD_FILE")"
 BRANCH="$(jq -r '.source.branch' "$PAYLOAD_FILE")"
 COMMIT="$(jq -r '.source.commit' "$PAYLOAD_FILE")"
-REPO_DIR="$RUNTIME_PATH/repo"
 
-cd "$REPO_DIR"
+cd "$RUNTIME_PATH"
 git fetch --all --prune
 git reset --hard
 git clean -fd
@@ -25,7 +24,7 @@ for ((index = 0; index < count; index += 1)); do
   file_path="$(jq -r ".files[$index].path" "$PAYLOAD_FILE")"
   status="$(jq -r ".files[$index].status" "$PAYLOAD_FILE")"
   assert_safe_relative_path "$file_path"
-  target="$REPO_DIR/$file_path"
+  target="$RUNTIME_PATH/$file_path"
 
   if [[ "$status" == "deleted" ]]; then
     rm -f "$target"

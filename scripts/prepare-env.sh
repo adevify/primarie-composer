@@ -9,18 +9,13 @@ ENV_NAME="$(jq -r '.environment' "$PAYLOAD_FILE")"
 validate_env "$ENV_NAME"
 
 RUNTIME_PATH="$(jq -r '.runtimePath' "$PAYLOAD_FILE")"
-TEMPLATE_DIR="$(jq -r '.templateDir' "$PAYLOAD_FILE")"
 SOURCE_REPO_URL="$(jq -r '.sourceRepoUrl' "$PAYLOAD_FILE")"
 BRANCH="$(jq -r '.source.branch' "$PAYLOAD_FILE")"
 COMMIT="$(jq -r '.source.commit' "$PAYLOAD_FILE")"
-REPO_DIR="$RUNTIME_PATH/repo"
 
 rm -rf "$RUNTIME_PATH"
-mkdir -p "$RUNTIME_PATH"
-cp -R "$TEMPLATE_DIR"/. "$RUNTIME_PATH"/
-
-git clone "$SOURCE_REPO_URL" "$REPO_DIR"
-cd "$REPO_DIR"
+git clone "$SOURCE_REPO_URL" "$RUNTIME_PATH"
+cd "$RUNTIME_PATH"
 git fetch --all --prune
 git checkout -f "origin/$BRANCH"
 git reset --hard "$COMMIT"
