@@ -23,10 +23,10 @@ services:
     depends_on:
       - db
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
       - ./runtime:/app/runtime
       - ./templates:/app/templates
       - ./seeds:/app/seeds
+      - /opt/composer-bus:/bus
       - ${SSH_AUTH_SOCK}:/ssh-agent
       - ${HOME}/.ssh/known_hosts:/root/.ssh/known_hosts:ro
     environment:
@@ -37,7 +37,13 @@ services:
       BASE_ENV_PORT: ${BASE_ENV_PORT:-8001}
       ROOT_DOMAIN: ${ROOT_DOMAIN:-prmr.md}
       RUNTIME_DIR: /app/runtime/environments
+      HOST_RUNTIME_DIR: ${HOST_RUNTIME_DIR:-/opt/primarie-composer/runtime/environments}
       ENVIRONMENTS_FILE: /app/runtime/environments.json
       TEMPLATE_DIR: /app/templates/environment
+      HOST_TEMPLATE_DIR: ${HOST_TEMPLATE_DIR:-/opt/primarie-composer/templates/environment}
       SEEDS_DIR: /app/seeds
+      HOST_SEEDS_DIR: ${HOST_SEEDS_DIR:-/opt/primarie-composer/seeds}
+      BUS_PIPE_PATH: /bus/actions.pipe
+      BUS_RESULTS_DIR: /bus/results
+      BUS_WORKER_READY_PATH: /bus/worker.ready
       SSH_AUTH_SOCK: /ssh-agent

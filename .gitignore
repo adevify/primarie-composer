@@ -1,4 +1,5 @@
 .env
+requirements
 node_modules
 dist
 apps/electron/out

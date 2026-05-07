@@ -118,7 +118,7 @@ export function EnvironmentsPage({
               <TableRow key={environment.key} hover sx={{ "& td": { py: 2.3, borderColor: "rgba(159,179,195,0.22)" } }}>
                 <TableCell>
                   <Stack direction="row" spacing={1.4} alignItems="center">
-                    <Typography color={environment.status === "error" ? "#ffc4b7" : "#00e5ff"} fontWeight={900}>#</Typography>
+                    <Typography color={environment.status === "failed" ? "#ffc4b7" : "#00e5ff"} fontWeight={900}>#</Typography>
                     <Typography fontWeight={900} sx={{ maxWidth: 180, wordBreak: "break-word" }}>{environment.key}</Typography>
                   </Stack>
                 </TableCell>
@@ -132,8 +132,8 @@ export function EnvironmentsPage({
                       {buildDomains(environment)[0]}
                     </Button>
                   ) : (
-                    <Typography color={environment.status === "error" ? "#ffc4b7" : "text.secondary"} fontStyle="italic">
-                      {environment.status === "error" ? "connection refused" : environment.status === "creating" ? "provisioning..." : "offline"}
+                    <Typography color={environment.status === "failed" ? "#ffc4b7" : "text.secondary"} fontStyle="italic">
+                      {environment.status === "failed" ? "connection refused" : environment.status === "creating" ? "provisioning..." : "offline"}
                     </Typography>
                   )}
                 </TableCell>
@@ -229,7 +229,7 @@ function ownerLabel(value: EnvironmentRecord["createdBy"]): string {
 
 function statusColor(status: EnvironmentRecord["status"]): string {
   if (status === "running") return "#65ffc9";
-  if (status === "error") return "#ffc4b7";
+  if (status === "failed") return "#ffc4b7";
   if (status === "creating") return "#00e5ff";
   return "#d7e3ee";
 }
@@ -242,7 +242,7 @@ function formatDate(value: string): string {
 
 function containerCount(environment: EnvironmentRecord): string {
   if (environment.status === "running") return "8/8";
-  if (environment.status === "error") return "1/4";
+  if (environment.status === "failed") return "1/4";
   if (environment.status === "creating") return "...";
   return "0/4";
 }

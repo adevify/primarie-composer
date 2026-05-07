@@ -7,8 +7,7 @@ import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { env } from "../../config/env.js";
 import { EnvironmentCollection, EnvironmentRecord } from "../../db/environments.js";
-import { DockerComposeService } from "../../services/docker/DockerComposeService.js";
-import { GitRepositoryService } from "../../services/git/GitRepositoryService.js";
+import { HostActionBusService, type HostActionResult } from "../../services/bus/HostActionBusService.js";
 import type { AuthenticatedUser } from "../auth/auth.middleware.js";
 import type { CreateEnvironmentPayload, EnvironmentOwner, EnvironmentSource, LifecycleAction, PullRequestRef, SyncFilesPayload } from "./environment.dtos.js";
 import { EnvironmentLogCollection } from "../../db/environment-logs.js";
@@ -225,8 +224,7 @@ const envNamesList = [
 
 export class EnvironmentsService {
   constructor(
-    private readonly docker = new DockerComposeService(),
-    private readonly git = new GitRepositoryService(),
+    private readonly bus = new HostActionBusService(),
   ) { }
 
   async create(input: CreateEnvironmentPayload, createdBy: EnvironmentOwner | PullRequestRef): Promise<EnvironmentRecord> {
@@ -243,7 +241,7 @@ export class EnvironmentsService {
     }
 
     const port = await this.nextAvailablePort();
-    const runtimePath = path.join(env.RUNTIME_DIR, key);
+    const runtimePath = path.join(env.HOST_RUNTIME_DIR, key);
     const now = new Date();
     const record: EnvironmentRecord = {
       key,
@@ -272,7 +270,7 @@ export class EnvironmentsService {
         log: `Environment creation failed: ${error instanceof Error ? error.message : String(error)}`,
         level: "error",
       });
-      await this.updateStatus(key, "error").catch(() => undefined);
+      await this.updateStatus(key, "failed").catch(() => undefined);
     });
 
     return record;
@@ -289,23 +287,28 @@ export class EnvironmentsService {
       log: "Preparing repository",
     });
 
-    await this.git.prepareRepository(runtimePath, source);
+    await this.updateStatus(key, "cloning");
+    const result = await this.publishEnvironmentAction("environment.prepare", key, {
+      runtimePath,
+      source,
+      sourceRepoUrl: env.SOURCE_REPO_URL,
+      templateDir: env.HOST_TEMPLATE_DIR,
+      seedsDir: env.HOST_SEEDS_DIR,
+      environmentVariables: {
+        ...environmentVariables,
+        HOST_1: "prmr.md",
+        HOST_2: "adevify.md",
+        NETWORK_NAME: `primarie-${key}-net`,
+        ENV_KEY: key,
+        ENV_PORT: String((await EnvironmentCollection.get(key)).port),
+        ROOT_DOMAIN: env.ROOT_DOMAIN,
+        MONGO_DATABASE: `primarie_env_${key}`
+      }
+    });
 
     await EnvironmentLogCollection.add({
       environmentKey: key,
-      log: "Repository prepared",
-    });
-
-    await this.writeEnvironmentFile(runtimePath, key, {
-      ...environmentVariables,
-      HOST_1: 'prmr.md',
-      HOST_2: 'adevify.md',
-      NETWORK_NAME: `primarie-${key}-net`
-    });
-
-    await EnvironmentLogCollection.add({
-      environmentKey: key,
-      log: "Environment variables written",
+      log: result.message || "Repository prepared",
     });
 
     await EnvironmentLogCollection.add({
@@ -355,14 +358,15 @@ export class EnvironmentsService {
   }
 
   async listContainers(key: string): Promise<unknown[]> {
-    const record = await this.get(key);
-    const compose = await this.composeConfig(record);
-    return this.docker.listContainers(compose.cwd, compose.envFile);
+    await this.get(key);
+    throw busMigrationPending("Container inspection must be executed by the host action bus.");
   }
 
   async listContainerFiles(key: string, container: string, targetPath: string) {
     await this.get(key);
-    return this.docker.listContainerFiles(container, targetPath);
+    void container;
+    void targetPath;
+    throw busMigrationPending("Container file browsing must be executed by the host action bus.");
   }
 
   async listEnvironmentFiles(key: string, targetPath: string) {
@@ -396,7 +400,7 @@ export class EnvironmentsService {
       environmentKey: key,
       log: `Executing in ${container}: ${command}`,
     });
-    return this.docker.execInContainer(container, command);
+    throw busMigrationPending("Container command execution must be executed by the host action bus.");
   }
 
   async createLifecycleAction(key: string, action: LifecycleAction, user: AuthenticatedUser) {
@@ -478,7 +482,6 @@ export class EnvironmentsService {
     signal?: AbortSignal
   ): Promise<EnvironmentRecord> {
     const record = await this.get(key);
-    const compose = await this.composeConfig(record);
 
     if (action === "resume") {
       const owner = this.toOwner(user);
@@ -495,23 +498,31 @@ export class EnvironmentsService {
           await onLog({ log: "Environment is already running", level: "info" });
           return record;
         }
-        await this.docker.up(key, compose.cwd, onLog, signal, compose.envFile);
+        throwIfAborted(signal);
+        await this.updateStatus(key, "starting");
+        const result = await this.publishEnvironmentAction("environment.start", key);
+        await emitBusResult(result, onLog);
         await onLog({ log: `Environment ${action === "resume" ? "resumed" : "started"}`, level: "info" });
         return this.updateStatus(key, "running");
       }
 
       if (action === "restart") {
-        await this.docker.restart(compose.cwd, onLog, signal, compose.envFile);
+        throwIfAborted(signal);
+        await this.updateStatus(key, "starting");
+        const result = await this.publishEnvironmentAction("environment.restart", key);
+        await emitBusResult(result, onLog);
         await onLog({ log: "Environment restarted", level: "info" });
         return this.updateStatus(key, "running");
       }
 
-      await this.docker.down(key, compose.cwd, onLog, signal, compose.envFile);
+      throwIfAborted(signal);
+      const result = await this.publishEnvironmentAction("environment.stop", key);
+      await emitBusResult(result, onLog);
       await onLog({ log: "Environment stopped", level: "info" });
       return this.updateStatus(key, "stopped");
     } catch (error) {
       if (action !== "stop") {
-        await this.updateStatus(key, "error").catch(() => undefined);
+        await this.updateStatus(key, "failed").catch(() => undefined);
       }
       throw error;
     }
@@ -524,7 +535,10 @@ export class EnvironmentsService {
     signal?: AbortSignal
   ): Promise<void> {
     await this.get(key);
-    await this.docker.streamContainerLogs(container, onLog, signal);
+    void container;
+    void onLog;
+    void signal;
+    throw busMigrationPending("Container log streaming must be executed by the host action bus.");
   }
 
   async streamComposeLogs(
@@ -532,56 +546,31 @@ export class EnvironmentsService {
     onLog: (entry: { log: string; level: "info" | "error" }) => Promise<void> | void,
     signal?: AbortSignal
   ): Promise<void> {
-    const record = await this.get(key);
-    const compose = await this.composeConfig(record);
-    await this.docker.streamComposeLogs(compose.cwd, onLog, signal, compose.envFile);
+    await this.get(key);
+    void onLog;
+    void signal;
+    throw busMigrationPending("Compose log streaming must be executed by the host action bus.");
   }
 
   async listComposeLogs(key: string) {
-    const record = await this.get(key);
-    const compose = await this.composeConfig(record);
-    return this.docker.listComposeLogs(compose.cwd, compose.envFile);
+    await this.get(key);
+    throw busMigrationPending("Compose log listing must be executed by the host action bus.");
   }
 
   async inspectMongo(key: string) {
-    const record = await this.get(key);
-    const compose = await this.composeConfig(record);
-    const containers = await this.docker.listContainers(compose.cwd, compose.envFile).catch(() => []);
-    const mongoContainer = containers
-      .map((container) => container as { Name?: string; Names?: string; Service?: string; State?: string; Image?: string })
-      .find((container) => {
-        const service = container.Service?.toLowerCase() ?? "";
-        const name = (container.Name ?? container.Names ?? "").toLowerCase();
-        const image = container.Image?.toLowerCase() ?? "";
-        return container.State === "running" && (service === "mongo" || name.includes("mongo") || image.includes("mongo"));
-      });
-
-    if (!mongoContainer) {
-      return { available: false, reason: "MongoDB container is not running" };
-    }
-
-    const containerName = mongoContainer.Name ?? mongoContainer.Names;
-    if (!containerName) {
-      return { available: false, reason: "MongoDB container name is unavailable" };
-    }
-
-    return {
-      available: true,
-      container: containerName,
-      ...(await this.docker.inspectMongo(containerName))
-    };
+    await this.get(key);
+    throw busMigrationPending("MongoDB inspection must be executed by the host action bus.");
   }
 
   async stop(key: string): Promise<EnvironmentRecord> {
     const record = await this.get(key);
-    const compose = await this.composeConfig(record);
 
     await EnvironmentLogCollection.add({
       environmentKey: key,
       log: "Stopping environment",
     });
 
-    await this.docker.down(key, compose.cwd, this.composeLogger(key), undefined, compose.envFile);
+    await this.publishEnvironmentAction("environment.stop", key);
 
     await EnvironmentLogCollection.add({
       environmentKey: key,
@@ -593,7 +582,6 @@ export class EnvironmentsService {
 
   async resume(key: string, user: AuthenticatedUser): Promise<EnvironmentRecord> {
     const record = await this.get(key);
-    const compose = await this.composeConfig(record);
     const owner = this.toOwner(user);
     if (!("email" in record.createdBy) || record.createdBy.email !== owner.email) {
       throw Object.assign(new Error("Only the owner can reuse this environment"), { status: 403 });
@@ -605,7 +593,8 @@ export class EnvironmentsService {
     });
 
     if (record.status !== "running") {
-      await this.docker.up(key, compose.cwd, this.composeLogger(key), undefined, compose.envFile);
+      await this.updateStatus(key, "starting");
+      await this.publishEnvironmentAction("environment.start", key);
 
       await EnvironmentLogCollection.add({
         environmentKey: key,
@@ -618,13 +607,13 @@ export class EnvironmentsService {
 
   async start(key: string): Promise<EnvironmentRecord> {
     try {
-      const record = await this.get(key);
-      const compose = await this.composeConfig(record);
+      await this.get(key);
       await EnvironmentLogCollection.add({
         environmentKey: key,
         log: "Starting environment",
       });
-      await this.docker.up(key, compose.cwd, this.composeLogger(key), undefined, compose.envFile);
+      await this.updateStatus(key, "starting");
+      await this.publishEnvironmentAction("environment.start", key);
       await EnvironmentLogCollection.add({
         environmentKey: key,
         log: "Environment started",
@@ -636,22 +625,22 @@ export class EnvironmentsService {
         log: `Environment start failed: ${error instanceof Error ? error.message : String(error)}`,
         level: "error",
       });
-      await this.updateStatus(key, "error");
+      await this.updateStatus(key, "failed");
 
       throw error;
     }
   }
 
   async restart(key: string): Promise<EnvironmentRecord> {
-    const record = await this.get(key);
-    const compose = await this.composeConfig(record);
+    await this.get(key);
 
     await EnvironmentLogCollection.add({
       environmentKey: key,
       log: "Restarting environment",
     });
 
-    await this.docker.restart(compose.cwd, this.composeLogger(key), undefined, compose.envFile);
+    await this.updateStatus(key, "starting");
+    await this.publishEnvironmentAction("environment.restart", key);
 
     await EnvironmentLogCollection.add({
       environmentKey: key,
@@ -669,14 +658,14 @@ export class EnvironmentsService {
       log: `Preparing environment with ${input.branch}@${input.commit}`,
     });
 
-    await this.git.updateRepository(path.join(env.RUNTIME_DIR, current.key), input);
-
-    await EnvironmentLogCollection.add({
-      environmentKey: key,
-      log: "Environment prepared successfully",
+    await this.updateStatus(key, "checking_out");
+    await this.publishEnvironmentAction("environment.files.sync", key, {
+      source: {
+        branch: input.branch,
+        commit: input.commit
+      },
+      files: input.files
     });
-
-    await this.git.applyChangedFiles(path.join(env.RUNTIME_DIR, current.key), input.files);
 
     await EnvironmentLogCollection.add({
       environmentKey: key,
@@ -694,27 +683,29 @@ export class EnvironmentsService {
 
   async delete(key: string): Promise<void> {
     const record = await this.get(key);
-    const compose = await this.composeConfig(record);
+
+    await this.updateStatus(key, "removing");
 
     await EnvironmentLogCollection.add({
       environmentKey: key,
-      log: "Stopping environment",
+      log: "Removing environment",
     });
 
-    await this.docker.down(key, compose.cwd, this.composeLogger(key), undefined, compose.envFile).catch(() => undefined);
-
-    await EnvironmentLogCollection.add({
-      environmentKey: key,
-      log: "Environment stopped",
+    await this.publishEnvironmentAction("environment.remove", record.key).catch(async (error) => {
+      await EnvironmentLogCollection.add({
+        environmentKey: key,
+        log: `Environment remove failed: ${error instanceof Error ? error.message : String(error)}`,
+        level: "error",
+      });
+      throw error;
     });
-
-    await fs.rm(path.join(env.RUNTIME_DIR, record.key), { recursive: true, force: true });
 
     await EnvironmentLogCollection.add({
       environmentKey: key,
       log: "Environment removed",
     });
 
+    await this.updateStatus(key, "removed");
     await EnvironmentCollection.delete(key);
 
     await EnvironmentLogCollection.add({
@@ -758,6 +749,28 @@ export class EnvironmentsService {
       environmentKey: matching.key,
       log: "Pull request environment deleted",
     });
+  }
+
+  private async publishEnvironmentAction(type: string, key: string, payload: Record<string, unknown> = {}): Promise<HostActionResult> {
+    const result = await this.bus.publish(type, {
+      environment: key,
+      runtimeRoot: env.HOST_RUNTIME_DIR,
+      runtimePath: path.join(env.HOST_RUNTIME_DIR, key),
+      ...payload
+    });
+
+    await this.logHostActionResult(key, result);
+    return result;
+  }
+
+  private async logHostActionResult(key: string, result: HostActionResult): Promise<void> {
+    if (result.output) {
+      await EnvironmentLogCollection.add({
+        environmentKey: key,
+        log: result.output,
+        system: true
+      });
+    }
   }
 
   private async composeConfig(record: EnvironmentRecord): Promise<{ cwd: string; envFile: string }> {
@@ -870,6 +883,28 @@ function randomItem<T>(items: T[]): T {
 
 function capitalize(value: string): string {
   return `${value.slice(0, 1).toUpperCase()}${value.slice(1)}`;
+}
+
+async function emitBusResult(
+  result: HostActionResult,
+  onLog: (entry: { log: string; level: "info" | "error" }) => Promise<void> | void
+): Promise<void> {
+  if (result.message) {
+    await onLog({ log: result.message, level: "info" });
+  }
+  if (result.output) {
+    await onLog({ log: result.output, level: "info" });
+  }
+}
+
+function throwIfAborted(signal?: AbortSignal): void {
+  if (signal?.aborted) {
+    throw Object.assign(new Error("Action aborted"), { status: 499 });
+  }
+}
+
+function busMigrationPending(message: string): Error {
+  return Object.assign(new Error(message), { status: 501 });
 }
 
 function resolveInside(rootPath: string, targetPath: string): string {

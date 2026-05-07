@@ -34,7 +34,7 @@ export function createProxyRouter(): Router {
           parsed,
           reason: "environment_not_found"
         });
-        return res.status(403).json({ allowed: false, reason: "Environment not found" });
+        return res.status(404).json({ allowed: false, reason: "Environment not found" });
       }
 
       if (record.status !== "running") {
@@ -44,10 +44,10 @@ export function createProxyRouter(): Router {
           environmentStatus: record.status,
           reason: "environment_not_running"
         });
-        return res.status(403).json({ allowed: false, reason: "Environment is not running" });
+        return res.status(503).json({ allowed: false, reason: "Environment is not running" });
       }
 
-      const upstreamHost = `${parsed.subdomain}.${env.ROOT_DOMAIN}`;
+      const upstreamHost = "127.0.0.1";
       logProxyDecision("info", requestId, "allow", {
         host,
         parsed,
@@ -94,36 +94,12 @@ function parseEnvironmentHost(host: string): { environmentKey: string; subdomain
   }
 
   const subdomainLabels = hostLabels.slice(0, -rootLabels.length);
-  const wildcardSafeHost = parseWildcardSafeEnvironmentHost(subdomainLabels);
-  if (wildcardSafeHost) {
-    return wildcardSafeHost;
-  }
-
   const hyphenSafeHost = parseHyphenSafeEnvironmentHost(subdomainLabels);
   if (hyphenSafeHost) {
     return hyphenSafeHost;
   }
 
-  return parseLegacyEnvironmentHost(subdomainLabels);
-}
-
-function parseWildcardSafeEnvironmentHost(subdomainLabels: string[]): { environmentKey: string; subdomain: string } | null {
-  if (subdomainLabels.length !== 1) {
-    return null;
-  }
-
-  const separatorIndex = subdomainLabels[0].lastIndexOf("_");
-  if (separatorIndex <= 0 || separatorIndex === subdomainLabels[0].length - 1) {
-    return null;
-  }
-
-  const subdomain = subdomainLabels[0].slice(0, separatorIndex);
-  const environmentKey = subdomainLabels[0].slice(separatorIndex + 1);
-  if (!keyPattern.test(environmentKey)) {
-    return null;
-  }
-
-  return { environmentKey, subdomain };
+  return null;
 }
 
 function parseHyphenSafeEnvironmentHost(subdomainLabels: string[]): { environmentKey: string; subdomain: string } | null {
@@ -143,22 +119,6 @@ function parseHyphenSafeEnvironmentHost(subdomainLabels: string[]): { environmen
   }
 
   return { environmentKey, subdomain };
-}
-
-function parseLegacyEnvironmentHost(subdomainLabels: string[]): { environmentKey: string; subdomain: string } | null {
-  if (subdomainLabels.length < 2) {
-    return null;
-  }
-
-  const environmentKey = subdomainLabels.at(-1);
-  if (!environmentKey || !keyPattern.test(environmentKey)) {
-    return null;
-  }
-
-  return {
-    environmentKey,
-    subdomain: subdomainLabels.slice(0, -1).join(".")
-  };
 }
 
 function logProxyDecision(level: "info" | "warn" | "error", requestId: string, decision: string, details: Record<string, unknown>): void {

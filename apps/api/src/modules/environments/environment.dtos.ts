@@ -1,6 +1,16 @@
 import z from "zod";
 
-export type EnvironmentStatus = "creating" | "running" | "stopped" | "error";
+export type EnvironmentStatus =
+  | "creating"
+  | "cloning"
+  | "checking_out"
+  | "applying_changes"
+  | "starting"
+  | "running"
+  | "stopped"
+  | "failed"
+  | "removing"
+  | "removed";
 export type LifecycleAction = "start" | "stop" | "restart" | "resume";
 
 export type EnvironmentOwner = {

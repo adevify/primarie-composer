@@ -14,7 +14,15 @@ const envSchema = z.object({
   ROOT_DOMAIN: z.string().default("prmr.md"),
   RUNTIME_DIR: z.string().default(path.resolve(workspaceRoot, "runtime/environments")),
   TEMPLATE_DIR: z.string().default(path.resolve(workspaceRoot, "templates/environment")),
-  SEEDS_DIR: z.string().default(path.resolve(workspaceRoot, "seeds"))
+  SEEDS_DIR: z.string().default(path.resolve(workspaceRoot, "seeds")),
+  HOST_RUNTIME_DIR: z.string().default(path.resolve(workspaceRoot, "runtime/environments")),
+  HOST_TEMPLATE_DIR: z.string().default(path.resolve(workspaceRoot, "templates/environment")),
+  HOST_SEEDS_DIR: z.string().default(path.resolve(workspaceRoot, "seeds")),
+  BUS_PIPE_PATH: z.string().default("/bus/actions.pipe"),
+  BUS_RESULTS_DIR: z.string().default("/bus/results"),
+  BUS_WORKER_READY_PATH: z.string().default("/bus/worker.ready"),
+  BUS_ACTION_TIMEOUT_MS: z.coerce.number().int().positive().default(120_000),
+  BUS_POLL_INTERVAL_MS: z.coerce.number().int().positive().default(200)
 });
 
 export const env = envSchema.parse(process.env);

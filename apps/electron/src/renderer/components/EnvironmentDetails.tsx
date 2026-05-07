@@ -884,7 +884,7 @@ function relativeAge(value: string): string {
 
 function statusColor(status: string): string {
   if (status === "running") return "#65ffc9";
-  if (status === "error") return "#ffc4b7";
+  if (status === "failed") return "#ffc4b7";
   if (status === "queued") return "#00e5ff";
   if (status === "creating") return "#00e5ff";
   if (status === "complete") return "#d7e3ee";

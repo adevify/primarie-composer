@@ -33,7 +33,17 @@ export type AuthSession = {
   user?: EnvironmentOwner;
 };
 
-export type EnvironmentStatus = "creating" | "running" | "stopped" | "error";
+export type EnvironmentStatus =
+  | "creating"
+  | "cloning"
+  | "checking_out"
+  | "applying_changes"
+  | "starting"
+  | "running"
+  | "stopped"
+  | "failed"
+  | "removing"
+  | "removed";
 
 export type EnvironmentSource = {
   branch: string;

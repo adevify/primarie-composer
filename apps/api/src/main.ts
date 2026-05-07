@@ -7,8 +7,10 @@ import { authenticateJwt } from "./modules/auth/auth.middleware.js";
 import { createProxyRouter } from "./modules/proxy/proxy.routes.js";
 import { connect, disconnect } from "./db/client.js";
 import { EnvironmentActionCollection } from "./db/environment-actions.js";
+import { HostActionBusService } from "./services/bus/HostActionBusService.js";
 
 const app = express();
+const bus = new HostActionBusService();
 
 app.set("trust proxy", 1);
 
@@ -16,8 +18,13 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json({ limit: "25mb" }));
 
-app.get("/health", (_req, res) => {
-  res.json({ ok: true, service: "primarie-composer-api" });
+app.get("/health", async (_req, res, next) => {
+  try {
+    const actionBus = await bus.health();
+    res.json({ ok: true, service: "primarie-composer-api", actionBus });
+  } catch (error) {
+    next(error);
+  }
 });
 
 app.use("/auth", createAuthRouter());

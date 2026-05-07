@@ -375,6 +375,19 @@ export function createEnvironmentRouter(): Router {
     }
   });
 
+  router.post("/:key/sync", async (req, res, next) => {
+    try {
+      const parsed = syncFilesSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: parsed.error.flatten() });
+      }
+
+      return res.json(await service.syncFiles(req.params.key, parsed.data));
+    } catch (error) {
+      return next(error);
+    }
+  });
+
   router.delete("/:key", async (req, res, next) => {
     try {
       await service.delete(req.params.key);

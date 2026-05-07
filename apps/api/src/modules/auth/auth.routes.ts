@@ -45,21 +45,34 @@ export function createAuthRouter(): Router {
       }
 
       if (!comparePassword(parsed.data.password, user.password)) {
-
-        const looking = bcrypt.hashSync(parsed.data.password, 10);
-
-        return res.status(401).json({ error: "Invalid email or password" + `[${looking}]` });
+        return res.status(401).json({ error: "Invalid email or password" });
       }
 
       const userRepresentation = { email: user.email, name: user.name };
 
-      const token = jwt.sign(userRepresentation, env.JWT_SECRET, {
-        expiresIn: env.JWT_EXPIRES_IN as SignOptions["expiresIn"]
-      });
+      const token = signAccessToken(userRepresentation);
 
       return res.json({ accessToken: token, tokenType: "Bearer", expiresIn: env.JWT_EXPIRES_IN, user: userRepresentation });
     }
   );
+
+  router.get("/me", authenticateJwt, (req, res) => {
+    return res.json({ user: req.user });
+  });
+
+  router.post("/refresh", authenticateJwt, (req, res) => {
+    const user = req.user!;
+    return res.json({
+      accessToken: signAccessToken(user),
+      tokenType: "Bearer",
+      expiresIn: env.JWT_EXPIRES_IN,
+      user
+    });
+  });
+
+  router.post("/logout", authenticateJwt, (_req, res) => {
+    return res.status(204).send();
+  });
 
   router.get("/verify", (req, res) => {
     const header = req.header("authorization");
@@ -85,4 +98,10 @@ export function createAuthRouter(): Router {
 
 function comparePassword(password: string, hash: string): boolean {
   return bcrypt.compareSync(password, hash);
+}
+
+function signAccessToken(user: { email: string; name: string }): string {
+  return jwt.sign(user, env.JWT_SECRET, {
+    expiresIn: env.JWT_EXPIRES_IN as SignOptions["expiresIn"]
+  });
 }

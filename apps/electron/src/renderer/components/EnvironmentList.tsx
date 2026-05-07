@@ -260,7 +260,7 @@ function buildStats(environments: EnvironmentRecord[], metrics?: SystemMetrics):
   const today = new Date().toDateString();
   const running = environments.filter((environment) => environment.status === "running").length;
   const stopped = environments.filter((environment) => environment.status === "stopped").length;
-  const failed = environments.filter((environment) => environment.status === "error").length;
+  const failed = environments.filter((environment) => environment.status === "failed").length;
   const createdToday = environments.filter((environment) => new Date(environment.createdAt).toDateString() === today).length;
   const cpuPercent = metrics?.cpu.percent ?? 0;
   const memoryPercent = metrics?.memory.percent ?? 0;
