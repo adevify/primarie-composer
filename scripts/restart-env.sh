@@ -10,5 +10,7 @@ validate_env "$ENV_NAME"
 ENV_DIR="$(env_dir "$ENV_NAME")"
 PROJECT_NAME="$(project_name "$ENV_NAME")"
 
+ensure_env_proxy_hosts "$ENV_DIR/.env"
+
 cd "$ENV_DIR"
-compose_cmd -p "$PROJECT_NAME" --env-file "$ENV_DIR/.env" restart
+compose_cmd -p "$PROJECT_NAME" --env-file "$ENV_DIR/.env" up -d --remove-orphans
