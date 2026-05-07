@@ -20,6 +20,7 @@ const envSchema = z.object({
   HOST_SEEDS_DIR: z.string().default(path.resolve(workspaceRoot, "seeds")),
   BUS_PIPE_PATH: z.string().default("/bus/actions.pipe"),
   BUS_RESULTS_DIR: z.string().default("/bus/results"),
+  BUS_LOGS_DIR: z.string().default("/bus/logs"),
   BUS_WORKER_READY_PATH: z.string().default("/bus/worker.ready"),
   BUS_ACTION_TIMEOUT_MS: z.coerce.number().int().positive().default(120_000),
   BUS_POLL_INTERVAL_MS: z.coerce.number().int().positive().default(200)

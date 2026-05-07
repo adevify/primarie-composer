@@ -7,7 +7,7 @@ import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { env } from "../../config/env.js";
 import { EnvironmentCollection, EnvironmentRecord } from "../../db/environments.js";
-import { HostActionBusService, type HostActionResult } from "../../services/bus/HostActionBusService.js";
+import { HostActionBusService, type HostActionLogHandler, type HostActionResult } from "../../services/bus/HostActionBusService.js";
 import type { AuthenticatedUser } from "../auth/auth.middleware.js";
 import type { CreateEnvironmentPayload, EnvironmentOwner, EnvironmentSource, LifecycleAction, PullRequestRef, SyncFilesPayload } from "./environment.dtos.js";
 import { EnvironmentLogCollection } from "../../db/environment-logs.js";
@@ -542,7 +542,7 @@ export class EnvironmentsService {
         }
         throwIfAborted(signal);
         await this.updateStatus(key, "starting");
-        const result = await this.publishEnvironmentAction("environment.start", key);
+        const result = await this.publishEnvironmentAction("environment.start", key, {}, onLog);
         await emitBusResult(result, onLog);
         await onLog({ log: `Environment ${action === "resume" ? "resumed" : "started"}`, level: "info" });
         const updated = await this.updateStatus(key, "running");
@@ -553,7 +553,7 @@ export class EnvironmentsService {
       if (action === "restart") {
         throwIfAborted(signal);
         await this.updateStatus(key, "starting");
-        const result = await this.publishEnvironmentAction("environment.restart", key);
+        const result = await this.publishEnvironmentAction("environment.restart", key, {}, onLog);
         await emitBusResult(result, onLog);
         await onLog({ log: "Environment restarted", level: "info" });
         const updated = await this.updateStatus(key, "running");
@@ -562,7 +562,7 @@ export class EnvironmentsService {
       }
 
       throwIfAborted(signal);
-      const result = await this.publishEnvironmentAction("environment.stop", key);
+      const result = await this.publishEnvironmentAction("environment.stop", key, {}, onLog);
       await emitBusResult(result, onLog);
       await onLog({ log: "Environment stopped", level: "info" });
       const updated = await this.updateStatus(key, "stopped");
@@ -835,14 +835,14 @@ export class EnvironmentsService {
     });
   }
 
-  private async publishEnvironmentAction(type: string, key: string, payload: Record<string, unknown> = {}): Promise<HostActionResult> {
+  private async publishEnvironmentAction(type: string, key: string, payload: Record<string, unknown> = {}, onLog?: HostActionLogHandler): Promise<HostActionResult> {
     logEnvironment("info", "bus_action_publish", { key, type });
     const result = await this.bus.publish(type, {
       environment: key,
       runtimeRoot: env.HOST_RUNTIME_DIR,
       runtimePath: path.join(env.HOST_RUNTIME_DIR, key),
       ...payload
-    });
+    }, env.BUS_ACTION_TIMEOUT_MS, onLog);
 
     await this.logHostActionResult(key, result);
     logEnvironment("info", "bus_action_completed", {

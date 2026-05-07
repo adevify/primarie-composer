@@ -10,6 +10,8 @@ export type HostActionResult = {
   finishedAt?: string;
 };
 
+export type HostActionLogHandler = (entry: { log: string; level: "info" | "error" }) => Promise<void> | void;
+
 export class HostActionBusService {
   async health(): Promise<{ ready: boolean; pipePath: string; resultsDir: string; workerReadyPath: string; reason?: string }> {
     const [pipeExists, resultsDirExists, workerReadyExists] = await Promise.all([
@@ -31,7 +33,12 @@ export class HostActionBusService {
     return this.healthResult(true);
   }
 
-  async publish(type: string, payload: Record<string, unknown>, timeoutMs = env.BUS_ACTION_TIMEOUT_MS): Promise<HostActionResult> {
+  async publish(
+    type: string,
+    payload: Record<string, unknown>,
+    timeoutMs = env.BUS_ACTION_TIMEOUT_MS,
+    onLog?: HostActionLogHandler
+  ): Promise<HostActionResult> {
     const health = await this.health();
     if (!health.ready) {
       logBus("warn", "unavailable", { type, reason: health.reason });
@@ -53,7 +60,7 @@ export class HostActionBusService {
       environment: typeof payload.environment === "string" ? payload.environment : undefined
     });
     await fs.appendFile(env.BUS_PIPE_PATH, `${JSON.stringify(action)}\n`, "utf8");
-    const result = await this.waitForResult(id, timeoutMs, type);
+    const result = await this.waitForResult(id, timeoutMs, type, onLog);
     if (result.status === "error") {
       logBus("error", "result_error", {
         id,
@@ -72,11 +79,15 @@ export class HostActionBusService {
     return result;
   }
 
-  private async waitForResult(actionId: string, timeoutMs: number, type: string): Promise<HostActionResult> {
+  private async waitForResult(actionId: string, timeoutMs: number, type: string, onLog?: HostActionLogHandler): Promise<HostActionResult> {
     const filePath = `${env.BUS_RESULTS_DIR}/${actionId}.json`;
+    const logPath = `${env.BUS_LOGS_DIR}/${actionId}.log`;
     const startedAt = Date.now();
+    let logOffset = 0;
 
     while (Date.now() - startedAt < timeoutMs) {
+      logOffset = await readNewLogLines(logPath, logOffset, onLog);
+
       const content = await fs.readFile(filePath, "utf8").catch((error) => {
         if (isNodeError(error) && error.code === "ENOENT") {
           return null;
@@ -85,7 +96,9 @@ export class HostActionBusService {
       });
 
       if (content !== null) {
+        logOffset = await readNewLogLines(logPath, logOffset, onLog);
         await fs.unlink(filePath).catch(() => undefined);
+        await fs.unlink(logPath).catch(() => undefined);
         const result = parseResult(content, actionId);
         logBus("info", "result", {
           id: actionId,
@@ -141,6 +154,38 @@ async function exists(filePath: string): Promise<boolean> {
 
 function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function readNewLogLines(logPath: string, offset: number, onLog?: HostActionLogHandler): Promise<number> {
+  if (!onLog) {
+    return offset;
+  }
+
+  const content = await fs.readFile(logPath, "utf8").catch((error) => {
+    if (isNodeError(error) && error.code === "ENOENT") {
+      return null;
+    }
+    throw error;
+  });
+
+  if (content === null || offset >= content.length) {
+    return offset;
+  }
+
+  const nextChunk = content.slice(offset);
+  const lastNewlineIndex = nextChunk.lastIndexOf("\n");
+  if (lastNewlineIndex === -1) {
+    return offset;
+  }
+
+  const completeChunk = nextChunk.slice(0, lastNewlineIndex + 1);
+  const completeLines = completeChunk.split(/\r?\n/).filter(Boolean);
+
+  for (const line of completeLines) {
+    await onLog({ log: line, level: "info" });
+  }
+
+  return offset + completeChunk.length;
 }
 
 function isNodeError(error: unknown): error is NodeJS.ErrnoException {
