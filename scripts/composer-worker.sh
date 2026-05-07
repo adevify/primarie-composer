@@ -22,11 +22,15 @@ write_result() {
   local output="${4:-}"
 
   local tmp="$RESULTS_DIR/$id.json.tmp"
+  local output_file
+  output_file="$(mktemp)"
+  printf "%s" "$output" > "$output_file"
+
   jq -n \
     --arg id "$id" \
     --arg status "$status" \
     --arg message "$message" \
-    --arg output "$output" \
+    --rawfile output "$output_file" \
     '{
       id: $id,
       status: $status,
@@ -34,6 +38,7 @@ write_result() {
       output: $output,
       finishedAt: now | todate
     }' > "$tmp"
+  rm -f "$output_file"
   mv "$tmp" "$RESULTS_DIR/$id.json"
 }
 

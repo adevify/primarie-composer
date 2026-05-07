@@ -608,7 +608,10 @@ export class EnvironmentsService {
 
   async inspectMongo(key: string) {
     await this.get(key);
-    throw busMigrationPending("MongoDB inspection must be executed by the host action bus.");
+    return {
+      available: false,
+      reason: "MongoDB inspection is pending host action bus migration"
+    };
   }
 
   async stop(key: string): Promise<EnvironmentRecord> {
