@@ -63,7 +63,7 @@ run_payload_script() {
   local payload_file
   payload_file="$(mktemp)"
   echo "$line" | jq '.payload' > "$payload_file"
-  if output=$("$script" "$payload_file" 2>&1); then
+  if output="$(run_and_capture "$script" "$payload_file")"; then
     rm -f "$payload_file"
     write_result "$id" "success" "Action completed" "$output"
   else
@@ -71,6 +71,18 @@ run_payload_script() {
     rm -f "$payload_file"
     write_result "$id" "error" "Action failed with exit code $code" "$output"
   fi
+}
+
+run_and_capture() {
+  local output_file
+  output_file="$(mktemp)"
+  set +e
+  "$@" 2>&1 | tee "$output_file" >&2
+  local code="${PIPESTATUS[0]}"
+  set -e
+  cat "$output_file"
+  rm -f "$output_file"
+  return "$code"
 }
 
 while true; do
@@ -101,28 +113,28 @@ while true; do
         run_payload_script "$id" "$SCRIPT_DIR/compose-logs.sh" "$line"
         ;;
       "environment.start")
-        if output=$("$SCRIPT_DIR/start-env.sh" "$environment" 2>&1); then
+        if output="$(run_and_capture "$SCRIPT_DIR/start-env.sh" "$environment")"; then
           write_result "$id" "success" "Environment started" "$output"
         else
           write_result "$id" "error" "Environment start failed" "$output"
         fi
         ;;
       "environment.stop")
-        if output=$("$SCRIPT_DIR/stop-env.sh" "$environment" 2>&1); then
+        if output="$(run_and_capture "$SCRIPT_DIR/stop-env.sh" "$environment")"; then
           write_result "$id" "success" "Environment stopped" "$output"
         else
           write_result "$id" "error" "Environment stop failed" "$output"
         fi
         ;;
       "environment.restart")
-        if output=$("$SCRIPT_DIR/restart-env.sh" "$environment" 2>&1); then
+        if output="$(run_and_capture "$SCRIPT_DIR/restart-env.sh" "$environment")"; then
           write_result "$id" "success" "Environment restarted" "$output"
         else
           write_result "$id" "error" "Environment restart failed" "$output"
         fi
         ;;
       "environment.remove")
-        if output=$("$SCRIPT_DIR/remove-env.sh" "$environment" 2>&1); then
+        if output="$(run_and_capture "$SCRIPT_DIR/remove-env.sh" "$environment")"; then
           write_result "$id" "success" "Environment removed" "$output"
         else
           write_result "$id" "error" "Environment remove failed" "$output"
