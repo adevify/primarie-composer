@@ -34,6 +34,7 @@ export class HostActionBusService {
   async publish(type: string, payload: Record<string, unknown>, timeoutMs = env.BUS_ACTION_TIMEOUT_MS): Promise<HostActionResult> {
     const health = await this.health();
     if (!health.ready) {
+      logBus("warn", "unavailable", { type, reason: health.reason });
       throw Object.assign(new Error(`Host action bus is unavailable: ${health.reason}`), { status: 503 });
     }
 
@@ -45,9 +46,21 @@ export class HostActionBusService {
       createdAt: new Date().toISOString()
     };
 
+    logBus("info", "publish", {
+      id,
+      type,
+      timeoutMs,
+      environment: typeof payload.environment === "string" ? payload.environment : undefined
+    });
     await fs.appendFile(env.BUS_PIPE_PATH, `${JSON.stringify(action)}\n`, "utf8");
-    const result = await this.waitForResult(id, timeoutMs);
+    const result = await this.waitForResult(id, timeoutMs, type);
     if (result.status === "error") {
+      logBus("error", "result_error", {
+        id,
+        type,
+        message: result.message,
+        outputLength: result.output?.length ?? 0
+      });
       throw Object.assign(new Error(result.message || "Host action failed"), {
         status: 500,
         output: result.output,
@@ -58,7 +71,7 @@ export class HostActionBusService {
     return result;
   }
 
-  private async waitForResult(actionId: string, timeoutMs: number): Promise<HostActionResult> {
+  private async waitForResult(actionId: string, timeoutMs: number, type: string): Promise<HostActionResult> {
     const filePath = `${env.BUS_RESULTS_DIR}/${actionId}.json`;
     const startedAt = Date.now();
 
@@ -72,12 +85,22 @@ export class HostActionBusService {
 
       if (content !== null) {
         await fs.unlink(filePath).catch(() => undefined);
-        return parseResult(content, actionId);
+        const result = parseResult(content, actionId);
+        logBus("info", "result", {
+          id: actionId,
+          type,
+          status: result.status,
+          durationMs: Date.now() - startedAt,
+          message: result.message,
+          outputLength: result.output?.length ?? 0
+        });
+        return result;
       }
 
       await delay(env.BUS_POLL_INTERVAL_MS);
     }
 
+    logBus("error", "timeout", { id: actionId, type, timeoutMs });
     throw Object.assign(new Error(`Host action timed out: ${actionId}`), { status: 504 });
   }
 
@@ -121,4 +144,13 @@ function delay(ms: number): Promise<void> {
 
 function isNodeError(error: unknown): error is NodeJS.ErrnoException {
   return error instanceof Error && "code" in error;
+}
+
+function logBus(level: "info" | "warn" | "error", event: string, details: Record<string, unknown>): void {
+  console[level](JSON.stringify({
+    at: new Date().toISOString(),
+    scope: "host-action-bus",
+    event,
+    ...details
+  }));
 }

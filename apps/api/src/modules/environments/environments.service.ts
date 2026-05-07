@@ -242,6 +242,14 @@ export class EnvironmentsService {
 
     const port = await this.nextAvailablePort();
     const runtimePath = path.join(env.HOST_RUNTIME_DIR, key);
+    logEnvironment("info", "create_requested", {
+      key,
+      port,
+      branch: input.source.branch,
+      commit: input.source.commit,
+      seed: input.seed,
+      owner: "email" in createdBy ? createdBy.email : createdBy.url
+    });
     const now = new Date();
     const record: EnvironmentRecord = {
       key,
@@ -265,6 +273,10 @@ export class EnvironmentsService {
       ...input.env,
       PROXY_EXTERNAL_PORT: String(port),
     }).catch(async (error) => {
+      logEnvironment("error", "create_failed", {
+        key,
+        message: error instanceof Error ? error.message : String(error)
+      });
       await EnvironmentLogCollection.add({
         environmentKey: key,
         log: `Environment creation failed: ${error instanceof Error ? error.message : String(error)}`,
@@ -282,6 +294,12 @@ export class EnvironmentsService {
     source: EnvironmentSource,
     environmentVariables: Record<string, string>
   ): Promise<void> {
+    logEnvironment("info", "prepare_started", {
+      key,
+      runtimePath,
+      branch: source.branch,
+      commit: source.commit
+    });
     await EnvironmentLogCollection.add({
       environmentKey: key,
       log: "Preparing repository",
@@ -317,6 +335,7 @@ export class EnvironmentsService {
     });
 
     await this.updateStatus(key, "stopped");
+    logEnvironment("info", "prepare_completed", { key, status: "stopped" });
   }
 
   async list(): Promise<EnvironmentRecord[]> {
@@ -436,6 +455,12 @@ export class EnvironmentsService {
   }
 
   private async runLifecycleActionJob(id: string, key: string, action: LifecycleAction, user: AuthenticatedUser): Promise<void> {
+    logEnvironment("info", "lifecycle_job_started", {
+      key,
+      action,
+      actionId: id,
+      user: user.email
+    });
     await EnvironmentActionCollection.update(id, { status: "running" });
 
     try {
@@ -458,8 +483,20 @@ export class EnvironmentsService {
         environment,
         completedAt: new Date()
       });
+      logEnvironment("info", "lifecycle_job_completed", {
+        key,
+        action,
+        actionId: id,
+        status: environment.status
+      });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
+      logEnvironment("error", "lifecycle_job_failed", {
+        key,
+        action,
+        actionId: id,
+        message
+      });
       await EnvironmentActionCollection.addLog({
         actionId: id,
         environmentKey: key,
@@ -491,6 +528,7 @@ export class EnvironmentsService {
     }
 
     await onLog({ log: `${capitalize(action)} environment ${key}`, level: "info" });
+    logEnvironment("info", "lifecycle_action_started", { key, action, currentStatus: record.status });
 
     try {
       if (action === "start" || action === "resume") {
@@ -503,7 +541,9 @@ export class EnvironmentsService {
         const result = await this.publishEnvironmentAction("environment.start", key);
         await emitBusResult(result, onLog);
         await onLog({ log: `Environment ${action === "resume" ? "resumed" : "started"}`, level: "info" });
-        return this.updateStatus(key, "running");
+        const updated = await this.updateStatus(key, "running");
+        logEnvironment("info", "lifecycle_action_completed", { key, action, status: updated.status });
+        return updated;
       }
 
       if (action === "restart") {
@@ -512,18 +552,27 @@ export class EnvironmentsService {
         const result = await this.publishEnvironmentAction("environment.restart", key);
         await emitBusResult(result, onLog);
         await onLog({ log: "Environment restarted", level: "info" });
-        return this.updateStatus(key, "running");
+        const updated = await this.updateStatus(key, "running");
+        logEnvironment("info", "lifecycle_action_completed", { key, action, status: updated.status });
+        return updated;
       }
 
       throwIfAborted(signal);
       const result = await this.publishEnvironmentAction("environment.stop", key);
       await emitBusResult(result, onLog);
       await onLog({ log: "Environment stopped", level: "info" });
-      return this.updateStatus(key, "stopped");
+      const updated = await this.updateStatus(key, "stopped");
+      logEnvironment("info", "lifecycle_action_completed", { key, action, status: updated.status });
+      return updated;
     } catch (error) {
       if (action !== "stop") {
         await this.updateStatus(key, "failed").catch(() => undefined);
       }
+      logEnvironment("error", "lifecycle_action_failed", {
+        key,
+        action,
+        message: error instanceof Error ? error.message : String(error)
+      });
       throw error;
     }
   }
@@ -652,6 +701,12 @@ export class EnvironmentsService {
 
   async syncFiles(key: string, input: SyncFilesPayload): Promise<EnvironmentRecord> {
     const current = await this.get(key);
+    logEnvironment("info", "sync_started", {
+      key,
+      branch: input.branch,
+      commit: input.commit,
+      files: input.files.length
+    });
 
     await EnvironmentLogCollection.add({
       environmentKey: key,
@@ -672,17 +727,20 @@ export class EnvironmentsService {
       log: "Environment synced successfully",
     });
 
-    return EnvironmentCollection.update(current.key, (record) => {
+    const updated = await EnvironmentCollection.update(current.key, (record) => {
       return {
         ...record,
         branch: input.branch,
         commit: input.commit,
       };
     });
+    logEnvironment("info", "sync_completed", { key, files: input.files.length });
+    return updated;
   }
 
   async delete(key: string): Promise<void> {
     const record = await this.get(key);
+    logEnvironment("info", "delete_started", { key, status: record.status });
 
     await this.updateStatus(key, "removing");
 
@@ -712,6 +770,7 @@ export class EnvironmentsService {
       environmentKey: key,
       log: "Environment deleted",
     });
+    logEnvironment("info", "delete_completed", { key });
   }
 
   async identifyPrEnvironment(reference: PullRequestRef) {
@@ -752,6 +811,7 @@ export class EnvironmentsService {
   }
 
   private async publishEnvironmentAction(type: string, key: string, payload: Record<string, unknown> = {}): Promise<HostActionResult> {
+    logEnvironment("info", "bus_action_publish", { key, type });
     const result = await this.bus.publish(type, {
       environment: key,
       runtimeRoot: env.HOST_RUNTIME_DIR,
@@ -760,6 +820,13 @@ export class EnvironmentsService {
     });
 
     await this.logHostActionResult(key, result);
+    logEnvironment("info", "bus_action_completed", {
+      key,
+      type,
+      status: result.status,
+      message: result.message,
+      outputLength: result.output?.length ?? 0
+    });
     return result;
   }
 
@@ -825,12 +892,14 @@ export class EnvironmentsService {
   }
 
   private async updateStatus(key: string, status: EnvironmentRecord["status"]): Promise<EnvironmentRecord> {
-    return EnvironmentCollection.update(key, (record) => {
+    const updated = await EnvironmentCollection.update(key, (record) => {
       return {
         ...record,
         status,
       };
     });
+    logEnvironment("info", "status_changed", { key, status });
+    return updated;
   }
 
   private async writeEnvironmentFile(runtimePath: string, key: string, environmentVariables: Record<string, string>): Promise<void> {
@@ -905,6 +974,15 @@ function throwIfAborted(signal?: AbortSignal): void {
 
 function busMigrationPending(message: string): Error {
   return Object.assign(new Error(message), { status: 501 });
+}
+
+function logEnvironment(level: "info" | "warn" | "error", event: string, details: Record<string, unknown>): void {
+  console[level](JSON.stringify({
+    at: new Date().toISOString(),
+    scope: "environments",
+    event,
+    ...details
+  }));
 }
 
 function resolveInside(rootPath: string, targetPath: string): string {
