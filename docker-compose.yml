@@ -18,6 +18,8 @@ services:
     command: ["mongod", "--quiet"]
     volumes:
       - ./runtime/db:/data/db
+    logging:
+      driver: "none"
 
   api:
     build:

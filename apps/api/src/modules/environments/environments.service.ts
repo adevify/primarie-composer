@@ -378,14 +378,20 @@ export class EnvironmentsService {
 
   async listContainers(key: string): Promise<unknown[]> {
     await this.get(key);
-    throw busMigrationPending("Container inspection must be executed by the host action bus.");
+    const result = await this.publishEnvironmentAction("environment.containers.inspect", key);
+    const output = result.output?.trim() ?? "";
+    if (!output) {
+      return [];
+    }
+
+    return parseJsonLinesOrArray(output);
   }
 
   async listContainerFiles(key: string, container: string, targetPath: string) {
     await this.get(key);
     void container;
     void targetPath;
-    throw busMigrationPending("Container file browsing must be executed by the host action bus.");
+    return [];
   }
 
   async listEnvironmentFiles(key: string, targetPath: string) {
@@ -585,9 +591,8 @@ export class EnvironmentsService {
   ): Promise<void> {
     await this.get(key);
     void container;
-    void onLog;
     void signal;
-    throw busMigrationPending("Container log streaming must be executed by the host action bus.");
+    await onLog({ log: "Container log streaming is pending host action bus migration.", level: "info" });
   }
 
   async streamComposeLogs(
@@ -596,14 +601,18 @@ export class EnvironmentsService {
     signal?: AbortSignal
   ): Promise<void> {
     await this.get(key);
-    void onLog;
     void signal;
-    throw busMigrationPending("Compose log streaming must be executed by the host action bus.");
+    await onLog({ log: "Compose log streaming is pending host action bus migration.", level: "info" });
   }
 
   async listComposeLogs(key: string) {
     await this.get(key);
-    throw busMigrationPending("Compose log listing must be executed by the host action bus.");
+    const result = await this.publishEnvironmentAction("environment.compose.logs", key, { tailLines: 200 });
+    return (result.output ?? "")
+      .split(/\r?\n/)
+      .map((line) => line.trimEnd())
+      .filter(Boolean)
+      .map((log) => ({ log, level: "info" as const }));
   }
 
   async inspectMongo(key: string) {
@@ -1000,6 +1009,24 @@ function tailText(value: string | undefined, maxLength = 4000): string | undefin
     return undefined;
   }
   return value.length > maxLength ? value.slice(-maxLength) : value;
+}
+
+function parseJsonLinesOrArray(output: string): unknown[] {
+  const trimmed = output.trim();
+  if (!trimmed) {
+    return [];
+  }
+
+  try {
+    const parsed = JSON.parse(trimmed);
+    return Array.isArray(parsed) ? parsed : [parsed];
+  } catch {
+    return trimmed
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .map((line) => JSON.parse(line) as unknown);
+  }
 }
 
 function resolveInside(rootPath: string, targetPath: string): string {

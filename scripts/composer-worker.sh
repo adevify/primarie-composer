@@ -94,6 +94,12 @@ while true; do
       "environment.files.sync")
         run_payload_script "$id" "$SCRIPT_DIR/sync-files.sh" "$line"
         ;;
+      "environment.containers.inspect")
+        run_payload_script "$id" "$SCRIPT_DIR/inspect-containers.sh" "$line"
+        ;;
+      "environment.compose.logs")
+        run_payload_script "$id" "$SCRIPT_DIR/compose-logs.sh" "$line"
+        ;;
       "environment.start")
         if output=$("$SCRIPT_DIR/start-env.sh" "$environment" 2>&1); then
           write_result "$id" "success" "Environment started" "$output"
