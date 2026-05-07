@@ -753,9 +753,16 @@ export class EnvironmentsService {
     });
 
     await this.publishEnvironmentAction("environment.remove", record.key).catch(async (error) => {
+      const output = typeof error === "object" && error !== null && "output" in error ? String((error as { output?: unknown }).output ?? "") : "";
+      const outputTail = tailText(output);
+      logEnvironment("error", "delete_failed", {
+        key,
+        message: error instanceof Error ? error.message : String(error),
+        outputTail
+      });
       await EnvironmentLogCollection.add({
         environmentKey: key,
-        log: `Environment remove failed: ${error instanceof Error ? error.message : String(error)}`,
+        log: [`Environment remove failed: ${error instanceof Error ? error.message : String(error)}`, outputTail].filter(Boolean).join("\n"),
         level: "error",
       });
       throw error;
@@ -986,6 +993,13 @@ function logEnvironment(level: "info" | "warn" | "error", event: string, details
     event,
     ...details
   }));
+}
+
+function tailText(value: string | undefined, maxLength = 4000): string | undefined {
+  if (!value) {
+    return undefined;
+  }
+  return value.length > maxLength ? value.slice(-maxLength) : value;
 }
 
 function resolveInside(rootPath: string, targetPath: string): string {

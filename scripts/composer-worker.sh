@@ -6,6 +6,7 @@ PIPE="${PIPE:-$BUS_ROOT/actions.pipe}"
 RESULTS_DIR="${RESULTS_DIR:-$BUS_ROOT/results}"
 READY_FILE="${READY_FILE:-$BUS_ROOT/worker.ready}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+MAX_RESULT_OUTPUT_BYTES="${MAX_RESULT_OUTPUT_BYTES:-65536}"
 
 mkdir -p "$RESULTS_DIR"
 if [[ ! -p "$PIPE" ]]; then
@@ -24,7 +25,7 @@ write_result() {
   local tmp="$RESULTS_DIR/$id.json.tmp"
   local output_file
   output_file="$(mktemp)"
-  printf "%s" "$output" > "$output_file"
+  truncate_output "$output" > "$output_file"
 
   jq -n \
     --arg id "$id" \
@@ -40,6 +41,19 @@ write_result() {
     }' > "$tmp"
   rm -f "$output_file"
   mv "$tmp" "$RESULTS_DIR/$id.json"
+}
+
+truncate_output() {
+  local output="$1"
+  local byte_count
+  byte_count="$(printf "%s" "$output" | wc -c | tr -d " ")"
+  if [[ "$byte_count" -le "$MAX_RESULT_OUTPUT_BYTES" ]]; then
+    printf "%s" "$output"
+    return
+  fi
+
+  printf "[output truncated to last %s bytes from %s bytes]\n" "$MAX_RESULT_OUTPUT_BYTES" "$byte_count"
+  printf "%s" "$output" | tail -c "$MAX_RESULT_OUTPUT_BYTES"
 }
 
 run_payload_script() {

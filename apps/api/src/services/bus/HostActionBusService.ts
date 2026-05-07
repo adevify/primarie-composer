@@ -59,7 +59,8 @@ export class HostActionBusService {
         id,
         type,
         message: result.message,
-        outputLength: result.output?.length ?? 0
+        outputLength: result.output?.length ?? 0,
+        outputTail: tailText(result.output)
       });
       throw Object.assign(new Error(result.message || "Host action failed"), {
         status: 500,
@@ -153,4 +154,11 @@ function logBus(level: "info" | "warn" | "error", event: string, details: Record
     event,
     ...details
   }));
+}
+
+function tailText(value: string | undefined, maxLength = 4000): string | undefined {
+  if (!value) {
+    return undefined;
+  }
+  return value.length > maxLength ? value.slice(-maxLength) : value;
 }
