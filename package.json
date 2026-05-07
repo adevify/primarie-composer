@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "composer": "env -u ELECTRON_RUN_AS_NODE npm --prefix apps/electron run dev",
-    "start:composer": "./scripts/start-composer.sh"
+    "start:composer": "./scripts/start-composer.sh",
+    "debug:composer": "./scripts/debug-composer.sh"
   }
 }

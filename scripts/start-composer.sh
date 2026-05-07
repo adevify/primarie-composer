@@ -3,6 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BUS_ROOT="${BUS_ROOT:-/opt/composer-bus}"
+COMPOSE_MODE="${COMPOSE_MODE:-detached}"
 RUN_DIR="$ROOT_DIR/runtime/composer"
 BUS_PID_FILE="$RUN_DIR/bus.pid"
 BUS_LOG_FILE="$RUN_DIR/bus.log"
@@ -205,17 +206,30 @@ start_compose() {
   export HOST_SEEDS_DIR="${HOST_SEEDS_DIR:-$ROOT_DIR/seeds}"
   export SSH_AUTH_SOCK="${SSH_AUTH_SOCK:-/tmp/empty-ssh-agent.sock}"
 
-  docker compose up --build -d
+  if [[ "$COMPOSE_MODE" == "attached" ]]; then
+    docker compose up --build
+  else
+    docker compose up --build -d
+  fi
   log "Composer stack started."
 }
 
-ensure_command jq jq
-ensure_command git git
-ensure_docker
-ensure_docker_compose
-ensure_docker_running
-ensure_bus_root
-ensure_env_file
+run_checks() {
+  ensure_command jq jq
+  ensure_command git git
+  ensure_docker
+  ensure_docker_compose
+  ensure_docker_running
+  ensure_bus_root
+  ensure_env_file
+}
+
+run_checks
+if [[ "${CHECK_ONLY:-0}" == "1" ]]; then
+  log "Checks passed."
+  exit 0
+fi
+
 start_bus
 start_compose
 
