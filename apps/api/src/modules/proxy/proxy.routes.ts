@@ -47,7 +47,7 @@ export function createProxyRouter(): Router {
         return res.status(503).json({ allowed: false, reason: "Environment is not running" });
       }
 
-      const upstreamHost = "127.0.0.1";
+      const upstreamHost = env.PROXY_UPSTREAM_HOST;
       logProxyDecision("info", requestId, "allow", {
         host,
         parsed,
