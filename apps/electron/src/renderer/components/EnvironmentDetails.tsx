@@ -136,21 +136,6 @@ export function EnvironmentDetails({
 
   useEffect(() => {
     if (!open || !environment) {
-      return;
-    }
-
-    if (environment.status === "running") {
-      onStartComposeLogStream(environment.key);
-      return;
-    }
-
-    composeLogSessions
-      .filter((session) => session.status === "running")
-      .forEach((session) => onStopLiveLogSession(session.id));
-  }, [open, environment?.key, environment?.status, composeLogSessions, onStartComposeLogStream, onStopLiveLogSession]);
-
-  useEffect(() => {
-    if (!open || !environment) {
       return undefined;
     }
 
