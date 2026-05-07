@@ -121,7 +121,7 @@ export class ComposerApiClient {
     return this.request<EnvironmentActionRecord>(`/environments/actions/${encodeURIComponent(id)}`);
   }
 
-  lifecycleActionLogs(id: string, page = 0, perPage = 500): Promise<EnvironmentActionLogsPage> {
+  lifecycleActionLogs(id: string, page = 0, perPage = 100): Promise<EnvironmentActionLogsPage> {
     const params = new URLSearchParams({ page: String(page), perPage: String(perPage) });
     return this.request<EnvironmentActionLogsPage>(`/environments/actions/${encodeURIComponent(id)}/logs?${params.toString()}`);
   }
@@ -168,8 +168,9 @@ export class ComposerApiClient {
     return this.request<MongoPreview>(`/environments/${encodeURIComponent(key)}/mongo`);
   }
 
-  composeLogs(key: string): Promise<ComposeLogEntry[]> {
-    return this.request<ComposeLogEntry[]>(`/environments/${encodeURIComponent(key)}/compose/logs`);
+  composeLogs(key: string, page = 0, perPage = 50): Promise<ComposeLogEntry[]> {
+    const params = new URLSearchParams({ page: String(page), perPage: String(perPage) });
+    return this.request<ComposeLogEntry[]>(`/environments/${encodeURIComponent(key)}/compose/logs?${params.toString()}`);
   }
 
   execInContainer(key: string, container: string, command: string): Promise<ContainerExecResult> {

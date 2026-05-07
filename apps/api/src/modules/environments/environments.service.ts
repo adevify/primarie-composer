@@ -605,13 +605,21 @@ export class EnvironmentsService {
     await onLog({ log: "Compose log streaming is pending host action bus migration.", level: "info" });
   }
 
-  async listComposeLogs(key: string) {
+  async listComposeLogs(key: string, page = 0, perPage = 50) {
     await this.get(key);
-    const result = await this.publishEnvironmentAction("environment.compose.logs", key, { tailLines: 200 });
-    return (result.output ?? "")
+    const safePage = Math.max(0, Number.isFinite(page) ? Math.floor(page) : 0);
+    const safePerPage = Math.max(1, Math.min(100, Number.isFinite(perPage) ? Math.floor(perPage) : 50));
+    const tailLines = (safePage + 1) * safePerPage;
+    const result = await this.publishEnvironmentAction("environment.compose.logs", key, { tailLines });
+    const lines = (result.output ?? "")
       .split(/\r?\n/)
       .map((line) => line.trimEnd())
-      .filter(Boolean)
+      .filter(Boolean);
+    const pageEnd = Math.max(0, lines.length - safePage * safePerPage);
+    const pageStart = Math.max(0, pageEnd - safePerPage);
+
+    return lines
+      .slice(pageStart, pageEnd)
       .map((log) => ({ log, level: "info" as const }));
   }
 

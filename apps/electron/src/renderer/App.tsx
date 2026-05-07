@@ -616,7 +616,7 @@ export default function App() {
       entries: []
     });
 
-    void api.composeLogs(key).then((entries) => {
+    void api.composeLogs(key, 0, 50).then((entries) => {
       entries.forEach((entry) => appendLiveLogEntry(sessionId, entry.log, entry.level));
     }).catch((error) => {
       appendLiveLogEntry(sessionId, `Unable to load Docker Compose log tail: ${toErrorMessage(error)}`, "error");
@@ -712,7 +712,7 @@ export default function App() {
     return api.lifecycleActions(key, page, perPage);
   }
 
-  async function getLifecycleActionLogs(id: string, page = 0, perPage = 500): Promise<EnvironmentActionLogsPage> {
+  async function getLifecycleActionLogs(id: string, page = 0, perPage = 100): Promise<EnvironmentActionLogsPage> {
     if (!api) {
       throw new Error("API client is unavailable.");
     }

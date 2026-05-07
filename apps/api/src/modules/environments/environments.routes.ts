@@ -162,7 +162,9 @@ export function createEnvironmentRouter(): Router {
 
   router.get("/:key/compose/logs", async (req, res, next) => {
     try {
-      return res.json(await service.listComposeLogs(req.params.key));
+      const page = parseInt(req.query.page as string || "0");
+      const perPage = parseInt(req.query.perPage as string || "50");
+      return res.json(await service.listComposeLogs(req.params.key, page, perPage));
     } catch (error) {
       return next(error);
     }
