@@ -115,6 +115,7 @@ while true; do
     type="$(echo "$line" | jq -r '.type // empty')"
     environment="$(echo "$line" | jq -r '.payload.environment // empty')"
     environment_port="$(echo "$line" | jq -r '.payload.environmentPort // empty')"
+    proxy_upstream_host="$(echo "$line" | jq -r '.payload.proxyUpstreamHost // empty')"
 
     if [[ -z "$id" ]]; then
       continue
@@ -134,7 +135,7 @@ while true; do
         run_payload_script "$id" "$SCRIPT_DIR/compose-logs.sh" "$line"
         ;;
       "environment.start")
-        if output="$(run_and_capture "$LOGS_DIR/$id.log" "$SCRIPT_DIR/start-env.sh" "$environment" "$environment_port")"; then
+        if output="$(run_and_capture "$LOGS_DIR/$id.log" "$SCRIPT_DIR/start-env.sh" "$environment" "$environment_port" "$proxy_upstream_host")"; then
           write_result "$id" "success" "Environment started" "$output"
         else
           write_result "$id" "error" "Environment start failed" "$output"
@@ -148,7 +149,7 @@ while true; do
         fi
         ;;
       "environment.restart")
-        if output="$(run_and_capture "$LOGS_DIR/$id.log" "$SCRIPT_DIR/restart-env.sh" "$environment" "$environment_port")"; then
+        if output="$(run_and_capture "$LOGS_DIR/$id.log" "$SCRIPT_DIR/restart-env.sh" "$environment" "$environment_port" "$proxy_upstream_host")"; then
           write_result "$id" "success" "Environment restarted" "$output"
         else
           write_result "$id" "error" "Environment restart failed" "$output"

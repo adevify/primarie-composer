@@ -1,3 +1,5 @@
+import dns from "node:dns/promises";
+import net from "node:net";
 import { Router } from "express";
 import type { Request } from "express";
 import { env } from "../../config/env.js";
@@ -47,7 +49,7 @@ export function createProxyRouter(): Router {
         return res.status(503).json({ allowed: false, reason: "Environment is not running" });
       }
 
-      const upstreamHost = env.PROXY_UPSTREAM_HOST;
+      const upstreamHost = await resolveProxyUpstreamHost(env.PROXY_UPSTREAM_HOST);
       const serviceHost = `${parsed.subdomain}.${env.ROOT_DOMAIN}`;
       logProxyDecision("info", requestId, "allow", {
         host,
@@ -73,6 +75,15 @@ export function createProxyRouter(): Router {
   });
 
   return router;
+}
+
+async function resolveProxyUpstreamHost(host: string): Promise<string> {
+  if (net.isIP(host)) {
+    return host;
+  }
+
+  const result = await dns.lookup(host, { family: 4 });
+  return result.address;
 }
 
 function getOriginalHost(req: Request): string | null {

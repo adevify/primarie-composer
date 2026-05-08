@@ -12,6 +12,10 @@ composer_root() {
   echo "${COMPOSER_ROOT:-/opt/primarie-composer}"
 }
 
+composer_project_name() {
+  basename "$(composer_root)"
+}
+
 runtime_root() {
   echo "${RUNTIME_ROOT:-$(composer_root)/runtime/environments}"
 }
@@ -104,6 +108,46 @@ wait_for_tcp_port() {
     now="$(date +%s)"
     if (( now - started_at >= timeout_seconds )); then
       echo "Timed out waiting for $host:$port after ${timeout_seconds}s." >&2
+      return 1
+    fi
+
+    sleep 2
+  done
+}
+
+composer_proxy_container_id() {
+  local project_name="${COMPOSE_PROJECT_NAME:-$(composer_project_name)}"
+  docker ps -q \
+    --filter "label=com.docker.compose.project=$project_name" \
+    --filter "label=com.docker.compose.service=proxy" \
+    | head -n 1
+}
+
+wait_for_proxy_upstream_port() {
+  local host="$1"
+  local port="$2"
+  local timeout_seconds="${3:-120}"
+  local proxy_container
+  local started_at
+  local now
+
+  proxy_container="$(composer_proxy_container_id || true)"
+  if [[ -z "$proxy_container" ]]; then
+    wait_for_tcp_port "$host" "$port" "$timeout_seconds"
+    return
+  fi
+
+  echo "Waiting for Composer proxy to reach $host:$port..."
+  started_at="$(date +%s)"
+  while true; do
+    if docker exec "$proxy_container" sh -c 'nc -z -w 2 "$0" "$1"' "$host" "$port" >/dev/null 2>&1; then
+      echo "Composer proxy can reach $host:$port."
+      return 0
+    fi
+
+    now="$(date +%s)"
+    if (( now - started_at >= timeout_seconds )); then
+      echo "Timed out waiting for Composer proxy to reach $host:$port after ${timeout_seconds}s." >&2
       return 1
     fi
 

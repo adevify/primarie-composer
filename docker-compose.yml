@@ -26,6 +26,8 @@ services:
       context: ./apps/api
     depends_on:
       - db
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - ./runtime:/app/runtime
       - ./templates:/app/templates
@@ -40,7 +42,7 @@ services:
       SOURCE_REPO_URL: ${SOURCE_REPO_URL:-git@github.com:org/repo.git}
       BASE_ENV_PORT: ${BASE_ENV_PORT:-8001}
       ROOT_DOMAIN: ${ROOT_DOMAIN:-prmr.md}
-      PROXY_UPSTREAM_HOST: ${PROXY_UPSTREAM_HOST:-172.17.0.1}
+      PROXY_UPSTREAM_HOST: ${PROXY_UPSTREAM_HOST:-host.docker.internal}
       RUNTIME_DIR: /app/runtime/environments
       HOST_RUNTIME_DIR: ${HOST_RUNTIME_DIR:-/opt/primarie-composer/runtime/environments}
       ENVIRONMENTS_FILE: /app/runtime/environments.json
