@@ -71,6 +71,18 @@ require_compose_service_running() {
   return 1
 }
 
+assert_project_container() {
+  local project_name="$1"
+  local container="$2"
+  local actual_project
+
+  actual_project="$(docker inspect -f '{{ index .Config.Labels "com.docker.compose.project" }}' "$container" 2>/dev/null || true)"
+  if [[ "$actual_project" != "$project_name" ]]; then
+    echo "Container $container does not belong to compose project $project_name" >&2
+    exit 2
+  fi
+}
+
 set_env_var() {
   local env_file="$1"
   local key="$2"

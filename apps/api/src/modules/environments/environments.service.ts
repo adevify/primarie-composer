@@ -388,9 +388,8 @@ export class EnvironmentsService {
 
   async listContainerFiles(key: string, container: string, targetPath: string) {
     await this.get(key);
-    void container;
-    void targetPath;
-    return [];
+    const result = await this.publishEnvironmentAction("environment.container.files", key, { container, path: targetPath || "/" });
+    return parseJsonValue(result.output ?? "[]");
   }
 
   async listEnvironmentFiles(key: string, targetPath: string) {
@@ -424,7 +423,8 @@ export class EnvironmentsService {
       environmentKey: key,
       log: `Executing in ${container}: ${command}`,
     });
-    throw busMigrationPending("Container command execution must be executed by the host action bus.");
+    const result = await this.publishEnvironmentAction("environment.container.exec", key, { container, command });
+    return parseJsonValue(result.output ?? "{}");
   }
 
   async createLifecycleAction(key: string, action: LifecycleAction, user: AuthenticatedUser) {
@@ -589,9 +589,11 @@ export class EnvironmentsService {
     signal?: AbortSignal
   ): Promise<void> {
     await this.get(key);
-    void container;
     void signal;
-    await onLog({ log: "Container log streaming is pending host action bus migration.", level: "info" });
+    const result = await this.publishEnvironmentAction("environment.container.logs", key, { container, tailLines: 300 });
+    for (const line of splitLogLines(result.output)) {
+      await onLog({ log: line, level: "info" });
+    }
   }
 
   async streamComposeLogs(
@@ -601,7 +603,10 @@ export class EnvironmentsService {
   ): Promise<void> {
     await this.get(key);
     void signal;
-    await onLog({ log: "Compose log streaming is pending host action bus migration.", level: "info" });
+    const result = await this.publishEnvironmentAction("environment.compose.logs", key, { tailLines: 300 });
+    for (const line of splitLogLines(result.output)) {
+      await onLog({ log: line, level: "info" });
+    }
   }
 
   async listComposeLogs(key: string, page = 0, perPage = 50) {
@@ -624,10 +629,8 @@ export class EnvironmentsService {
 
   async inspectMongo(key: string) {
     await this.get(key);
-    return {
-      available: false,
-      reason: "MongoDB inspection is pending host action bus migration"
-    };
+    const result = await this.publishEnvironmentAction("environment.mongo.inspect", key, { limit: 20 });
+    return parseJsonValue(result.output ?? "{}");
   }
 
   async stop(key: string): Promise<EnvironmentRecord> {
@@ -849,7 +852,9 @@ export class EnvironmentsService {
       ...payload
     }, env.BUS_ACTION_TIMEOUT_MS, onLog);
 
-    await this.logHostActionResult(key, result);
+    if (!isReadOnlyHostAction(type)) {
+      await this.logHostActionResult(key, result);
+    }
     logEnvironment("info", "bus_action_completed", {
       key,
       type,
@@ -1075,6 +1080,30 @@ function parseJsonLinesOrArray(output: string): unknown[] {
       .filter(Boolean)
       .map((line) => JSON.parse(line) as unknown);
   }
+}
+
+function parseJsonValue(output: string): unknown {
+  const trimmed = output.trim();
+  if (!trimmed) {
+    return null;
+  }
+  return JSON.parse(trimmed) as unknown;
+}
+
+function splitLogLines(output: string | undefined): string[] {
+  return (output ?? "")
+    .split(/\r?\n/)
+    .map((line) => line.trimEnd())
+    .filter(Boolean);
+}
+
+function isReadOnlyHostAction(type: string): boolean {
+  return type === "environment.containers.inspect"
+    || type === "environment.compose.logs"
+    || type === "environment.container.logs"
+    || type === "environment.container.files"
+    || type === "environment.container.exec"
+    || type === "environment.mongo.inspect";
 }
 
 function resolveInside(rootPath: string, targetPath: string): string {

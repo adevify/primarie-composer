@@ -921,14 +921,17 @@ export default function App() {
             open={Boolean(detailsEnvironment)}
             onClose={() => setDetailsEnvironment(undefined)}
             onListContainers={listContainers}
+            onListContainerFiles={listContainerFiles}
             onListEnvironmentFiles={listEnvironmentFiles}
             onInspectMongo={inspectMongo}
             onListLifecycleActions={listLifecycleActions}
             onGetLifecycleActionLogs={getLifecycleActionLogs}
             onAction={runEnvironmentAction}
+            onExecInContainer={execInContainer}
             actionRefreshToken={detailsLogRefreshToken}
             liveLogSessions={liveLogSessions.filter((session) => session.environmentKey === detailsEnvironment.key)}
             onStartComposeLogStream={startComposeLogStream}
+            onStartContainerLogStream={startContainerLogStream}
             onStopLiveLogSession={stopLiveLogSession}
           />
         ) : (

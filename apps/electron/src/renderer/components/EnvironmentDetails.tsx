@@ -39,14 +39,17 @@ type EnvironmentDetailsProps = {
   open: boolean;
   onClose: () => void;
   onListContainers: (key: string) => Promise<EnvironmentContainer[]>;
+  onListContainerFiles: (key: string, container: string, path: string) => Promise<ContainerFileEntry[]>;
   onListEnvironmentFiles: (key: string, path: string) => Promise<ContainerFileEntry[]>;
   onInspectMongo: (key: string) => Promise<MongoPreviewPayload>;
   onListLifecycleActions: (key: string, page?: number, perPage?: number) => Promise<EnvironmentActionsPage>;
   onGetLifecycleActionLogs: (id: string, page?: number, perPage?: number) => Promise<EnvironmentActionLogsPage>;
   onAction: (key: string, action: "start" | "stop" | "restart" | "resume" | "delete") => Promise<void>;
+  onExecInContainer: (key: string, container: string, command: string) => Promise<{ command: string; exitCode: number; stdout: string; stderr: string }>;
   actionRefreshToken: number;
   liveLogSessions: LiveLogSession[];
   onStartComposeLogStream: (key: string) => void;
+  onStartContainerLogStream: (key: string, container: string) => void;
   onStopLiveLogSession: (id: string) => void;
 };
 
@@ -55,14 +58,17 @@ export function EnvironmentDetails({
   open,
   onClose,
   onListContainers,
+  onListContainerFiles,
   onListEnvironmentFiles,
   onInspectMongo,
   onListLifecycleActions,
   onGetLifecycleActionLogs,
   onAction,
+  onExecInContainer,
   actionRefreshToken,
   liveLogSessions,
   onStartComposeLogStream,
+  onStartContainerLogStream,
   onStopLiveLogSession
 }: EnvironmentDetailsProps) {
   const [containers, setContainers] = useState<EnvironmentContainer[]>([]);
@@ -81,12 +87,17 @@ export function EnvironmentDetails({
   const [actionLogsPage, setActionLogsPage] = useState<EnvironmentActionLogsPage>();
   const [loadingActions, setLoadingActions] = useState(false);
   const [loadingActionLogs, setLoadingActionLogs] = useState(false);
+  const [execCommand, setExecCommand] = useState("pwd && ls -la");
+  const [execOutput, setExecOutput] = useState("");
+  const [execRunning, setExecRunning] = useState(false);
 
-  const composeLogSessions = useMemo(
-    () => liveLogSessions.filter((session) => session.subtitle === "Docker Compose logs"),
-    [liveLogSessions]
-  );
-  const selectedLiveSession = composeLogSessions.find((session) => session.status === "running") ?? composeLogSessions[0];
+  const selectedLiveSession = liveLogSessions.find((session) => session.status === "running") ?? liveLogSessions[0];
+  const displayedLiveLogs = useMemo(() => (selectedLiveSession?.entries ?? []).map((entry) => ({
+    at: entry.at,
+    message: entry.log,
+    level: entry.level,
+    system: true
+  })), [selectedLiveSession]);
   const selectedAction = actions.find((action) => action.id === selectedActionId);
   const displayedActionLogs = useMemo(() => actionLogs.map((entry) => ({
     at: entry.createdAt,
@@ -102,7 +113,6 @@ export function EnvironmentDetails({
 
     if (environment.status === "running") {
       void loadContainers();
-      void loadFiles("/");
       void loadMongo();
       return;
     }
@@ -128,6 +138,15 @@ export function EnvironmentDetails({
 
     void loadActionLogs(selectedActionId);
   }, [open, selectedActionId]);
+
+  useEffect(() => {
+    if (!open || !environment || environment.status !== "running" || !selectedContainer) {
+      return;
+    }
+
+    setContainerPath("/");
+    void loadFiles("/");
+  }, [open, environment?.key, environment?.status, selectedContainer]);
 
   useEffect(() => {
     if (!open || !selectedActionId || !selectedAction || (selectedAction.status !== "queued" && selectedAction.status !== "running")) {
@@ -209,12 +228,36 @@ export function EnvironmentDetails({
     setLoadingFiles(true);
     setToolError(undefined);
     try {
-      setFiles(await onListEnvironmentFiles(environment.key, pathOverride));
+      setFiles(selectedContainer
+        ? await onListContainerFiles(environment.key, selectedContainer, pathOverride)
+        : await onListEnvironmentFiles(environment.key, pathOverride));
       setContainerPath(pathOverride);
     } catch (error) {
       setToolError(toErrorMessage(error));
     } finally {
       setLoadingFiles(false);
+    }
+  }
+
+  async function runExecCommand(): Promise<void> {
+    if (!environment || !selectedContainer || !execCommand.trim()) {
+      return;
+    }
+
+    setExecRunning(true);
+    setToolError(undefined);
+    try {
+      const result = await onExecInContainer(environment.key, selectedContainer, execCommand);
+      setExecOutput([
+        `$ ${result.command}`,
+        result.stdout.trimEnd(),
+        result.stderr.trimEnd(),
+        `[exit ${result.exitCode}]`
+      ].filter(Boolean).join("\n"));
+    } catch (error) {
+      setToolError(toErrorMessage(error));
+    } finally {
+      setExecRunning(false);
     }
   }
 
@@ -391,6 +434,7 @@ export function EnvironmentDetails({
             containers={containers}
             selectedContainer={selectedContainer}
             onSelect={setSelectedContainer}
+            onOpenLogs={(container) => environment ? onStartContainerLogStream(environment.key, container) : undefined}
             onOpenFiles={() => void loadFiles(containerPath)}
           />
         </Panel>
@@ -474,6 +518,7 @@ export function EnvironmentDetails({
                 onPathChange={setContainerPath}
                 onLoadPath={() => void loadFiles()}
                 onOpenDirectory={(path) => void loadFiles(path)}
+                sourceLabel={selectedContainer ? `Container filesystem: ${shortName(selectedContainer)}` : "Runtime directory filesystem"}
               />
             </Panel>
           </Stack>
@@ -486,6 +531,38 @@ export function EnvironmentDetails({
             </Button>
           </Box>
         ) : null}
+
+        <Panel
+          title="LIVE LOGS"
+          icon={<TerminalIcon />}
+          action={selectedLiveSession ? <Chip size="small" label={selectedLiveSession.subtitle.toUpperCase()} sx={statusChipSx} /> : null}
+        >
+          <LogTerminal logs={displayedLiveLogs} emptyText="Open compose or container logs to populate this terminal." />
+        </Panel>
+
+        <Panel
+          title="CONTAINER EXEC"
+          icon={<TerminalIcon />}
+          action={selectedContainer ? <Chip size="small" label={shortName(selectedContainer).toUpperCase()} sx={statusChipSx} /> : null}
+        >
+          <Stack spacing={1.5} sx={{ p: 1.5 }}>
+            <Stack direction={{ xs: "column", md: "row" }} spacing={1}>
+              <TextField
+                size="small"
+                value={execCommand}
+                onChange={(event) => setExecCommand(event.target.value)}
+                disabled={!selectedContainer || execRunning}
+                sx={compactFieldSx}
+              />
+              <Button variant="outlined" disabled={!selectedContainer || execRunning} onClick={() => void runExecCommand()} sx={smallButtonSx}>
+                {execRunning ? "Running" : "Run"}
+              </Button>
+            </Stack>
+            <Box component="pre" sx={{ m: 0, minHeight: 160, maxHeight: 320, overflow: "auto", bgcolor: "#061312", color: "#d7e3ee", fontFamily: monoFont, fontSize: 12, p: 1.5 }}>
+              {execOutput || "Select a container and run a command."}
+            </Box>
+          </Stack>
+        </Panel>
       </Stack>
     </Box>
   );
@@ -588,11 +665,13 @@ function ContainersTable({
   containers,
   selectedContainer,
   onSelect,
+  onOpenLogs,
   onOpenFiles
 }: {
   containers: EnvironmentContainer[];
   selectedContainer: string;
   onSelect: (name: string) => void;
+  onOpenLogs: (name: string) => void;
   onOpenFiles: () => void;
 }) {
   const rows = containers.length > 0 ? containers : [];
@@ -643,6 +722,9 @@ function ContainersTable({
                 <DataCell>{`${180 + index * 210}MB`}</DataCell>
                 <DataCell>
                   <Stack direction="row" spacing={0.5} justifyContent="flex-end">
+                    <IconButton aria-label="Open logs" onClick={(event) => { event.stopPropagation(); onOpenLogs(name); }} sx={iconButtonSx}>
+                      <TerminalIcon fontSize="small" />
+                    </IconButton>
                     <IconButton aria-label="Open files" onClick={(event) => { event.stopPropagation(); onOpenFiles(); }} sx={iconButtonSx}>
                       <FolderOpenIcon fontSize="small" />
                     </IconButton>
@@ -698,10 +780,11 @@ function LogTerminal({ logs, emptyText = "Waiting for Docker Compose log output.
 function MongoPreview({ preview }: { preview?: MongoPreviewPayload }) {
   const collections = preview?.collections ?? [];
   const selected = collections[0];
+  const documents = Array.isArray(selected?.sample) ? selected.sample : selected?.sample ? [selected.sample] : [];
 
   return (
-    <Box sx={{ display: "grid", gridTemplateColumns: "42% 58%", minHeight: 230 }}>
-      <Stack sx={{ bgcolor: "#243230", borderRight: "1px solid rgba(159, 179, 195, 0.28)" }}>
+    <Box sx={{ display: "grid", gridTemplateColumns: "38% 62%", minHeight: 320 }}>
+      <Stack sx={{ bgcolor: "#243230", borderRight: "1px solid rgba(159, 179, 195, 0.28)", maxHeight: 420, overflow: "auto" }}>
         {!preview ? (
           <Box sx={{ px: 1.5, py: 1, color: "text.secondary" }}>Loading MongoDB status</Box>
         ) : !preview.available ? (
@@ -717,9 +800,14 @@ function MongoPreview({ preview }: { preview?: MongoPreviewPayload }) {
           </Box>
         ))}
       </Stack>
-      <Box component="pre" sx={{ m: 0, p: 1.5, bgcolor: "#061312", color: "#55ffcf", fontFamily: monoFont, fontSize: 12, overflow: "auto" }}>
-        {selected ? JSON.stringify(selected.sample, null, 2) : preview?.available ? `Database: ${preview.database}` : "{}"}
-      </Box>
+      <Stack sx={{ bgcolor: "#061312", maxHeight: 420, overflow: "auto" }}>
+        <Box sx={{ px: 1.5, py: 1, borderBottom: "1px solid rgba(159, 179, 195, 0.18)", color: "#55ffcf", fontFamily: monoFont, fontSize: 12 }}>
+          {selected ? `${preview?.database}.${selected.name} / ${documents.length} sample docs` : preview?.available ? `Database: ${preview.database}` : "{}"}
+        </Box>
+        <Box component="pre" sx={{ m: 0, p: 1.5, color: "#d7e3ee", fontFamily: monoFont, fontSize: 12, overflow: "auto" }}>
+          {selected ? JSON.stringify(documents, null, 2) : preview?.available ? "[]" : "{}"}
+        </Box>
+      </Stack>
     </Box>
   );
 }
@@ -729,13 +817,15 @@ function FileExplorer({
   path,
   onPathChange,
   onLoadPath,
-  onOpenDirectory
+  onOpenDirectory,
+  sourceLabel
 }: {
   files: ContainerFileEntry[];
   path: string;
   onPathChange: (path: string) => void;
   onLoadPath: () => void;
   onOpenDirectory: (path: string) => void;
+  sourceLabel: string;
 }) {
   return (
     <Stack spacing={1.5} sx={{ p: 1.5, minHeight: 320 }}>
@@ -773,7 +863,7 @@ function FileExplorer({
       </Stack>
 
       <Typography variant="caption" color="text.secondary" sx={{ fontFamily: monoFont }}>
-        Runtime directory filesystem
+        {sourceLabel}
       </Typography>
     </Stack>
   );

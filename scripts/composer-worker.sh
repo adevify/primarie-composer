@@ -134,6 +134,18 @@ while true; do
       "environment.compose.logs")
         run_payload_script "$id" "$SCRIPT_DIR/compose-logs.sh" "$line"
         ;;
+      "environment.container.logs")
+        run_payload_script "$id" "$SCRIPT_DIR/container-logs.sh" "$line"
+        ;;
+      "environment.container.files")
+        run_payload_script "$id" "$SCRIPT_DIR/container-files.sh" "$line"
+        ;;
+      "environment.container.exec")
+        run_payload_script "$id" "$SCRIPT_DIR/container-exec.sh" "$line"
+        ;;
+      "environment.mongo.inspect")
+        run_payload_script "$id" "$SCRIPT_DIR/mongo-inspect.sh" "$line"
+        ;;
       "environment.start")
         if output="$(run_and_capture "$LOGS_DIR/$id.log" "$SCRIPT_DIR/start-env.sh" "$environment" "$environment_port" "$proxy_upstream_host")"; then
           write_result "$id" "success" "Environment started" "$output"
