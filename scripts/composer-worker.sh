@@ -8,6 +8,7 @@ LOGS_DIR="${LOGS_DIR:-$BUS_ROOT/logs}"
 READY_FILE="${READY_FILE:-$BUS_ROOT/worker.ready}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MAX_RESULT_OUTPUT_BYTES="${MAX_RESULT_OUTPUT_BYTES:-65536}"
+ACTION_HEARTBEAT_SECONDS="${ACTION_HEARTBEAT_SECONDS:-30}"
 
 mkdir -p "$RESULTS_DIR" "$LOGS_DIR"
 if [[ ! -p "$PIPE" ]]; then
@@ -78,12 +79,27 @@ run_and_capture() {
   local log_file="$1"
   shift
   local output_file
+  local heartbeat_pid
   output_file="$(mktemp)"
   : > "$log_file"
+
+  (
+    while true; do
+      sleep "$ACTION_HEARTBEAT_SECONDS"
+      printf "[composer-worker] action still running at %s\n" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$log_file"
+    done
+  ) &
+  heartbeat_pid="$!"
+
   set +e
   "$@" 2>&1 | tee "$output_file" "$log_file" >/dev/null
   local code="${PIPESTATUS[0]}"
   set -e
+
+  kill "$heartbeat_pid" >/dev/null 2>&1 || true
+  wait "$heartbeat_pid" >/dev/null 2>&1 || true
+  printf "[composer-worker] action finished with exit code %s at %s\n" "$code" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$log_file"
+
   cat "$output_file"
   rm -f "$output_file"
   return "$code"
