@@ -155,9 +155,10 @@ run_and_capture() {
   output_file="$(mktemp)"
   : > "$log_file"
 
+  printf "[composer-worker] running command at %s: %s\n" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$*" >> "$log_file"
   (
     while true; do
-      read -r -t "${ACTION_HEARTBEAT_SECONDS:-30}" _ || true
+      sleep "${ACTION_HEARTBEAT_SECONDS:-30}"
       printf "[composer-worker] action still running at %s\n" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$log_file"
     done
   ) &
