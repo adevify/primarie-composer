@@ -135,6 +135,24 @@ patch_repo_proxy_dockerfile() {
   perl -0pi -e 's/(set )\$/\1\\\$/g; s/(proxy_pass http:\/\/)\$/\1\\\$/g' "$dockerfile"
 }
 
+patch_repo_storybook_compose_volume() {
+  local repo_dir="$1"
+  local compose_file="$repo_dir/docker-compose.yml"
+
+  if [[ ! -f "$compose_file" ]] || grep -q "/code/apps/storybook/node_modules" "$compose_file"; then
+    return
+  fi
+
+  perl -0pi -e 's|(storybook:\n(?:.*\n)*?\s+volumes:\n\s+- ./apps/storybook:/code/apps/storybook\n)|$1      - /code/apps/storybook/node_modules\n|s' "$compose_file"
+}
+
+patch_repo_for_composer() {
+  local repo_dir="$1"
+
+  patch_repo_proxy_dockerfile "$repo_dir"
+  patch_repo_storybook_compose_volume "$repo_dir"
+}
+
 read_env_var() {
   local env_file="$1"
   local key="$2"

@@ -13,7 +13,7 @@ ENV_DIR="$(env_dir "$ENV_NAME")"
 PROJECT_NAME="$(project_name "$ENV_NAME")"
 
 ensure_env_proxy_hosts "$ENV_DIR/.env" "$ENV_NAME" "$ENV_PORT"
-patch_repo_proxy_dockerfile "$ENV_DIR"
+patch_repo_for_composer "$ENV_DIR"
 PROXY_PORT="$(read_env_var "$ENV_DIR/.env" "PROXY_EXTERNAL_PORT")"
 
 cd "$ENV_DIR"
