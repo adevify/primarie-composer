@@ -116,7 +116,7 @@ prepare_seed() {
     mongod --quiet --bind_ip_all >/dev/null
 
   wait_for_mongo "$CURRENT_CONTAINER"
-  docker exec "$CURRENT_CONTAINER" mongosh --quiet "$MONGO_DATABASE" --eval "db.createCollection('__primarie_seed_ready'); db.__primarie_seed_ready.drop();" >/dev/null
+  docker exec "$CURRENT_CONTAINER" mongosh --quiet "$MONGO_DATABASE" --eval "db.getCollection('__primarie_seed_ready').insertOne({ ready: true }); db.getCollection('__primarie_seed_ready').drop();" >/dev/null
 
   shopt -s nullglob
   for file_path in "$seed_dir"/*.json; do
