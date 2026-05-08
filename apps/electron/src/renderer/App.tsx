@@ -12,7 +12,7 @@ import { LatestChangesCard, type LatestChangeEvent } from "./components/LatestCh
 import { LoginView } from "./components/LoginView";
 import { RepoPicker } from "./components/RepoPicker";
 import { UsersPage } from "./components/UsersPage";
-import type { AuthSession, ChangedFilePayload, EnvExampleEntry, EnvironmentActionLogsPage, EnvironmentActionsPage, EnvironmentLog, EnvironmentLogsPage, EnvironmentRecord, GitState, LifecycleAction, LiveLogSession, RepoSyncSnapshot, StreamLogEvent, SyncState, SystemMetrics, UserDirectoryRecord } from "./types";
+import type { AuthSession, ChangedFilePayload, EnvExampleEntry, EnvironmentActionLogsPage, EnvironmentActionsPage, EnvironmentLog, EnvironmentLogsPage, EnvironmentRecord, EnvironmentStatus, GitState, LifecycleAction, LiveLogSession, RepoSyncSnapshot, StreamLogEvent, SyncState, SystemMetrics, UserDirectoryRecord } from "./types";
 
 const AUTH_STORAGE_KEY = "primarie-composer.auth";
 const REPO_STORAGE_KEY = "primarie-composer.repoPath";
@@ -262,7 +262,7 @@ export default function App() {
           setDetailsEnvironment(environment);
         }
 
-        if (environment.status !== "creating" && interval) {
+        if (!isEnvironmentPreparing(environment.status) && interval) {
           clearInterval(interval);
           interval = undefined;
         }
@@ -444,9 +444,17 @@ export default function App() {
     }
 
     let latest = await api.getEnvironment(key);
-    for (let attempt = 0; attempt < 60 && latest.status === "creating"; attempt += 1) {
+    for (let attempt = 0; attempt < 180 && isEnvironmentPreparing(latest.status); attempt += 1) {
       await delay(1000);
       latest = await api.getEnvironment(key);
+    }
+
+    if (isEnvironmentPreparing(latest.status)) {
+      throw new Error(`Environment ${key} is still preparing after 180 seconds.`);
+    }
+
+    if (latest.status === "failed" || latest.status === "removed") {
+      throw new Error(`Environment ${key} finished in ${latest.status} state.`);
     }
 
     return latest;
@@ -993,6 +1001,13 @@ function capitalize(value: string): string {
 
 function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function isEnvironmentPreparing(status: EnvironmentStatus): boolean {
+  return status === "creating"
+    || status === "cloning"
+    || status === "checking_out"
+    || status === "applying_changes";
 }
 
 function mergeLogs(primary: EnvironmentLog[], secondary: EnvironmentLog[]): EnvironmentLog[] {

@@ -837,8 +837,10 @@ export class EnvironmentsService {
 
   private async publishEnvironmentAction(type: string, key: string, payload: Record<string, unknown> = {}, onLog?: HostActionLogHandler): Promise<HostActionResult> {
     logEnvironment("info", "bus_action_publish", { key, type });
+    const record = await EnvironmentCollection.get(key);
     const result = await this.bus.publish(type, {
       environment: key,
+      environmentPort: record?.port,
       runtimeRoot: env.HOST_RUNTIME_DIR,
       runtimePath: path.join(env.HOST_RUNTIME_DIR, key),
       ...payload
