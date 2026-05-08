@@ -17,6 +17,14 @@ patch_repo_for_composer "$ENV_DIR"
 PROXY_PORT="$(read_env_var "$ENV_DIR/.env" "PROXY_EXTERNAL_PORT")"
 
 cd "$ENV_DIR"
-compose_cmd -p "$PROJECT_NAME" --env-file "$ENV_DIR/.env" up -d --build --remove-orphans
+echo "Building compose project $PROJECT_NAME in $ENV_DIR"
+COMPOSE_PROGRESS=plain compose_cmd -p "$PROJECT_NAME" --env-file "$ENV_DIR/.env" build
+
+echo "Starting compose project $PROJECT_NAME"
+compose_cmd -p "$PROJECT_NAME" --env-file "$ENV_DIR/.env" up -d --remove-orphans
+
+echo "Compose services after start:"
+compose_cmd -p "$PROJECT_NAME" --env-file "$ENV_DIR/.env" ps
+
 require_compose_service_running "$PROJECT_NAME" "proxy"
 wait_for_proxy_upstream_port "$PROXY_UPSTREAM_HOST" "$PROXY_PORT" "${ENV_START_READY_TIMEOUT_SECONDS:-120}"

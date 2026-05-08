@@ -161,7 +161,7 @@ write_lock_conflict_result() {
       write_result "$id" "success" "$message" "{\"available\":false,\"reason\":\"$message\"}"
       ;;
     *)
-      write_result "$id" "success" "$message" "$message"
+      write_result "$id" "success" "$message" ""
       ;;
   esac
 }
