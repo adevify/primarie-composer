@@ -68,10 +68,12 @@ run_payload_script() {
   if output="$(run_and_capture "$LOGS_DIR/$id.log" "$script" "$payload_file")"; then
     rm -f "$payload_file"
     write_result "$id" "success" "Action completed" "$output"
+    echo "[composer-worker] success $id - Action completed at $(date -u +%Y-%m-%dT%H:%M:%SZ) Output: $output"
   else
     local code=$?
     rm -f "$payload_file"
     write_result "$id" "error" "Action failed with exit code $code" "$output"
+    echo "[composer-worker] error $id - Action failed with exit code $code at $(date -u +%Y-%m-%dT%H:%M:%SZ) Output: $output"
   fi
 }
 
