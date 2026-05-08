@@ -64,28 +64,11 @@ reset_mongo_dir() {
 
 import_json_file() {
   local container="$1"
-  local file_name="$2"
+  local file_path="$2"
   local collection="$3"
-  local file_name_json
-  local collection_json
 
-  file_name_json="$(jq -Rn --arg value "$file_name" '$value')"
-  collection_json="$(jq -Rn --arg value "$collection" '$value')"
-
-  docker exec "$container" mongosh --quiet "$MONGO_DATABASE" --eval "
-const fileName = $file_name_json;
-const collectionName = $collection_json;
-const data = JSON.parse(cat('/seed/' + fileName));
-const collection = db.getCollection(collectionName);
-collection.deleteMany({});
-if (Array.isArray(data)) {
-  if (data.length > 0) {
-    collection.insertMany(data);
-  }
-} else {
-  collection.insertOne(data);
-}
-"
+  jq -c 'if type == "array" then .[] else . end' "$file_path" \
+    | docker exec -i "$container" mongoimport --quiet --db "$MONGO_DATABASE" --collection "$collection" --drop
 }
 
 prepare_seed() {
@@ -123,7 +106,7 @@ prepare_seed() {
     file_name="$(basename "$file_path")"
     collection="${file_name%.json}"
     log "Importing $seed_name/$file_name into $MONGO_DATABASE.$collection"
-    import_json_file "$CURRENT_CONTAINER" "$file_name" "$collection" >/dev/null
+    import_json_file "$CURRENT_CONTAINER" "$file_path" "$collection" >/dev/null
   done
   shopt -u nullglob
 
