@@ -232,7 +232,8 @@ export class ComposerApiClient {
         "content-type": "application/json",
         authorization: `Bearer ${this.session.accessToken}`
       },
-      body: options.body === undefined ? undefined : JSON.stringify(options.body)
+      body: options.body === undefined ? undefined : JSON.stringify(options.body),
+      credentials: "include"
     });
 
     return parseResponse<T>(response);
