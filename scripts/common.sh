@@ -30,6 +30,47 @@ project_name() {
   echo "env_${env_name//-/_}"
 }
 
+compose_service_container_id() {
+  local project_name="$1"
+  local service_name="$2"
+  local include_stopped="${3:-0}"
+  local args=(-q --filter "label=com.docker.compose.project=$project_name" --filter "label=com.docker.compose.service=$service_name")
+
+  if [[ "$include_stopped" == "1" ]]; then
+    docker ps -a "${args[@]}" | head -n 1
+    return
+  fi
+
+  docker ps "${args[@]}" | head -n 1
+}
+
+require_compose_service_running() {
+  local project_name="$1"
+  local service_name="$2"
+  local container_id
+  local stopped_container_id
+
+  container_id="$(compose_service_container_id "$project_name" "$service_name" 0 || true)"
+  if [[ -n "$container_id" ]]; then
+    echo "Compose service $service_name is running: $container_id"
+    return
+  fi
+
+  echo "Compose service $service_name is not running for project $project_name." >&2
+  echo "Known containers for project $project_name:" >&2
+  docker ps -a \
+    --filter "label=com.docker.compose.project=$project_name" \
+    --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" >&2 || true
+
+  stopped_container_id="$(compose_service_container_id "$project_name" "$service_name" 1 || true)"
+  if [[ -n "$stopped_container_id" ]]; then
+    echo "Last logs for $service_name container $stopped_container_id:" >&2
+    docker logs --tail 160 "$stopped_container_id" >&2 || true
+  fi
+
+  return 1
+}
+
 set_env_var() {
   local env_file="$1"
   local key="$2"
@@ -70,6 +111,28 @@ ensure_env_proxy_hosts() {
     set_env_var "$env_file" "ENV_PORT" "$env_port"
     set_env_var "$env_file" "PROXY_EXTERNAL_PORT" "$env_port"
   fi
+}
+
+patch_repo_proxy_dockerfile() {
+  local repo_dir="$1"
+  local dockerfile="$repo_dir/proxy/Dockerfile"
+  local service
+
+  if [[ ! -f "$dockerfile" ]]; then
+    return
+  fi
+
+  if ! grep -q "resolver 127.0.0.11" "$dockerfile"; then
+    perl -0pi -e 's/http \{ \\/http { \\\n        resolver 127.0.0.11 ipv6=off valid=10s;\\/g' "$dockerfile"
+  fi
+
+  for service in landing-adevify landing-primarie api media admin ingest storybook client; do
+    if ! grep -q "${service//-/_}_upstream" "$dockerfile"; then
+      perl -0pi -e "s/proxy_pass http:\\/\\/$service;/set \\\$${service//-/_}_upstream $service;\\\\\n                proxy_pass http:\\/\\/\\\$${service//-/_}_upstream;/g" "$dockerfile"
+    fi
+  done
+
+  perl -0pi -e 's/(set )\$/\1\\\$/g; s/(proxy_pass http:\/\/)\$/\1\\\$/g' "$dockerfile"
 }
 
 read_env_var() {

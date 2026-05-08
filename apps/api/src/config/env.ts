@@ -12,7 +12,7 @@ const envSchema = z.object({
   SOURCE_REPO_URL: z.string().min(1, "SOURCE_REPO_URL is required"),
   BASE_ENV_PORT: z.coerce.number().int().positive().default(8001),
   ROOT_DOMAIN: z.string().default("prmr.md"),
-  PROXY_UPSTREAM_HOST: z.string().default("host.docker.internal"),
+  PROXY_UPSTREAM_HOST: z.string().default("auto"),
   RUNTIME_DIR: z.string().default(path.resolve(workspaceRoot, "runtime/environments")),
   TEMPLATE_DIR: z.string().default(path.resolve(workspaceRoot, "templates/environment")),
   SEEDS_DIR: z.string().default(path.resolve(workspaceRoot, "seeds")),

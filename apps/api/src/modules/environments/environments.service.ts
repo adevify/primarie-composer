@@ -1023,12 +1023,40 @@ function tailText(value: string | undefined, maxLength = 4000): string | undefin
 }
 
 async function resolveHost(host: string): Promise<string> {
+  if (host === "auto" || host === "host.docker.internal") {
+    return readDefaultGatewayAddress();
+  }
+
   if (net.isIP(host)) {
     return host;
   }
 
   const result = await dns.lookup(host, { family: 4 });
   return result.address;
+}
+
+async function readDefaultGatewayAddress(): Promise<string> {
+  const routeTable = await fs.readFile("/proc/net/route", "utf8");
+  const defaultRoute = routeTable
+    .split(/\r?\n/)
+    .slice(1)
+    .map((line) => line.trim().split(/\s+/))
+    .find((columns) => columns[1] === "00000000" && columns[2]);
+
+  if (!defaultRoute?.[2]) {
+    throw new Error("Unable to resolve Docker gateway from /proc/net/route");
+  }
+
+  return littleEndianHexToIpv4(defaultRoute[2]);
+}
+
+function littleEndianHexToIpv4(value: string): string {
+  const bytes = value.match(/../g);
+  if (!bytes || bytes.length !== 4) {
+    throw new Error(`Invalid gateway address: ${value}`);
+  }
+
+  return bytes.reverse().map((byte) => Number.parseInt(byte, 16)).join(".");
 }
 
 function parseJsonLinesOrArray(output: string): unknown[] {

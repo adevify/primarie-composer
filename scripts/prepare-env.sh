@@ -19,6 +19,7 @@ cd "$RUNTIME_PATH"
 git fetch --all --prune
 git checkout -f "origin/$BRANCH"
 git reset --hard "$COMMIT"
+patch_repo_proxy_dockerfile "$RUNTIME_PATH"
 
 write_env_file() {
   local output_file="$1"
