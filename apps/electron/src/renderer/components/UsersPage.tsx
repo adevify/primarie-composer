@@ -53,7 +53,7 @@ export function UsersPage({ users, loading, onRefresh }: UsersPageProps) {
           <Typography variant="h4" fontWeight={900}>
             User Directory
           </Typography>
-          <Button variant="outlined" startIcon={<FilterListIcon />} sx={{ color: "text.primary", borderColor: "rgba(159,179,195,0.24)" }}>
+          <Button variant="outlined" startIcon={<FilterListIcon />} sx={{ color: "text.primary", borderColor: "#3b494b" }}>
             {users.length} total users
           </Button>
         </Stack>
@@ -72,7 +72,7 @@ export function UsersPage({ users, loading, onRefresh }: UsersPageProps) {
               )
             }}
           />
-          <Button variant="contained" startIcon={<PersonAddAltIcon />} sx={{ bgcolor: "#00e5ff", color: "#02121b", "&:hover": { bgcolor: "#35edff" } }}>
+          <Button variant="contained" startIcon={<PersonAddAltIcon />} sx={{ bgcolor: "#00f0ff", color: "#02121b", "&:hover": { bgcolor: "#35edff" } }}>
             Create user
           </Button>
           <IconButton onClick={() => void onRefresh()} disabled={loading} aria-label="Refresh users">
@@ -81,7 +81,7 @@ export function UsersPage({ users, loading, onRefresh }: UsersPageProps) {
         </Stack>
       </Stack>
 
-      <Card sx={{ bgcolor: "rgba(255,255,255,0.035)", borderColor: "rgba(159,179,195,0.22)" }}>
+      <Card sx={{ bgcolor: "#192122", borderColor: "#3b494b" }}>
         <CardContent sx={{ p: 0, "&:last-child": { pb: 0 } }}>
           <TableContainer>
             <Table sx={{ minWidth: 1020 }}>
@@ -107,7 +107,7 @@ export function UsersPage({ users, loading, onRefresh }: UsersPageProps) {
                   <TableRow key={user.email} hover sx={{ "& td": { py: 2.1 } }}>
                     <TableCell>
                       <Stack direction="row" spacing={1.5} alignItems="center">
-                        <Box sx={{ width: 40, height: 40, display: "grid", placeItems: "center", borderRadius: "50%", border: index === 0 ? "1px solid #00e5ff" : 0, bgcolor: "rgba(159,179,195,0.18)" }}>
+                        <Box sx={{ width: 40, height: 40, display: "grid", placeItems: "center", borderRadius: "50%", border: index === 0 ? "1px solid #00f0ff" : 0, bgcolor: "rgba(220,228,229,0.12)" }}>
                           <PersonIcon />
                         </Box>
                         <Box>
@@ -117,7 +117,7 @@ export function UsersPage({ users, loading, onRefresh }: UsersPageProps) {
                       </Stack>
                     </TableCell>
                     <TableCell>
-                      <Box sx={{ display: "inline-flex", px: 1, py: 0.35, border: `1px solid ${roleColor(user.role)}`, color: roleColor(user.role), bgcolor: "rgba(0,0,0,0.16)", fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", fontWeight: 900, fontSize: 12 }}>
+                      <Box sx={{ display: "inline-flex", px: 1, py: 0.35, border: `1px solid ${roleColor(user.role)}`, color: roleColor(user.role), bgcolor: "rgba(0,0,0,0.16)", fontFamily: "Space Grotesk, ui-monospace, SFMono-Regular, Menlo, monospace", fontWeight: 900, fontSize: 12 }}>
                         {user.role ?? "DEV_ENGINEER"}
                       </Box>
                     </TableCell>
@@ -125,8 +125,8 @@ export function UsersPage({ users, loading, onRefresh }: UsersPageProps) {
                     <TableCell>{lastAuthLabel(index)}</TableCell>
                     <TableCell>
                       <Stack direction="row" spacing={1} alignItems="center">
-                        <Box sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: statusColor(user.status), boxShadow: user.status === "online" ? "0 0 12px #65ffc9" : "none" }} />
-                        <Typography color={statusColor(user.status)} fontWeight={900} sx={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}>
+                        <Box sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: statusColor(user.status), boxShadow: user.status === "online" ? "0 0 12px #4edea3" : "none" }} />
+                        <Typography color={statusColor(user.status)} fontWeight={900} sx={{ fontFamily: "Space Grotesk, ui-monospace, SFMono-Regular, Menlo, monospace" }}>
                           {(user.status ?? "idle").toUpperCase()}
                         </Typography>
                       </Stack>
@@ -145,7 +145,7 @@ export function UsersPage({ users, loading, onRefresh }: UsersPageProps) {
       </Card>
 
       <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", lg: "2fr 1fr" }, gap: 2 }}>
-        <Card sx={{ bgcolor: "rgba(255,255,255,0.035)" }}>
+        <Card sx={{ bgcolor: "#192122" }}>
           <CardContent>
             <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
               <Stack direction="row" spacing={1} alignItems="center">
@@ -154,19 +154,19 @@ export function UsersPage({ users, loading, onRefresh }: UsersPageProps) {
               </Stack>
               <Typography variant="caption" fontWeight={900}>EXPAND LOG</Typography>
             </Stack>
-            <ActivityLine time="14:55:01" type="AUTH_OK" message={`User ${users[0]?.name ?? "operator"} initialized session from 192.168.1.45`} color="#65ffc9" />
-            <ActivityLine time="14:52:30" type="MOD_ROLE" message={`Permissions changed for ${users[1]?.name ?? "developer"} by SYSTEM`} color="#ffd900" />
-            <ActivityLine time="14:48:12" type="DENIED" message="Failed login attempt from IP 45.22.112.8" color="#ffc4b7" />
+            <ActivityLine time="14:55:01" type="AUTH_OK" message={`User ${users[0]?.name ?? "operator"} initialized session from 192.168.1.45`} color="#4edea3" />
+            <ActivityLine time="14:52:30" type="MOD_ROLE" message={`Permissions changed for ${users[1]?.name ?? "developer"} by SYSTEM`} color="#fed639" />
+            <ActivityLine time="14:48:12" type="DENIED" message="Failed login attempt from IP 45.22.112.8" color="#ffb4ab" />
           </CardContent>
         </Card>
-        <Card sx={{ bgcolor: "rgba(255,255,255,0.035)" }}>
+        <Card sx={{ bgcolor: "#192122" }}>
           <CardContent>
             <Typography variant="h6" fontWeight={900} sx={{ mb: 1.5 }}>Role Distribution</Typography>
             {roleStats.map((role) => (
               <Box key={role.label} sx={{ mb: 1.5 }}>
                 <Stack direction="row" justifyContent="space-between">
                   <Typography>{role.label}</Typography>
-                  <Typography color="#00e5ff">{role.count}</Typography>
+                  <Typography color="#00f0ff">{role.count}</Typography>
                 </Stack>
                 <LinearProgress variant="determinate" value={role.percent} sx={{ mt: 0.7, bgcolor: "rgba(255,255,255,0.16)", "& .MuiLinearProgress-bar": { bgcolor: role.color } }} />
               </Box>
@@ -180,7 +180,7 @@ export function UsersPage({ users, loading, onRefresh }: UsersPageProps) {
 
 function HeaderCell(props: { children: string; align?: "right" }) {
   return (
-    <TableCell align={props.align} sx={{ color: "text.secondary", fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", fontWeight: 900, textTransform: "uppercase" }}>
+    <TableCell align={props.align} sx={{ color: "text.secondary", fontFamily: "Space Grotesk, ui-monospace, SFMono-Regular, Menlo, monospace", fontWeight: 900, textTransform: "uppercase" }}>
       {props.children}
     </TableCell>
   );
@@ -188,7 +188,7 @@ function HeaderCell(props: { children: string; align?: "right" }) {
 
 function ActivityLine({ time, type, message, color }: { time: string; type: string; message: string; color: string }) {
   return (
-    <Box sx={{ display: "grid", gridTemplateColumns: "80px 110px 1fr", gap: 1.5, py: 1.1, borderBottom: "1px solid rgba(159,179,195,0.08)", fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}>
+    <Box sx={{ display: "grid", gridTemplateColumns: "80px 110px 1fr", gap: 1.5, py: 1.1, borderBottom: "1px solid #3b494b", fontFamily: "Space Grotesk, ui-monospace, SFMono-Regular, Menlo, monospace" }}>
       <Typography color="text.secondary">{time}</Typography>
       <Typography color={color} fontWeight={900}>[{type}]</Typography>
       <Typography>{message}</Typography>
@@ -211,14 +211,14 @@ function roleDistribution(users: UserDirectoryRecord[]) {
 }
 
 function roleColor(role?: string): string {
-  if (role === "ROOT_SYSTEM") return "#ffd900";
+  if (role === "ROOT_SYSTEM") return "#fed639";
   if (role === "READ_ONLY") return "#9fb3c3";
   return "#00d6b4";
 }
 
 function statusColor(status?: string): string {
-  if (status === "online") return "#65ffc9";
-  if (status === "locked") return "#ffc4b7";
+  if (status === "online") return "#4edea3";
+  if (status === "locked") return "#ffb4ab";
   return "#d7e3ee";
 }
 

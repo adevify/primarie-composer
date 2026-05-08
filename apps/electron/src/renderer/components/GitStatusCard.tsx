@@ -90,7 +90,7 @@ function FileExtensionIcon({ path }: { path: string }) {
         sx={{
           width: 26,
           height: 26,
-          borderRadius: 0.75,
+          borderRadius: 0,
           bgcolor: `${fileType.color}22`,
           border: `1px solid ${fileType.color}55`,
           color: fileType.color,

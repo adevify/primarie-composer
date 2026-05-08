@@ -81,11 +81,11 @@ export function EnvironmentList({
             <Typography variant="h4" fontWeight={900}>
               System Overview
             </Typography>
-            <Typography variant="h6" color="text.secondary" sx={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}>
+            <Typography variant="h6" color="text.secondary" sx={{ fontFamily: "Space Grotesk, ui-monospace, SFMono-Regular, Menlo, monospace" }}>
               NODE: DOCKER-PRODUCTION-CLUSTER-01
             </Typography>
           </Box>
-          <Button onClick={onRefresh} disabled={loading} variant="outlined" startIcon={loading ? <CircularProgress size={16} /> : <SyncIcon />} sx={{ color: "#65ffc9", borderColor: "rgba(101,255,201,0.35)", bgcolor: "rgba(101,255,201,0.09)" }}>
+          <Button onClick={onRefresh} disabled={loading} variant="outlined" startIcon={loading ? <CircularProgress size={16} /> : <SyncIcon />} sx={{ color: "#4edea3", borderColor: "rgba(78,222,163,0.35)", bgcolor: "rgba(78,222,163,0.09)" }}>
             Service healthy
           </Button>
         </Stack>
@@ -93,45 +93,45 @@ export function EnvironmentList({
 
       <Box sx={{ display: "grid", gridTemplateColumns: "repeat(8, minmax(120px, 1fr))", gap: 2, overflowX: "auto", pb: 0.5 }}>
         {stats.map((stat) => (
-          <Box key={stat.label} sx={{ minWidth: 122, border: "1px solid rgba(159,179,195,0.32)", bgcolor: "rgba(255,255,255,0.035)", p: 2 }}>
-            <Typography color="text.secondary" sx={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", textTransform: "uppercase" }}>
+          <Box key={stat.label} sx={{ minWidth: 122, border: "1px solid #3b494b", bgcolor: "#192122", p: 2 }}>
+            <Typography color="text.secondary" sx={{ fontFamily: "Space Grotesk, ui-monospace, SFMono-Regular, Menlo, monospace", textTransform: "uppercase" }}>
               {stat.label}
             </Typography>
-            <Typography variant="h6" color={stat.color} sx={{ mt: 0.5, fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}>
+            <Typography variant="h6" color={stat.color} sx={{ mt: 0.5, fontFamily: "Space Grotesk, ui-monospace, SFMono-Regular, Menlo, monospace" }}>
               {stat.value}
             </Typography>
             {stat.detail ? (
-              <Typography variant="caption" color="text.secondary" noWrap sx={{ display: "block", mt: 0.35, fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}>
+              <Typography variant="caption" color="text.secondary" noWrap sx={{ display: "block", mt: 0.35, fontFamily: "Space Grotesk, ui-monospace, SFMono-Regular, Menlo, monospace" }}>
                 {stat.detail}
               </Typography>
             ) : null}
-            {stat.progress !== undefined ? <LinearProgress variant="determinate" value={stat.progress} sx={{ mt: 1.5, bgcolor: "rgba(255,255,255,0.18)", height: 5, "& .MuiLinearProgress-bar": { bgcolor: stat.color } }} /> : null}
+            {stat.progress !== undefined ? <LinearProgress variant="determinate" value={stat.progress} sx={{ mt: 1.5, bgcolor: "#2e3637", height: 5, "& .MuiLinearProgress-bar": { bgcolor: stat.color } }} /> : null}
           </Box>
         ))}
       </Box>
 
-      <Box sx={{ border: "1px solid rgba(159,179,195,0.34)", bgcolor: "rgba(10,22,22,0.82)", minHeight: 230, display: "grid", alignItems: "end", p: 3, position: "relative", overflow: "hidden" }}>
-        <Box sx={{ position: "absolute", inset: 0, opacity: 0.16, background: "linear-gradient(90deg, transparent 0 18%, #9fb3c3 18% 19%, transparent 19% 46%, #9fb3c3 46% 47%, transparent 47%), repeating-linear-gradient(0deg, rgba(255,255,255,0.16), rgba(255,255,255,0.16) 1px, transparent 1px, transparent 16px)" }} />
+      <Box sx={{ border: "1px solid #3b494b", bgcolor: "#151d1e", minHeight: 230, display: "grid", alignItems: "end", p: 3, position: "relative", overflow: "hidden" }}>
+        <Box sx={{ position: "absolute", inset: 0, opacity: 0.16, background: "linear-gradient(90deg, transparent 0 18%, #849495 18% 19%, transparent 19% 46%, #00f0ff 46% 47%, transparent 47%), repeating-linear-gradient(0deg, rgba(220,228,229,0.16), rgba(220,228,229,0.16) 1px, transparent 1px, transparent 16px)" }} />
         <Box sx={{ position: "relative" }}>
-          <Typography color="#00e5ff" fontWeight={900} sx={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}>
-            NETWORK INFRASTRUCTURE MAPPING
+          <Typography color="#00f0ff" fontWeight={900} sx={{ fontFamily: "Space Grotesk, ui-monospace, SFMono-Regular, Menlo, monospace" }}>
+            NETWORK MAP
           </Typography>
-          <Typography variant="h6">Cluster visualization active</Typography>
+          <Typography variant="h6">Cluster routing active</Typography>
         </Box>
       </Box>
 
-      <Card sx={{ overflow: "hidden", bgcolor: "#081514", borderColor: "rgba(159,179,195,0.34)" }}>
+      <Card sx={{ overflow: "hidden", bgcolor: "#080f10", borderColor: "#3b494b" }}>
         <CardContent sx={{ p: 0, "&:last-child": { pb: 0 } }}>
           <Stack spacing={0}>
-            <Box sx={{ px: 2.5, py: 1.75, borderBottom: "1px solid rgba(159,179,195,0.28)" }}>
+            <Box sx={{ px: 2.5, py: 1.75, borderBottom: "1px solid #3b494b" }}>
               <Stack direction={{ xs: "column", md: "row" }} alignItems={{ xs: "stretch", md: "center" }} justifyContent="space-between" spacing={2}>
                 <Stack direction="row" spacing={1.5} alignItems="center">
                   <Box sx={{ display: "flex", gap: 0.6 }}>
-                    <Box sx={{ width: 12, height: 12, borderRadius: "50%", bgcolor: "#bc2d2d" }} />
-                    <Box sx={{ width: 12, height: 12, borderRadius: "50%", bgcolor: "#bca142" }} />
-                    <Box sx={{ width: 12, height: 12, borderRadius: "50%", bgcolor: "#008c75" }} />
+                    <Box sx={{ width: 10, height: 10, borderRadius: "2px", bgcolor: "#ffb4ab" }} />
+                    <Box sx={{ width: 10, height: 10, borderRadius: "2px", bgcolor: "#fed639" }} />
+                    <Box sx={{ width: 10, height: 10, borderRadius: "2px", bgcolor: "#4edea3" }} />
                   </Box>
-                  <Typography variant="h6" color="text.secondary" sx={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}>
+                  <Typography variant="h6" color="text.secondary" sx={{ fontFamily: "Space Grotesk, ui-monospace, SFMono-Regular, Menlo, monospace" }}>
                     TERMINAL OUTPUT - SYSTEM LOGS
                   </Typography>
                 </Stack>
@@ -164,7 +164,7 @@ export function EnvironmentList({
             <TableContainer onScroll={handleLogsScroll} sx={{ maxHeight: 560, overflow: "auto" }}>
               <Table size="small" sx={{ minWidth: 1040 }}>
               <TableHead>
-                <TableRow sx={{ bgcolor: "rgba(255,255,255,0.035)" }}>
+                <TableRow sx={{ bgcolor: "#192122" }}>
                   <TableCell sx={{ width: 190 }}>Timestamp</TableCell>
                   <TableCell sx={{ width: 110 }}>Type</TableCell>
                   <TableCell sx={{ width: 210 }}>Environment</TableCell>
@@ -187,10 +187,10 @@ export function EnvironmentList({
                     const environment = environmentByKey.get(log.environmentKey);
                     return (
                       <TableRow key={`${log.createdAt}-${log.environmentKey}-${index}`} hover sx={{ "&:last-child td": { borderBottom: 0 } }}>
-                        <TableCell sx={{ color: "#8ba0b7", fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}>
+                        <TableCell sx={{ color: "#8ba0b7", fontFamily: "Space Grotesk, ui-monospace, SFMono-Regular, Menlo, monospace" }}>
                           {formatTimestamp(log.createdAt)}
                         </TableCell>
-                        <TableCell sx={{ color: levelColor(log.level), fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", fontWeight: 900 }}>
+                        <TableCell sx={{ color: levelColor(log.level), fontFamily: "Space Grotesk, ui-monospace, SFMono-Regular, Menlo, monospace", fontWeight: 900 }}>
                           [{log.level === "error" ? "FAIL" : log.level.toUpperCase()}]
                         </TableCell>
                         <TableCell>
@@ -201,9 +201,9 @@ export function EnvironmentList({
                               p: 0,
                               border: 0,
                               bgcolor: "transparent",
-                              color: "#00e5ff",
+                              color: "#00f0ff",
                               cursor: environment ? "pointer" : "default",
-                              fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
+                              fontFamily: "Space Grotesk, ui-monospace, SFMono-Regular, Menlo, monospace",
                               fontWeight: 900,
                               textAlign: "left"
                             }}
@@ -211,10 +211,10 @@ export function EnvironmentList({
                             {log.environmentKey}
                           </Typography>
                         </TableCell>
-                        <TableCell sx={{ color: "text.secondary", fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}>
+                        <TableCell sx={{ color: "text.secondary", fontFamily: "Space Grotesk, ui-monospace, SFMono-Regular, Menlo, monospace" }}>
                           {log.system ? "system" : "operator"}
                         </TableCell>
-                        <TableCell sx={{ color: "text.primary", fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", fontWeight: 700 }}>
+                        <TableCell sx={{ color: "text.primary", fontFamily: "Space Grotesk, ui-monospace, SFMono-Regular, Menlo, monospace", fontWeight: 700 }}>
                           {log.log}
                         </TableCell>
                       </TableRow>
@@ -224,9 +224,9 @@ export function EnvironmentList({
               </TableBody>
             </Table>
           </TableContainer>
-            <Stack direction="row" justifyContent="space-between" sx={{ px: 2.5, py: 1.5, borderTop: "1px solid rgba(159,179,195,0.24)", bgcolor: "rgba(255,255,255,0.035)" }}>
-              <Typography variant="caption" color="text.secondary" sx={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}>DISPLAYING {filteredLogs.length} OF {logsTotal} LOGS ACROSS {environments.length} ENVS</Typography>
-              <Typography variant="caption" color="text.secondary" sx={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}>
+            <Stack direction="row" justifyContent="space-between" sx={{ px: 2.5, py: 1.5, borderTop: "1px solid #3b494b", bgcolor: "#192122" }}>
+              <Typography variant="caption" color="text.secondary" sx={{ fontFamily: "Space Grotesk, ui-monospace, SFMono-Regular, Menlo, monospace" }}>DISPLAYING {filteredLogs.length} OF {logsTotal} LOGS ACROSS {environments.length} ENVS</Typography>
+              <Typography variant="caption" color="text.secondary" sx={{ fontFamily: "Space Grotesk, ui-monospace, SFMono-Regular, Menlo, monospace" }}>
                 {logsLoadingMore ? "STATUS: LOADING" : logsHasMore ? "STATUS: STREAMING" : "STATUS: END OF BUFFER"}
               </Typography>
             </Stack>
@@ -248,12 +248,10 @@ function formatTimestamp(value: string): string {
 
 function levelColor(level: EnvironmentLog["level"]): string {
   if (level === "error") {
-    return "#ffc4b7";
+    return "#ffb4ab";
   }
-  if (level === "warn") {
-    return "#ffd900";
-  }
-  return "#65ffc9";
+  if (level === "warn") return "#fed639";
+  return "#4edea3";
 }
 
 function buildStats(environments: EnvironmentRecord[], metrics?: SystemMetrics): Array<{ label: string; value: string; color: string; progress?: number; detail?: string }> {
@@ -267,15 +265,15 @@ function buildStats(environments: EnvironmentRecord[], metrics?: SystemMetrics):
   const storagePercent = metrics?.storage.percent ?? 0;
 
   return [
-    { label: "Total envs", value: pad(environments.length), color: "#00e5ff" },
-    { label: "Active envs", value: pad(running), color: "#65ffc9" },
+    { label: "Total envs", value: pad(environments.length), color: "#00f0ff" },
+    { label: "Active envs", value: pad(running), color: "#4edea3" },
     { label: "Stopped envs", value: pad(stopped), color: "#edf4fa" },
-    { label: "Failed envs", value: pad(failed), color: "#ffc4b7" },
-    { label: "Created today", value: pad(createdToday), color: "#00e5ff" },
+    { label: "Failed envs", value: pad(failed), color: "#ffb4ab" },
+    { label: "Created today", value: pad(createdToday), color: "#00f0ff" },
     { label: "Containers", value: String(Math.max(environments.length * 3, running)), color: "#edf4fa" },
-    { label: "CPU usage", value: `${formatMetric(cpuPercent)}%`, color: "#00e5ff", progress: cpuPercent, detail: metrics ? `${metrics.cpu.cores} cores` : "loading" },
-    { label: "RAM usage", value: `${formatMetric(memoryPercent)}%`, color: "#65ffc9", progress: memoryPercent, detail: metrics ? `${formatBytes(metrics.memory.usedBytes)} / ${formatBytes(metrics.memory.totalBytes)}` : "loading" },
-    { label: "Storage", value: `${formatMetric(storagePercent)}%`, color: "#ffd900", progress: storagePercent, detail: metrics ? `${formatBytes(metrics.storage.usedBytes)} / ${formatBytes(metrics.storage.totalBytes)}` : "loading" }
+    { label: "CPU usage", value: `${formatMetric(cpuPercent)}%`, color: "#00f0ff", progress: cpuPercent, detail: metrics ? `${metrics.cpu.cores} cores` : "loading" },
+    { label: "RAM usage", value: `${formatMetric(memoryPercent)}%`, color: "#4edea3", progress: memoryPercent, detail: metrics ? `${formatBytes(metrics.memory.usedBytes)} / ${formatBytes(metrics.memory.totalBytes)}` : "loading" },
+    { label: "Storage", value: `${formatMetric(storagePercent)}%`, color: "#fed639", progress: storagePercent, detail: metrics ? `${formatBytes(metrics.storage.usedBytes)} / ${formatBytes(metrics.storage.totalBytes)}` : "loading" }
   ];
 }
 

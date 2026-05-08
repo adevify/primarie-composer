@@ -83,10 +83,10 @@ export function EnvironmentCreateForm({ open, disabled, loading, envLoading, env
             width: 560,
             maxWidth: "calc(100vw - 32px)",
             borderRadius: 0,
-            border: "1px solid rgba(113, 136, 165, 0.42)",
+            border: "1px solid #3b494b",
             backgroundImage: "none",
-            bgcolor: "#151925",
-            boxShadow: "0 26px 90px rgba(0, 0, 0, 0.62)"
+            bgcolor: "#192122",
+            boxShadow: "none"
           }
         }
       }}
@@ -99,18 +99,18 @@ export function EnvironmentCreateForm({ open, disabled, loading, envLoading, env
           gap: 2,
           px: 3,
           py: 2.2,
-          bgcolor: "#1b2429",
-          borderBottom: "1px solid rgba(113, 136, 165, 0.4)"
+          bgcolor: "#232b2c",
+          borderBottom: "1px solid #3b494b"
         }}
       >
         <Stack direction="row" spacing={1.5} alignItems="center" minWidth={0}>
-          <Box sx={{ width: 24, height: 24, display: "grid", placeItems: "center", color: "#00e5ff" }}>
+          <Box sx={{ width: 24, height: 24, display: "grid", placeItems: "center", color: "#00f0ff" }}>
             <AddBoxIcon fontSize="small" />
           </Box>
           <Typography
             fontWeight={900}
-            color="#00e5ff"
-            sx={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", letterSpacing: 3 }}
+            color="#00f0ff"
+            sx={{ fontFamily: "Space Grotesk, ui-monospace, SFMono-Regular, Menlo, monospace", }}
           >
             CREATE ENVIRONMENT
           </Typography>
@@ -118,8 +118,8 @@ export function EnvironmentCreateForm({ open, disabled, loading, envLoading, env
         <Stack direction="row" spacing={1.2} alignItems="center">
           <Typography
             variant="caption"
-            color="rgba(0, 229, 255, 0.48)"
-            sx={{ display: { xs: "none", sm: "block" }, fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}
+            color="rgba(0, 240, 255, 0.48)"
+            sx={{ display: { xs: "none", sm: "block" }, fontFamily: "Space Grotesk, ui-monospace, SFMono-Regular, Menlo, monospace" }}
           >
             SYSTEM_OVERRIDE_ACTIVE
           </Typography>
@@ -129,7 +129,7 @@ export function EnvironmentCreateForm({ open, disabled, loading, envLoading, env
         </Stack>
       </Box>
 
-      <DialogContent sx={{ px: 3, py: 4, bgcolor: "#151925" }}>
+      <DialogContent sx={{ px: 3, py: 4, bgcolor: "#192122" }}>
         <Stack spacing={3}>
           {error ? <Alert severity="error">{error}</Alert> : null}
 
@@ -154,7 +154,7 @@ export function EnvironmentCreateForm({ open, disabled, loading, envLoading, env
             <FieldLabel>Environment variables</FieldLabel>
             <Stack spacing={1.2} sx={{ maxHeight: 260, overflow: "auto", pr: 0.5 }}>
               {envLoading ? (
-                <Stack direction="row" spacing={1.5} alignItems="center" sx={{ border: "1px solid rgba(113, 136, 165, 0.42)", bgcolor: "#0d211f", px: 2, py: 1.5 }}>
+                <Stack direction="row" spacing={1.5} alignItems="center" sx={{ border: "1px solid #3b494b", bgcolor: "#151d1e", px: 2, py: 1.5 }}>
                   <CircularProgress size={18} />
                   <Typography color="text.secondary">Loading environment values</Typography>
                 </Stack>
@@ -173,19 +173,19 @@ export function EnvironmentCreateForm({ open, disabled, loading, envLoading, env
             </Stack>
           </Stack>
 
-          <Stack spacing={2} sx={{ border: "1px solid rgba(113, 136, 165, 0.42)", bgcolor: "#0e2420", px: 2.5, py: 2.25 }}>
+          <Stack spacing={2} sx={{ border: "1px solid #3b494b", bgcolor: "#151d1e", px: 2.5, py: 2.25 }}>
             {createSteps.map((step) => (
               <Stack key={step.label} direction="row" spacing={1.5} alignItems="center">
                 {step.state === "done" ? (
-                  <CheckCircleOutlineIcon sx={{ color: "#55ffcf", fontSize: 20 }} />
+                  <CheckCircleOutlineIcon sx={{ color: "#4edea3", fontSize: 20 }} />
                 ) : step.state === "active" && loading ? (
-                  <CircularProgress size={20} thickness={5} sx={{ color: "#00e5ff" }} />
+                  <CircularProgress size={20} thickness={5} sx={{ color: "#00f0ff" }} />
                 ) : (
-                  <RadioButtonUncheckedIcon sx={{ color: step.state === "active" ? "#00e5ff" : "#6f879d", fontSize: 20 }} />
+                  <RadioButtonUncheckedIcon sx={{ color: step.state === "active" ? "#00f0ff" : "#6f879d", fontSize: 20 }} />
                 )}
                 <Typography
                   fontWeight={step.state === "active" ? 900 : 500}
-                  color={step.state === "active" ? "#00e5ff" : step.state === "pending" ? "#71889e" : "text.primary"}
+                  color={step.state === "active" ? "#00f0ff" : step.state === "pending" ? "#71889e" : "text.primary"}
                   fontStyle={step.state === "pending" ? "italic" : "normal"}
                   sx={{ fontSize: 14 }}
                 >
@@ -197,7 +197,7 @@ export function EnvironmentCreateForm({ open, disabled, loading, envLoading, env
         </Stack>
       </DialogContent>
 
-      <DialogActions sx={{ px: 3, py: 2.25, bgcolor: "#1b2429", borderTop: "1px solid rgba(113, 136, 165, 0.32)" }}>
+      <DialogActions sx={{ px: 3, py: 2.25, bgcolor: "#232b2c", borderTop: "1px solid #3b494b" }}>
         <Button onClick={onCancel} disabled={loading} sx={ghostButtonSx}>
           Cancel
         </Button>
@@ -214,7 +214,7 @@ function FieldLabel({ children }: { children: string }) {
     <Typography
       variant="caption"
       color="#c7d4e2"
-      sx={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", letterSpacing: 2, textTransform: "uppercase" }}
+      sx={{ fontFamily: "Space Grotesk, ui-monospace, SFMono-Regular, Menlo, monospace", textTransform: "uppercase" }}
     >
       {children}
     </Typography>
@@ -224,19 +224,19 @@ function FieldLabel({ children }: { children: string }) {
 const fieldSx = {
   "& .MuiInputBase-root": {
     borderRadius: 0,
-    bgcolor: "#0d211f",
+    bgcolor: "#151d1e",
     color: "text.primary",
     fontSize: 18,
     minHeight: 48
   },
   "& .MuiOutlinedInput-notchedOutline": {
-    borderColor: "rgba(113, 136, 165, 0.55)"
+    borderColor: "#3b494b"
   },
   "&:hover .MuiOutlinedInput-notchedOutline": {
-    borderColor: "rgba(0, 229, 255, 0.55)"
+    borderColor: "rgba(0, 240, 255, 0.55)"
   },
   "& .Mui-focused .MuiOutlinedInput-notchedOutline": {
-    borderColor: "#00e5ff"
+    borderColor: "#00f0ff"
   },
   "& input::placeholder": {
     color: "#66819c",
@@ -250,18 +250,16 @@ const fieldSx = {
 const ghostButtonSx = {
   color: "#c7d4e2",
   px: 3,
-  fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
-  letterSpacing: 1.5,
+  fontFamily: "Space Grotesk, ui-monospace, SFMono-Regular, Menlo, monospace",
   textTransform: "uppercase"
 };
 
 const createButtonSx = {
   borderRadius: 0,
   minWidth: 118,
-  bgcolor: "#18dced",
+  bgcolor: "#00f0ff",
   color: "#02121b",
-  fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
-  letterSpacing: 1.5,
+  fontFamily: "Space Grotesk, ui-monospace, SFMono-Regular, Menlo, monospace",
   textTransform: "uppercase",
   "&:hover": {
     bgcolor: "#54f0ff"

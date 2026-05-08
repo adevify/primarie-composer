@@ -34,6 +34,8 @@ import type {
   MongoPreview as MongoPreviewPayload
 } from "../types";
 
+type UtilityTab = "logs" | "files" | "exec" | "mongo" | "actions";
+
 type EnvironmentDetailsProps = {
   environment?: EnvironmentRecord;
   open: boolean;
@@ -90,6 +92,7 @@ export function EnvironmentDetails({
   const [execCommand, setExecCommand] = useState("pwd && ls -la");
   const [execOutput, setExecOutput] = useState("");
   const [execRunning, setExecRunning] = useState(false);
+  const [utilityTab, setUtilityTab] = useState<UtilityTab>("logs");
 
   const selectedLiveSession = liveLogSessions.find((session) => session.status === "running") ?? liveLogSessions[0];
   const displayedLiveLogs = useMemo(() => (selectedLiveSession?.entries ?? []).map((entry) => ({
@@ -99,6 +102,7 @@ export function EnvironmentDetails({
     system: true
   })), [selectedLiveSession]);
   const selectedAction = actions.find((action) => action.id === selectedActionId);
+  const selectedContainerRecord = containers.find((container) => containerName(container) === selectedContainer);
   const displayedActionLogs = useMemo(() => actionLogs.map((entry) => ({
     at: entry.createdAt,
     message: entry.log,
@@ -336,17 +340,17 @@ export function EnvironmentDetails({
   }
 
   return (
-    <Box sx={{ minHeight: "calc(100vh - 80px)", bgcolor: "#121f1c", color: "text.primary", mx: { xs: -2, md: -3.75 }, my: { xs: -2, md: -3.75 } }}>
+    <Box sx={{ height: "calc(100vh - 48px)", bgcolor: "#0d1515", color: "text.primary", mx: { xs: -2, md: -3 }, my: { xs: -2, md: -3 }, overflow: "hidden", display: "flex", flexDirection: "column" }}>
       <Box
         sx={{
           px: { xs: 2, lg: 3 },
-          py: 2.2,
+          py: 2,
           display: "grid",
           gridTemplateColumns: { xs: "1fr", xl: "1fr auto" },
           gap: 2,
           alignItems: "center",
-          borderBottom: "1px solid rgba(159, 179, 195, 0.28)",
-          bgcolor: "#172321"
+          borderBottom: "1px solid #3b494b",
+          bgcolor: "#151d1e"
         }}
       >
         <Stack direction="row" spacing={2} alignItems="center" minWidth={0}>
@@ -357,16 +361,16 @@ export function EnvironmentDetails({
             label={environment.status}
             size="small"
             sx={{
-              borderRadius: 0.5,
+              borderRadius: "2px",
               color: statusColor(environment.status),
               border: `1px solid ${statusColor(environment.status)}`,
-              bgcolor: "rgba(101, 255, 201, 0.08)",
+              bgcolor: environment.status === "running" ? "rgba(78, 222, 163, 0.12)" : "rgba(220, 228, 229, 0.08)",
               fontFamily: monoFont,
               textTransform: "capitalize"
             }}
           />
           <Box minWidth={0}>
-            <Typography variant="h4" fontWeight={900} noWrap sx={{ letterSpacing: 0 }}>
+            <Typography variant="h4" fontWeight={900} noWrap>
               {environment.key}
             </Typography>
             <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap" useFlexGap sx={{ mt: 1 }}>
@@ -378,9 +382,9 @@ export function EnvironmentDetails({
           </Box>
         </Stack>
 
-        <Stack direction={{ xs: "column", sm: "row" }} spacing={2} alignItems={{ xs: "stretch", sm: "center" }}>
-          <Box sx={{ minWidth: { xl: 230 } }}>
-            <Typography color="#00e5ff" fontWeight={800} noWrap>
+        <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5} alignItems={{ xs: "stretch", sm: "center" }}>
+          <Box sx={{ minWidth: { xl: 230 }, mr: { xl: 2 }, textAlign: { xs: "left", sm: "right" } }}>
+            <Typography color="#00f0ff" fontWeight={800} noWrap>
               {buildDomains(environment)[0]}
             </Typography>
             <Typography color="text.secondary" noWrap>
@@ -415,166 +419,202 @@ export function EnvironmentDetails({
         </Stack>
       </Box>
 
-      <Stack spacing={3} sx={{ p: { xs: 2, lg: 3 } }}>
+      <Box sx={{ flex: 1, minHeight: 0, overflow: "auto", p: { xs: 2, lg: 3 } }}>
         {toolError ? <Alert severity="warning">{toolError}</Alert> : null}
 
-        <Panel
-          title="CONTAINERS"
-          icon={<ViewInArIcon />}
-          action={
-              <Stack direction="row" spacing={1} alignItems="center">
-                <Chip size="small" label={`${containers.filter((container) => container.State === "running").length || containers.length} ACTIVE`} sx={statusChipSx} />
+        <Box sx={{ mt: toolError ? 2 : 0, display: "grid", gridTemplateColumns: { xs: "1fr", lg: "280px minmax(0, 1fr)" }, gap: 3, height: { lg: "calc(100vh - 218px)" }, minHeight: 560 }}>
+          <Box component="aside" sx={{ minHeight: 0, overflow: "auto" }}>
+            <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ px: 0.5, mb: 1.5 }}>
+              <Typography variant="caption" color="text.secondary" sx={{ fontFamily: monoFont, fontWeight: 900, textTransform: "uppercase" }}>
+                Active Containers ({containers.filter((container) => container.State === "running").length || containers.length})
+              </Typography>
               <IconButton aria-label="Refresh containers" onClick={() => void loadContainers()} disabled={loadingContainers || environment.status !== "running"} sx={iconButtonSx}>
                 {loadingContainers ? <CircularProgress size={18} /> : <RefreshIcon />}
               </IconButton>
             </Stack>
-          }
-        >
-          <ContainersTable
-            containers={containers}
-            selectedContainer={selectedContainer}
-            onSelect={setSelectedContainer}
-            onOpenLogs={(container) => environment ? onStartContainerLogStream(environment.key, container) : undefined}
-            onOpenFiles={() => void loadFiles(containerPath)}
-          />
-        </Panel>
 
-        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", xl: "2.08fr 1fr" }, gap: 3 }}>
-          <Panel
-            title="ACTION LOGS"
-            icon={<TerminalIcon />}
-            action={
-              <Stack direction="row" spacing={1.5} alignItems="center">
-                {selectedAction ? <Chip size="small" label={selectedAction.status.toUpperCase()} sx={{ ...statusChipSx, color: statusColor(selectedAction.status) }} /> : null}
-                <IconButton
-                  aria-label="Refresh action logs"
-                  onClick={() => {
-                    void loadActions();
-                    if (selectedActionId) {
-                      void loadActionLogs(selectedActionId);
-                    }
-                  }}
-                  sx={iconButtonSx}
-                >
-                  {loadingActions || loadingActionLogs ? <CircularProgress size={18} /> : <RefreshIcon />}
-                </IconButton>
-              </Stack>
-            }
-          >
-            <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", lg: "260px 1fr" }, minHeight: 460 }}>
-              <ActionHistory
-                actions={actions}
-                selectedActionId={selectedActionId}
-                total={actionsPage?.total ?? actions.length}
-                loading={loadingActions}
-                onSelect={setSelectedActionId}
-                hasMore={Boolean(actionsPage && actionsPage.page + 1 < actionsPage.pages)}
-                onLoadMore={() => void loadMoreActions()}
-              />
-              <Box sx={{ minWidth: 0 }}>
-                <Box sx={{ px: 2, py: 1.2, borderBottom: "1px solid rgba(159, 179, 195, 0.18)", bgcolor: "#111d1b", display: "flex", justifyContent: "space-between", gap: 2, alignItems: "center" }}>
-                  <Typography variant="caption" color="text.secondary" sx={{ fontFamily: monoFont }} noWrap>
-                    {selectedAction ? `${selectedAction.action.toUpperCase()} / ${selectedAction.id}` : "NO REGISTERED ACTION"}
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary" sx={{ fontFamily: monoFont }}>
-                    {actionLogsPage ? `${actionLogs.length}/${actionLogsPage.total}` : "0/0"}
-                  </Typography>
+            <Stack spacing={1.5}>
+              {containers.length === 0 ? (
+                <Box sx={{ border: "1px solid #3b494b", bgcolor: "#192122", p: 2, color: "text.secondary", fontFamily: monoFont, fontSize: 13 }}>
+                  {environment.status === "running" ? "No containers found." : "Start the environment to inspect containers."}
                 </Box>
-                <LogTerminal logs={displayedActionLogs} emptyText={selectedAction ? "Waiting for registered action log output." : "No actions registered for this environment yet."} />
-                {actionLogsPage && actionLogsPage.page + 1 < actionLogsPage.pages ? (
-                  <Box sx={{ px: 2, py: 1.5, borderTop: "1px solid rgba(159, 179, 195, 0.18)", bgcolor: "#111d1b" }}>
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      disabled={loadingActionLogs}
-                      onClick={() => void loadActionLogs(selectedActionId, actionLogsPage.page + 1, false)}
-                      sx={smallButtonSx}
-                    >
-                      Load More
-                    </Button>
-                  </Box>
-                ) : null}
-              </Box>
-            </Box>
-          </Panel>
-
-          <Stack spacing={3}>
-            <Panel
-              title="MONGODB [READ-ONLY]"
-              icon={<StorageIcon />}
-              action={loadingMongo ? <CircularProgress size={18} /> : <Typography variant="caption" color={mongoPreview?.available ? "#65ffc9" : "text.secondary"} fontWeight={900}>{mongoPreview?.available ? "CONNECTED" : "OFFLINE"}</Typography>}
-            >
-              <MongoPreview preview={mongoPreview} />
-            </Panel>
-
-            <Panel
-              title="FILE EXPLORER"
-              icon={<FolderOpenIcon />}
-              action={loadingFiles ? <CircularProgress size={18} /> : null}
-            >
-              <FileExplorer
-                files={files}
-                path={containerPath}
-                onPathChange={setContainerPath}
-                onLoadPath={() => void loadFiles()}
-                onOpenDirectory={(path) => void loadFiles(path)}
-                sourceLabel={selectedContainer ? `Container filesystem: ${shortName(selectedContainer)}` : "Runtime directory filesystem"}
-              />
-            </Panel>
-          </Stack>
-        </Box>
-
-        {selectedLiveSession?.status === "running" ? (
-          <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-            <Button size="small" variant="outlined" color="warning" onClick={() => onStopLiveLogSession(selectedLiveSession.id)}>
-              Stop {selectedLiveSession.title} stream
-            </Button>
+              ) : containers.map((container, index) => {
+                const name = containerName(container);
+                const selected = selectedContainer === name;
+                const running = container.State === "running";
+                return (
+                  <Button
+                    key={name || index}
+                    onClick={() => {
+                      setSelectedContainer(name);
+                      if (utilityTab === "files") {
+                        void loadFiles("/");
+                      }
+                    }}
+                    sx={{
+                      display: "block",
+                      textAlign: "left",
+                      p: 2,
+                      borderRadius: "8px",
+                      border: selected ? "2px solid #00dbe9" : "1px solid #3b494b",
+                      bgcolor: selected ? "rgba(0, 240, 255, 0.1)" : "#192122",
+                      color: "text.primary",
+                      textTransform: "none",
+                      "&:hover": { borderColor: "rgba(0, 240, 255, 0.65)", bgcolor: selected ? "rgba(0, 240, 255, 0.13)" : "#232b2c" }
+                    }}
+                  >
+                    <Stack spacing={1}>
+                      <Stack direction="row" alignItems="flex-start" justifyContent="space-between" spacing={1}>
+                        <Typography sx={{ color: selected ? "#dbfcff" : "text.primary", fontFamily: monoFont, fontSize: 14, fontWeight: 900 }} noWrap>
+                          {shortName(name) || `container_${index + 1}`}
+                        </Typography>
+                        <Box sx={{ width: 8, height: 8, mt: 0.6, borderRadius: "50%", bgcolor: running ? "#4edea3" : "#fed639", boxShadow: running ? "0 0 8px rgba(78,222,163,0.5)" : "none", flexShrink: 0 }} />
+                      </Stack>
+                      <Typography sx={{ color: "text.secondary", fontFamily: monoFont, fontSize: 10, textTransform: "uppercase" }} noWrap>
+                        {container.Service ?? container.Image ?? "service unavailable"}
+                      </Typography>
+                      <Stack direction="row" spacing={0.75} flexWrap="wrap" useFlexGap>
+                        <Box component="span" sx={{ px: 0.75, py: 0.25, borderRadius: "2px", bgcolor: "#2e3637", color: "text.secondary", fontFamily: monoFont, fontSize: 10 }}>
+                          {uptimeLabel(container.Status)}
+                        </Box>
+                        <Box component="span" sx={{ px: 0.75, py: 0.25, borderRadius: "2px", bgcolor: "#2e3637", color: "#00f0ff", fontFamily: monoFont, fontSize: 10 }}>
+                          {portsLabel(container)}
+                        </Box>
+                      </Stack>
+                    </Stack>
+                  </Button>
+                );
+              })}
+            </Stack>
           </Box>
-        ) : null}
 
-        <Panel
-          title="LIVE LOGS"
-          icon={<TerminalIcon />}
-          action={selectedLiveSession ? <Chip size="small" label={selectedLiveSession.subtitle.toUpperCase()} sx={statusChipSx} /> : null}
-        >
-          <LogTerminal logs={displayedLiveLogs} emptyText="Open compose or container logs to populate this terminal." />
-        </Panel>
+          <Box sx={{ minWidth: 0, minHeight: 0, border: "1px solid #3b494b", borderRadius: "8px", bgcolor: "#192122", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+            <Box sx={{ display: "flex", alignItems: "center", px: 2, bgcolor: "#232b2c", borderBottom: "1px solid #3b494b", minHeight: 48, overflowX: "auto" }}>
+              <Stack direction="row" sx={{ minWidth: 0 }}>
+                <UtilityTabButton label="Logs" active={utilityTab === "logs"} onClick={() => setUtilityTab("logs")} />
+                <UtilityTabButton label="Files" active={utilityTab === "files"} onClick={() => { setUtilityTab("files"); void loadFiles(containerPath); }} />
+                <UtilityTabButton label="Exec" active={utilityTab === "exec"} onClick={() => setUtilityTab("exec")} />
+                <UtilityTabButton label="Mongo" active={utilityTab === "mongo"} onClick={() => { setUtilityTab("mongo"); void loadMongo(); }} />
+                <UtilityTabButton label="Actions" active={utilityTab === "actions"} onClick={() => setUtilityTab("actions")} />
+              </Stack>
+              <Stack direction="row" spacing={1.5} alignItems="center" sx={{ ml: "auto", pl: 2 }}>
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <Box sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: selectedLiveSession?.status === "running" ? "#4edea3" : "#849495" }} />
+                  <Typography sx={{ color: "text.secondary", fontFamily: monoFont, fontSize: 10, textTransform: "uppercase" }} noWrap>
+                    {selectedLiveSession?.status === "running" ? "Streaming" : selectedContainer ? shortName(selectedContainer) : "Idle"}
+                  </Typography>
+                </Stack>
+                {utilityTab === "logs" ? (
+                  selectedLiveSession?.status === "running" ? (
+                    <Button size="small" variant="outlined" onClick={() => onStopLiveLogSession(selectedLiveSession.id)} sx={smallButtonSx}>
+                      Stop
+                    </Button>
+                  ) : (
+                    <Button size="small" variant="outlined" disabled={!selectedContainer && containers.length > 0} onClick={() => selectedContainer ? onStartContainerLogStream(environment.key, selectedContainer) : onStartComposeLogStream(environment.key)} sx={smallButtonSx}>
+                      Stream
+                    </Button>
+                  )
+                ) : null}
+              </Stack>
+            </Box>
 
-        <Panel
-          title="CONTAINER EXEC"
-          icon={<TerminalIcon />}
-          action={selectedContainer ? <Chip size="small" label={shortName(selectedContainer).toUpperCase()} sx={statusChipSx} /> : null}
-        >
-          <Stack spacing={1.5} sx={{ p: 1.5 }}>
-            <Stack direction={{ xs: "column", md: "row" }} spacing={1}>
+            <Box sx={{ flex: 1, minHeight: 0, overflow: "auto", bgcolor: utilityTab === "logs" || utilityTab === "exec" ? "#080f10" : "#192122" }}>
+              {utilityTab === "logs" ? (
+                <LogTerminal logs={displayedLiveLogs.length ? displayedLiveLogs : displayedActionLogs} emptyText="Open compose or container logs to populate this terminal." compact />
+              ) : null}
+
+              {utilityTab === "files" ? (
+                <FileExplorer
+                  files={files}
+                  path={containerPath}
+                  onPathChange={setContainerPath}
+                  onLoadPath={() => void loadFiles()}
+                  onOpenDirectory={(path) => void loadFiles(path)}
+                  sourceLabel={selectedContainer ? `Container filesystem: ${shortName(selectedContainer)}` : "Runtime directory filesystem"}
+                  fill
+                />
+              ) : null}
+
+              {utilityTab === "exec" ? (
+                <Box sx={{ p: 2 }}>
+                  <Box component="pre" sx={{ m: 0, minHeight: 380, overflow: "auto", color: "#dce4e5", fontFamily: monoFont, fontSize: 13, lineHeight: 1.5 }}>
+                    {execOutput || `root@${shortName(selectedContainer) || "container"}:/#`}
+                  </Box>
+                </Box>
+              ) : null}
+
+              {utilityTab === "mongo" ? (
+                <MongoPreview preview={mongoPreview} fill />
+              ) : null}
+
+              {utilityTab === "actions" ? (
+                <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", lg: "260px 1fr" }, minHeight: "100%" }}>
+                  <ActionHistory
+                    actions={actions}
+                    selectedActionId={selectedActionId}
+                    total={actionsPage?.total ?? actions.length}
+                    loading={loadingActions}
+                    onSelect={setSelectedActionId}
+                    hasMore={Boolean(actionsPage && actionsPage.page + 1 < actionsPage.pages)}
+                    onLoadMore={() => void loadMoreActions()}
+                  />
+                  <Box sx={{ minWidth: 0 }}>
+                    <Box sx={{ px: 2, py: 1.2, borderBottom: "1px solid #3b494b", bgcolor: "#151d1e", display: "flex", justifyContent: "space-between", gap: 2, alignItems: "center" }}>
+                      <Typography variant="caption" color="text.secondary" sx={{ fontFamily: monoFont }} noWrap>
+                        {selectedAction ? `${selectedAction.action.toUpperCase()} / ${selectedAction.id}` : "NO REGISTERED ACTION"}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary" sx={{ fontFamily: monoFont }}>
+                        {actionLogsPage ? `${actionLogs.length}/${actionLogsPage.total}` : "0/0"}
+                      </Typography>
+                    </Box>
+                    <LogTerminal logs={displayedActionLogs} emptyText={selectedAction ? "Waiting for registered action log output." : "No actions registered for this environment yet."} compact />
+                    {actionLogsPage && actionLogsPage.page + 1 < actionLogsPage.pages ? (
+                      <Box sx={{ px: 2, py: 1.5, borderTop: "1px solid #3b494b", bgcolor: "#151d1e" }}>
+                        <Button size="small" variant="outlined" disabled={loadingActionLogs} onClick={() => void loadActionLogs(selectedActionId, actionLogsPage.page + 1, false)} sx={smallButtonSx}>
+                          Load More
+                        </Button>
+                      </Box>
+                    ) : null}
+                  </Box>
+                </Box>
+              ) : null}
+            </Box>
+
+            <Box sx={{ p: 1.5, bgcolor: "#2e3637", borderTop: "1px solid #3b494b", display: "flex", alignItems: "center", gap: 1.5 }}>
+              <TerminalIcon sx={{ color: "#00f0ff", fontSize: 18 }} />
               <TextField
                 size="small"
+                placeholder="Run command..."
                 value={execCommand}
                 onChange={(event) => setExecCommand(event.target.value)}
                 disabled={!selectedContainer || execRunning}
-                sx={compactFieldSx}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    event.preventDefault();
+                    void runExecCommand();
+                    setUtilityTab("exec");
+                  }
+                }}
+                sx={commandFieldSx}
               />
-              <Button variant="outlined" disabled={!selectedContainer || execRunning} onClick={() => void runExecCommand()} sx={smallButtonSx}>
-                {execRunning ? "Running" : "Run"}
+              <Button variant="outlined" disabled={!selectedContainer || execRunning} onClick={() => { setUtilityTab("exec"); void runExecCommand(); }} sx={smallButtonSx}>
+                {execRunning ? "Running" : "Enter"}
               </Button>
-            </Stack>
-            <Box component="pre" sx={{ m: 0, minHeight: 160, maxHeight: 320, overflow: "auto", bgcolor: "#061312", color: "#d7e3ee", fontFamily: monoFont, fontSize: 12, p: 1.5 }}>
-              {execOutput || "Select a container and run a command."}
             </Box>
-          </Stack>
-        </Panel>
-      </Stack>
+          </Box>
+        </Box>
+      </Box>
     </Box>
   );
 }
 
 function Panel({ title, icon, action, children }: { title: string; icon: React.ReactNode; action?: React.ReactNode; children: React.ReactNode }) {
   return (
-    <Box sx={{ border: "1px solid rgba(159, 179, 195, 0.36)", bgcolor: "#202d2a", borderRadius: 1, overflow: "hidden" }}>
-      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2, px: 2, py: 1.8, borderBottom: "1px solid rgba(159, 179, 195, 0.28)", bgcolor: "#2d3a37" }}>
+    <Box sx={{ border: "1px solid #3b494b", bgcolor: "#192122", borderRadius: 0, overflow: "hidden" }}>
+      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2, px: 2, py: 1.5, borderBottom: "1px solid #3b494b", bgcolor: "#232b2c" }}>
         <Stack direction="row" spacing={1.2} alignItems="center" minWidth={0}>
           <Box sx={{ color: "#d7e3ee", display: "grid", placeItems: "center" }}>{icon}</Box>
-          <Typography color="#d7e3ee" fontWeight={900} sx={{ fontFamily: monoFont, letterSpacing: 4 }} noWrap>
+          <Typography color="#d7e3ee" fontWeight={900} sx={{ fontFamily: monoFont }} noWrap>
             {title}
           </Typography>
         </Stack>
@@ -603,7 +643,7 @@ function ActionHistory({
   onLoadMore: () => void;
 }) {
   return (
-    <Stack sx={{ bgcolor: "#172321", borderRight: { lg: "1px solid rgba(159, 179, 195, 0.24)" }, borderBottom: { xs: "1px solid rgba(159, 179, 195, 0.24)", lg: "none" }, maxHeight: { lg: 620 }, overflow: "auto" }}>
+    <Stack sx={{ bgcolor: "#151d1e", borderRight: { lg: "1px solid #3b494b" }, borderBottom: { xs: "1px solid #3b494b", lg: "none" }, maxHeight: { lg: 620 }, overflow: "auto" }}>
       <Box sx={{ px: 1.5, py: 1.2, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 1 }}>
         <Typography variant="caption" color="text.secondary" sx={{ fontFamily: monoFont, fontWeight: 900 }}>
           REGISTERED ACTIONS
@@ -627,18 +667,18 @@ function ActionHistory({
               borderRadius: 0,
               px: 1.5,
               py: 1.25,
-              borderTop: "1px solid rgba(159, 179, 195, 0.12)",
-              bgcolor: selected ? "rgba(0, 229, 255, 0.08)" : "transparent",
+              borderTop: "1px solid #3b494b",
+              bgcolor: selected ? "rgba(0, 240, 255, 0.08)" : "transparent",
               color: "text.primary",
-              "&:hover": { bgcolor: "rgba(0, 229, 255, 0.11)" }
+              "&:hover": { bgcolor: "rgba(0, 240, 255, 0.11)" }
             }}
           >
             <Stack spacing={0.55} sx={{ width: "100%", minWidth: 0 }}>
               <Stack direction="row" spacing={1} alignItems="center" justifyContent="space-between">
-                <Typography sx={{ fontFamily: monoFont, fontWeight: 900, color: "#00e5ff" }}>
+                <Typography sx={{ fontFamily: monoFont, fontWeight: 900, color: "#00f0ff" }}>
                   {action.action.toUpperCase()}
                 </Typography>
-                <Box sx={{ width: 9, height: 9, borderRadius: "50%", bgcolor: statusColor(action.status), boxShadow: action.status === "running" ? "0 0 10px rgba(101, 255, 201, 0.75)" : "none" }} />
+                <Box sx={{ width: 9, height: 9, borderRadius: "50%", bgcolor: statusColor(action.status), boxShadow: action.status === "running" ? "0 0 10px rgba(78, 222, 163, 0.55)" : "none" }} />
               </Stack>
               <Typography variant="caption" color="text.secondary" sx={{ fontFamily: monoFont }} noWrap>
                 {shortId(action.id)} / {action.status}
@@ -651,7 +691,7 @@ function ActionHistory({
         );
       })}
       {hasMore ? (
-        <Box sx={{ p: 1.25, borderTop: "1px solid rgba(159, 179, 195, 0.12)" }}>
+        <Box sx={{ p: 1.25, borderTop: "1px solid #3b494b" }}>
           <Button size="small" variant="outlined" disabled={loading} onClick={onLoadMore} sx={{ ...smallButtonSx, width: "100%" }}>
             More
           </Button>
@@ -679,7 +719,7 @@ function ContainersTable({
   return (
     <Box sx={{ overflowX: "auto" }}>
       <Box component="table" sx={{ width: "100%", minWidth: 1040, borderCollapse: "collapse", tableLayout: "fixed" }}>
-        <Box component="thead" sx={{ bgcolor: "#303d3a" }}>
+        <Box component="thead" sx={{ bgcolor: "#232b2c" }}>
           <Box component="tr">
             {["NAME", "SERVICE", "IMAGE", "STATUS", "UPTIME", "PORTS", "CPU", "RAM", "ACTIONS"].map((heading) => (
               <Box key={heading} component="th" sx={tableHeadSx}>
@@ -706,15 +746,15 @@ function ContainersTable({
                 onClick={() => onSelect(name)}
                 sx={{
                   cursor: "pointer",
-                  bgcolor: selected ? "rgba(0, 229, 255, 0.04)" : "transparent",
-                  "& td": { borderTop: "1px solid rgba(159, 179, 195, 0.16)" }
+                  bgcolor: selected ? "rgba(0, 240, 255, 0.06)" : "transparent",
+                  "& td": { borderTop: "1px solid #3b494b" }
                 }}
               >
                 <DataCell strong>{name || `container_${index + 1}`}</DataCell>
                 <DataCell>{container.Service ?? shortName(name)}</DataCell>
                 <DataCell>{container.Image ?? "image unavailable"}</DataCell>
                 <DataCell>
-                  <Box sx={{ width: 10, height: 10, borderRadius: "50%", bgcolor: container.State === "running" ? "#65ffc9" : "#f5a524", boxShadow: container.State === "running" ? "0 0 12px rgba(101, 255, 201, 0.7)" : "none" }} />
+                  <Box sx={{ width: 10, height: 10, borderRadius: "50%", bgcolor: container.State === "running" ? "#4edea3" : "#f5a524", boxShadow: container.State === "running" ? "0 0 12px rgba(78, 222, 163, 0.5)" : "none" }} />
                 </DataCell>
                 <DataCell>{uptimeLabel(container.Status)}</DataCell>
                 <DataCell accent>{portsLabel(container)}</DataCell>
@@ -741,13 +781,36 @@ function ContainersTable({
 
 function DataCell({ children, strong = false, accent = false }: { children: React.ReactNode; strong?: boolean; accent?: boolean }) {
   return (
-    <Box component="td" sx={{ px: 2, py: 2.2, color: accent ? "#00e5ff" : "text.primary", fontWeight: strong ? 900 : 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+    <Box component="td" sx={{ px: 2, py: 2.2, color: accent ? "#00f0ff" : "text.primary", fontWeight: strong ? 900 : 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
       {children}
     </Box>
   );
 }
 
-function LogTerminal({ logs, emptyText = "Waiting for Docker Compose log output." }: { logs: Array<{ at: string; message: string; level: "info" | "error"; system: boolean }>; emptyText?: string; }) {
+function UtilityTabButton({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
+  return (
+    <Button
+      onClick={onClick}
+      sx={{
+        px: 3,
+        py: 1.5,
+        minWidth: 0,
+        borderRadius: 0,
+        borderBottom: active ? "2px solid #00f0ff" : "2px solid transparent",
+        color: active ? "#dbfcff" : "text.secondary",
+        fontFamily: monoFont,
+        fontSize: 11,
+        fontWeight: 900,
+        textTransform: "uppercase",
+        "&:hover": { color: "text.primary", bgcolor: "rgba(0, 240, 255, 0.06)" }
+      }}
+    >
+      {label}
+    </Button>
+  );
+}
+
+function LogTerminal({ logs, emptyText = "Waiting for Docker Compose log output.", compact = false }: { logs: Array<{ at: string; message: string; level: "info" | "error"; system: boolean }>; emptyText?: string; compact?: boolean; }) {
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const latestLog = logs.at(-1);
 
@@ -756,7 +819,7 @@ function LogTerminal({ logs, emptyText = "Waiting for Docker Compose log output.
   }, [logs.length, latestLog?.at, latestLog?.message]);
 
   return (
-    <Box sx={{ minHeight: 460, maxHeight: 560, overflow: "auto", bgcolor: "#02051d", p: 2, fontFamily: monoFont, fontSize: 14, lineHeight: 1.7 }}>
+    <Box sx={{ minHeight: compact ? "100%" : 460, maxHeight: compact ? "none" : 560, overflow: "auto", bgcolor: "#080f10", p: 2, fontFamily: monoFont, fontSize: 13, lineHeight: 1.5 }}>
       {logs.length === 0 ? (
         <Typography color="text.secondary" sx={{ fontFamily: monoFont }}>
           {emptyText}
@@ -766,25 +829,25 @@ function LogTerminal({ logs, emptyText = "Waiting for Docker Compose log output.
           <Box component="span" sx={{ color: "#8ea0b3", flexShrink: 0 }}>
             [{formatTimestamp(log.at)}]
           </Box>
-          <Box component="span" sx={{ color: log.level === "error" ? "#ffc4b7" : "text.primary", wordBreak: "break-word" }}>
+          <Box component="span" sx={{ color: log.level === "error" ? "#ffb4ab" : "text.primary", wordBreak: "break-word" }}>
             {log.message}
           </Box>
         </Box>
       ))}
-      <Box sx={{ color: "#00e5ff", mt: 2 }}>$ _</Box>
+      <Box sx={{ color: "#00f0ff", mt: 2 }}>$ _</Box>
       <Box ref={bottomRef} sx={{ height: 1 }} />
     </Box>
   );
 }
 
-function MongoPreview({ preview }: { preview?: MongoPreviewPayload }) {
+function MongoPreview({ preview, fill = false }: { preview?: MongoPreviewPayload; fill?: boolean }) {
   const collections = preview?.collections ?? [];
   const selected = collections[0];
   const documents = Array.isArray(selected?.sample) ? selected.sample : selected?.sample ? [selected.sample] : [];
 
   return (
-    <Box sx={{ display: "grid", gridTemplateColumns: "38% 62%", minHeight: 320 }}>
-      <Stack sx={{ bgcolor: "#243230", borderRight: "1px solid rgba(159, 179, 195, 0.28)", maxHeight: 420, overflow: "auto" }}>
+    <Box sx={{ display: "grid", gridTemplateColumns: "38% 62%", minHeight: fill ? "100%" : 320 }}>
+      <Stack sx={{ bgcolor: "#151d1e", borderRight: "1px solid #3b494b", maxHeight: fill ? "none" : 420, overflow: "auto" }}>
         {!preview ? (
           <Box sx={{ px: 1.5, py: 1, color: "text.secondary" }}>Loading MongoDB status</Box>
         ) : !preview.available ? (
@@ -800,8 +863,8 @@ function MongoPreview({ preview }: { preview?: MongoPreviewPayload }) {
           </Box>
         ))}
       </Stack>
-      <Stack sx={{ bgcolor: "#061312", maxHeight: 420, overflow: "auto" }}>
-        <Box sx={{ px: 1.5, py: 1, borderBottom: "1px solid rgba(159, 179, 195, 0.18)", color: "#55ffcf", fontFamily: monoFont, fontSize: 12 }}>
+      <Stack sx={{ bgcolor: "#080f10", maxHeight: fill ? "none" : 420, overflow: "auto" }}>
+        <Box sx={{ px: 1.5, py: 1, borderBottom: "1px solid #3b494b", color: "#4edea3", fontFamily: monoFont, fontSize: 12 }}>
           {selected ? `${preview?.database}.${selected.name} / ${documents.length} sample docs` : preview?.available ? `Database: ${preview.database}` : "{}"}
         </Box>
         <Box component="pre" sx={{ m: 0, p: 1.5, color: "#d7e3ee", fontFamily: monoFont, fontSize: 12, overflow: "auto" }}>
@@ -818,7 +881,8 @@ function FileExplorer({
   onPathChange,
   onLoadPath,
   onOpenDirectory,
-  sourceLabel
+  sourceLabel,
+  fill = false
 }: {
   files: ContainerFileEntry[];
   path: string;
@@ -826,9 +890,10 @@ function FileExplorer({
   onLoadPath: () => void;
   onOpenDirectory: (path: string) => void;
   sourceLabel: string;
+  fill?: boolean;
 }) {
   return (
-    <Stack spacing={1.5} sx={{ p: 1.5, minHeight: 320 }}>
+    <Stack spacing={1.5} sx={{ p: 1.5, minHeight: fill ? "100%" : 320 }}>
       <Stack direction="row" spacing={1}>
         <TextField
           size="small"
@@ -841,7 +906,7 @@ function FileExplorer({
         </Button>
       </Stack>
 
-      <Stack spacing={0.75} sx={{ maxHeight: 230, overflow: "auto", pr: 0.5 }}>
+      <Stack spacing={0.75} sx={{ maxHeight: fill ? "none" : 230, overflow: "auto", pr: 0.5, flex: fill ? 1 : undefined }}>
         {files.length === 0 ? (
           <Typography color="text.secondary" variant="body2">No files loaded.</Typography>
         ) : files.map((file) => {
@@ -855,7 +920,7 @@ function FileExplorer({
               onClick={() => isDirectory ? onOpenDirectory(file.path) : undefined}
               sx={{ cursor: isDirectory ? "pointer" : "default", color: "text.primary", minWidth: 0 }}
             >
-              {isDirectory ? <FolderIcon fontSize="small" sx={{ color: "#ffd900" }} /> : <InsertDriveFileIcon fontSize="small" sx={{ color: "#9fb3c3" }} />}
+              {isDirectory ? <FolderIcon fontSize="small" sx={{ color: "#fed639" }} /> : <InsertDriveFileIcon fontSize="small" sx={{ color: "#849495" }} />}
               <Typography variant="body2" noWrap>{file.name}</Typography>
             </Stack>
           );
@@ -872,10 +937,10 @@ function FileExplorer({
 function MetaLabel({ icon, label, accent = false }: { icon: "user" | "branch" | "calendar" | "refresh"; label: string; accent?: boolean }) {
   return (
     <Stack direction="row" spacing={0.65} alignItems="center">
-      <Typography color={accent ? "#00e5ff" : "text.secondary"} sx={{ fontFamily: monoFont, fontSize: 14 }}>
+      <Typography color={accent ? "#00f0ff" : "text.secondary"} sx={{ fontFamily: monoFont, fontSize: 14 }}>
         {icon === "user" ? "@" : icon === "branch" ? "<>" : icon === "calendar" ? "[]" : "->"}
       </Typography>
-      <Typography color={accent ? "#00e5ff" : "text.primary"} sx={{ fontFamily: monoFont, fontSize: 14 }}>
+      <Typography color={accent ? "#00f0ff" : "text.primary"} sx={{ fontFamily: monoFont, fontSize: 14 }}>
         {label}
       </Typography>
     </Stack>
@@ -982,10 +1047,10 @@ function relativeAge(value: string): string {
 }
 
 function statusColor(status: string): string {
-  if (status === "running") return "#65ffc9";
-  if (status === "failed") return "#ffc4b7";
-  if (status === "queued") return "#00e5ff";
-  if (status === "creating") return "#00e5ff";
+  if (status === "running") return "#4edea3";
+  if (status === "failed") return "#ffb4ab";
+  if (status === "queued") return "#00f0ff";
+  if (status === "creating") return "#00f0ff";
   if (status === "complete") return "#d7e3ee";
   return "#d7e3ee";
 }
@@ -994,7 +1059,7 @@ function toErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
-const monoFont = "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace";
+const monoFont = "Space Grotesk, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace";
 
 const tableHeadSx = {
   px: 2,
@@ -1007,45 +1072,43 @@ const tableHeadSx = {
 };
 
 const actionButtonSx = {
-  borderRadius: 0.75,
+  borderRadius: 0,
   borderColor: "rgba(215, 227, 238, 0.8)",
   color: "text.primary",
   px: 2.5,
   minHeight: 44,
   fontFamily: monoFont,
-  textTransform: "uppercase",
-  letterSpacing: 1
+  textTransform: "uppercase"
 };
 
 const startButtonSx = {
   ...actionButtonSx,
-  borderColor: "rgba(101, 255, 201, 0.82)",
-  color: "#65ffc9"
+  borderColor: "rgba(78, 222, 163, 0.82)",
+  color: "#4edea3"
 };
 
 const logsButtonSx = {
   ...actionButtonSx,
-  borderColor: "rgba(0, 229, 255, 0.72)",
-  color: "#00e5ff"
+  borderColor: "rgba(0, 240, 255, 0.72)",
+  color: "#00f0ff"
 };
 
 const deleteButtonSx = {
-  borderRadius: 0.75,
+  borderRadius: 0,
   minHeight: 44,
   px: 2.5,
   fontFamily: monoFont,
   textTransform: "uppercase",
-  letterSpacing: 1,
   bgcolor: "#c72418"
 };
 
 const iconButtonSx = {
   color: "#d7e3ee",
-  borderRadius: 0.75
+  borderRadius: 0
 };
 
 const statusChipSx = {
-  borderRadius: 0.75,
+  borderRadius: "2px",
   bgcolor: "rgba(215, 227, 238, 0.13)",
   color: "text.primary",
   fontFamily: monoFont
@@ -1055,9 +1118,29 @@ const compactFieldSx = {
   flex: 1,
   "& .MuiInputBase-root": {
     borderRadius: 0,
-    bgcolor: "#12211f",
+    bgcolor: "#151d1e",
     fontFamily: monoFont,
     fontSize: 13
+  }
+};
+
+const commandFieldSx = {
+  flex: 1,
+  "& .MuiInputBase-root": {
+    borderRadius: 0,
+    bgcolor: "transparent",
+    fontFamily: monoFont,
+    fontSize: 13,
+    color: "text.primary"
+  },
+  "& .MuiOutlinedInput-notchedOutline": {
+    borderColor: "transparent"
+  },
+  "&:hover .MuiOutlinedInput-notchedOutline": {
+    borderColor: "transparent"
+  },
+  "& .Mui-focused .MuiOutlinedInput-notchedOutline": {
+    borderColor: "transparent"
   }
 };
 
@@ -1065,6 +1148,5 @@ const smallButtonSx = {
   borderRadius: 0,
   minWidth: 76,
   fontFamily: monoFont,
-  textTransform: "uppercase",
-  letterSpacing: 1
+  textTransform: "uppercase"
 };

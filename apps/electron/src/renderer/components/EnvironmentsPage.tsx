@@ -71,7 +71,7 @@ export function EnvironmentsPage({
             Orchestrate Docker Compose services across clusters.
           </Typography>
         </Box>
-        <Button variant="contained" disabled={!repoPath} onClick={onCreate} startIcon={<AddBoxIcon />} sx={{ bgcolor: "#00d9e8", color: "#02121b", minWidth: 230, py: 1.4, "&:hover": { bgcolor: "#35edff" } }}>
+        <Button variant="contained" disabled={!repoPath} onClick={onCreate} startIcon={<AddBoxIcon />} sx={{ bgcolor: "#00f0ff", color: "#02121b", minWidth: 230, py: 1.4, "&:hover": { bgcolor: "#35edff" } }}>
           Create environment
         </Button>
       </Stack>
@@ -80,8 +80,8 @@ export function EnvironmentsPage({
         value={filter}
         onChange={(_event, value: Filter) => setFilter(value)}
         sx={{
-          borderBottom: "1px solid rgba(159,179,195,0.28)",
-          "& .MuiTab-root": { fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", letterSpacing: 2, color: "text.secondary", px: 3 },
+          borderBottom: "1px solid #3b494b",
+          "& .MuiTab-root": { fontFamily: "Space Grotesk, ui-monospace, SFMono-Regular, Menlo, monospace", color: "text.secondary", px: 3 },
           "& .Mui-selected": { color: "text.primary" }
         }}
       >
@@ -91,7 +91,7 @@ export function EnvironmentsPage({
         <Tab value="prs" label="PRs" />
       </Tabs>
 
-      <TableContainer sx={{ border: "1px solid rgba(159,179,195,0.32)", bgcolor: "rgba(255,255,255,0.035)", maxHeight: 520 }}>
+      <TableContainer sx={{ border: "1px solid #3b494b", bgcolor: "#192122", maxHeight: 520 }}>
         <Table stickyHeader sx={{ minWidth: 1180 }}>
           <TableHead>
             <TableRow>
@@ -115,24 +115,24 @@ export function EnvironmentsPage({
                 </TableCell>
               </TableRow>
             ) : filtered.map((environment) => (
-              <TableRow key={environment.key} hover sx={{ "& td": { py: 2.3, borderColor: "rgba(159,179,195,0.22)" } }}>
+              <TableRow key={environment.key} hover sx={{ "& td": { py: 2.3, borderColor: "#3b494b" } }}>
                 <TableCell>
                   <Stack direction="row" spacing={1.4} alignItems="center">
-                    <Typography color={environment.status === "failed" ? "#ffc4b7" : "#00e5ff"} fontWeight={900}>#</Typography>
+                    <Typography color={environment.status === "failed" ? "#ffb4ab" : "#00f0ff"} fontWeight={900}>#</Typography>
                     <Typography fontWeight={900} sx={{ maxWidth: 180, wordBreak: "break-word" }}>{environment.key}</Typography>
                   </Stack>
                 </TableCell>
                 <TableCell>{ownerLabel(environment.createdBy)}</TableCell>
                 <TableCell>
-                  <Chip size="small" label={isPullRequest(environment.createdBy) ? "PR" : "MANUAL"} sx={{ borderRadius: 0.5, fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }} />
+                  <Chip size="small" label={isPullRequest(environment.createdBy) ? "PR" : "MANUAL"} sx={{ borderRadius: "2px", fontFamily: "Space Grotesk, ui-monospace, SFMono-Regular, Menlo, monospace" }} />
                 </TableCell>
                 <TableCell>
                   {environment.status === "running" ? (
-                    <Button href={`https://${buildDomains(environment)[0]}`} target="_blank" rel="noreferrer" endIcon={<OpenInNewIcon fontSize="small" />} sx={{ color: "#00e5ff", justifyContent: "flex-start", p: 0 }}>
+                    <Button href={`https://${buildDomains(environment)[0]}`} target="_blank" rel="noreferrer" endIcon={<OpenInNewIcon fontSize="small" />} sx={{ color: "#00f0ff", justifyContent: "flex-start", p: 0 }}>
                       {buildDomains(environment)[0]}
                     </Button>
                   ) : (
-                    <Typography color={environment.status === "failed" ? "#ffc4b7" : "text.secondary"} fontStyle="italic">
+                    <Typography color={environment.status === "failed" ? "#ffb4ab" : "text.secondary"} fontStyle="italic">
                       {environment.status === "failed" ? "connection refused" : environment.status === "creating" ? "provisioning..." : "offline"}
                     </Typography>
                   )}
@@ -140,15 +140,15 @@ export function EnvironmentsPage({
                 <TableCell>{environment.source.branch}</TableCell>
                 <TableCell>
                   <Stack direction="row" spacing={1} alignItems="center">
-                    <Box sx={{ width: 9, height: 9, borderRadius: "50%", bgcolor: statusColor(environment.status), boxShadow: environment.status === "running" ? "0 0 10px #65ffc9" : "none" }} />
-                    <Typography color={statusColor(environment.status)} fontWeight={900} sx={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}>
+                    <Box sx={{ width: 9, height: 9, borderRadius: "50%", bgcolor: statusColor(environment.status), boxShadow: environment.status === "running" ? "0 0 10px #4edea3" : "none" }} />
+                    <Typography color={statusColor(environment.status)} fontWeight={900} sx={{ fontFamily: "Space Grotesk, ui-monospace, SFMono-Regular, Menlo, monospace" }}>
                       {environment.status.toUpperCase()}
                     </Typography>
                   </Stack>
                 </TableCell>
                 <TableCell>{formatDate(environment.createdAt)}</TableCell>
                 <TableCell>
-                  <Typography color={environment.status === "running" ? "#65ffc9" : "text.primary"} fontWeight={900}>
+                  <Typography color={environment.status === "running" ? "#4edea3" : "text.primary"} fontWeight={900}>
                     {containerCount(environment)}
                   </Typography>
                 </TableCell>
@@ -170,24 +170,24 @@ export function EnvironmentsPage({
       </TableContainer>
 
       <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", lg: "2fr 0.9fr" }, gap: 3 }}>
-        <Box sx={{ border: "1px solid rgba(159,179,195,0.32)", minHeight: 260, p: 2, display: "grid", alignItems: "end", position: "relative", overflow: "hidden" }}>
-          <Box sx={{ position: "absolute", inset: 0, opacity: 0.16, background: "linear-gradient(90deg, transparent 0 21%, #9fb3c3 21% 22%, transparent 22% 47%, #00e5ff 47% 48%, transparent 48%), repeating-linear-gradient(0deg, rgba(255,255,255,0.16), rgba(255,255,255,0.16) 1px, transparent 1px, transparent 17px)" }} />
+        <Box sx={{ border: "1px solid #3b494b", minHeight: 260, p: 2, display: "grid", alignItems: "end", position: "relative", overflow: "hidden", bgcolor: "#151d1e" }}>
+          <Box sx={{ position: "absolute", inset: 0, opacity: 0.16, background: "linear-gradient(90deg, transparent 0 21%, #849495 21% 22%, transparent 22% 47%, #00f0ff 47% 48%, transparent 48%), repeating-linear-gradient(0deg, rgba(220,228,229,0.16), rgba(220,228,229,0.16) 1px, transparent 1px, transparent 17px)" }} />
           <Box sx={{ position: "relative" }}>
-            <Typography color="text.primary" fontWeight={900} sx={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", letterSpacing: 3 }}>
-              NODE CLUSTER VISUALIZATION
+            <Typography color="text.primary" fontWeight={900} sx={{ fontFamily: "Space Grotesk, ui-monospace, SFMono-Regular, Menlo, monospace", }}>
+              NODE CLUSTER
             </Typography>
-            <Typography variant="body2">Real-time mapping of Docker daemon instances and traffic routing.</Typography>
+            <Typography variant="body2">Docker daemon routing and service state.</Typography>
           </Box>
         </Box>
-        <Box sx={{ border: "1px solid rgba(159,179,195,0.32)", p: 3, bgcolor: "rgba(255,255,255,0.035)" }}>
-          <Typography color="#ffd900" fontWeight={900} sx={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", letterSpacing: 4, mb: 2 }}>
+        <Box sx={{ border: "1px solid #3b494b", p: 3, bgcolor: "#192122" }}>
+          <Typography color="#fed639" fontWeight={900} sx={{ fontFamily: "Space Grotesk, ui-monospace, SFMono-Regular, Menlo, monospace", mb: 2 }}>
             RESOURCE USAGE
           </Typography>
-          <ResourceBar label="CPU Load" value={metrics?.cpu.percent ?? 0} color="#65ffc9" />
-          <ResourceBar label="Memory" value={metrics?.memory.percent ?? 0} color="#00e5ff" detail={metrics ? formatBytes(metrics.memory.usedBytes) : undefined} />
+          <ResourceBar label="CPU Load" value={metrics?.cpu.percent ?? 0} color="#4edea3" />
+          <ResourceBar label="Memory" value={metrics?.memory.percent ?? 0} color="#00f0ff" detail={metrics ? formatBytes(metrics.memory.usedBytes) : undefined} />
           <ResourceBar label="Storage" value={metrics?.storage.percent ?? 0} color="#d62929" />
-          <Box sx={{ borderTop: "1px solid rgba(159,179,195,0.24)", mt: 3, pt: 2 }}>
-            <Typography variant="caption" sx={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}>UPTIME: 142h 12m</Typography>
+          <Box sx={{ borderTop: "1px solid #3b494b", mt: 3, pt: 2 }}>
+            <Typography variant="caption" sx={{ fontFamily: "Space Grotesk, ui-monospace, SFMono-Regular, Menlo, monospace" }}>UPTIME: 142h 12m</Typography>
           </Box>
         </Box>
       </Box>
@@ -197,7 +197,7 @@ export function EnvironmentsPage({
 
 function HeaderCell({ children, align }: { children: string; align?: "right" }) {
   return (
-    <TableCell align={align} sx={{ color: "text.secondary", bgcolor: "#2a3735", fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", fontWeight: 900, textTransform: "uppercase" }}>
+    <TableCell align={align} sx={{ color: "text.secondary", bgcolor: "#232b2c", fontFamily: "Space Grotesk, ui-monospace, SFMono-Regular, Menlo, monospace", fontWeight: 900, textTransform: "uppercase" }}>
       {children}
     </TableCell>
   );
@@ -210,7 +210,7 @@ function ResourceBar({ label, value, color, detail }: { label: string; value: nu
         <Typography variant="caption" fontWeight={900}>{label.toUpperCase()}</Typography>
         {detail ? <Typography variant="caption">{detail}</Typography> : null}
       </Stack>
-      <LinearProgress variant="determinate" value={value} sx={{ mt: 0.8, bgcolor: "rgba(255,255,255,0.16)", "& .MuiLinearProgress-bar": { bgcolor: color } }} />
+      <LinearProgress variant="determinate" value={value} sx={{ mt: 0.8, bgcolor: "#2e3637", "& .MuiLinearProgress-bar": { bgcolor: color } }} />
     </Box>
   );
 }
@@ -228,9 +228,9 @@ function ownerLabel(value: EnvironmentRecord["createdBy"]): string {
 }
 
 function statusColor(status: EnvironmentRecord["status"]): string {
-  if (status === "running") return "#65ffc9";
-  if (status === "failed") return "#ffc4b7";
-  if (status === "creating") return "#00e5ff";
+  if (status === "running") return "#4edea3";
+  if (status === "failed") return "#ffb4ab";
+  if (status === "creating") return "#00f0ff";
   return "#d7e3ee";
 }
 
