@@ -62,6 +62,17 @@ reset_mongo_dir() {
     -lc 'shopt -s dotglob nullglob; rm -rf /data/db/*'
 }
 
+normalize_mongo_dir_permissions() {
+  local mongo_dir="$1"
+
+  docker run --rm \
+    -u 0 \
+    -v "$mongo_dir:/data/db" \
+    --entrypoint bash \
+    "$MONGO_IMAGE" \
+    -lc 'chmod -R a+rwX /data/db'
+}
+
 import_json_file() {
   local container="$1"
   local file_path="$2"
@@ -113,6 +124,7 @@ prepare_seed() {
   docker stop "$CURRENT_CONTAINER" >/dev/null
   docker rm "$CURRENT_CONTAINER" >/dev/null
   CURRENT_CONTAINER=""
+  normalize_mongo_dir_permissions "$mongo_dir"
 }
 
 if [[ ! -d "$SEEDS_DIR" ]]; then
