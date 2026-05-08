@@ -9,6 +9,7 @@ READY_FILE="${READY_FILE:-$BUS_ROOT/worker.ready}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MAX_RESULT_OUTPUT_BYTES="${MAX_RESULT_OUTPUT_BYTES:-65536}"
 ACTION_HEARTBEAT_SECONDS="${ACTION_HEARTBEAT_SECONDS:-30}"
+MAX_PARALLEL_ACTIONS="${MAX_PARALLEL_ACTIONS:-4}"
 
 mkdir -p "$RESULTS_DIR" "$LOGS_DIR"
 if [[ ! -p "$PIPE" ]]; then
@@ -77,6 +78,13 @@ run_payload_script() {
   fi
 }
 
+wait_for_parallel_slot() {
+  while [[ "$(jobs -rp | wc -l | tr -d " ")" -ge "$MAX_PARALLEL_ACTIONS" ]]; do
+    wait -n || true
+  done
+}
+
+
 run_and_capture() {
   local log_file="$1"
   shift
@@ -106,78 +114,95 @@ run_and_capture() {
   return "$code"
 }
 
+process_action() {
+  local line="$1"
+
+  if ! echo "$line" | jq -e . >/dev/null 2>&1; then
+    return 0
+  fi
+
+  local id
+  local type
+  local environment
+  local environment_port
+  local proxy_upstream_host
+  local output
+
+  id="$(echo "$line" | jq -r '.id // empty')"
+  type="$(echo "$line" | jq -r '.type // empty')"
+  environment="$(echo "$line" | jq -r '.payload.environment // empty')"
+  environment_port="$(echo "$line" | jq -r '.payload.environmentPort // empty')"
+  proxy_upstream_host="$(echo "$line" | jq -r '.payload.proxyUpstreamHost // empty')"
+
+  if [[ -z "$id" ]]; then
+    return 0
+  fi
+
+  case "$type" in
+    "environment.prepare")
+      run_payload_script "$id" "$SCRIPT_DIR/prepare-env.sh" "$line"
+      ;;
+    "environment.files.sync")
+      run_payload_script "$id" "$SCRIPT_DIR/sync-files.sh" "$line"
+      ;;
+    "environment.containers.inspect")
+      run_payload_script "$id" "$SCRIPT_DIR/inspect-containers.sh" "$line"
+      ;;
+    "environment.compose.logs")
+      run_payload_script "$id" "$SCRIPT_DIR/compose-logs.sh" "$line"
+      ;;
+    "environment.container.logs")
+      run_payload_script "$id" "$SCRIPT_DIR/container-logs.sh" "$line"
+      ;;
+    "environment.container.files")
+      run_payload_script "$id" "$SCRIPT_DIR/container-files.sh" "$line"
+      ;;
+    "environment.container.exec")
+      run_payload_script "$id" "$SCRIPT_DIR/container-exec.sh" "$line"
+      ;;
+    "environment.mongo.inspect")
+      run_payload_script "$id" "$SCRIPT_DIR/mongo-inspect.sh" "$line"
+      ;;
+    "environment.start")
+      if output="$(run_and_capture "$LOGS_DIR/$id.log" "$SCRIPT_DIR/start-env.sh" "$environment" "$environment_port" "$proxy_upstream_host")"; then
+        write_result "$id" "success" "Environment started" "$output"
+      else
+        write_result "$id" "error" "Environment start failed" "$output"
+      fi
+      ;;
+    "environment.stop")
+      if output="$(run_and_capture "$LOGS_DIR/$id.log" "$SCRIPT_DIR/stop-env.sh" "$environment")"; then
+        write_result "$id" "success" "Environment stopped" "$output"
+      else
+        write_result "$id" "error" "Environment stop failed" "$output"
+      fi
+      ;;
+    "environment.restart")
+      if output="$(run_and_capture "$LOGS_DIR/$id.log" "$SCRIPT_DIR/restart-env.sh" "$environment" "$environment_port" "$proxy_upstream_host")"; then
+        write_result "$id" "success" "Environment restarted" "$output"
+      else
+        write_result "$id" "error" "Environment restart failed" "$output"
+      fi
+      ;;
+    "environment.remove")
+      if output="$(run_and_capture "$LOGS_DIR/$id.log" "$SCRIPT_DIR/remove-env.sh" "$environment")"; then
+        write_result "$id" "success" "Environment removed" "$output"
+      else
+        write_result "$id" "error" "Environment remove failed" "$output"
+      fi
+      ;;
+    *)
+      write_result "$id" "error" "Unknown action type: $type"
+      ;;
+  esac
+}
+
 while true; do
   while IFS= read -r line; do
-    if ! echo "$line" | jq -e . >/dev/null 2>&1; then
-      continue
-    fi
+    wait_for_parallel_slot
 
-    id="$(echo "$line" | jq -r '.id // empty')"
-    type="$(echo "$line" | jq -r '.type // empty')"
-    environment="$(echo "$line" | jq -r '.payload.environment // empty')"
-    environment_port="$(echo "$line" | jq -r '.payload.environmentPort // empty')"
-    proxy_upstream_host="$(echo "$line" | jq -r '.payload.proxyUpstreamHost // empty')"
-
-    if [[ -z "$id" ]]; then
-      continue
-    fi
-
-    case "$type" in
-      "environment.prepare")
-        run_payload_script "$id" "$SCRIPT_DIR/prepare-env.sh" "$line"
-        ;;
-      "environment.files.sync")
-        run_payload_script "$id" "$SCRIPT_DIR/sync-files.sh" "$line"
-        ;;
-      "environment.containers.inspect")
-        run_payload_script "$id" "$SCRIPT_DIR/inspect-containers.sh" "$line"
-        ;;
-      "environment.compose.logs")
-        run_payload_script "$id" "$SCRIPT_DIR/compose-logs.sh" "$line"
-        ;;
-      "environment.container.logs")
-        run_payload_script "$id" "$SCRIPT_DIR/container-logs.sh" "$line"
-        ;;
-      "environment.container.files")
-        run_payload_script "$id" "$SCRIPT_DIR/container-files.sh" "$line"
-        ;;
-      "environment.container.exec")
-        run_payload_script "$id" "$SCRIPT_DIR/container-exec.sh" "$line"
-        ;;
-      "environment.mongo.inspect")
-        run_payload_script "$id" "$SCRIPT_DIR/mongo-inspect.sh" "$line"
-        ;;
-      "environment.start")
-        if output="$(run_and_capture "$LOGS_DIR/$id.log" "$SCRIPT_DIR/start-env.sh" "$environment" "$environment_port" "$proxy_upstream_host")"; then
-          write_result "$id" "success" "Environment started" "$output"
-        else
-          write_result "$id" "error" "Environment start failed" "$output"
-        fi
-        ;;
-      "environment.stop")
-        if output="$(run_and_capture "$LOGS_DIR/$id.log" "$SCRIPT_DIR/stop-env.sh" "$environment")"; then
-          write_result "$id" "success" "Environment stopped" "$output"
-        else
-          write_result "$id" "error" "Environment stop failed" "$output"
-        fi
-        ;;
-      "environment.restart")
-        if output="$(run_and_capture "$LOGS_DIR/$id.log" "$SCRIPT_DIR/restart-env.sh" "$environment" "$environment_port" "$proxy_upstream_host")"; then
-          write_result "$id" "success" "Environment restarted" "$output"
-        else
-          write_result "$id" "error" "Environment restart failed" "$output"
-        fi
-        ;;
-      "environment.remove")
-        if output="$(run_and_capture "$LOGS_DIR/$id.log" "$SCRIPT_DIR/remove-env.sh" "$environment")"; then
-          write_result "$id" "success" "Environment removed" "$output"
-        else
-          write_result "$id" "error" "Environment remove failed" "$output"
-        fi
-        ;;
-      *)
-        write_result "$id" "error" "Unknown action type: $type"
-        ;;
-    esac
+    (
+      process_action "$line"
+    ) &
   done < "$PIPE"
 done
