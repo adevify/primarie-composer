@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import { randomUUID } from "node:crypto";
+import dns from "node:dns/promises";
 import net from "node:net";
 import os from "node:os";
 import path from "node:path";
@@ -838,10 +839,11 @@ export class EnvironmentsService {
   private async publishEnvironmentAction(type: string, key: string, payload: Record<string, unknown> = {}, onLog?: HostActionLogHandler): Promise<HostActionResult> {
     logEnvironment("info", "bus_action_publish", { key, type });
     const record = await EnvironmentCollection.get(key);
+    const proxyUpstreamHost = await resolveHost(env.PROXY_UPSTREAM_HOST);
     const result = await this.bus.publish(type, {
       environment: key,
       environmentPort: record?.port,
-      proxyUpstreamHost: env.PROXY_UPSTREAM_HOST,
+      proxyUpstreamHost,
       runtimeRoot: env.HOST_RUNTIME_DIR,
       runtimePath: path.join(env.HOST_RUNTIME_DIR, key),
       ...payload
@@ -1018,6 +1020,15 @@ function tailText(value: string | undefined, maxLength = 4000): string | undefin
     return undefined;
   }
   return value.length > maxLength ? value.slice(-maxLength) : value;
+}
+
+async function resolveHost(host: string): Promise<string> {
+  if (net.isIP(host)) {
+    return host;
+  }
+
+  const result = await dns.lookup(host, { family: 4 });
+  return result.address;
 }
 
 function parseJsonLinesOrArray(output: string): unknown[] {

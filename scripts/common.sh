@@ -148,6 +148,11 @@ wait_for_proxy_upstream_port() {
     now="$(date +%s)"
     if (( now - started_at >= timeout_seconds )); then
       echo "Timed out waiting for Composer proxy to reach $host:$port after ${timeout_seconds}s." >&2
+      echo "Composer proxy container: $proxy_container" >&2
+      echo "Docker containers publishing :$port:" >&2
+      docker ps --filter "publish=$port" --format "table {{.Names}}\t{{.Ports}}\t{{.Status}}" >&2 || true
+      echo "Connectivity probe from Composer proxy:" >&2
+      docker exec "$proxy_container" sh -c 'nc -vz -w 2 "$0" "$1"' "$host" "$port" >&2 || true
       return 1
     fi
 
