@@ -100,10 +100,18 @@ export function EnvironmentDetails({
       return;
     }
 
-    void loadContainers();
-    void loadFiles("/");
-    void loadMongo();
-  }, [open, environment?.key]);
+    if (environment.status === "running") {
+      void loadContainers();
+      void loadFiles("/");
+      void loadMongo();
+      return;
+    }
+
+    setContainers([]);
+    setSelectedContainer("");
+    setFiles([]);
+    setMongoPreview(undefined);
+  }, [open, environment?.key, environment?.status]);
 
   useEffect(() => {
     if (!open || !environment) {
@@ -170,6 +178,10 @@ export function EnvironmentDetails({
     if (!environment) {
       return;
     }
+    if (environment.status !== "running") {
+      setContainers([]);
+      return;
+    }
 
     setLoadingContainers(true);
     setToolError(undefined);
@@ -187,6 +199,10 @@ export function EnvironmentDetails({
 
   async function loadFiles(pathOverride = containerPath): Promise<void> {
     if (!environment) {
+      return;
+    }
+    if (environment.status !== "running") {
+      setFiles([]);
       return;
     }
 
@@ -363,9 +379,9 @@ export function EnvironmentDetails({
           title="CONTAINERS"
           icon={<ViewInArIcon />}
           action={
-            <Stack direction="row" spacing={1} alignItems="center">
-              <Chip size="small" label={`${containers.filter((container) => container.State === "running").length || containers.length} ACTIVE`} sx={statusChipSx} />
-              <IconButton aria-label="Refresh containers" onClick={() => void loadContainers()} disabled={loadingContainers} sx={iconButtonSx}>
+              <Stack direction="row" spacing={1} alignItems="center">
+                <Chip size="small" label={`${containers.filter((container) => container.State === "running").length || containers.length} ACTIVE`} sx={statusChipSx} />
+              <IconButton aria-label="Refresh containers" onClick={() => void loadContainers()} disabled={loadingContainers || environment.status !== "running"} sx={iconButtonSx}>
                 {loadingContainers ? <CircularProgress size={18} /> : <RefreshIcon />}
               </IconButton>
             </Stack>

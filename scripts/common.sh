@@ -48,6 +48,8 @@ set_env_var() {
 ensure_env_proxy_hosts() {
   local env_file="$1"
   local root_domain="${ROOT_DOMAIN:-prmr.md}"
+  local env_name="${2:-}"
+  local env_port="${3:-}"
 
   if [[ ! -f "$env_file" ]]; then
     echo "Environment .env file is missing: $env_file" >&2
@@ -57,6 +59,56 @@ ensure_env_proxy_hosts() {
   set_env_var "$env_file" "HOST_1" "$root_domain"
   set_env_var "$env_file" "HOST_2" "$root_domain"
   set_env_var "$env_file" "ROOT_DOMAIN" "$root_domain"
+  if [[ -n "$env_name" ]]; then
+    set_env_var "$env_file" "ENV_KEY" "$env_name"
+  fi
+  if [[ -n "$env_port" ]]; then
+    set_env_var "$env_file" "ENV_PORT" "$env_port"
+    set_env_var "$env_file" "PROXY_EXTERNAL_PORT" "$env_port"
+  fi
+}
+
+read_env_var() {
+  local env_file="$1"
+  local key="$2"
+  local value
+
+  value="$(grep -E "^${key}=" "$env_file" | tail -n 1 | cut -d= -f2- || true)"
+  value="${value%\"}"
+  value="${value#\"}"
+  value="${value%\'}"
+  value="${value#\'}"
+  printf "%s" "$value"
+}
+
+wait_for_tcp_port() {
+  local host="$1"
+  local port="$2"
+  local timeout_seconds="${3:-120}"
+  local started_at
+  local now
+
+  if [[ -z "$port" || ! "$port" =~ ^[0-9]+$ ]]; then
+    echo "Invalid port: $port" >&2
+    exit 2
+  fi
+
+  echo "Waiting for $host:$port to accept connections..."
+  started_at="$(date +%s)"
+  while true; do
+    if (: >"/dev/tcp/$host/$port") >/dev/null 2>&1; then
+      echo "$host:$port is accepting connections."
+      return 0
+    fi
+
+    now="$(date +%s)"
+    if (( now - started_at >= timeout_seconds )); then
+      echo "Timed out waiting for $host:$port after ${timeout_seconds}s." >&2
+      return 1
+    fi
+
+    sleep 2
+  done
 }
 
 compose_cmd() {
