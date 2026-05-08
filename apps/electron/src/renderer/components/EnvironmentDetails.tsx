@@ -865,9 +865,21 @@ function LogTerminal({ logs, emptyText = "Waiting for Docker Compose log output.
 }
 
 function MongoPreview({ preview, fill = false }: { preview?: MongoPreviewPayload; fill?: boolean }) {
+  const [selectedCollectionName, setSelectedCollectionName] = useState("");
   const collections = preview?.collections ?? [];
-  const selected = collections[0];
+  const selected = collections.find((collection) => collection.name === selectedCollectionName) ?? collections[0];
   const documents = Array.isArray(selected?.sample) ? selected.sample : selected?.sample ? [selected.sample] : [];
+
+  useEffect(() => {
+    if (!collections.length) {
+      setSelectedCollectionName("");
+      return;
+    }
+
+    if (!selectedCollectionName || !collections.some((collection) => collection.name === selectedCollectionName)) {
+      setSelectedCollectionName(collections[0].name);
+    }
+  }, [collections, selectedCollectionName]);
 
   return (
     <Box sx={{ display: "grid", gridTemplateColumns: "38% 62%", minHeight: fill ? "100%" : 320 }}>
@@ -879,17 +891,34 @@ function MongoPreview({ preview, fill = false }: { preview?: MongoPreviewPayload
         ) : collections.length === 0 ? (
           <Box sx={{ px: 1.5, py: 1, color: "text.secondary" }}>No collections</Box>
         ) : collections.map((collection, index) => (
-          <Box key={collection.name} sx={{ px: 1.5, py: 1, bgcolor: index === 0 ? "rgba(159, 179, 195, 0.13)" : "transparent", color: "text.primary" }}>
-            {collection.name}
-            <Typography component="span" variant="caption" color="text.secondary" sx={{ ml: 1 }}>
+          <Button
+            key={collection.name}
+            onClick={() => setSelectedCollectionName(collection.name)}
+            sx={{
+              justifyContent: "space-between",
+              textAlign: "left",
+              borderRadius: 0,
+              px: 1.5,
+              py: 1,
+              color: "text.primary",
+              bgcolor: selected?.name === collection.name || (!selectedCollectionName && index === 0) ? "rgba(0, 240, 255, 0.08)" : "transparent",
+              fontFamily: monoFont,
+              textTransform: "none",
+              "&:hover": { bgcolor: "rgba(0, 240, 255, 0.11)" }
+            }}
+          >
+            <Typography sx={{ fontFamily: monoFont, fontSize: 13 }} noWrap>
+              {collection.name}
+            </Typography>
+            <Typography component="span" variant="caption" color="text.secondary" sx={{ ml: 1, fontFamily: monoFont }}>
               {collection.count}
             </Typography>
-          </Box>
+          </Button>
         ))}
       </Stack>
       <Stack sx={{ bgcolor: "#080f10", maxHeight: fill ? "none" : 420, overflow: "auto" }}>
         <Box sx={{ px: 1.5, py: 1, borderBottom: "1px solid #3b494b", color: "#4edea3", fontFamily: monoFont, fontSize: 12 }}>
-          {selected ? `${preview?.database}.${selected.name} / ${documents.length} sample docs` : preview?.available ? `Database: ${preview.database}` : "{}"}
+          {selected ? `${preview?.database}.${selected.name} / ${documents.length}/${selected.count} docs` : preview?.available ? `Database: ${preview.database}` : "{}"}
         </Box>
         <Box component="pre" sx={{ m: 0, p: 1.5, color: "#d7e3ee", fontFamily: monoFont, fontSize: 12, overflow: "auto" }}>
           {selected ? JSON.stringify(documents, null, 2) : preview?.available ? "[]" : "{}"}

@@ -324,7 +324,7 @@ export class EnvironmentsService {
         ENV_KEY: key,
         ENV_PORT: String((await EnvironmentCollection.get(key)).port),
         ROOT_DOMAIN: env.ROOT_DOMAIN,
-        MONGO_DATABASE: `primarie_env_${key}`
+        MONGO_DATABASE: "primarie"
       }
     });
 
@@ -649,7 +649,7 @@ export class EnvironmentsService {
 
   async inspectMongo(key: string) {
     await this.get(key);
-    const result = await this.publishEnvironmentAction("environment.mongo.inspect", key, { limit: 20 });
+    const result = await this.publishEnvironmentAction("environment.mongo.inspect", key, { limit: 100 });
     return parseJsonValue(result.output ?? "{}");
   }
 
@@ -963,7 +963,7 @@ export class EnvironmentsService {
       ENV_KEY: environmentVariables.ENV_KEY ?? key,
       ENV_PORT: environmentVariables.ENV_PORT ?? String((await EnvironmentCollection.get(key)).port),
       ROOT_DOMAIN: environmentVariables.ROOT_DOMAIN ?? env.ROOT_DOMAIN,
-      MONGO_DATABASE: environmentVariables.MONGO_DATABASE ?? `primarie_env_${key}`
+      MONGO_DATABASE: environmentVariables.MONGO_DATABASE ?? "primarie"
     };
 
     const lines = Object.entries(content).map(([name, value]) => `${name}=${escapeEnvValue(value)}`);

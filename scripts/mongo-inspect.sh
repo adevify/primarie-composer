@@ -25,12 +25,14 @@ fi
 cd "$ENV_DIR"
 container_id="$(compose_cmd -p "$PROJECT_NAME" --env-file "$ENV_DIR/.env" ps -q mongodb || true)"
 if [[ -z "$container_id" ]]; then
+  container_id="$(compose_cmd -p "$PROJECT_NAME" --env-file "$ENV_DIR/.env" ps -q mongo || true)"
+fi
+if [[ -z "$container_id" ]]; then
   jq -n --arg reason "MongoDB container is not running" '{ available: false, reason: $reason }'
   exit 0
 fi
 
-database="$(read_env_var "$ENV_DIR/.env" "MONGO_DATABASE")"
-database="${database:-primarie}"
+database="primarie"
 
 docker exec "$container_id" mongosh "$database" --quiet --eval "
 const limit = Number($LIMIT);
