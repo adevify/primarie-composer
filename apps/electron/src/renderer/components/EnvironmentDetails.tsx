@@ -21,7 +21,7 @@ import StorageIcon from "@mui/icons-material/Storage";
 import StopCircleIcon from "@mui/icons-material/StopCircle";
 import TerminalIcon from "@mui/icons-material/Terminal";
 import ViewInArIcon from "@mui/icons-material/ViewInAr";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type {
   ContainerFileEntry,
   EnvironmentActionLog,
@@ -650,6 +650,13 @@ function DataCell({ children, strong = false, accent = false }: { children: Reac
 }
 
 function LogTerminal({ logs, emptyText = "Waiting for Docker Compose log output." }: { logs: Array<{ at: string; message: string; level: "info" | "error"; system: boolean }>; emptyText?: string; }) {
+  const bottomRef = useRef<HTMLDivElement | null>(null);
+  const latestLog = logs.at(-1);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ block: "end" });
+  }, [logs.length, latestLog?.at, latestLog?.message]);
+
   return (
     <Box sx={{ minHeight: 460, maxHeight: 560, overflow: "auto", bgcolor: "#02051d", p: 2, fontFamily: monoFont, fontSize: 14, lineHeight: 1.7 }}>
       {logs.length === 0 ? (
@@ -667,6 +674,7 @@ function LogTerminal({ logs, emptyText = "Waiting for Docker Compose log output.
         </Box>
       ))}
       <Box sx={{ color: "#00e5ff", mt: 2 }}>$ _</Box>
+      <Box ref={bottomRef} sx={{ height: 1 }} />
     </Box>
   );
 }

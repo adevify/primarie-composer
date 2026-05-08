@@ -83,10 +83,17 @@ export class HostActionBusService {
     const filePath = `${env.BUS_RESULTS_DIR}/${actionId}.json`;
     const logPath = `${env.BUS_LOGS_DIR}/${actionId}.log`;
     const startedAt = Date.now();
+    let deadlineAt = startedAt + timeoutMs;
     let logOffset = 0;
+    let observedLogSize = 0;
 
-    while (Date.now() - startedAt < timeoutMs) {
-      logOffset = await readNewLogLines(logPath, logOffset, onLog);
+    while (Date.now() < deadlineAt) {
+      const logProgress = await readNewLogLines(logPath, logOffset, observedLogSize, onLog);
+      logOffset = logProgress.offset;
+      observedLogSize = logProgress.size;
+      if (logProgress.advanced) {
+        deadlineAt = Date.now() + timeoutMs;
+      }
 
       const content = await fs.readFile(filePath, "utf8").catch((error) => {
         if (isNodeError(error) && error.code === "ENOENT") {
@@ -96,7 +103,8 @@ export class HostActionBusService {
       });
 
       if (content !== null) {
-        logOffset = await readNewLogLines(logPath, logOffset, onLog);
+        const finalLogProgress = await readNewLogLines(logPath, logOffset, observedLogSize, onLog);
+        logOffset = finalLogProgress.offset;
         await fs.unlink(filePath).catch(() => undefined);
         await fs.unlink(logPath).catch(() => undefined);
         const result = parseResult(content, actionId);
@@ -114,7 +122,7 @@ export class HostActionBusService {
       await delay(env.BUS_POLL_INTERVAL_MS);
     }
 
-    logBus("error", "timeout", { id: actionId, type, timeoutMs });
+    logBus("error", "timeout", { id: actionId, type, timeoutMs, idleMs: Date.now() - (deadlineAt - timeoutMs) });
     throw Object.assign(new Error(`Host action timed out: ${actionId}`), { status: 504 });
   }
 
@@ -156,11 +164,12 @@ function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function readNewLogLines(logPath: string, offset: number, onLog?: HostActionLogHandler): Promise<number> {
-  if (!onLog) {
-    return offset;
-  }
-
+async function readNewLogLines(
+  logPath: string,
+  offset: number,
+  observedSize: number,
+  onLog?: HostActionLogHandler
+): Promise<{ offset: number; size: number; advanced: boolean }> {
   const content = await fs.readFile(logPath, "utf8").catch((error) => {
     if (isNodeError(error) && error.code === "ENOENT") {
       return null;
@@ -168,14 +177,24 @@ async function readNewLogLines(logPath: string, offset: number, onLog?: HostActi
     throw error;
   });
 
-  if (content === null || offset >= content.length) {
-    return offset;
+  if (content === null) {
+    return { offset: 0, size: 0, advanced: false };
   }
 
-  const nextChunk = content.slice(offset);
+  const normalizedOffset = offset > content.length ? 0 : offset;
+  const advanced = content.length > observedSize;
+  if (!onLog) {
+    return { offset: content.length, size: content.length, advanced };
+  }
+
+  if (normalizedOffset >= content.length) {
+    return { offset: normalizedOffset, size: content.length, advanced };
+  }
+
+  const nextChunk = content.slice(normalizedOffset);
   const lastNewlineIndex = nextChunk.lastIndexOf("\n");
   if (lastNewlineIndex === -1) {
-    return offset;
+    return { offset: normalizedOffset, size: content.length, advanced };
   }
 
   const completeChunk = nextChunk.slice(0, lastNewlineIndex + 1);
@@ -185,7 +204,7 @@ async function readNewLogLines(logPath: string, offset: number, onLog?: HostActi
     await onLog({ log: line, level: "info" });
   }
 
-  return offset + completeChunk.length;
+  return { offset: normalizedOffset + completeChunk.length, size: content.length, advanced };
 }
 
 function isNodeError(error: unknown): error is NodeJS.ErrnoException {
