@@ -235,6 +235,8 @@ export class EnvironmentsService {
       throw Object.assign(new Error("Environment key must be a lowercase slug"), { status: 400 });
     }
 
+    await this.assertSeedReady(input.seed);
+
     const existing = await EnvironmentCollection.getSilent(key);
 
     if (existing) {
@@ -270,7 +272,7 @@ export class EnvironmentsService {
       log: "Environment created",
     });
 
-    void this.prepareEnvironment(key, runtimePath, input.source, {
+    void this.prepareEnvironment(key, runtimePath, input.seed, input.source, {
       ...input.env,
       PROXY_EXTERNAL_PORT: String(port),
     }).catch(async (error) => {
@@ -292,6 +294,7 @@ export class EnvironmentsService {
   private async prepareEnvironment(
     key: string,
     runtimePath: string,
+    seedName: string,
     source: EnvironmentSource,
     environmentVariables: Record<string, string>
   ): Promise<void> {
@@ -309,6 +312,8 @@ export class EnvironmentsService {
     await this.updateStatus(key, "cloning");
     const result = await this.publishEnvironmentAction("environment.prepare", key, {
       runtimePath,
+      seedName,
+      hostSeedsDir: env.HOST_SEEDS_DIR,
       source,
       sourceRepoUrl: env.SOURCE_REPO_URL,
       environmentVariables: {
@@ -335,6 +340,21 @@ export class EnvironmentsService {
 
     await this.updateStatus(key, "stopped");
     logEnvironment("info", "prepare_completed", { key, status: "stopped" });
+  }
+
+  private async assertSeedReady(seedName: string): Promise<void> {
+    const seedPath = path.join(env.SEEDS_DIR, seedName);
+    const mongoPath = path.join(seedPath, "mongodb");
+    const seedStat = await fs.stat(seedPath).catch(() => null);
+    const mongoStat = await fs.stat(mongoPath).catch(() => null);
+
+    if (!seedStat?.isDirectory()) {
+      throw Object.assign(new Error(`Seed folder not found: ${seedName}`), { status: 400 });
+    }
+
+    if (!mongoStat?.isDirectory()) {
+      throw Object.assign(new Error(`Seed is not prepared yet: ${seedName}`), { status: 400 });
+    }
   }
 
   async list(): Promise<EnvironmentRecord[]> {

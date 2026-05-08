@@ -213,6 +213,11 @@ start_compose() {
   log "Composer stack started."
 }
 
+prepare_seeds() {
+  log "Preparing seed MongoDB data folders..."
+  SEEDS_DIR="${HOST_SEEDS_DIR:-$ROOT_DIR/seeds}" "$ROOT_DIR/scripts/prepare-seeds.sh"
+}
+
 run_checks() {
   ensure_command jq jq
   ensure_command git git
@@ -229,6 +234,7 @@ if [[ "${CHECK_ONLY:-0}" == "1" ]]; then
   exit 0
 fi
 
+prepare_seeds
 start_bus
 start_compose
 

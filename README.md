@@ -86,11 +86,12 @@ The API will:
 5. checkout `source.branch`,
 6. checkout exact `source.commit`,
 7. apply `source.changedFiles` over the cloned repo,
-8. copy `seeds/{seed}` into `runtime/environments/{key}/seeds`,
-9. create `runtime/environments/{key}/mongo-dump` from seed JSON files,
-10. write `.env` and `source.json`,
-11. run `docker compose up -d`,
-12. store metadata in `runtime/environments.json`.
+8. verify that `seeds/{seed}` exists and has prepared MongoDB data,
+9. copy `seeds/{seed}/mongodb` to `runtime/environments/{key}/data/mongodb`,
+10. copy `seeds/{seed}/media` to `runtime/environments/{key}/data/media` when present,
+11. write `.env` and `source.json`,
+12. run `docker compose up -d`,
+13. store metadata in `runtime/environments.json`.
 
 The create response includes the generated key and runtime config:
 
@@ -174,7 +175,7 @@ SOURCE_COMMIT=abc1234567890
 SOURCE_DIRTY=true
 ```
 
-The generated `mongo-dump` folder is mounted into the environment MongoDB container at `/docker-entrypoint-initdb.d`. Its import script loads each seed JSON file as a Mongo collection when the environment Mongo container starts with an empty data volume.
+`scripts/start-composer.sh` and `scripts/debug-composer.sh` run `scripts/prepare-seeds.sh` before starting Compose. That script scans `seeds/*`, rebuilds each `seeds/{seed}/mongodb` folder with the `primarie` database, and imports every top-level `*.json` file as a collection named after the file basename. Environment MongoDB containers mount the copied `data/mongodb` folder directly, so the database is present on first start.
 
 ## Environment routes
 

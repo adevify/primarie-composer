@@ -93,8 +93,14 @@ export function EnvironmentDetails({
   const [execOutput, setExecOutput] = useState("");
   const [execRunning, setExecRunning] = useState(false);
   const [utilityTab, setUtilityTab] = useState<UtilityTab>("logs");
+  const fileRequestIdRef = useRef(0);
 
-  const selectedLiveSession = liveLogSessions.find((session) => session.status === "running") ?? liveLogSessions[0];
+  const environmentLogSessions = useMemo(() => liveLogSessions.filter((session) => session.environmentKey === environment?.key), [liveLogSessions, environment?.key]);
+  const selectedLiveSession = selectedContainer
+    ? environmentLogSessions.find((session) => session.title === selectedContainer && session.status === "running")
+      ?? environmentLogSessions.find((session) => session.title === selectedContainer)
+    : environmentLogSessions.find((session) => session.subtitle === "Docker Compose logs" && session.status === "running")
+      ?? environmentLogSessions.find((session) => session.subtitle === "Docker Compose logs");
   const displayedLiveLogs = useMemo(() => (selectedLiveSession?.entries ?? []).map((entry) => ({
     at: entry.at,
     message: entry.log,
@@ -148,6 +154,8 @@ export function EnvironmentDetails({
       return;
     }
 
+    setFiles([]);
+    setExecOutput("");
     setContainerPath("/");
     void loadFiles("/");
   }, [open, environment?.key, environment?.status, selectedContainer]);
@@ -212,7 +220,7 @@ export function EnvironmentDetails({
       const nextContainers = await onListContainers(environment.key);
       setContainers(nextContainers);
       const firstName = nextContainers.map(containerName).find(Boolean) ?? "";
-      setSelectedContainer((current) => current || firstName);
+      setSelectedContainer((current) => nextContainers.some((container) => containerName(container) === current) ? current : firstName);
     } catch (error) {
       setToolError(toErrorMessage(error));
     } finally {
@@ -220,7 +228,19 @@ export function EnvironmentDetails({
     }
   }
 
-  async function loadFiles(pathOverride = containerPath): Promise<void> {
+  function selectContainer(name: string): void {
+    if (name === selectedContainer) {
+      return;
+    }
+
+    setSelectedContainer(name);
+    setContainerPath("/");
+    setFiles([]);
+    setExecOutput("");
+    setToolError(undefined);
+  }
+
+  async function loadFiles(pathOverride = containerPath, containerOverride = selectedContainer): Promise<void> {
     if (!environment) {
       return;
     }
@@ -229,17 +249,26 @@ export function EnvironmentDetails({
       return;
     }
 
+    const requestId = fileRequestIdRef.current + 1;
+    fileRequestIdRef.current = requestId;
     setLoadingFiles(true);
     setToolError(undefined);
     try {
-      setFiles(selectedContainer
-        ? await onListContainerFiles(environment.key, selectedContainer, pathOverride)
-        : await onListEnvironmentFiles(environment.key, pathOverride));
-      setContainerPath(pathOverride);
+      const nextFiles = containerOverride
+        ? await onListContainerFiles(environment.key, containerOverride, pathOverride)
+        : await onListEnvironmentFiles(environment.key, pathOverride);
+      if (requestId === fileRequestIdRef.current) {
+        setFiles(nextFiles);
+        setContainerPath(pathOverride);
+      }
     } catch (error) {
-      setToolError(toErrorMessage(error));
+      if (requestId === fileRequestIdRef.current) {
+        setToolError(toErrorMessage(error));
+      }
     } finally {
-      setLoadingFiles(false);
+      if (requestId === fileRequestIdRef.current) {
+        setLoadingFiles(false);
+      }
     }
   }
 
@@ -445,12 +474,7 @@ export function EnvironmentDetails({
                 return (
                   <Button
                     key={name || index}
-                    onClick={() => {
-                      setSelectedContainer(name);
-                      if (utilityTab === "files") {
-                        void loadFiles("/");
-                      }
-                    }}
+                    onClick={() => selectContainer(name)}
                     sx={{
                       display: "block",
                       textAlign: "left",

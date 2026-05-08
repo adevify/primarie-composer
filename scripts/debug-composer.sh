@@ -20,6 +20,9 @@ trap cleanup EXIT INT TERM
 printf "[composer-debug] running prerequisite checks...\n"
 CHECK_ONLY=1 "$ROOT_DIR/scripts/start-composer.sh"
 
+printf "[composer-debug] preparing seed MongoDB data folders...\n"
+SEEDS_DIR="${HOST_SEEDS_DIR:-$ROOT_DIR/seeds}" "$ROOT_DIR/scripts/prepare-seeds.sh"
+
 printf "[composer-debug] starting Bash FIFO bus in live log mode...\n"
 BUS_ROOT="$BUS_ROOT" \
 COMPOSER_ROOT="$ROOT_DIR" \
