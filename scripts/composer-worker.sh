@@ -5,13 +5,14 @@ BUS_ROOT="${BUS_ROOT:-/opt/composer-bus}"
 PIPE="${PIPE:-$BUS_ROOT/actions.pipe}"
 RESULTS_DIR="${RESULTS_DIR:-$BUS_ROOT/results}"
 LOGS_DIR="${LOGS_DIR:-$BUS_ROOT/logs}"
+LOCKS_DIR="${LOCKS_DIR:-$BUS_ROOT/locks}"
 READY_FILE="${READY_FILE:-$BUS_ROOT/worker.ready}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MAX_RESULT_OUTPUT_BYTES="${MAX_RESULT_OUTPUT_BYTES:-65536}"
 ACTION_HEARTBEAT_SECONDS="${ACTION_HEARTBEAT_SECONDS:-30}"
 MAX_PARALLEL_ACTIONS="${MAX_PARALLEL_ACTIONS:-4}"
 
-mkdir -p "$RESULTS_DIR" "$LOGS_DIR"
+mkdir -p "$RESULTS_DIR" "$LOGS_DIR" "$LOCKS_DIR"
 if [[ ! -p "$PIPE" ]]; then
   rm -f "$PIPE"
   mkfifo "$PIPE"
@@ -84,6 +85,67 @@ wait_for_parallel_slot() {
   done
 }
 
+requires_environment_lock() {
+  local type="$1"
+
+  [[ "$type" == "environment.start" \
+    || "$type" == "environment.stop" \
+    || "$type" == "environment.restart" \
+    || "$type" == "environment.containers.inspect" \
+    || "$type" == "environment.mongo.inspect" ]]
+}
+
+environment_lock_path() {
+  local environment="$1"
+  local safe_environment
+
+  safe_environment="$(printf "%s" "$environment" | tr -c 'A-Za-z0-9_.-' '_')"
+  printf "%s/env-%s" "$LOCKS_DIR" "$safe_environment"
+}
+
+acquire_environment_lock() {
+  local lock_dir="$1"
+  local id="$2"
+  local type="$3"
+  local environment="$4"
+  local lock_pid
+
+  if mkdir "$lock_dir" >/dev/null 2>&1; then
+    {
+      printf "pid=%s\n" "$BASHPID"
+      printf "id=%s\n" "$id"
+      printf "type=%s\n" "$type"
+      printf "environment=%s\n" "$environment"
+      printf "startedAt=%s\n" "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+    } > "$lock_dir/info"
+    return 0
+  fi
+
+  lock_pid="$(sed -n 's/^pid=//p' "$lock_dir/info" 2>/dev/null | head -n 1 || true)"
+  if [[ -n "$lock_pid" ]] && ! kill -0 "$lock_pid" >/dev/null 2>&1; then
+    rm -rf "$lock_dir"
+    if mkdir "$lock_dir" >/dev/null 2>&1; then
+      {
+        printf "pid=%s\n" "$BASHPID"
+        printf "id=%s\n" "$id"
+        printf "type=%s\n" "$type"
+        printf "environment=%s\n" "$environment"
+        printf "startedAt=%s\n" "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+      } > "$lock_dir/info"
+      return 0
+    fi
+  fi
+
+  return 1
+}
+
+release_environment_lock() {
+  local lock_dir="$1"
+
+  if [[ -n "$lock_dir" ]]; then
+    rm -rf "$lock_dir"
+  fi
+}
 
 run_and_capture() {
   local log_file="$1"
@@ -127,6 +189,7 @@ process_action() {
   local environment_port
   local proxy_upstream_host
   local output
+  local action_lock_dir
 
   id="$(echo "$line" | jq -r '.id // empty')"
   type="$(echo "$line" | jq -r '.type // empty')"
@@ -136,6 +199,21 @@ process_action() {
 
   if [[ -z "$id" ]]; then
     return 0
+  fi
+
+  if requires_environment_lock "$type"; then
+    if [[ -z "$environment" ]]; then
+      write_result "$id" "error" "Environment is required for locked action: $type"
+      return 0
+    fi
+
+    action_lock_dir="$(environment_lock_path "$environment")"
+    if ! acquire_environment_lock "$action_lock_dir" "$id" "$type" "$environment"; then
+      write_result "$id" "error" "Environment action already running for $environment" "Locked action rejected: $type for $environment"
+      echo "[composer-worker] locked $id - $type for $environment already has an active action"
+      return 0
+    fi
+    trap 'release_environment_lock "$action_lock_dir"' RETURN
   fi
 
   case "$type" in
