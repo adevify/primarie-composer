@@ -698,7 +698,16 @@ export class EnvironmentsService {
 
   async start(key: string): Promise<EnvironmentRecord> {
     try {
-      await this.get(key);
+      const record = await this.get(key);
+      if (record.status === "starting") {
+        await EnvironmentLogCollection.add({
+          environmentKey: key,
+          log: "Start already in progress",
+          system: true,
+        });
+        return record;
+      }
+
       await EnvironmentLogCollection.add({
         environmentKey: key,
         log: "Starting environment",

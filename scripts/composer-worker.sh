@@ -147,6 +147,25 @@ release_environment_lock() {
   fi
 }
 
+write_lock_conflict_result() {
+  local id="$1"
+  local type="$2"
+  local environment="$3"
+  local message="Environment action already running for $environment"
+
+  case "$type" in
+    "environment.containers.inspect")
+      write_result "$id" "success" "$message" "[]"
+      ;;
+    "environment.mongo.inspect")
+      write_result "$id" "success" "$message" "{\"available\":false,\"reason\":\"$message\"}"
+      ;;
+    *)
+      write_result "$id" "success" "$message" "$message"
+      ;;
+  esac
+}
+
 run_and_capture() {
   local log_file="$1"
   shift
@@ -210,8 +229,8 @@ process_action() {
 
     action_lock_dir="$(environment_lock_path "$environment")"
     if ! acquire_environment_lock "$action_lock_dir" "$id" "$type" "$environment"; then
-      write_result "$id" "error" "Environment action already running for $environment" "Locked action rejected: $type for $environment"
-      echo "[composer-worker] locked $id - $type for $environment already has an active action"
+      write_lock_conflict_result "$id" "$type" "$environment"
+      echo "[composer-worker] locked $id - $type for $environment already has an active action; returning no-op result"
       return 0
     fi
     trap 'release_environment_lock "$action_lock_dir"' RETURN
