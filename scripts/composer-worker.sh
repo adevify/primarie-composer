@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+umask 000
 
 BUS_ROOT="${BUS_ROOT:-/opt/composer-bus}"
 PIPE="${PIPE:-$BUS_ROOT/actions.pipe}"
@@ -13,12 +14,15 @@ ACTION_HEARTBEAT_SECONDS="${ACTION_HEARTBEAT_SECONDS:-30}"
 MAX_PARALLEL_ACTIONS="${MAX_PARALLEL_ACTIONS:-4}"
 
 mkdir -p "$RESULTS_DIR" "$LOGS_DIR" "$LOCKS_DIR"
+chmod 777 "$RESULTS_DIR" "$LOGS_DIR" "$LOCKS_DIR" 2>/dev/null || true
 if [[ ! -p "$PIPE" ]]; then
   rm -f "$PIPE"
   mkfifo "$PIPE"
+  chmod 666 "$PIPE" 2>/dev/null || true
 fi
 
 date -u +%Y-%m-%dT%H:%M:%SZ > "$READY_FILE"
+chmod 666 "$READY_FILE" 2>/dev/null || true
 
 write_result() {
   local id="$1"
@@ -171,6 +175,12 @@ run_and_capture() {
   shift
   local output_file
   local heartbeat_pid
+
+  if ! ensure_action_log_file "$log_file"; then
+    printf "Unable to write action log file: %s\n" "$log_file"
+    return 13
+  fi
+
   output_file="$(mktemp)"
   : >> "$log_file"
 
@@ -194,6 +204,34 @@ run_and_capture() {
   cat "$output_file"
   rm -f "$output_file"
   return "$code"
+}
+
+ensure_action_log_file() {
+  local log_file="$1"
+  local log_dir
+  log_dir="$(dirname "$log_file")"
+
+  mkdir -p "$log_dir" 2>/dev/null || true
+  chmod 777 "$log_dir" 2>/dev/null || true
+
+  if [[ -e "$log_file" && ! -w "$log_file" ]]; then
+    chmod 666 "$log_file" 2>/dev/null || true
+  fi
+
+  if [[ -e "$log_file" && ! -w "$log_file" && -w "$log_dir" ]]; then
+    rm -f "$log_file" 2>/dev/null || true
+  fi
+
+  if ! : >> "$log_file" 2>/dev/null; then
+    if command -v sudo >/dev/null 2>&1 && sudo -n true >/dev/null 2>&1; then
+      sudo mkdir -p "$log_dir"
+      sudo touch "$log_file"
+      sudo chmod 777 "$log_dir"
+      sudo chmod 666 "$log_file"
+    fi
+  fi
+
+  [[ -w "$log_file" ]]
 }
 
 process_action() {
@@ -221,8 +259,14 @@ process_action() {
     return 0
   fi
 
-  : >> "$LOGS_DIR/$id.log"
-  printf "[composer-worker] accepted action at %s: %s\n" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$type" >> "$LOGS_DIR/$id.log"
+  local action_log_file="$LOGS_DIR/$id.log"
+  if ! ensure_action_log_file "$action_log_file"; then
+    write_result "$id" "error" "Action log file is not writable: $action_log_file"
+    echo "[composer-worker] error $id - Action log file is not writable: $action_log_file"
+    return 0
+  fi
+
+  printf "[composer-worker] accepted action at %s: %s\n" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$type" >> "$action_log_file"
 
   if requires_environment_lock "$type"; then
     if [[ -z "$environment" ]]; then
@@ -232,7 +276,7 @@ process_action() {
 
     action_lock_dir="$(environment_lock_path "$environment")"
     if ! acquire_environment_lock "$action_lock_dir" "$id" "$type" "$environment"; then
-      printf "[composer-worker] lock conflict at %s: %s for %s\n" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$type" "$environment" >> "$LOGS_DIR/$id.log"
+      printf "[composer-worker] lock conflict at %s: %s for %s\n" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$type" "$environment" >> "$action_log_file"
       write_lock_conflict_result "$id" "$type" "$environment"
       echo "[composer-worker] locked $id - $type for $environment already has an active action; returning no-op result"
       return 0

@@ -479,7 +479,6 @@ export class EnvironmentsService {
       requestedBy: this.toOwner(user),
       logFile
     });
-    await this.appendActionLogLine(id, `Action queued: ${action} ${key}`);
 
     void this.runLifecycleActionJob(id, key, action, user);
     return EnvironmentActionCollection.get(id);
@@ -522,7 +521,6 @@ export class EnvironmentsService {
       user: user.email
     });
     await EnvironmentActionCollection.update(id, { status: "running" });
-    await this.appendActionLogLine(id, `Action running: ${action} ${key}`);
 
     try {
       const environment = await this.streamLifecycleAction(
@@ -1062,8 +1060,9 @@ export class EnvironmentsService {
 
   private async reserveActionLogFile(id: string): Promise<EnvironmentActionLogFile> {
     const logFilePath = this.actionLogPath(id);
-    await fs.mkdir(path.dirname(logFilePath), { recursive: true });
-    await fs.writeFile(logFilePath, "", { flag: "a" });
+    const logDir = path.dirname(logFilePath);
+    await fs.mkdir(logDir, { recursive: true });
+    await fs.chmod(logDir, 0o777).catch(() => undefined);
     const createdAt = new Date();
     return {
       path: logFilePath,
@@ -1090,12 +1089,6 @@ export class EnvironmentsService {
 
   private actionLogPath(id: string, logFile?: EnvironmentActionLogFile): string {
     return logFile?.path ?? path.join(env.BUS_LOGS_DIR, `${id}.log`);
-  }
-
-  private async appendActionLogLine(id: string, line: string): Promise<void> {
-    const logFilePath = this.actionLogPath(id);
-    await fs.mkdir(path.dirname(logFilePath), { recursive: true });
-    await fs.appendFile(logFilePath, `[api] ${new Date().toISOString()} ${line}\n`, "utf8");
   }
 
   private async logSystemEvent(
