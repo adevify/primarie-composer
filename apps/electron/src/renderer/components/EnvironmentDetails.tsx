@@ -126,12 +126,24 @@ export function EnvironmentDetails({
   })), [selectedLiveSession]);
   const selectedAction = actions.find((action) => action.id === selectedActionId);
   const selectedContainerRecord = containers.find((container) => containerName(container) === selectedContainer);
-  const displayedActionLogs = useMemo(() => actionLogs.map((entry) => ({
-    at: entry.createdAt ?? selectedAction?.createdAt ?? new Date(0).toISOString(),
-    message: entry.line ?? entry.log ?? "",
-    level: entry.level,
-    system: false
-  })), [actionLogs, selectedAction?.createdAt]);
+  const displayedActionLogs = useMemo(() => {
+    const historical = actionLogs.map((entry) => ({
+      at: entry.createdAt ?? selectedAction?.createdAt ?? new Date(0).toISOString(),
+      message: entry.line ?? entry.log ?? "",
+      level: entry.level,
+      system: false
+    }));
+
+    const live = liveLogSessions.find((s) => s.id === selectedActionId)?.entries ?? [];
+    const liveMapped = live.map((entry) => ({
+      at: entry.at,
+      message: entry.log,
+      level: entry.level,
+      system: false
+    }));
+
+    return [...historical, ...liveMapped];
+  }, [actionLogs, selectedAction?.createdAt, liveLogSessions, selectedActionId]);
   const displayedPrimaryLogs = displayedLiveLogs.length ? displayedLiveLogs : logTailEntries;
 
   useEffect(() => {
@@ -158,20 +170,20 @@ export function EnvironmentDetails({
   }, [activeTabs, utilityTab]);
 
   useEffect(() => {
-    if (!open || !environment) {
+    if (!open || !environment || utilityTab !== "actions") {
       return;
     }
 
     void loadActions();
-  }, [open, environment?.key, actionRefreshToken]);
+  }, [open, environment?.key, utilityTab, actionRefreshToken]);
 
   useEffect(() => {
-    if (!open || !selectedActionId) {
+    if (!open || !selectedActionId || utilityTab !== "actions") {
       return;
     }
 
     void loadActionLogs(selectedActionId);
-  }, [open, selectedActionId]);
+  }, [open, selectedActionId, utilityTab]);
 
   useEffect(() => {
     if (!open || !environment || environment.status !== "running" || !selectedContainer) {

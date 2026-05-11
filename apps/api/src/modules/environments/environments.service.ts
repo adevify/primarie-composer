@@ -523,11 +523,14 @@ export class EnvironmentsService {
     await EnvironmentActionCollection.update(id, { status: "running" });
 
     try {
+      const logFilePath = this.actionLogPath(id);
       const environment = await this.streamLifecycleAction(
         key,
         action,
         user,
-        async () => undefined,
+        async (entry) => {
+          await fs.appendFile(logFilePath, `${entry.log}\n`, "utf8").catch(() => undefined);
+        },
         undefined,
         id
       );
