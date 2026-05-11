@@ -30,7 +30,6 @@ services:
       - "host.docker.internal:host-gateway"
     volumes:
       - ./runtime:/app/runtime
-      - ./templates:/app/templates
       - ./seeds:/app/seeds
       - /opt/composer-bus:/bus
       - ${SSH_AUTH_SOCK}:/ssh-agent
@@ -46,8 +45,6 @@ services:
       RUNTIME_DIR: /app/runtime/environments
       HOST_RUNTIME_DIR: ${HOST_RUNTIME_DIR:-/opt/primarie-composer/runtime/environments}
       ENVIRONMENTS_FILE: /app/runtime/environments.json
-      TEMPLATE_DIR: /app/templates/environment
-      HOST_TEMPLATE_DIR: ${HOST_TEMPLATE_DIR:-/opt/primarie-composer/templates/environment}
       SEEDS_DIR: /app/seeds
       HOST_SEEDS_DIR: ${HOST_SEEDS_DIR:-/opt/primarie-composer/seeds}
       BUS_PIPE_PATH: /bus/actions.pipe

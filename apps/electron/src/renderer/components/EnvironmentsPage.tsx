@@ -23,13 +23,14 @@ import PauseIcon from "@mui/icons-material/Pause";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import VisibilityIcon from "@mui/icons-material/Visibility";
-import { useMemo, useState } from "react";
-import type { EnvironmentRecord, SystemMetrics } from "../types";
+import { Fragment, useMemo, useState } from "react";
+import type { EnvironmentOwner, EnvironmentRecord, SystemMetrics } from "../types";
 
 type EnvironmentsPageProps = {
   environments: EnvironmentRecord[];
   activeEnvironmentKey: string;
   metrics?: SystemMetrics;
+  currentUser?: EnvironmentOwner;
   repoPath: string;
   onCreate: () => void;
   onDetails: (environment: EnvironmentRecord) => void;
@@ -43,6 +44,7 @@ export function EnvironmentsPage({
   environments,
   activeEnvironmentKey,
   metrics,
+  currentUser,
   repoPath,
   onCreate,
   onDetails,
@@ -57,8 +59,12 @@ export function EnvironmentsPage({
     if (filter === "production") {
       return environments.filter((environment) => environment.source.branch === "main" || environment.source.branch.includes("prod"));
     }
+    if (filter === "mine" && currentUser?.email) {
+      return environments.filter((environment) => !isPullRequest(environment.createdBy) && environment.createdBy.email === currentUser.email);
+    }
     return environments;
-  }, [environments, filter]);
+  }, [currentUser?.email, environments, filter]);
+  const groups = useMemo(() => groupEnvironments(filtered, currentUser), [currentUser?.email, currentUser?.name, filtered]);
 
   return (
     <Stack spacing={3}>
@@ -114,7 +120,19 @@ export function EnvironmentsPage({
                   <Typography variant="body2" color="text.secondary">Create one from a local repository to populate this control surface.</Typography>
                 </TableCell>
               </TableRow>
-            ) : filtered.map((environment) => (
+            ) : groups.map((group) => (
+              <Fragment key={group.id}>
+                <TableRow>
+                  <TableCell colSpan={9} sx={{ py: 1.1, bgcolor: "#151d1e", borderColor: "#3b494b" }}>
+                    <Stack direction="row" spacing={1} alignItems="center">
+                      <Typography color="#fed639" fontWeight={900} sx={{ fontFamily: "Space Grotesk, ui-monospace, SFMono-Regular, Menlo, monospace", textTransform: "uppercase" }}>
+                        {group.label}
+                      </Typography>
+                      <Chip size="small" label={group.items.length} sx={{ borderRadius: "2px", height: 20, fontFamily: "Space Grotesk, ui-monospace, SFMono-Regular, Menlo, monospace" }} />
+                    </Stack>
+                  </TableCell>
+                </TableRow>
+                {group.items.map((environment) => (
               <TableRow key={environment.key} hover sx={{ "& td": { py: 2.3, borderColor: "#3b494b" } }}>
                 <TableCell>
                   <Stack direction="row" spacing={1.4} alignItems="center">
@@ -164,6 +182,8 @@ export function EnvironmentsPage({
                   <IconButton aria-label="Delete environment" onClick={() => void onAction(environment.key, "delete")}><DeleteOutlineIcon /></IconButton>
                 </TableCell>
               </TableRow>
+                ))}
+              </Fragment>
             ))}
           </TableBody>
         </Table>
@@ -225,6 +245,39 @@ function isPullRequest(value: EnvironmentRecord["createdBy"]): value is { title?
 
 function ownerLabel(value: EnvironmentRecord["createdBy"]): string {
   return isPullRequest(value) ? value.title ?? "PR" : `@${value.name.replace(/\s+/g, "_").toLowerCase()}`;
+}
+
+function groupEnvironments(environments: EnvironmentRecord[], currentUser?: EnvironmentOwner): Array<{ id: string; label: string; items: EnvironmentRecord[] }> {
+  const manualGroups = new Map<string, { id: string; label: string; sortKey: string; items: EnvironmentRecord[] }>();
+  const prGroups = new Map<string, { id: string; label: string; sortKey: string; items: EnvironmentRecord[] }>();
+
+  environments.forEach((environment) => {
+    if (isPullRequest(environment.createdBy)) {
+      const url = environment.createdBy.url;
+      const label = `PR: ${environment.createdBy.title ?? url}`;
+      const group = prGroups.get(url) ?? { id: `pr:${url}`, label, sortKey: label.toLowerCase(), items: [] };
+      group.items.push(environment);
+      prGroups.set(url, group);
+      return;
+    }
+
+    const isMe = Boolean(currentUser?.email && environment.createdBy.email === currentUser.email);
+    const email = environment.createdBy.email;
+    const label = isMe ? "Me" : environment.createdBy.name || email;
+    const sortKey = isMe ? "" : label.toLowerCase();
+    const group = manualGroups.get(email) ?? { id: `owner:${email}`, label, sortKey, items: [] };
+    group.items.push(environment);
+    manualGroups.set(email, group);
+  });
+
+  return [
+    ...Array.from(manualGroups.values()).sort((left, right) => left.sortKey.localeCompare(right.sortKey)),
+    ...Array.from(prGroups.values()).sort((left, right) => left.sortKey.localeCompare(right.sortKey))
+  ].map((group) => ({
+    id: group.id,
+    label: group.label,
+    items: group.items.sort((left, right) => new Date(right.updatedAt).getTime() - new Date(left.updatedAt).getTime())
+  }));
 }
 
 function statusColor(status: EnvironmentRecord["status"]): string {

@@ -4,7 +4,6 @@
 
 The root README describes several older behaviors:
 
-- API as file-backed through `runtime/environments.json`; current code uses MongoDB.
 - Login body with `accessKey` and `operatorName`; current code uses email/password.
 - Create payload with `key`, `tenants`, `dirty`, and `changedFiles`; current create DTO only accepts `seed`, `source`, and `env`.
 - Create flow that starts Docker Compose immediately; current create prepares and ends as `stopped`.
@@ -41,9 +40,9 @@ Root `.env.example` includes `API_PORT=3000`, but the current API source does no
 
 ## Chapter 9.4 Template Artifact Removal
 
-Remove all environment template artifacts from the desired system.
+Environment template artifacts have been removed from the active source tree.
 
-Removal scope:
+Removal scope covered:
 
 - `templates/environment`
 - template mock files
@@ -52,7 +51,7 @@ Removal scope:
 - API config fields for templates
 - README/spec references that describe templates as supported runtime artifacts
 
-Environment preparation should use the configured source repository and generated runtime data only.
+Environment preparation now uses the configured source repository and generated runtime data only.
 
 ## Chapter 9.5 Seed Runtime Path
 
@@ -70,16 +69,16 @@ runtime/environments/{key}/data/mongodb
 
 Because templates are removed, seed handling should align only with the cloned source repository's expected runtime paths.
 
-## Chapter 9.6 Remove Unused TypeScript Services
+## Chapter 9.6 Removed Unused TypeScript Services
 
-Remove these unused service classes from the desired API source:
+These unused service classes have been removed from the API source:
 
 - `DockerComposeService`
 - `GitRepositoryService`
 - `SeedService`
 - `MongoSeedDumpService`
 
-Also remove unused helper methods from `EnvironmentsService`, including `writeEnvironmentFile`, `composeConfig`, and `composeLogger`, unless a reviewed implementation path explicitly reuses them.
+Unused helper methods were also removed from `EnvironmentsService`, including `writeEnvironmentFile`, `composeConfig`, and `composeLogger`.
 
 ## Chapter 9.7 Login Missing User Status
 
@@ -143,11 +142,9 @@ API route names include `/stream`, but active worker scripts for Compose and con
 
 Review question: should these become true follow streams, or should the UI/API names say tail?
 
-## Chapter 9.15 Environments Page Filters
+## Chapter 9.15 Environments Page Grouping
 
-The current Environments page uses tabs/filters, and the `mine` filter tab currently behaves the same as `all`.
-
-Desired behavior: group manual environments by owner, with the authenticated current user's environments first under `Me`, other users after that, and PR-backed environments grouped separately by pull request.
+The Environments page groups manual environments by owner, with the authenticated current user's environments first under `Me`, other users after that, and PR-backed environments grouped separately by pull request.
 
 ## Chapter 9.16 UI Placeholder Data
 
@@ -187,7 +184,7 @@ Potential type/shape mismatches:
 
 The desired data model attaches a file log to each lifecycle action. Electron should read the latest tail segment first, lazy-load older file segments while scrolling upward, and stream live output with `tail -f` behavior.
 
-Current code still stores action log rows in MongoDB through `EnvironmentActionCollection.addLog` and `environment-action-logs`. That should be replaced with file-backed reads and streams.
+Lifecycle action transcripts are now file-backed through each action's `logFile` attachment. The API reads the latest tail segment first, supports older cursor pages, and streams appended lines from the file.
 
 ## Chapter 9.20 Build Artifacts In Local Workspace
 
@@ -205,7 +202,7 @@ These should usually not be reviewed as source unless the task is specifically a
 
 The desired data model uses one shared `logs` collection for system-level activity events.
 
-Current code still contains `EnvironmentLogCollection` backed by `environments-logs`. That should be replaced by a system log collection capable of storing events such as environment created, resumed, stopped, removed, started, file-sync updated, PR updated, and PR cleanup.
+The API now uses one shared `logs` collection through `SystemLogCollection` for system-level events such as environment created, resumed, stopped, removed, started, file-sync updated, PR updated, and PR cleanup.
 
 ## Chapter 9.22 Worker Sleep Delay
 

@@ -2,16 +2,15 @@
 
 Initial environment orchestration service for `primarie.md`.
 
-The central API accepts authenticated requests from the local Electron app, creates isolated Docker Compose environments from templates and seed JSON files, and stores environment metadata in `runtime/environments.json`.
+The central API accepts authenticated requests from the local Electron app, prepares isolated Docker Compose environments from the configured source repository and seed data, and stores environment metadata plus system activity in MongoDB.
 
 ## Structure
 
 ```text
 apps/api                 TypeScript Express API
-templates/environment   Per-environment Docker Compose template
 seeds/default           Seed JSON copied into generated environments
 runtime/environments    Generated environment folders, gitignored in normal use
-runtime/environments.json File-backed environment registry
+runtime/db              Local MongoDB data, gitignored in normal use
 proxy                   Nginx proxy that asks the API before routing subdomains
 ```
 
@@ -33,7 +32,7 @@ The API listens on `http://localhost:3000` by default. The proxy listens on port
 
 The API container mounts `/var/run/docker.sock` so it can run `docker compose` for generated environments. This is powerful and should only be used on trusted local/dev hosts.
 
-The API does not require a database. Existing environments are stored in `runtime/environments.json`.
+The central stack includes MongoDB for users, environments, lifecycle action summaries, and system logs.
 
 ## Electron authentication
 
@@ -81,17 +80,16 @@ The API will:
 
 1. assign the next available local port from `BASE_ENV_PORT` (`8001` by default),
 2. create `runtime/environments/{key}`,
-3. copy `templates/environment`,
-4. clone `SOURCE_REPO_URL` into `runtime/environments/{key}/repo`,
-5. checkout `source.branch`,
-6. checkout exact `source.commit`,
-7. apply `source.changedFiles` over the cloned repo,
-8. verify that `seeds/{seed}` exists and has prepared MongoDB data,
-9. copy `seeds/{seed}/mongodb` to `runtime/environments/{key}/data/mongodb`,
-10. copy `seeds/{seed}/media` to `runtime/environments/{key}/data/media` when present,
-11. write `.env` and `source.json`,
-12. run `docker compose up -d`,
-13. store metadata in `runtime/environments.json`.
+3. clone `SOURCE_REPO_URL` into the runtime folder,
+4. checkout `source.branch`,
+5. checkout exact `source.commit`,
+6. apply changed files over the cloned repo when provided by sync flows,
+7. verify that `seeds/{seed}` exists and has prepared MongoDB data,
+8. copy `seeds/{seed}/mongodb` to `runtime/environments/{key}/data/mongodb`,
+9. copy `seeds/{seed}/media` to `runtime/environments/{key}/data/media` when present,
+10. write `.env` and `source.json`,
+11. store metadata in MongoDB,
+12. leave the environment stopped until a lifecycle start/resume action runs.
 
 The create response includes the generated key and runtime config:
 

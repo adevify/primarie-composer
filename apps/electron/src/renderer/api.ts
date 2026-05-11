@@ -121,18 +121,27 @@ export class ComposerApiClient {
     return this.request<EnvironmentActionRecord>(`/environments/actions/${encodeURIComponent(id)}`);
   }
 
-  lifecycleActionLogs(id: string, page = 0, perPage = 100): Promise<EnvironmentActionLogsPage> {
-    const params = new URLSearchParams({ page: String(page), perPage: String(perPage) });
+  lifecycleActionLogs(id: string, cursor?: string, limit = 200): Promise<EnvironmentActionLogsPage> {
+    const params = new URLSearchParams({ limit: String(limit) });
+    if (cursor) {
+      params.set("cursor", cursor);
+    }
     return this.request<EnvironmentActionLogsPage>(`/environments/actions/${encodeURIComponent(id)}/logs?${params.toString()}`);
   }
 
   streamLifecycleActionLogs(
     id: string,
-    afterSequence: number,
+    options: { from?: number; replayTail?: number },
     onEvent: (event: StreamLogEvent) => void,
     signal?: AbortSignal
   ): Promise<void> {
-    const params = new URLSearchParams({ after: String(afterSequence) });
+    const params = new URLSearchParams();
+    if (options.from !== undefined) {
+      params.set("from", String(options.from));
+    }
+    if (options.replayTail !== undefined) {
+      params.set("replayTail", String(options.replayTail));
+    }
     return this.streamNdjson(`/environments/actions/${encodeURIComponent(id)}/logs/stream?${params.toString()}`, onEvent, signal);
   }
 

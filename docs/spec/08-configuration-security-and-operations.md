@@ -61,7 +61,7 @@ The central API container sets:
 
 `ENVIRONMENTS_FILE` is set in Compose but not parsed by current `env.ts`; the current implementation stores environment metadata in MongoDB.
 
-Template configuration such as `TEMPLATE_DIR` and `HOST_TEMPLATE_DIR` should be removed from the desired environment schema and central Compose configuration.
+Template configuration such as `TEMPLATE_DIR` and `HOST_TEMPLATE_DIR` has been removed from the environment schema and central Compose configuration.
 
 ## Chapter 8.4 Environment Runtime Variables
 

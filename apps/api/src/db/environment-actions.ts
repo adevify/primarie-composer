@@ -4,6 +4,14 @@ import type { LifecycleAction } from "../modules/environments/environment.dtos.j
 
 export type EnvironmentActionStatus = "queued" | "running" | "complete" | "error";
 
+export type EnvironmentActionLogFile = {
+  path: string;
+  driver: "file";
+  createdAt: Date;
+  updatedAt?: Date;
+  sizeBytes?: number;
+};
+
 export type EnvironmentActionRecord = {
   id: string;
   environmentKey: string;
@@ -13,6 +21,7 @@ export type EnvironmentActionRecord = {
     email: string;
     name: string;
   };
+  logFile: EnvironmentActionLogFile;
   environment?: unknown;
   error?: string;
   createdAt: Date;
@@ -20,23 +29,9 @@ export type EnvironmentActionRecord = {
   completedAt?: Date;
 };
 
-export type EnvironmentActionLog = {
-  actionId: string;
-  environmentKey: string;
-  createdAt: Date;
-  sequence: number;
-  log: string;
-  level: "info" | "error";
-};
-
 export const EnvironmentActionCollection = (() => {
   const withActionsCol = async <T>(action: (col: Collection<EnvironmentActionRecord>) => Promise<T>) => {
     const col = await collection<EnvironmentActionRecord>("environment-actions");
-    return action(col);
-  };
-
-  const withLogsCol = async <T>(action: (col: Collection<EnvironmentActionLog>) => Promise<T>) => {
-    const col = await collection<EnvironmentActionLog>("environment-action-logs");
     return action(col);
   };
 
@@ -75,41 +70,9 @@ export const EnvironmentActionCollection = (() => {
       }
       return record;
     }),
-    addLog: async (log: Omit<EnvironmentActionLog, "createdAt" | "sequence">) => withLogsCol(async col => {
-      const sequence = await col.countDocuments({ actionId: log.actionId });
-      await col.insertOne({
-        ...log,
-        sequence,
-        createdAt: new Date()
-      });
-    }),
-    listLogs: async (actionId: string, page = 0, perPage = 100) => withLogsCol(async col => {
-      const total = await col.countDocuments({ actionId });
-      return {
-        total,
-        page,
-        perPage,
-        pages: Math.ceil(total / perPage),
-        items: await col.find({ actionId })
-          .sort({ sequence: 1 })
-          .skip(page * perPage)
-          .limit(perPage)
-          .toArray()
-      };
-    }),
-    listLogsAfter: async (actionId: string, afterSequence: number, limit = 100) => withLogsCol(col => col.find({
-      actionId,
-      sequence: { $gt: afterSequence }
-    })
-      .sort({ sequence: 1 })
-      .limit(limit)
-      .toArray()
-    ),
-    countLogs: async (actionId: string) => withLogsCol(col => col.countDocuments({ actionId })),
     ensureIndexes: async () => {
       await withActionsCol(col => col.createIndex({ id: 1 }, { unique: true }));
       await withActionsCol(col => col.createIndex({ environmentKey: 1, createdAt: -1 }));
-      await withLogsCol(col => col.createIndex({ actionId: 1, sequence: 1 }, { unique: true }));
     }
   };
 })();

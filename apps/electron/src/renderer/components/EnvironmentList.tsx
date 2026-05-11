@@ -166,7 +166,7 @@ export function EnvironmentList({
               <TableHead>
                 <TableRow sx={{ bgcolor: "#192122" }}>
                   <TableCell sx={{ width: 190 }}>Timestamp</TableCell>
-                  <TableCell sx={{ width: 110 }}>Type</TableCell>
+                  <TableCell sx={{ width: 180 }}>Type</TableCell>
                   <TableCell sx={{ width: 210 }}>Environment</TableCell>
                   <TableCell sx={{ width: 150 }}>User</TableCell>
                   <TableCell>Message</TableCell>
@@ -184,14 +184,15 @@ export function EnvironmentList({
                   </TableRow>
                 ) : (
                   filteredLogs.map((log, index) => {
-                    const environment = environmentByKey.get(log.environmentKey);
+                    const environmentKey = log.environmentKey ?? log.target?.environmentKey ?? "";
+                    const environment = environmentByKey.get(environmentKey);
                     return (
-                      <TableRow key={`${log.createdAt}-${log.environmentKey}-${index}`} hover sx={{ "&:last-child td": { borderBottom: 0 } }}>
+                      <TableRow key={`${log.id ?? log.createdAt}-${environmentKey}-${index}`} hover sx={{ "&:last-child td": { borderBottom: 0 } }}>
                         <TableCell sx={{ color: "#8ba0b7", fontFamily: "Space Grotesk, ui-monospace, SFMono-Regular, Menlo, monospace" }}>
                           {formatTimestamp(log.createdAt)}
                         </TableCell>
-                        <TableCell sx={{ color: levelColor(log.level), fontFamily: "Space Grotesk, ui-monospace, SFMono-Regular, Menlo, monospace", fontWeight: 900 }}>
-                          [{log.level === "error" ? "FAIL" : log.level.toUpperCase()}]
+                        <TableCell sx={{ color: levelColor(log.level), fontFamily: "Space Grotesk, ui-monospace, SFMono-Regular, Menlo, monospace", fontWeight: 900, whiteSpace: "nowrap" }}>
+                          {eventLabel(log.event)}
                         </TableCell>
                         <TableCell>
                           <Typography
@@ -208,14 +209,14 @@ export function EnvironmentList({
                               textAlign: "left"
                             }}
                           >
-                            {log.environmentKey}
+                            {environmentKey || "system"}
                           </Typography>
                         </TableCell>
                         <TableCell sx={{ color: "text.secondary", fontFamily: "Space Grotesk, ui-monospace, SFMono-Regular, Menlo, monospace" }}>
-                          {log.system ? "system" : "operator"}
+                          {actorLabel(log)}
                         </TableCell>
                         <TableCell sx={{ color: "text.primary", fontFamily: "Space Grotesk, ui-monospace, SFMono-Regular, Menlo, monospace", fontWeight: 700 }}>
-                          {log.log}
+                          {log.message}
                         </TableCell>
                       </TableRow>
                     );
@@ -252,6 +253,13 @@ function levelColor(level: EnvironmentLog["level"]): string {
   }
   if (level === "warn") return "#fed639";
   return "#4edea3";
+}
+
+function eventLabel(event: string): string {
+  return event
+    .replace(/^environment\./, "env.")
+    .replace(/^host_action\./, "host.")
+    .toUpperCase();
 }
 
 function buildStats(environments: EnvironmentRecord[], metrics?: SystemMetrics): Array<{ label: string; value: string; color: string; progress?: number; detail?: string }> {
@@ -298,12 +306,26 @@ function pad(value: number): string {
 
 function logSearchText(log: EnvironmentLog): string {
   return [
-    log.environmentKey,
+    log.environmentKey ?? log.target?.environmentKey ?? "",
     log.level,
-    log.system ? "system" : "operator",
-    log.log,
+    log.event,
+    actorLabel(log),
+    log.message,
     log.createdAt
   ]
     .join(" ")
     .toLowerCase();
+}
+
+function actorLabel(log: EnvironmentLog): string {
+  if (!log.actor) {
+    return log.source;
+  }
+  if (log.actor.type === "user") {
+    return log.actor.email ?? log.actor.name ?? "user";
+  }
+  if (log.actor.type === "github") {
+    return "github";
+  }
+  return "system";
 }

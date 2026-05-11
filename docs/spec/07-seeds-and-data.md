@@ -118,7 +118,7 @@ It removes previous target Mongo/media data before copying.
 
 Seed preparation and copying should be owned by the host scripts.
 
-The TypeScript helper services `SeedService` and `MongoSeedDumpService` are removal targets and should not be part of the desired API source.
+The TypeScript helper services `SeedService` and `MongoSeedDumpService` have been removed from the API source.
 
 ## Chapter 7.9 Central Auth Data
 

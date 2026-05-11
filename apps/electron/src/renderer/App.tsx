@@ -521,9 +521,9 @@ export default function App() {
     });
 
     try {
-      await api.streamLifecycleActionLogs(sessionId, -1, (event) => {
+      await api.streamLifecycleActionLogs(sessionId, { replayTail: 200 }, (event) => {
         if (event.type === "line") {
-          appendLiveLogEntry(sessionId, event.log, event.level);
+          appendLiveLogEntry(sessionId, event.line ?? event.log ?? "", event.level);
           return;
         }
 
@@ -545,8 +545,8 @@ export default function App() {
         }
 
         if (event.type === "error") {
-          failedMessage = event.log;
-          appendLiveLogEntry(sessionId, event.log, "error");
+          failedMessage = event.message ?? event.log;
+          appendLiveLogEntry(sessionId, event.message ?? event.log ?? "Action failed", "error");
           markLiveLogSession(sessionId, "error");
         }
       });
@@ -654,7 +654,7 @@ export default function App() {
 
   function handleStreamEvent(sessionId: string, event: StreamLogEvent): void {
     if (event.type === "line" || event.type === "error") {
-      appendLiveLogEntry(sessionId, event.log, event.level);
+      appendLiveLogEntry(sessionId, event.type === "line" ? event.line ?? event.log ?? "" : event.message ?? event.log ?? "Stream failed", event.level);
     }
     if (event.type === "error") {
       markLiveLogSession(sessionId, "error");
@@ -719,11 +719,18 @@ export default function App() {
     return api.lifecycleActions(key, page, perPage);
   }
 
-  async function getLifecycleActionLogs(id: string, page = 0, perPage = 100): Promise<EnvironmentActionLogsPage> {
+  async function getLifecycleActionLogs(id: string, cursor?: string, limit = 200): Promise<EnvironmentActionLogsPage> {
     if (!api) {
       throw new Error("API client is unavailable.");
     }
-    return api.lifecycleActionLogs(id, page, perPage);
+    return api.lifecycleActionLogs(id, cursor, limit);
+  }
+
+  async function streamLifecycleActionLogs(id: string, options: { from?: number; replayTail?: number }, onEvent: (event: StreamLogEvent) => void, signal?: AbortSignal): Promise<void> {
+    if (!api) {
+      throw new Error("API client is unavailable.");
+    }
+    return api.streamLifecycleActionLogs(id, options, onEvent, signal);
   }
 
   async function execInContainer(key: string, container: string, command: string) {
@@ -908,6 +915,7 @@ export default function App() {
               environments={environments}
               activeEnvironmentKey={syncState.activeEnvironmentKey}
               metrics={systemMetrics}
+              currentUser={session.user}
               repoPath={repoPath}
               onCreate={() => void openCreateDialog()}
               onDetails={setDetailsEnvironment}
@@ -926,6 +934,7 @@ export default function App() {
             onInspectMongo={inspectMongo}
             onListLifecycleActions={listLifecycleActions}
             onGetLifecycleActionLogs={getLifecycleActionLogs}
+            onStreamLifecycleActionLogs={streamLifecycleActionLogs}
             onAction={runEnvironmentAction}
             onExecInContainer={execInContainer}
             actionRefreshToken={detailsLogRefreshToken}
@@ -1018,7 +1027,7 @@ function mergeLogs(primary: EnvironmentLog[], secondary: EnvironmentLog[]): Envi
   const merged: EnvironmentLog[] = [];
 
   for (const log of [...primary, ...secondary]) {
-    const id = `${log.createdAt}:${log.environmentKey}:${log.level}:${log.log}`;
+    const id = log.id ?? `${log.createdAt}:${log.environmentKey ?? log.target?.environmentKey ?? ""}:${log.level}:${log.event}:${log.message}`;
     if (seen.has(id)) {
       continue;
     }

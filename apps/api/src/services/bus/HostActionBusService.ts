@@ -37,7 +37,8 @@ export class HostActionBusService {
     type: string,
     payload: Record<string, unknown>,
     timeoutMs = env.BUS_ACTION_TIMEOUT_MS,
-    onLog?: HostActionLogHandler
+    onLog?: HostActionLogHandler,
+    options: { id?: string } = {}
   ): Promise<HostActionResult> {
     const health = await this.health();
     if (!health.ready) {
@@ -45,7 +46,7 @@ export class HostActionBusService {
       throw Object.assign(new Error(`Host action bus is unavailable: ${health.reason}`), { status: 503 });
     }
 
-    const id = randomUUID();
+    const id = options.id ?? randomUUID();
     const action = {
       id,
       type,
@@ -106,7 +107,6 @@ export class HostActionBusService {
         const finalLogProgress = await readNewLogLines(logPath, logOffset, observedLogSize, onLog);
         logOffset = finalLogProgress.offset;
         await fs.unlink(filePath).catch(() => undefined);
-        await fs.unlink(logPath).catch(() => undefined);
         const result = parseResult(content, actionId);
         logBus("info", "result", {
           id: actionId,

@@ -21,7 +21,7 @@ import StorageIcon from "@mui/icons-material/Storage";
 import StopCircleIcon from "@mui/icons-material/StopCircle";
 import TerminalIcon from "@mui/icons-material/Terminal";
 import ViewInArIcon from "@mui/icons-material/ViewInAr";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type UIEvent } from "react";
 import type {
   ContainerFileEntry,
   EnvironmentActionLog,
@@ -31,7 +31,8 @@ import type {
   EnvironmentContainer,
   EnvironmentRecord,
   LiveLogSession,
-  MongoPreview as MongoPreviewPayload
+  MongoPreview as MongoPreviewPayload,
+  StreamLogEvent
 } from "../types";
 
 type UtilityTab = "logs" | "files" | "exec" | "mongo" | "actions";
@@ -45,7 +46,8 @@ type EnvironmentDetailsProps = {
   onListEnvironmentFiles: (key: string, path: string) => Promise<ContainerFileEntry[]>;
   onInspectMongo: (key: string) => Promise<MongoPreviewPayload>;
   onListLifecycleActions: (key: string, page?: number, perPage?: number) => Promise<EnvironmentActionsPage>;
-  onGetLifecycleActionLogs: (id: string, page?: number, perPage?: number) => Promise<EnvironmentActionLogsPage>;
+  onGetLifecycleActionLogs: (id: string, cursor?: string, limit?: number) => Promise<EnvironmentActionLogsPage>;
+  onStreamLifecycleActionLogs: (id: string, options: { from?: number; replayTail?: number }, onEvent: (event: StreamLogEvent) => void, signal?: AbortSignal) => Promise<void>;
   onAction: (key: string, action: "start" | "stop" | "restart" | "resume" | "delete") => Promise<void>;
   onExecInContainer: (key: string, container: string, command: string) => Promise<{ command: string; exitCode: number; stdout: string; stderr: string }>;
   actionRefreshToken: number;
@@ -65,6 +67,7 @@ export function EnvironmentDetails({
   onInspectMongo,
   onListLifecycleActions,
   onGetLifecycleActionLogs,
+  onStreamLifecycleActionLogs,
   onAction,
   onExecInContainer,
   actionRefreshToken,
@@ -110,11 +113,11 @@ export function EnvironmentDetails({
   const selectedAction = actions.find((action) => action.id === selectedActionId);
   const selectedContainerRecord = containers.find((container) => containerName(container) === selectedContainer);
   const displayedActionLogs = useMemo(() => actionLogs.map((entry) => ({
-    at: entry.createdAt,
-    message: entry.log,
+    at: entry.createdAt ?? selectedAction?.createdAt ?? new Date(0).toISOString(),
+    message: entry.line ?? entry.log ?? "",
     level: entry.level,
     system: false
-  })), [actionLogs]);
+  })), [actionLogs, selectedAction?.createdAt]);
 
   useEffect(() => {
     if (!open || !environment) {
@@ -167,10 +170,58 @@ export function EnvironmentDetails({
 
     const interval = setInterval(() => {
       void loadActions(false, selectedActionId);
-      void loadActionLogs(selectedActionId, 0, true, false);
     }, 1500);
 
     return () => clearInterval(interval);
+  }, [open, selectedActionId, selectedAction?.status]);
+
+  useEffect(() => {
+    if (!open || !selectedActionId || !selectedAction || (selectedAction.status !== "queued" && selectedAction.status !== "running")) {
+      return undefined;
+    }
+
+    const controller = new AbortController();
+    void onStreamLifecycleActionLogs(
+      selectedActionId,
+      { replayTail: 200 },
+      (event) => {
+        if (event.type === "line") {
+          const line = event.line ?? event.log ?? "";
+          setActionLogs((current) => appendUniqueLogs(current, [{
+            actionId: selectedActionId,
+            line,
+            log: line,
+            level: event.level,
+            byteStart: event.byteStart,
+            byteEnd: event.byteEnd,
+            createdAt: event.createdAt ?? new Date().toISOString()
+          }]));
+          return;
+        }
+
+        if (event.type === "action") {
+          setActions((current) => current.map((action) => action.id === event.action.id ? event.action : action));
+        }
+
+        if (event.type === "error") {
+          const line = event.message ?? event.log ?? "Action failed";
+          setActionLogs((current) => appendUniqueLogs(current, [{
+            actionId: selectedActionId,
+            line,
+            log: line,
+            level: "error",
+            createdAt: new Date().toISOString()
+          }]));
+        }
+      },
+      controller.signal
+    ).catch((error) => {
+      if (!controller.signal.aborted) {
+        setToolError(toErrorMessage(error));
+      }
+    });
+
+    return () => controller.abort();
   }, [open, selectedActionId, selectedAction?.status]);
 
   useEffect(() => {
@@ -324,7 +375,7 @@ export function EnvironmentDetails({
     }
   }
 
-  async function loadActionLogs(actionId = selectedActionId, page = 0, replace = true, showSpinner = true): Promise<void> {
+  async function loadActionLogs(actionId = selectedActionId, cursor?: string, replace = true, showSpinner = true): Promise<void> {
     if (!actionId) {
       return;
     }
@@ -334,7 +385,7 @@ export function EnvironmentDetails({
     }
     setToolError(undefined);
     try {
-      const nextPage = await onGetLifecycleActionLogs(actionId, page, 500);
+      const nextPage = await onGetLifecycleActionLogs(actionId, cursor, 500);
       setActionLogsPage(nextPage);
       setActionLogs((current) => replace ? nextPage.items : appendUniqueLogs(current, nextPage.items));
     } catch (error) {
@@ -344,6 +395,14 @@ export function EnvironmentDetails({
         setLoadingActionLogs(false);
       }
     }
+  }
+
+  async function loadOlderActionLogs(): Promise<void> {
+    if (!selectedActionId || !actionLogsPage?.hasMore || !actionLogsPage.nextCursor || loadingActionLogs) {
+      return;
+    }
+
+    await loadActionLogs(selectedActionId, actionLogsPage.nextCursor, false, true);
   }
 
   async function loadMoreActions(): Promise<void> {
@@ -588,14 +647,21 @@ export function EnvironmentDetails({
                         {selectedAction ? `${selectedAction.action.toUpperCase()} / ${selectedAction.id}` : "NO REGISTERED ACTION"}
                       </Typography>
                       <Typography variant="caption" color="text.secondary" sx={{ fontFamily: monoFont }}>
-                        {actionLogsPage ? `${actionLogs.length}/${actionLogsPage.total}` : "0/0"}
+                        {actionLogsPage ? `${actionLogs.length}${actionLogsPage.hasMore ? "+" : ""}` : "0"}
                       </Typography>
                     </Box>
-                    <LogTerminal logs={displayedActionLogs} emptyText={selectedAction ? "Waiting for registered action log output." : "No actions registered for this environment yet."} compact />
-                    {actionLogsPage && actionLogsPage.page + 1 < actionLogsPage.pages ? (
+                    <LogTerminal
+                      logs={displayedActionLogs}
+                      emptyText={selectedAction ? "Waiting for registered action log output." : "No actions registered for this environment yet."}
+                      compact
+                      hasOlder={Boolean(actionLogsPage?.hasMore)}
+                      loadingOlder={loadingActionLogs}
+                      onReachTop={() => void loadOlderActionLogs()}
+                    />
+                    {actionLogsPage?.hasMore ? (
                       <Box sx={{ px: 2, py: 1.5, borderTop: "1px solid #3b494b", bgcolor: "#151d1e" }}>
-                        <Button size="small" variant="outlined" disabled={loadingActionLogs} onClick={() => void loadActionLogs(selectedActionId, actionLogsPage.page + 1, false)} sx={smallButtonSx}>
-                          Load More
+                        <Button size="small" variant="outlined" disabled={loadingActionLogs} onClick={() => void loadOlderActionLogs()} sx={smallButtonSx}>
+                          Older
                         </Button>
                       </Box>
                     ) : null}
@@ -834,16 +900,47 @@ function UtilityTabButton({ label, active, onClick }: { label: string; active: b
   );
 }
 
-function LogTerminal({ logs, emptyText = "Waiting for Docker Compose log output.", compact = false }: { logs: Array<{ at: string; message: string; level: "info" | "error"; system: boolean }>; emptyText?: string; compact?: boolean; }) {
+function LogTerminal({
+  logs,
+  emptyText = "Waiting for Docker Compose log output.",
+  compact = false,
+  hasOlder = false,
+  loadingOlder = false,
+  onReachTop
+}: {
+  logs: Array<{ at: string; message: string; level: "info" | "error"; system: boolean }>;
+  emptyText?: string;
+  compact?: boolean;
+  hasOlder?: boolean;
+  loadingOlder?: boolean;
+  onReachTop?: () => void;
+}) {
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const bottomRef = useRef<HTMLDivElement | null>(null);
+  const stickToBottomRef = useRef(true);
   const latestLog = logs.at(-1);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ block: "end" });
+    if (stickToBottomRef.current) {
+      bottomRef.current?.scrollIntoView({ block: "end" });
+    }
   }, [logs.length, latestLog?.at, latestLog?.message]);
 
+  function handleScroll(event: UIEvent<HTMLDivElement>): void {
+    const target = event.currentTarget;
+    stickToBottomRef.current = target.scrollHeight - target.scrollTop - target.clientHeight < 120;
+    if (target.scrollTop < 80 && hasOlder && !loadingOlder) {
+      onReachTop?.();
+    }
+  }
+
   return (
-    <Box sx={{ minHeight: compact ? "100%" : 460, maxHeight: compact ? "none" : 560, overflow: "auto", bgcolor: "#080f10", p: 2, fontFamily: monoFont, fontSize: 13, lineHeight: 1.5 }}>
+    <Box ref={containerRef} onScroll={handleScroll} sx={{ minHeight: compact ? "100%" : 460, maxHeight: compact ? "none" : 560, overflow: "auto", bgcolor: "#080f10", p: 2, fontFamily: monoFont, fontSize: 13, lineHeight: 1.5 }}>
+      {loadingOlder ? (
+        <Typography color="text.secondary" sx={{ fontFamily: monoFont, mb: 1 }}>
+          Loading older output
+        </Typography>
+      ) : null}
       {logs.length === 0 ? (
         <Typography color="text.secondary" sx={{ fontFamily: monoFont }}>
           {emptyText}
@@ -1061,16 +1158,30 @@ function shortId(value: string): string {
 }
 
 function appendUniqueLogs(current: EnvironmentActionLog[], next: EnvironmentActionLog[]): EnvironmentActionLog[] {
-  const seen = new Set(current.map((entry) => `${entry.actionId}:${entry.sequence}`));
+  const seen = new Set(current.map(logIdentity));
   const merged = [...current];
   next.forEach((entry) => {
-    const key = `${entry.actionId}:${entry.sequence}`;
+    const key = logIdentity(entry);
     if (!seen.has(key)) {
       seen.add(key);
       merged.push(entry);
     }
   });
-  return merged.sort((left, right) => left.sequence - right.sequence);
+  return merged.sort((left, right) => {
+    const leftOffset = left.byteStart ?? Number.MAX_SAFE_INTEGER;
+    const rightOffset = right.byteStart ?? Number.MAX_SAFE_INTEGER;
+    if (leftOffset !== rightOffset) {
+      return leftOffset - rightOffset;
+    }
+    return (left.createdAt ?? "").localeCompare(right.createdAt ?? "");
+  });
+}
+
+function logIdentity(entry: EnvironmentActionLog): string {
+  if (entry.byteStart !== undefined || entry.byteEnd !== undefined) {
+    return `${entry.actionId}:${entry.byteStart ?? "?"}:${entry.byteEnd ?? "?"}`;
+  }
+  return `${entry.actionId}:${entry.createdAt ?? ""}:${entry.line ?? entry.log ?? ""}`;
 }
 
 function appendUniqueActions(current: EnvironmentActionRecord[], next: EnvironmentActionRecord[]): EnvironmentActionRecord[] {

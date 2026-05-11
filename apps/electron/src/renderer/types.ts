@@ -78,12 +78,30 @@ export type EnvironmentRecord = {
   updatedAt: string;
 };
 
+export type SystemLogActor = {
+  type: "user" | "system" | "github";
+  email?: string;
+  name?: string;
+  url?: string;
+};
+
 export type EnvironmentLog = {
-  environmentKey: string;
+  id: string;
   createdAt: string;
-  log: string;
   level: "info" | "warn" | "error";
-  system: boolean;
+  event: string;
+  message: string;
+  source: "api" | "worker" | "electron" | "github" | "system";
+  actor?: SystemLogActor;
+  target?: {
+    type: "environment" | "pull_request" | "system";
+    environmentKey?: string;
+    pullRequestUrl?: string;
+  };
+  environmentKey?: string;
+  actionId?: string;
+  correlationId?: string;
+  metadata?: Record<string, unknown>;
 };
 
 export type EnvironmentLogsPage = {
@@ -159,6 +177,13 @@ export type EnvironmentActionRecord = {
   environmentKey: string;
   action: LifecycleAction;
   status: EnvironmentActionStatus;
+  logFile?: {
+    path: string;
+    driver: "file";
+    createdAt: string;
+    updatedAt?: string;
+    sizeBytes?: number;
+  };
   environment?: EnvironmentRecord;
   error?: string;
   createdAt: string;
@@ -168,18 +193,19 @@ export type EnvironmentActionRecord = {
 
 export type EnvironmentActionLog = {
   actionId: string;
-  environmentKey: string;
-  createdAt: string;
-  sequence: number;
-  log: string;
+  line: string;
+  log?: string;
   level: "info" | "error";
+  byteStart?: number;
+  byteEnd?: number;
+  createdAt?: string;
 };
 
 export type EnvironmentActionLogsPage = {
-  total: number;
-  page: number;
-  perPage: number;
-  pages: number;
+  actionId: string;
+  cursor?: string;
+  nextCursor?: string;
+  hasMore: boolean;
   items: EnvironmentActionLog[];
 };
 
@@ -192,11 +218,11 @@ export type EnvironmentActionsPage = {
 };
 
 export type StreamLogEvent =
-  | { type: "line"; log: string; level: "info" | "error" }
+  | { type: "line"; line?: string; log?: string; level: "info" | "error"; byteStart?: number; byteEnd?: number; createdAt?: string }
   | { type: "environment"; environment: EnvironmentRecord }
   | { type: "action"; action: EnvironmentActionRecord }
   | { type: "complete" }
-  | { type: "error"; log: string; level: "error" };
+  | { type: "error"; message?: string; log?: string; level: "error" };
 
 export type ComposeLogEntry = {
   log: string;

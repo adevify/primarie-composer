@@ -7,6 +7,7 @@ import { authenticateJwt } from "./modules/auth/auth.middleware.js";
 import { createProxyRouter } from "./modules/proxy/proxy.routes.js";
 import { connect, disconnect } from "./db/client.js";
 import { EnvironmentActionCollection } from "./db/environment-actions.js";
+import { SystemLogCollection } from "./db/logs.js";
 import { HostActionBusService } from "./services/bus/HostActionBusService.js";
 
 const app = express();
@@ -51,6 +52,7 @@ app.use((err: unknown, _req: express.Request, res: express.Response, _next: expr
 await connect();
 logApi("info", "database_connected", {});
 await EnvironmentActionCollection.ensureIndexes();
+await SystemLogCollection.ensureIndexes();
 logApi("info", "indexes_ready", {});
 
 const server = await app.listen(80);

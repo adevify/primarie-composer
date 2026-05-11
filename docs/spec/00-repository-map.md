@@ -34,13 +34,13 @@ Primary API files:
 - `apps/api/src/db/*`: MongoDB collection adapters.
 - `apps/api/src/services/bus/HostActionBusService.ts`: FIFO bus publisher and result polling.
 
-Removal targets:
+Removed from the active source tree:
 
 - `apps/api/src/services/docker/*`
 - `apps/api/src/services/git/*`
 - `apps/api/src/services/seeds/*`
 
-These service classes should not remain in the desired source tree if all lifecycle work is performed through the host action bus and scripts.
+Lifecycle work is performed through the host action bus and scripts.
 
 ## Chapter 0.4 Electron Source Files
 

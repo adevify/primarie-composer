@@ -11,12 +11,22 @@ import { EnvironmentCollection, EnvironmentRecord } from "../../db/environments.
 import { HostActionBusService, type HostActionLogHandler, type HostActionResult } from "../../services/bus/HostActionBusService.js";
 import type { AuthenticatedUser } from "../auth/auth.middleware.js";
 import type { CreateEnvironmentPayload, EnvironmentOwner, EnvironmentSource, LifecycleAction, PullRequestRef, SyncFilesPayload } from "./environment.dtos.js";
-import { EnvironmentLogCollection } from "../../db/environment-logs.js";
-import { EnvironmentActionCollection } from "../../db/environment-actions.js";
+import { SystemLogCollection, type SystemLogActor, type SystemLogLevel, type SystemLogSource, type SystemLogTarget } from "../../db/logs.js";
+import { EnvironmentActionCollection, type EnvironmentActionLogFile } from "../../db/environment-actions.js";
 
 const keyPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const execFileAsync = promisify(execFile);
 let previousCpuSnapshot = readCpuSnapshot();
+
+type ActionLogLine = {
+  actionId: string;
+  line: string;
+  log: string;
+  level: "info" | "error";
+  byteStart: number;
+  byteEnd: number;
+  createdAt?: string;
+};
 
 const envNamesList = [
   'pizza',
@@ -267,9 +277,16 @@ export class EnvironmentsService {
 
     await EnvironmentCollection.create(record);
 
-    await EnvironmentLogCollection.add({
-      environmentKey: key,
-      log: "Environment created",
+    await this.logSystemEvent(key, "environment.created", "Environment created", {
+      actor: actorFromOwnerOrPullRequest(createdBy),
+      source: "email" in createdBy ? "api" : "github",
+      target: targetForEnvironment(key, createdBy),
+      metadata: {
+        branch: input.source.branch,
+        commit: input.source.commit,
+        seed: input.seed,
+        port
+      }
     });
 
     void this.prepareEnvironment(key, runtimePath, input.seed, input.source, {
@@ -280,10 +297,12 @@ export class EnvironmentsService {
         key,
         message: error instanceof Error ? error.message : String(error)
       });
-      await EnvironmentLogCollection.add({
-        environmentKey: key,
-        log: `Environment creation failed: ${error instanceof Error ? error.message : String(error)}`,
+      await this.logSystemEvent(key, "environment.failed", `Environment creation failed: ${error instanceof Error ? error.message : String(error)}`, {
         level: "error",
+        actor: actorFromOwnerOrPullRequest(createdBy),
+        source: "email" in createdBy ? "api" : "github",
+        target: targetForEnvironment(key, createdBy),
+        metadata: { phase: "create" }
       });
       await this.updateStatus(key, "failed").catch(() => undefined);
     });
@@ -304,9 +323,12 @@ export class EnvironmentsService {
       branch: source.branch,
       commit: source.commit
     });
-    await EnvironmentLogCollection.add({
-      environmentKey: key,
-      log: "Preparing repository",
+    await this.logSystemEvent(key, "environment.prepare_started", "Preparing repository", {
+      metadata: {
+        branch: source.branch,
+        commit: source.commit,
+        seed: seedName
+      }
     });
 
     await this.updateStatus(key, "cloning");
@@ -328,14 +350,12 @@ export class EnvironmentsService {
       }
     });
 
-    await EnvironmentLogCollection.add({
-      environmentKey: key,
-      log: result.message || "Repository prepared",
-    });
-
-    await EnvironmentLogCollection.add({
-      environmentKey: key,
-      log: "Environment is ready to start",
+    await this.logSystemEvent(key, "environment.prepared", result.message || "Repository prepared", {
+      metadata: {
+        branch: source.branch,
+        commit: source.commit,
+        outputLength: result.output?.length ?? 0
+      }
     });
 
     await this.updateStatus(key, "stopped");
@@ -370,11 +390,11 @@ export class EnvironmentsService {
   }
 
   async getLogs(key: string, page: number, perPage: number) {
-    return EnvironmentLogCollection.list(key, page, perPage);
+    return SystemLogCollection.listByEnvironment(key, page, perPage);
   }
 
   async getAllLogs(page: number, perPage: number) {
-    return EnvironmentLogCollection.listAll(page, perPage);
+    return SystemLogCollection.list(page, perPage);
   }
 
   async getSystemMetrics() {
@@ -439,9 +459,8 @@ export class EnvironmentsService {
 
   async execInContainer(key: string, container: string, command: string) {
     await this.get(key);
-    await EnvironmentLogCollection.add({
-      environmentKey: key,
-      log: `Executing in ${container}: ${command}`,
+    await this.logSystemEvent(key, "environment.container_exec", `Executing in ${container}: ${command}`, {
+      metadata: { container, command }
     });
     const result = await this.publishEnvironmentAction("environment.container.exec", key, { container, command });
     return parseJsonValue(result.output ?? "{}");
@@ -451,12 +470,14 @@ export class EnvironmentsService {
     await this.get(key);
 
     const id = randomUUID();
+    const logFile = await this.reserveActionLogFile(id);
     await EnvironmentActionCollection.create({
       id,
       environmentKey: key,
       action,
       status: "queued",
-      requestedBy: this.toOwner(user)
+      requestedBy: this.toOwner(user),
+      logFile
     });
 
     void this.runLifecycleActionJob(id, key, action, user);
@@ -471,12 +492,25 @@ export class EnvironmentsService {
     return EnvironmentActionCollection.listByEnvironment(key, page, perPage);
   }
 
-  getLifecycleActionLogs(id: string, page: number, perPage: number) {
-    return EnvironmentActionCollection.listLogs(id, page, perPage);
+  async getLifecycleActionLogs(id: string, cursor: string | undefined, limit: number) {
+    const action = await EnvironmentActionCollection.get(id);
+    return readActionLogPage(id, this.actionLogPath(action.id, action.logFile), cursor, limit);
   }
 
-  getLifecycleActionLogsAfter(id: string, afterSequence: number, limit: number) {
-    return EnvironmentActionCollection.listLogsAfter(id, afterSequence, limit);
+  async getLifecycleActionLogSize(id: string) {
+    const action = await EnvironmentActionCollection.get(id);
+    return readFileSize(this.actionLogPath(action.id, action.logFile));
+  }
+
+  async getLifecycleActionLogTailStart(id: string, limit: number) {
+    const action = await EnvironmentActionCollection.get(id);
+    const page = await readActionLogPage(id, this.actionLogPath(action.id, action.logFile), undefined, limit);
+    return page.items[0]?.byteStart ?? await readFileSize(this.actionLogPath(action.id, action.logFile));
+  }
+
+  async getLifecycleActionLogsFrom(id: string, fromOffset: number) {
+    const action = await EnvironmentActionCollection.get(id);
+    return readActionLogForward(id, this.actionLogPath(action.id, action.logFile), fromOffset);
   }
 
   private async runLifecycleActionJob(id: string, key: string, action: LifecycleAction, user: AuthenticatedUser): Promise<void> {
@@ -493,20 +527,16 @@ export class EnvironmentsService {
         key,
         action,
         user,
-        async (entry) => {
-          await EnvironmentActionCollection.addLog({
-            actionId: id,
-            environmentKey: key,
-            log: entry.log,
-            level: entry.level
-          });
-        }
+        async () => undefined,
+        undefined,
+        id
       );
 
       await EnvironmentActionCollection.update(id, {
         status: "complete",
         environment,
-        completedAt: new Date()
+        completedAt: new Date(),
+        logFile: await this.refreshActionLogFile(id)
       });
       logEnvironment("info", "lifecycle_job_completed", {
         key,
@@ -522,16 +552,12 @@ export class EnvironmentsService {
         actionId: id,
         message
       });
-      await EnvironmentActionCollection.addLog({
-        actionId: id,
-        environmentKey: key,
-        log: message,
-        level: "error"
-      }).catch(() => undefined);
+      await fs.appendFile(this.actionLogPath(id), `${message}\n`, "utf8").catch(() => undefined);
       await EnvironmentActionCollection.update(id, {
         status: "error",
         error: message,
-        completedAt: new Date()
+        completedAt: new Date(),
+        logFile: await this.refreshActionLogFile(id)
       }).catch(() => undefined);
     }
   }
@@ -541,7 +567,8 @@ export class EnvironmentsService {
     action: LifecycleAction,
     user: AuthenticatedUser,
     onLog: (entry: { log: string; level: "info" | "error" }) => Promise<void> | void,
-    signal?: AbortSignal
+    signal?: AbortSignal,
+    hostActionId?: string
   ): Promise<EnvironmentRecord> {
     const record = await this.get(key);
 
@@ -563,10 +590,15 @@ export class EnvironmentsService {
         }
         throwIfAborted(signal);
         await this.updateStatus(key, "starting");
-        const result = await this.publishEnvironmentAction("environment.start", key, {}, onLog);
+        const result = await this.publishEnvironmentAction("environment.start", key, {}, onLog, hostActionId);
         await emitBusResult(result, onLog);
         await onLog({ log: `Environment ${action === "resume" ? "resumed" : "started"}`, level: "info" });
         const updated = await this.updateStatus(key, "running");
+        await this.logSystemEvent(key, action === "resume" ? "environment.resumed" : "environment.started", `Environment ${action === "resume" ? "resumed" : "started"}`, {
+          actor: actorFromUser(user),
+          actionId: hostActionId,
+          metadata: { action, previousStatus: record.status }
+        });
         logEnvironment("info", "lifecycle_action_completed", { key, action, status: updated.status });
         return updated;
       }
@@ -574,19 +606,29 @@ export class EnvironmentsService {
       if (action === "restart") {
         throwIfAborted(signal);
         await this.updateStatus(key, "starting");
-        const result = await this.publishEnvironmentAction("environment.restart", key, {}, onLog);
+        const result = await this.publishEnvironmentAction("environment.restart", key, {}, onLog, hostActionId);
         await emitBusResult(result, onLog);
         await onLog({ log: "Environment restarted", level: "info" });
         const updated = await this.updateStatus(key, "running");
+        await this.logSystemEvent(key, "environment.restarted", "Environment restarted", {
+          actor: actorFromUser(user),
+          actionId: hostActionId,
+          metadata: { action, previousStatus: record.status }
+        });
         logEnvironment("info", "lifecycle_action_completed", { key, action, status: updated.status });
         return updated;
       }
 
       throwIfAborted(signal);
-      const result = await this.publishEnvironmentAction("environment.stop", key, {}, onLog);
+      const result = await this.publishEnvironmentAction("environment.stop", key, {}, onLog, hostActionId);
       await emitBusResult(result, onLog);
       await onLog({ log: "Environment stopped", level: "info" });
       const updated = await this.updateStatus(key, "stopped");
+      await this.logSystemEvent(key, "environment.stopped", "Environment stopped", {
+        actor: actorFromUser(user),
+        actionId: hostActionId,
+        metadata: { action, previousStatus: record.status }
+      });
       logEnvironment("info", "lifecycle_action_completed", { key, action, status: updated.status });
       return updated;
     } catch (error) {
@@ -598,6 +640,12 @@ export class EnvironmentsService {
         action,
         message: error instanceof Error ? error.message : String(error)
       });
+      await this.logSystemEvent(key, "environment.failed", `${capitalize(action)} failed: ${error instanceof Error ? error.message : String(error)}`, {
+        level: "error",
+        actor: actorFromUser(user),
+        actionId: hostActionId,
+        metadata: { action, previousStatus: record.status }
+      }).catch(() => undefined);
       throw error;
     }
   }
@@ -653,19 +701,18 @@ export class EnvironmentsService {
     return parseJsonValue(result.output ?? "{}");
   }
 
-  async stop(key: string): Promise<EnvironmentRecord> {
+  async stop(key: string, user?: AuthenticatedUser): Promise<EnvironmentRecord> {
     const record = await this.get(key);
 
-    await EnvironmentLogCollection.add({
-      environmentKey: key,
-      log: "Stopping environment",
+    await this.logSystemEvent(key, "environment.stop_requested", "Stopping environment", {
+      actor: user ? actorFromUser(user) : undefined
     });
 
     await this.publishEnvironmentAction("environment.stop", key);
 
-    await EnvironmentLogCollection.add({
-      environmentKey: key,
-      log: "Environment stopped",
+    await this.logSystemEvent(key, "environment.stopped", "Environment stopped", {
+      actor: user ? actorFromUser(user) : undefined,
+      metadata: { previousStatus: record.status }
     });
 
     return this.updateStatus(record.key, "stopped");
@@ -678,52 +725,51 @@ export class EnvironmentsService {
       throw Object.assign(new Error("Only the owner can reuse this environment"), { status: 403 });
     }
 
-    await EnvironmentLogCollection.add({
-      environmentKey: key,
-      log: "Resuming environment",
+    await this.logSystemEvent(key, "environment.resume_requested", "Resuming environment", {
+      actor: actorFromUser(user)
     });
 
     if (record.status !== "running") {
       await this.updateStatus(key, "starting");
       await this.publishEnvironmentAction("environment.start", key);
 
-      await EnvironmentLogCollection.add({
-        environmentKey: key,
-        log: "Environment resumed",
+      await this.logSystemEvent(key, "environment.resumed", "Environment resumed", {
+        actor: actorFromUser(user),
+        metadata: { previousStatus: record.status }
       });
     }
 
     return this.updateStatus(key, "running");
   }
 
-  async start(key: string): Promise<EnvironmentRecord> {
+  async start(key: string, user?: AuthenticatedUser): Promise<EnvironmentRecord> {
     try {
       const record = await this.get(key);
       if (record.status === "starting") {
-        await EnvironmentLogCollection.add({
-          environmentKey: key,
-          log: "Start already in progress",
-          system: true,
+        await this.logSystemEvent(key, "environment.start_requested", "Start already in progress", {
+          actor: user ? actorFromUser(user) : undefined,
+          source: "system",
+          metadata: { previousStatus: record.status }
         });
         return record;
       }
 
-      await EnvironmentLogCollection.add({
-        environmentKey: key,
-        log: "Starting environment",
+      await this.logSystemEvent(key, "environment.start_requested", "Starting environment", {
+        actor: user ? actorFromUser(user) : undefined,
+        metadata: { previousStatus: record.status }
       });
       await this.updateStatus(key, "starting");
       await this.publishEnvironmentAction("environment.start", key);
-      await EnvironmentLogCollection.add({
-        environmentKey: key,
-        log: "Environment started",
+      await this.logSystemEvent(key, "environment.started", "Environment started", {
+        actor: user ? actorFromUser(user) : undefined,
+        metadata: { previousStatus: record.status }
       });
       return this.updateStatus(key, "running");
     } catch (error) {
-      await EnvironmentLogCollection.add({
-        environmentKey: key,
-        log: `Environment start failed: ${error instanceof Error ? error.message : String(error)}`,
+      await this.logSystemEvent(key, "environment.failed", `Environment start failed: ${error instanceof Error ? error.message : String(error)}`, {
         level: "error",
+        actor: user ? actorFromUser(user) : undefined,
+        metadata: { action: "start" }
       });
       await this.updateStatus(key, "failed");
 
@@ -731,26 +777,26 @@ export class EnvironmentsService {
     }
   }
 
-  async restart(key: string): Promise<EnvironmentRecord> {
-    await this.get(key);
+  async restart(key: string, user?: AuthenticatedUser): Promise<EnvironmentRecord> {
+    const record = await this.get(key);
 
-    await EnvironmentLogCollection.add({
-      environmentKey: key,
-      log: "Restarting environment",
+    await this.logSystemEvent(key, "environment.restart_requested", "Restarting environment", {
+      actor: user ? actorFromUser(user) : undefined,
+      metadata: { previousStatus: record.status }
     });
 
     await this.updateStatus(key, "starting");
     await this.publishEnvironmentAction("environment.restart", key);
 
-    await EnvironmentLogCollection.add({
-      environmentKey: key,
-      log: "Environment restarted",
+    await this.logSystemEvent(key, "environment.restarted", "Environment restarted", {
+      actor: user ? actorFromUser(user) : undefined,
+      metadata: { previousStatus: record.status }
     });
 
     return this.updateStatus(key, "running");
   }
 
-  async syncFiles(key: string, input: SyncFilesPayload): Promise<EnvironmentRecord> {
+  async syncFiles(key: string, input: SyncFilesPayload, user?: AuthenticatedUser): Promise<EnvironmentRecord> {
     const current = await this.get(key);
     logEnvironment("info", "sync_started", {
       key,
@@ -759,9 +805,13 @@ export class EnvironmentsService {
       files: input.files.length
     });
 
-    await EnvironmentLogCollection.add({
-      environmentKey: key,
-      log: `Preparing environment with ${input.branch}@${input.commit}`,
+    await this.logSystemEvent(key, "environment.files_sync_started", `Preparing environment with ${input.branch}@${input.commit}`, {
+      actor: user ? actorFromUser(user) : undefined,
+      metadata: {
+        branch: input.branch,
+        commit: input.commit,
+        files: input.files.length
+      }
     });
 
     await this.updateStatus(key, "checking_out");
@@ -773,9 +823,13 @@ export class EnvironmentsService {
       files: input.files
     });
 
-    await EnvironmentLogCollection.add({
-      environmentKey: key,
-      log: "Environment synced successfully",
+    await this.logSystemEvent(key, "environment.files_synced", "Environment synced successfully", {
+      actor: user ? actorFromUser(user) : undefined,
+      metadata: {
+        branch: input.branch,
+        commit: input.commit,
+        files: input.files.map((file) => ({ path: file.path, status: file.status }))
+      }
     });
 
     const updated = await EnvironmentCollection.update(current.key, (record) => {
@@ -789,15 +843,16 @@ export class EnvironmentsService {
     return updated;
   }
 
-  async delete(key: string): Promise<void> {
+  async delete(key: string, user?: AuthenticatedUser): Promise<void> {
     const record = await this.get(key);
     logEnvironment("info", "delete_started", { key, status: record.status });
 
     await this.updateStatus(key, "removing");
 
-    await EnvironmentLogCollection.add({
-      environmentKey: key,
-      log: "Removing environment",
+    await this.logSystemEvent(key, "environment.remove_requested", "Removing environment", {
+      actor: user ? actorFromUser(user) : undefined,
+      target: targetForEnvironment(key, record.createdBy),
+      metadata: { previousStatus: record.status }
     });
 
     await this.publishEnvironmentAction("environment.remove", record.key).catch(async (error) => {
@@ -808,26 +863,23 @@ export class EnvironmentsService {
         message: error instanceof Error ? error.message : String(error),
         outputTail
       });
-      await EnvironmentLogCollection.add({
-        environmentKey: key,
-        log: [`Environment remove failed: ${error instanceof Error ? error.message : String(error)}`, outputTail].filter(Boolean).join("\n"),
+      await this.logSystemEvent(key, "environment.failed", [`Environment remove failed: ${error instanceof Error ? error.message : String(error)}`, outputTail].filter(Boolean).join("\n"), {
         level: "error",
+        actor: user ? actorFromUser(user) : undefined,
+        target: targetForEnvironment(key, record.createdBy),
+        metadata: { action: "remove", outputTail }
       });
       throw error;
     });
 
-    await EnvironmentLogCollection.add({
-      environmentKey: key,
-      log: "Environment removed",
+    await this.logSystemEvent(key, "environment.removed", "Environment removed", {
+      actor: user ? actorFromUser(user) : undefined,
+      target: targetForEnvironment(key, record.createdBy),
+      metadata: { previousStatus: record.status }
     });
 
     await this.updateStatus(key, "removed");
     await EnvironmentCollection.delete(key);
-
-    await EnvironmentLogCollection.add({
-      environmentKey: key,
-      log: "Environment deleted",
-    });
     logEnvironment("info", "delete_completed", { key });
   }
 
@@ -845,30 +897,44 @@ export class EnvironmentsService {
   async replacePullRequestEnvironment(pullRequest: PullRequestRef, source: EnvironmentSource): Promise<EnvironmentRecord> {
     await this.deletePullRequestEnvironments(pullRequest).catch(() => undefined);
 
-    return this.create({
+    const record = await this.create({
       source,
       seed: "default",
       env: {}
     }, pullRequest);
+
+    await this.logSystemEvent(record.key, "environment.pr_updated", "Pull request environment updated", {
+      actor: actorFromPullRequest(pullRequest),
+      source: "github",
+      target: targetForEnvironment(record.key, pullRequest),
+      metadata: {
+        branch: source.branch,
+        commit: source.commit
+      }
+    });
+
+    return record;
   }
 
   async deletePullRequestEnvironments(reference: PullRequestRef): Promise<void> {
     const matching = await this.identifyPrEnvironment(reference);
 
-    await EnvironmentLogCollection.add({
-      environmentKey: matching.key,
-      log: "Deleting pull request environment",
+    await this.logSystemEvent(matching.key, "environment.pr_removed", "Deleting pull request environment", {
+      actor: actorFromPullRequest(reference),
+      source: "github",
+      target: targetForEnvironment(matching.key, reference)
     });
 
     await this.delete(matching.key);
 
-    await EnvironmentLogCollection.add({
-      environmentKey: matching.key,
-      log: "Pull request environment deleted",
+    await this.logSystemEvent(matching.key, "environment.pr_removed", "Pull request environment deleted", {
+      actor: actorFromPullRequest(reference),
+      source: "github",
+      target: targetForEnvironment(matching.key, reference)
     });
   }
 
-  private async publishEnvironmentAction(type: string, key: string, payload: Record<string, unknown> = {}, onLog?: HostActionLogHandler): Promise<HostActionResult> {
+  private async publishEnvironmentAction(type: string, key: string, payload: Record<string, unknown> = {}, onLog?: HostActionLogHandler, actionId?: string): Promise<HostActionResult> {
     logEnvironment("info", "bus_action_publish", { key, type });
     const record = await EnvironmentCollection.get(key);
     const proxyUpstreamHost = await resolveHost(env.PROXY_UPSTREAM_HOST);
@@ -879,10 +945,10 @@ export class EnvironmentsService {
       runtimeRoot: env.HOST_RUNTIME_DIR,
       runtimePath: path.join(env.HOST_RUNTIME_DIR, key),
       ...payload
-    }, env.BUS_ACTION_TIMEOUT_MS, onLog);
+    }, env.BUS_ACTION_TIMEOUT_MS, onLog, { id: actionId });
 
     if (!isReadOnlyHostAction(type)) {
-      await this.logHostActionResult(key, result);
+      await this.logHostActionResult(key, type, result, actionId);
     }
     logEnvironment("info", "bus_action_completed", {
       key,
@@ -894,30 +960,17 @@ export class EnvironmentsService {
     return result;
   }
 
-  private async logHostActionResult(key: string, result: HostActionResult): Promise<void> {
-    if (result.output) {
-      await EnvironmentLogCollection.add({
-        environmentKey: key,
-        log: result.output,
-        system: true
-      });
-    }
-  }
-
-  private async composeConfig(record: EnvironmentRecord): Promise<{ cwd: string; envFile: string }> {
-    const runtimePath = path.join(env.RUNTIME_DIR, record.key);
-    const envFile = path.join(runtimePath, ".env");
-    const sourceRepoPath = record.source.repoPath ? path.resolve(record.source.repoPath) : undefined;
-
-    if (sourceRepoPath && await fileExists(path.join(sourceRepoPath, "docker-compose.yml"))) {
-      return { cwd: sourceRepoPath, envFile };
-    }
-
-    if (sourceRepoPath && await fileExists(path.join(sourceRepoPath, "compose.yml"))) {
-      return { cwd: sourceRepoPath, envFile };
-    }
-
-    return { cwd: runtimePath, envFile };
+  private async logHostActionResult(key: string, type: string, result: HostActionResult, actionId?: string): Promise<void> {
+    await this.logSystemEvent(key, "host_action.completed", result.message || `${type} completed`, {
+      source: "worker",
+      actionId: actionId ?? result.id,
+      metadata: {
+        hostActionId: result.id,
+        type,
+        status: result.status,
+        outputLength: result.output?.length ?? 0
+      }
+    });
   }
 
   private async nextAvailablePort(): Promise<number> {
@@ -966,28 +1019,64 @@ export class EnvironmentsService {
     return updated;
   }
 
-  private async writeEnvironmentFile(runtimePath: string, key: string, environmentVariables: Record<string, string>): Promise<void> {
-    const content = {
-      ...environmentVariables,
-      ENV_KEY: environmentVariables.ENV_KEY ?? key,
-      ENV_PORT: environmentVariables.ENV_PORT ?? String((await EnvironmentCollection.get(key)).port),
-      ROOT_DOMAIN: environmentVariables.ROOT_DOMAIN ?? env.ROOT_DOMAIN,
-      MONGO_DATABASE: environmentVariables.MONGO_DATABASE ?? "primarie"
+  private async reserveActionLogFile(id: string): Promise<EnvironmentActionLogFile> {
+    const logFilePath = this.actionLogPath(id);
+    await fs.mkdir(path.dirname(logFilePath), { recursive: true });
+    await fs.writeFile(logFilePath, "", { flag: "a" });
+    const createdAt = new Date();
+    return {
+      path: logFilePath,
+      driver: "file",
+      createdAt,
+      updatedAt: createdAt,
+      sizeBytes: 0
     };
-
-    const lines = Object.entries(content).map(([name, value]) => `${name}=${escapeEnvValue(value)}`);
-    await fs.writeFile(path.join(runtimePath, ".env"), `${lines.join("\n")}\n`, "utf8");
   }
 
-  private composeLogger(environmentKey: string) {
-    return async ({ log, level }: { log: string; level: "info" | "error" }) => {
-      await EnvironmentLogCollection.add({
-        environmentKey,
-        log,
-        level,
-        system: true,
-      });
+  private async refreshActionLogFile(id: string): Promise<EnvironmentActionLogFile> {
+    const action = await EnvironmentActionCollection.get(id).catch(() => undefined);
+    const existing = action?.logFile;
+    const logFilePath = this.actionLogPath(id, existing);
+    const stats = await fs.stat(logFilePath).catch(() => undefined);
+    return {
+      path: logFilePath,
+      driver: "file",
+      createdAt: existing?.createdAt ?? new Date(),
+      updatedAt: stats?.mtime ?? new Date(),
+      sizeBytes: stats?.size ?? 0
     };
+  }
+
+  private actionLogPath(id: string, logFile?: EnvironmentActionLogFile): string {
+    return logFile?.path ?? path.join(env.BUS_LOGS_DIR, `${id}.log`);
+  }
+
+  private async logSystemEvent(
+    environmentKey: string,
+    event: string,
+    message: string,
+    options: {
+      level?: SystemLogLevel;
+      source?: SystemLogSource;
+      actor?: SystemLogActor;
+      target?: SystemLogTarget;
+      actionId?: string;
+      correlationId?: string;
+      metadata?: Record<string, unknown>;
+    } = {}
+  ): Promise<void> {
+    await SystemLogCollection.add({
+      event,
+      message,
+      level: options.level,
+      source: options.source,
+      actor: options.actor,
+      target: options.target ?? { type: "environment", environmentKey },
+      environmentKey,
+      actionId: options.actionId,
+      correlationId: options.correlationId,
+      metadata: options.metadata
+    });
   }
 
   toOwner(user: AuthenticatedUser): EnvironmentOwner {
@@ -1002,20 +1091,216 @@ export class EnvironmentsService {
   }
 }
 
-function escapeEnvValue(value: string): string {
-  if (/^[A-Za-z0-9_./:@-]*$/.test(value)) {
-    return value;
-  }
-
-  return JSON.stringify(value);
-}
-
 function randomItem<T>(items: T[]): T {
   return items[Math.floor(Math.random() * items.length)];
 }
 
 function capitalize(value: string): string {
   return `${value.slice(0, 1).toUpperCase()}${value.slice(1)}`;
+}
+
+async function readActionLogPage(actionId: string, filePath: string, cursor: string | undefined, limit: number) {
+  const safeLimit = normalizeLimit(limit, 200, 1000);
+  const size = await readFileSize(filePath);
+  const requestedEndOffset = cursor ? decodeLogCursor(cursor) : size;
+  const endOffset = Math.max(0, Math.min(size, requestedEndOffset));
+  const items = endOffset > 0 ? await readPreviousLogLines(actionId, filePath, endOffset, safeLimit) : [];
+  const firstOffset = items[0]?.byteStart ?? 0;
+  const hasMore = firstOffset > 0;
+
+  return {
+    actionId,
+    cursor,
+    nextCursor: hasMore ? encodeLogCursor(firstOffset) : undefined,
+    hasMore,
+    items
+  };
+}
+
+async function readActionLogForward(actionId: string, filePath: string, fromOffset: number): Promise<{ offset: number; size: number; items: ActionLogLine[] }> {
+  const size = await readFileSize(filePath);
+  const offset = Math.max(0, Math.min(size, Number.isFinite(fromOffset) ? Math.floor(fromOffset) : size));
+  if (offset >= size) {
+    return { offset: size, size, items: [] };
+  }
+
+  const handle = await fs.open(filePath, "r").catch((error) => {
+    if (isNodeError(error) && error.code === "ENOENT") {
+      return undefined;
+    }
+    throw error;
+  });
+
+  if (!handle) {
+    return { offset: 0, size: 0, items: [] };
+  }
+
+  try {
+    const readSize = size - offset;
+    const buffer = Buffer.alloc(readSize);
+    const { bytesRead } = await handle.read(buffer, 0, readSize, offset);
+    const items = bufferToLogLines(actionId, buffer.subarray(0, bytesRead), offset);
+    return {
+      offset: items.at(-1)?.byteEnd ?? offset,
+      size,
+      items
+    };
+  } finally {
+    await handle.close();
+  }
+}
+
+async function readPreviousLogLines(actionId: string, filePath: string, endOffset: number, limit: number): Promise<ActionLogLine[]> {
+  const handle = await fs.open(filePath, "r").catch((error) => {
+    if (isNodeError(error) && error.code === "ENOENT") {
+      return undefined;
+    }
+    throw error;
+  });
+
+  if (!handle) {
+    return [];
+  }
+
+  try {
+    const chunks: Buffer[] = [];
+    let position = endOffset;
+    let newlineCount = 0;
+    const chunkSize = 64 * 1024;
+
+    while (position > 0 && newlineCount <= limit) {
+      const readSize = Math.min(chunkSize, position);
+      position -= readSize;
+      const buffer = Buffer.alloc(readSize);
+      const { bytesRead } = await handle.read(buffer, 0, readSize, position);
+      const chunk = buffer.subarray(0, bytesRead);
+      chunks.unshift(chunk);
+      newlineCount += countNewlines(chunk);
+    }
+
+    const buffer = Buffer.concat(chunks);
+    let items = bufferToLogLines(actionId, buffer, position);
+    if (position > 0) {
+      items = items.slice(1);
+    }
+
+    return items.slice(-limit);
+  } finally {
+    await handle.close();
+  }
+}
+
+function bufferToLogLines(actionId: string, buffer: Buffer, baseOffset: number): ActionLogLine[] {
+  const items: ActionLogLine[] = [];
+  let lineStart = 0;
+
+  for (let index = 0; index < buffer.length; index += 1) {
+    if (buffer[index] === 10) {
+      items.push(toActionLogLine(actionId, buffer, baseOffset, lineStart, index + 1));
+      lineStart = index + 1;
+    }
+  }
+
+  if (lineStart < buffer.length) {
+    items.push(toActionLogLine(actionId, buffer, baseOffset, lineStart, buffer.length));
+  }
+
+  return items;
+}
+
+function toActionLogLine(actionId: string, buffer: Buffer, baseOffset: number, start: number, end: number): ActionLogLine {
+  const raw = buffer.subarray(start, end).toString("utf8").replace(/\r?\n$/, "");
+  return {
+    actionId,
+    line: raw,
+    log: raw,
+    level: inferLogLevel(raw),
+    byteStart: baseOffset + start,
+    byteEnd: baseOffset + end
+  };
+}
+
+function inferLogLevel(line: string): "info" | "error" {
+  return /\b(error|failed|failure|fatal|exception)\b/i.test(line) ? "error" : "info";
+}
+
+function countNewlines(buffer: Buffer): number {
+  let count = 0;
+  for (const byte of buffer) {
+    if (byte === 10) {
+      count += 1;
+    }
+  }
+  return count;
+}
+
+async function readFileSize(filePath: string): Promise<number> {
+  const stats = await fs.stat(filePath).catch((error) => {
+    if (isNodeError(error) && error.code === "ENOENT") {
+      return undefined;
+    }
+    throw error;
+  });
+  return stats?.size ?? 0;
+}
+
+function encodeLogCursor(offset: number): string {
+  return Buffer.from(JSON.stringify({ offset })).toString("base64url");
+}
+
+function decodeLogCursor(cursor: string): number {
+  try {
+    const parsed = JSON.parse(Buffer.from(cursor, "base64url").toString("utf8")) as { offset?: unknown };
+    if (typeof parsed.offset !== "number" || !Number.isFinite(parsed.offset) || parsed.offset < 0) {
+      throw new Error("Invalid cursor offset");
+    }
+    return Math.floor(parsed.offset);
+  } catch (error) {
+    throw Object.assign(new Error(`Invalid action log cursor: ${error instanceof Error ? error.message : String(error)}`), { status: 400 });
+  }
+}
+
+function normalizeLimit(value: number, fallback: number, max: number): number {
+  if (!Number.isFinite(value)) {
+    return fallback;
+  }
+  return Math.max(1, Math.min(max, Math.floor(value)));
+}
+
+function actorFromUser(user: AuthenticatedUser): SystemLogActor {
+  return {
+    type: "user",
+    email: user.email,
+    name: user.name
+  };
+}
+
+function actorFromOwnerOrPullRequest(value: EnvironmentOwner | PullRequestRef): SystemLogActor {
+  if ("email" in value) {
+    return {
+      type: "user",
+      email: value.email,
+      name: value.name
+    };
+  }
+
+  return actorFromPullRequest(value);
+}
+
+function actorFromPullRequest(value: PullRequestRef): SystemLogActor {
+  return {
+    type: "github",
+    name: value.title,
+    url: value.url
+  };
+}
+
+function targetForEnvironment(environmentKey: string, createdBy?: EnvironmentOwner | PullRequestRef): SystemLogTarget {
+  return {
+    type: "environment",
+    environmentKey,
+    pullRequestUrl: createdBy && "url" in createdBy ? createdBy.url : undefined
+  };
 }
 
 async function emitBusResult(
@@ -1034,10 +1319,6 @@ function throwIfAborted(signal?: AbortSignal): void {
   if (signal?.aborted) {
     throw Object.assign(new Error("Action aborted"), { status: 499 });
   }
-}
-
-function busMigrationPending(message: string): Error {
-  return Object.assign(new Error(message), { status: 501 });
 }
 
 function logEnvironment(level: "info" | "warn" | "error", event: string, details: Record<string, unknown>): void {
@@ -1149,10 +1430,6 @@ function resolveInside(rootPath: string, targetPath: string): string {
 
 function isNodeError(error: unknown): error is NodeJS.ErrnoException {
   return error instanceof Error && "code" in error;
-}
-
-async function fileExists(filePath: string): Promise<boolean> {
-  return fs.access(filePath).then(() => true, () => false);
 }
 
 function sampleCpuUsage() {
