@@ -473,11 +473,13 @@ function prepareStreamResponse(res: import("express").Response): void {
   res.setHeader("content-type", "application/x-ndjson; charset=utf-8");
   res.setHeader("cache-control", "no-cache, no-transform");
   res.setHeader("connection", "keep-alive");
+  res.setHeader("x-accel-buffering", "no");
   res.flushHeaders?.();
 }
 
 function writeStreamEvent(res: import("express").Response, event: unknown): void {
   res.write(`${JSON.stringify(event)}\n`);
+  (res as import("express").Response & { flush?: () => void }).flush?.();
 }
 
 async function initialActionLogOffset(service: EnvironmentsService, actionId: string, query: import("express").Request["query"]): Promise<number> {

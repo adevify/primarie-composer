@@ -70,13 +70,13 @@ The worker writes:
 
 Output is truncated to the last `MAX_RESULT_OUTPUT_BYTES` when needed.
 
-For lifecycle actions, the worker also writes the full execution transcript to the action's attached log file, normally:
+For lifecycle actions, the API reserves the action log file before returning the queued action record and writes initial queued/running markers into that file. The worker then appends its accepted, command, output, heartbeat, lock-conflict, and finished lines to the same action log file, normally:
 
 ```text
 {LOGS_DIR}/{actionId}.log
 ```
 
-That file must remain available after the worker writes the result so the API can support lazy tail reads and `tail -f` style streaming for Electron.
+That file must remain available after the worker writes the result so the API can support lazy tail reads and `tail -f` style streaming for Electron. The worker must append to the file rather than truncating it when command execution begins, otherwise Electron can miss the initial queued/running markers.
 
 ## Chapter 4.5 Worker Action Routing
 

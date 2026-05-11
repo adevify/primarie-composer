@@ -172,7 +172,7 @@ run_and_capture() {
   local output_file
   local heartbeat_pid
   output_file="$(mktemp)"
-  : > "$log_file"
+  : >> "$log_file"
 
   printf "[composer-worker] running command at %s: %s\n" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$*" >> "$log_file"
   (
@@ -184,7 +184,7 @@ run_and_capture() {
   heartbeat_pid="$!"
 
   set +e
-  "$@" 2>&1 | tee "$output_file" "$log_file" >/dev/null
+  "$@" 2>&1 | tee -a "$output_file" "$log_file" >/dev/null
   local code="${PIPESTATUS[0]}"
   set -e
 
@@ -221,6 +221,9 @@ process_action() {
     return 0
   fi
 
+  : >> "$LOGS_DIR/$id.log"
+  printf "[composer-worker] accepted action at %s: %s\n" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$type" >> "$LOGS_DIR/$id.log"
+
   if requires_environment_lock "$type"; then
     if [[ -z "$environment" ]]; then
       write_result "$id" "error" "Environment is required for locked action: $type"
@@ -229,6 +232,7 @@ process_action() {
 
     action_lock_dir="$(environment_lock_path "$environment")"
     if ! acquire_environment_lock "$action_lock_dir" "$id" "$type" "$environment"; then
+      printf "[composer-worker] lock conflict at %s: %s for %s\n" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$type" "$environment" >> "$LOGS_DIR/$id.log"
       write_lock_conflict_result "$id" "$type" "$environment"
       echo "[composer-worker] locked $id - $type for $environment already has an active action; returning no-op result"
       return 0
