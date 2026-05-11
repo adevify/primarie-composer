@@ -114,16 +114,11 @@ During `environment.prepare`, `scripts/prepare-env.sh` copies:
 
 It removes previous target Mongo/media data before copying.
 
-## Chapter 7.8 Seed Services In API Source
+## Chapter 7.8 Removed Seed Helper Services
 
-There are TypeScript seed helper classes:
+Seed preparation and copying should be owned by the host scripts.
 
-- `SeedService.copySeed`
-- `MongoSeedDumpService.createDump`
-
-Current active environment preparation uses Bash scripts, not these classes.
-
-`MongoSeedDumpService` builds a `seed-data.js` and copies JSON files into a destination path. This appears to support the older `mongo-dump` template path.
+The TypeScript helper services `SeedService` and `MongoSeedDumpService` are removal targets and should not be part of the desired API source.
 
 ## Chapter 7.9 Central Auth Data
 
@@ -142,4 +137,3 @@ Required central auth user shape:
 `password` must be a bcrypt hash.
 
 No source script currently provisions central auth users from `seeds/default/users.json`.
-

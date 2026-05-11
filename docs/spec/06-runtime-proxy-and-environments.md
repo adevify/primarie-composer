@@ -1,4 +1,4 @@
-# 06 Runtime Proxy And Environment Templates
+# 06 Runtime Proxy And Environments
 
 ## Chapter 6.1 Central Docker Compose Stack
 
@@ -35,13 +35,12 @@ The `api` service:
 - Builds from `./apps/api`.
 - Depends on `db`.
 - Adds `host.docker.internal:host-gateway`.
-- Mounts runtime, templates, seeds, host bus, SSH agent, and known hosts.
+- Mounts runtime, seeds, host bus, SSH agent, and known hosts.
 - Exposes API health to Docker health check.
 
 Important mounted paths:
 
 - `./runtime:/app/runtime`
-- `./templates:/app/templates`
 - `./seeds:/app/seeds`
 - `/opt/composer-bus:/bus`
 - `${SSH_AUTH_SOCK}:/ssh-agent`
@@ -135,51 +134,23 @@ The API resolves upstream host from `PROXY_UPSTREAM_HOST`:
 - IP address: uses as-is.
 - DNS name: resolves IPv4 through `dns.lookup`.
 
-## Chapter 6.9 Environment Template Compose Artifact
+## Chapter 6.9 Removed Template Artifacts
 
-`templates/environment/docker-compose.yml` defines a standalone mock environment:
+The desired system should not include environment template artifacts.
 
-- `env-nginx`
-- `admin`
-- `api`
-- `web`
-- `mongo`
+Removal scope:
 
-`env-nginx` publishes `${ENV_PORT}:80`.
+- `templates/environment/docker-compose.yml`
+- `templates/environment/nginx.conf`
+- `templates/environment/.env.example`
+- `templates/environment/mock/*`
+- central Compose mounts for `./templates`
+- API env vars such as `TEMPLATE_DIR` and `HOST_TEMPLATE_DIR`
+- API code paths that expect a template directory
 
-Mock services use Nginx and mount:
+Runtime environments are prepared from the configured source repository, not from repo-local mock templates.
 
-- `mock/admin.html`
-- `mock/api.json`
-- `mock/web.html`
-- `./repo:/workspace/repo:ro`
-
-Mongo uses:
-
-- `mongo:7`
-- named volume `mongo-data`
-- `./mongo-dump:/docker-entrypoint-initdb.d:ro`
-- `MONGO_INITDB_DATABASE`
-
-## Chapter 6.10 Environment Template Nginx Artifact
-
-`templates/environment/nginx.conf` routes:
-
-- Host matching `admin-[^.]+.*` to service `admin`.
-- Host matching `api-[^.]+.*` to service `api`.
-- All other hosts to service `web`.
-
-It assumes public HTTPS termination is handled by the central server proxy and only listens on plain HTTP inside the environment.
-
-## Chapter 6.11 Template Mock Artifacts
-
-Mock files:
-
-- `templates/environment/mock/admin.html`: static admin mock.
-- `templates/environment/mock/web.html`: static tenant web mock.
-- `templates/environment/mock/api.json`: `{ "service": "api-mock", "ok": true }`.
-
-## Chapter 6.12 Active Runtime Path Contract
+## Chapter 6.10 Active Runtime Path Contract
 
 Active host scripts use runtime folders under:
 
@@ -197,7 +168,7 @@ The active prepare script clones the configured source repo directly into this f
 
 This means the cloned target repo must provide a usable Docker Compose setup compatible with the injected `.env` values and Composer patches.
 
-## Chapter 6.13 Runtime Files
+## Chapter 6.11 Runtime Files
 
 Prepared environment runtime folders currently contain:
 
@@ -207,4 +178,3 @@ Prepared environment runtime folders currently contain:
 - `data/media`
 
 Other files depend on the target source repository.
-

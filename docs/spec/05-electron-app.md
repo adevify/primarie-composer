@@ -175,7 +175,7 @@ Top-level state covers:
 
 - Auth session and login errors.
 - Repository path and Git status.
-- Environment list, dashboard logs, metrics, and users.
+- Environment list, dashboard system logs, metrics, and users.
 - Create dialog and env values.
 - Creation monitor.
 - Details environment.
@@ -197,8 +197,8 @@ The API client supports:
 - User listing.
 - Environment list/get/create/delete.
 - Direct lifecycle operations.
-- Queued lifecycle actions and action logs.
-- Dashboard logs and system metrics.
+- Queued lifecycle actions and file-backed action log tails.
+- Dashboard system logs and system metrics.
 - Container list, file list, exec, and log streams.
 - Runtime file browsing.
 - Mongo inspection.
@@ -234,6 +234,8 @@ The main authenticated layout includes:
 - API endpoint display.
 - Logout button.
 
+The Dashboard navigation target should show the database-backed system log feed. These are the only logs stored in MongoDB and are read from the shared `logs` collection.
+
 Sidebar cards:
 
 - Repository picker.
@@ -251,8 +253,22 @@ It shows:
 - Refresh/health button.
 - Environment and system metric stat boxes.
 - Static network map panel.
-- Searchable global environment log table.
+- Searchable global system log table backed only by the MongoDB `logs` collection.
 - Infinite-ish log loading based on scroll near bottom.
+
+The dashboard log table should show system activity events such as:
+
+- Environment created.
+- Environment started.
+- Environment resumed.
+- Environment stopped.
+- Environment restarted.
+- Environment removed.
+- Environment failed.
+- Environment updated by file sync.
+- Environment updated or removed by pull request automation.
+
+The dashboard must not show file-backed lifecycle action transcripts, Compose logs, or container logs in this table. Those belong in environment details or log tail views.
 
 Stats include total, active, stopped, failed, created today, inferred containers, CPU, RAM, and storage.
 
@@ -263,9 +279,20 @@ Several displayed dashboard labels are static or inferred rather than API-backed
 `EnvironmentsPage` shows:
 
 - Create environment button disabled until a repo is selected.
-- Tabs: All, My Environments, Production, PRs.
-- Environment table with owner, type, URLs, branch, status, created date, container count, and actions.
+- Grouped environment sections.
+- Environment rows/cards with owner, type, URLs, branch, status, created date, container count, and actions.
 - Resource usage panel.
+
+Grouping rules:
+
+- Manual environments are grouped by user owner.
+- The current authenticated user's environments are shown first under `Me`.
+- Other user-owned environments are grouped after `Me`, one group per user.
+- Pull request environments are grouped separately by pull request.
+- The PR section shows a list of PR groups, and each PR group contains its environment or environments.
+- PR grouping uses pull request metadata from `createdBy` when it is a pull request reference.
+
+The page should support scanning across all groups without requiring the operator to switch tabs first. Tabs or segmented controls can still exist, but they should filter or focus these groups rather than replace the grouping model.
 
 Actions:
 
@@ -275,11 +302,11 @@ Actions:
 - Restart.
 - Delete.
 
-Current filters:
+Group labels:
 
-- `prs`: environments whose `createdBy` has `url`.
-- `production`: branch equals `main` or includes `prod`.
-- `all` and `mine`: both currently return all environments.
+- `Me`: environments where `createdBy.email` matches the current session user email.
+- Other users: display the owner's name or email.
+- PRs: display pull request title when present, otherwise pull request URL.
 
 Domain display currently builds:
 
@@ -339,7 +366,7 @@ Environment tools:
 
 - Browse runtime filesystem if no container is selected.
 - Inspect MongoDB collections and sample documents.
-- View queued lifecycle actions and logs.
+- View queued lifecycle actions and their attached log files.
 - Start Compose log stream.
 
 ## Chapter 5.16 Live Log Sessions
@@ -351,7 +378,7 @@ Renderer live log sessions are capped:
 
 Sessions can be `running`, `complete`, `error`, or `stopped`.
 
-Container and Compose log sessions use abort controllers. Lifecycle action streams read queued action logs until completion or error.
+Container and Compose log sessions use abort controllers. Lifecycle action sessions read the newest tail segment first, lazy-load older file segments as the operator scrolls upward, and use `tail -f` style streaming for live output until completion or error.
 
 ## Chapter 5.17 Sync State
 
@@ -402,4 +429,3 @@ Implemented boundaries:
 Known TODO in code:
 
 - Replace localStorage token persistence with OS keychain or encrypted storage.
-

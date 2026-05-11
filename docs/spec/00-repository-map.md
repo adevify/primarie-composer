@@ -18,7 +18,6 @@ The root package does not define npm workspaces. Each app has its own `package.j
 - `apps/electron`: Electron desktop app with React renderer, secure preload bridge, and Git/file watcher logic.
 - `scripts`: host-side Bash worker and operational scripts for environment lifecycle, sync, logs, container inspection, and seed preparation.
 - `proxy`: central Nginx reverse proxy config plus ignored SSL material.
-- `templates/environment`: environment Compose/Nginx/mock template artifacts.
 - `seeds/default`: seed JSON files for environment MongoDB data.
 - `runtime`: ignored local runtime data for generated environments and central MongoDB storage.
 - `docs/spec`: this generated spec pack.
@@ -34,7 +33,14 @@ Primary API files:
 - `apps/api/src/modules/proxy/proxy.routes.ts`: Nginx authorization endpoint for environment hostnames.
 - `apps/api/src/db/*`: MongoDB collection adapters.
 - `apps/api/src/services/bus/HostActionBusService.ts`: FIFO bus publisher and result polling.
-- `apps/api/src/services/docker/*`, `git/*`, and `seeds/*`: older or helper service classes that are currently not on the main environment lifecycle path.
+
+Removal targets:
+
+- `apps/api/src/services/docker/*`
+- `apps/api/src/services/git/*`
+- `apps/api/src/services/seeds/*`
+
+These service classes should not remain in the desired source tree if all lifecycle work is performed through the host action bus and scripts.
 
 ## Chapter 0.4 Electron Source Files
 
@@ -95,4 +101,3 @@ API dependencies include Express, CORS, Helmet, rate limiting, Zod, JSON Web Tok
 Electron dependencies include Electron, electron-vite, React 19, MUI 6, MUI icons, Vite, chokidar, and TypeScript.
 
 Host scripts require shell tools including Bash, `jq`, Git, Docker, Docker Compose or `docker-compose`, and MongoDB images pulled through Docker.
-

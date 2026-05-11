@@ -9,8 +9,8 @@ Primarie Composer provides a local/operator control surface for isolated Primari
 - Operator: authenticated human using the Electron app.
 - Electron main process: trusted local process for filesystem dialogs, Git commands, and file watching.
 - Electron renderer: React UI and API client.
-- Central API: authenticated HTTP API for auth, environment metadata, lifecycle actions, logs, metrics, and proxy authorization.
-- MongoDB: central persistence for users, environment records, logs, and lifecycle actions.
+- Central API: authenticated HTTP API for auth, environment metadata, lifecycle actions, system logs, metrics, and proxy authorization.
+- MongoDB: central persistence for users, environment records, system logs, and lifecycle actions.
 - Host action worker: Bash FIFO worker that performs privileged host operations.
 - Central Nginx proxy: routes public hostnames to running environment ports after asking the API.
 - Environment Compose project: cloned target repo plus `.env`, seed data, and containers.
@@ -48,13 +48,13 @@ Current implementation flow:
 7. The API validates that `seeds/{seed}/mongodb` exists.
 8. The API picks the next available local port from `BASE_ENV_PORT`.
 9. The API creates an environment record with status `creating`.
-10. The API logs `Environment created`.
+10. The API writes a system log event such as `environment.created`.
 11. The API returns the new record immediately with HTTP 201.
 12. In the background, the API publishes `environment.prepare` to the host action bus.
 13. The host worker runs `scripts/prepare-env.sh`.
 14. The worker clones `SOURCE_REPO_URL` into the runtime path, checks out `origin/{branch}`, resets to `{commit}`, patches the repo for Composer compatibility, copies seed data, and writes `.env`.
 15. The API records bus output and marks the environment `stopped` on success.
-16. The renderer polls the environment and its logs until preparation exits `creating`, `cloning`, `checking_out`, or `applying_changes`.
+16. The renderer polls the environment and system logs filtered by environment key until preparation exits `creating`, `cloning`, `checking_out`, or `applying_changes`.
 17. The renderer closes the create dialog, opens environment details, and sets the environment as the active sync target.
 
 Important: current creation prepares the environment but does not start it. Start is a separate lifecycle action.
@@ -64,9 +64,9 @@ Important: current creation prepares the environment but does not start it. Star
 Lifecycle actions are exposed in two forms:
 
 - Direct routes: `/environments/:key/start`, `/stop`, `/restart`, `/resume`.
-- Queued action routes: `/environments/:key/actions/:action`, with action logs and NDJSON streaming.
+- Queued action routes: `/environments/:key/actions/:action`, with a file-backed log attachment and NDJSON tail streaming.
 
-The Electron UI primarily uses queued actions for `start`, `stop`, `restart`, and `resume`, then streams action logs from `/environments/actions/:id/logs/stream`.
+The Electron UI primarily uses queued actions for `start`, `stop`, `restart`, and `resume`, then reads or streams the action's attached log file through `/environments/actions/:id/logs` and `/environments/actions/:id/logs/stream`.
 
 Start/resume:
 
@@ -111,6 +111,7 @@ Delete:
 8. The renderer posts each chunk to `/environments/:key/sync-files`.
 9. The API publishes `environment.files.sync`.
 10. The worker fetches, resets, checks out branch/commit, cleans untracked files, and applies changed file content/deletions.
+11. The API writes a system log event such as `environment.files_synced`.
 
 ## Chapter 1.8 Inspection Workflow
 
@@ -122,9 +123,29 @@ Environment details include:
 - Runtime directory filesystem browsing through API filesystem reads.
 - Container shell command execution through `docker exec`.
 - MongoDB inspection through `mongosh`.
-- Lifecycle action history and per-action logs.
+- Lifecycle action history and per-action attached log files.
 
-## Chapter 1.9 Proxy Routing Workflow
+## Chapter 1.9 System Log Workflow
+
+System-level audit/activity events are stored in one `logs` collection rather than an environment-specific log collection.
+
+The log stream should include events such as:
+
+- Environment created.
+- Environment prepared.
+- Environment started.
+- Environment resumed.
+- Environment stopped.
+- Environment restarted.
+- Environment removed.
+- Environment failed.
+- Environment updated by file sync.
+- Environment updated by pull request event.
+- Environment removed by pull request merge/close event.
+
+Each event can be filtered by environment key, actor, source, event name, lifecycle action id, or pull request metadata.
+
+## Chapter 1.10 Proxy Routing Workflow
 
 1. A public request enters the central Nginx proxy.
 2. Nginx sends an internal auth request to `/proxy/authorize`.
@@ -133,7 +154,7 @@ Environment details include:
 5. The API returns routing headers including environment key, port, upstream host, and service host.
 6. Nginx proxies the original request to `http://{upstream_host}:{environment_port}` with `Host` rewritten to `{subdomain}.{ROOT_DOMAIN}`.
 
-## Chapter 1.10 Status Model
+## Chapter 1.11 Status Model
 
 Environment statuses:
 
@@ -155,4 +176,3 @@ Current status usage:
 - Start/restart/resume set `starting`, then `running`.
 - Stop sets `stopped`.
 - Delete sets `removing`, then `removed`, then removes the record.
-

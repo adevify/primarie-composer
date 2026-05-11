@@ -28,10 +28,8 @@ Current API source requires `JWT_SECRET` to be at least 16 characters and `SOURC
 - `ROOT_DOMAIN`
 - `PROXY_UPSTREAM_HOST`
 - `RUNTIME_DIR`
-- `TEMPLATE_DIR`
 - `SEEDS_DIR`
 - `HOST_RUNTIME_DIR`
-- `HOST_TEMPLATE_DIR`
 - `HOST_SEEDS_DIR`
 - `BUS_PIPE_PATH`
 - `BUS_RESULTS_DIR`
@@ -56,14 +54,14 @@ The central API container sets:
 - `RUNTIME_DIR=/app/runtime/environments`
 - `HOST_RUNTIME_DIR`
 - `ENVIRONMENTS_FILE=/app/runtime/environments.json`
-- `TEMPLATE_DIR=/app/templates/environment`
-- `HOST_TEMPLATE_DIR`
 - `SEEDS_DIR=/app/seeds`
 - `HOST_SEEDS_DIR`
 - bus paths under `/bus`
 - `SSH_AUTH_SOCK=/ssh-agent`
 
 `ENVIRONMENTS_FILE` is set in Compose but not parsed by current `env.ts`; the current implementation stores environment metadata in MongoDB.
+
+Template configuration such as `TEMPLATE_DIR` and `HOST_TEMPLATE_DIR` should be removed from the desired environment schema and central Compose configuration.
 
 ## Chapter 8.4 Environment Runtime Variables
 
@@ -231,12 +229,11 @@ Environment routing requires DNS or hosts configuration that points wildcard hos
 Sources of operational logs:
 
 - API structured stdout/stderr JSON logs.
-- MongoDB `environments-logs`.
-- MongoDB `environment-action-logs`.
+- MongoDB `logs` collection for system-level activity. This is the only database-backed log store.
+- File-backed lifecycle action logs attached to action records.
 - Worker bus logs under `BUS_LOGS_DIR`.
 - Central Compose logs.
 - Environment Compose logs.
 - Container logs.
 
-The Electron UI displays environment logs, lifecycle action logs, Compose logs, and container logs.
-
+The Electron UI displays system activity logs, file-backed lifecycle action logs, Compose logs, and container logs.

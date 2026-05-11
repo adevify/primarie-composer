@@ -258,7 +258,9 @@ Query params:
 - `page`, default `0`.
 - `perPage`, default `100`.
 
-Returns paginated environment logs across all environments.
+Returns paginated system log records from the shared `logs` collection.
+
+This is a cross-environment activity feed. It must be backed by the shared `logs` collection.
 
 ### Chapter 2.7.4 GET /environments/system/metrics
 
@@ -272,31 +274,57 @@ Returns one lifecycle action record by id.
 
 ### Chapter 2.7.6 GET /environments/actions/:id/logs
 
-Returns paginated lifecycle action logs.
+Returns lines from the lifecycle action's attached log file.
 
 Query params:
 
-- `page`, default `0`.
-- `perPage`, default `100`.
+- `cursor`, optional opaque cursor returned by the previous response.
+- `limit`, default `200`.
+
+Behavior:
+
+- The first request reads the latest tail segment from the log file.
+- Follow-up requests use `cursor` to move upward to older log segments until `hasMore` is false.
+- The endpoint must not query MongoDB log rows.
+- Lines should be returned in chronological order inside each page for terminal display, even though paging starts from the newest segment.
+
+Response shape:
+
+```ts
+{
+  actionId: string;
+  cursor?: string;
+  nextCursor?: string;
+  hasMore: boolean;
+  items: Array<{
+    line: string;
+    level?: "info" | "error";
+    byteStart?: number;
+    byteEnd?: number;
+    createdAt?: string;
+  }>;
+}
+```
 
 ### Chapter 2.7.7 GET /environments/actions/:id/logs/stream
 
-Streams lifecycle action logs as newline-delimited JSON.
+Streams appended lines from the lifecycle action's attached log file as newline-delimited JSON.
 
 Query params:
 
-- `after`, default `-1`.
+- `from`, optional byte offset. When absent, the stream starts at the current file end unless `replayTail` is provided.
+- `replayTail`, optional number of lines to emit before following.
 
 Event shapes:
 
 ```json
-{ "type": "line", "log": "...", "level": "info", "sequence": 0, "createdAt": "..." }
+{ "type": "line", "line": "...", "level": "info", "byteStart": 120, "byteEnd": 180 }
 { "type": "action", "action": {} }
-{ "type": "complete", "log": "...", "level": "error" }
-{ "type": "error", "log": "...", "level": "error" }
+{ "type": "complete" }
+{ "type": "error", "message": "..." }
 ```
 
-The endpoint polls every second until the action reaches `complete` or `error`.
+The endpoint follows the log file in `tail -f` style until the action reaches `complete` or `error`, the client disconnects, or the server closes the stream.
 
 ### Chapter 2.7.8 GET /environments/:key
 
@@ -304,7 +332,7 @@ Returns one environment record or HTTP 404.
 
 ### Chapter 2.7.9 GET /environments/:key/logs
 
-Returns paginated environment logs for one key.
+Returns paginated system log records filtered by `environmentKey`.
 
 Query params:
 
@@ -359,6 +387,8 @@ Valid `action` values:
 
 Runs the lifecycle action directly and streams live NDJSON events. The UI currently uses the queued action route instead.
 
+If this direct streaming route remains, it should still write to an action log file or be treated as a non-persistent convenience endpoint. It should not create MongoDB action log rows.
+
 ### Chapter 2.7.17 POST /environments/:key/actions/:action
 
 Queues a lifecycle action record and starts a background job.
@@ -368,7 +398,7 @@ Success:
 - HTTP 202.
 - Returns the action record.
 
-The background job writes action logs and updates action status to `complete` or `error`.
+The background job writes its execution transcript to the action's attached log file and updates action status to `complete` or `error`.
 
 ### Chapter 2.7.18 GET /environments/:key/containers/:container/files
 
@@ -472,5 +502,8 @@ The API logs structured JSON to stdout/stderr for scopes:
 - `environments`
 - `host-action-bus`
 
-Environment logs and lifecycle action logs are also persisted in MongoDB.
+System-level activity logs are persisted in MongoDB collection `logs`.
 
+Lifecycle action execution transcripts are attached as files on their action records. They are not stored in MongoDB as log rows.
+
+System log events should be written for environment lifecycle and automation changes, including create, prepare, start, resume, stop, restart, remove, file sync update, PR update, PR merge/close cleanup, and failure.

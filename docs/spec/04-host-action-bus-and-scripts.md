@@ -70,6 +70,14 @@ The worker writes:
 
 Output is truncated to the last `MAX_RESULT_OUTPUT_BYTES` when needed.
 
+For lifecycle actions, the worker also writes the full execution transcript to the action's attached log file, normally:
+
+```text
+{LOGS_DIR}/{actionId}.log
+```
+
+That file must remain available after the worker writes the result so the API can support lazy tail reads and `tail -f` style streaming for Electron.
+
 ## Chapter 4.5 Worker Action Routing
 
 Action type mapping:
@@ -121,6 +129,14 @@ Current unlocked action types include prepare, sync, remove, container logs, con
 - TCP readiness probes from host or central proxy container.
 - safe relative path validation for sync payloads.
 
+Runner close timing:
+
+- A running script should wait for the configured default close timeout only when no completion data, result data, or log/output data has been fired.
+- If output data is being fired, or the child process/result file has completed, the runner should close the action as soon as possible.
+- Fixed `sleep` intervals must not delay action completion after data arrives.
+- Any wait loop should be interruptible or short-polling enough that fresh output/result data is handled immediately.
+- The close timeout is a quiet-period fallback, not a minimum action duration.
+
 ## Chapter 4.8 Prepare Environment Script
 
 `scripts/prepare-env.sh` receives a payload JSON file.
@@ -149,7 +165,7 @@ Flow:
 9. Writes `{runtimePath}/.env` from `environmentVariables`.
 10. Prints `Prepared {environment} at {runtimePath}`.
 
-The script currently does not copy `templates/environment` into the runtime path.
+The script must not depend on any template directory. The runtime environment is the cloned source repository plus generated runtime data and `.env`.
 
 ## Chapter 4.9 Repo Patch Helpers
 
@@ -288,4 +304,3 @@ Flow:
 3. Starts the worker in live log mode.
 4. Starts central Docker Compose attached.
 5. Stops the worker on exit.
-

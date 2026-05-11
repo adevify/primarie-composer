@@ -39,13 +39,22 @@ app.listen(80)
 
 Root `.env.example` includes `API_PORT=3000`, but the current API source does not read `API_PORT`.
 
-## Chapter 9.4 Template Usage Mismatch
+## Chapter 9.4 Template Artifact Removal
 
-The repo contains `templates/environment`, and central Compose mounts templates into the API container. Current active prepare flow in `scripts/prepare-env.sh` does not copy this template. It clones `SOURCE_REPO_URL` directly into the runtime environment path.
+Remove all environment template artifacts from the desired system.
 
-This leaves `TEMPLATE_DIR`, `HOST_TEMPLATE_DIR`, and the template Compose artifacts looking like legacy or future code.
+Removal scope:
 
-## Chapter 9.5 Seed Path Mismatch
+- `templates/environment`
+- template mock files
+- central Compose `./templates` mount
+- API env vars `TEMPLATE_DIR` and `HOST_TEMPLATE_DIR`
+- API config fields for templates
+- README/spec references that describe templates as supported runtime artifacts
+
+Environment preparation should use the configured source repository and generated runtime data only.
+
+## Chapter 9.5 Seed Runtime Path
 
 Current `prepare-seeds.sh` creates prepared MongoDB data folders at:
 
@@ -59,24 +68,18 @@ Current `prepare-env.sh` copies this into:
 runtime/environments/{key}/data/mongodb
 ```
 
-The template Compose artifact mounts:
+Because templates are removed, seed handling should align only with the cloned source repository's expected runtime paths.
 
-```text
-./mongo-dump:/docker-entrypoint-initdb.d:ro
-```
+## Chapter 9.6 Remove Unused TypeScript Services
 
-So the template artifact and active seed-copy path do not currently line up.
-
-## Chapter 9.6 Unused Or Legacy TypeScript Services
-
-These services are present but do not appear to be used by the active route path:
+Remove these unused service classes from the desired API source:
 
 - `DockerComposeService`
 - `GitRepositoryService`
 - `SeedService`
 - `MongoSeedDumpService`
 
-`EnvironmentsService` also contains helper methods such as `writeEnvironmentFile`, `composeConfig`, and `composeLogger` that are not used in the active bus-based path.
+Also remove unused helper methods from `EnvironmentsService`, including `writeEnvironmentFile`, `composeConfig`, and `composeLogger`, unless a reviewed implementation path explicitly reuses them.
 
 ## Chapter 9.7 Login Missing User Status
 
@@ -142,9 +145,9 @@ Review question: should these become true follow streams, or should the UI/API n
 
 ## Chapter 9.15 Environments Page Filters
 
-The `mine` filter tab currently behaves the same as `all`.
+The current Environments page uses tabs/filters, and the `mine` filter tab currently behaves the same as `all`.
 
-There is no authenticated current-user comparison in the filter logic.
+Desired behavior: group manual environments by owner, with the authenticated current user's environments first under `Me`, other users after that, and PR-backed environments grouped separately by pull request.
 
 ## Chapter 9.16 UI Placeholder Data
 
@@ -177,15 +180,14 @@ High-impact surfaces to review:
 
 Potential type/shape mismatches:
 
-- `MongoPreview` in Electron requires `available: boolean`, but `DockerComposeService.inspectMongo` returns a different shape. Active script returns `available`, so current active path is aligned.
 - `/auth/verify` returns raw JWT payload as `user`; Electron only checks request success and does not use the returned shape.
 - README examples include `domains` and `config` in environment create responses; current `EnvironmentRecord` does not include those fields.
 
-## Chapter 9.19 Action Status Event Shape
+## Chapter 9.19 Action Log Storage Migration
 
-`GET /environments/actions/:id/logs/stream` writes a final `{ type: "complete" }` or `{ type: "error" }` event, but on complete it currently includes `log: action.error` and `level: "error"` in the same helper call path. The UI treats `type: "complete"` separately and ignores the extra fields.
+The desired data model attaches a file log to each lifecycle action. Electron should read the latest tail segment first, lazy-load older file segments while scrolling upward, and stream live output with `tail -f` behavior.
 
-Review question: should terminal events have a stricter event schema?
+Current code still stores action log rows in MongoDB through `EnvironmentActionCollection.addLog` and `environment-action-logs`. That should be replaced with file-backed reads and streams.
 
 ## Chapter 9.20 Build Artifacts In Local Workspace
 
@@ -199,3 +201,14 @@ The local workspace contains ignored generated artifacts:
 
 These should usually not be reviewed as source unless the task is specifically about local runtime state.
 
+## Chapter 9.21 Logs Collection Migration
+
+The desired data model uses one shared `logs` collection for system-level activity events.
+
+Current code still contains `EnvironmentLogCollection` backed by `environments-logs`. That should be replaced by a system log collection capable of storing events such as environment created, resumed, stopped, removed, started, file-sync updated, PR updated, and PR cleanup.
+
+## Chapter 9.22 Worker Sleep Delay
+
+The worker runner should not let a fixed `sleep` delay action completion after output/result data has arrived.
+
+Expected behavior: wait for the default close timeout only during quiet periods when nothing is fired, but close as soon as possible once logs, result data, or process completion is available.
