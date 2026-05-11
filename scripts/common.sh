@@ -118,6 +118,7 @@ ensure_env_proxy_hosts() {
   set_env_var "$env_file" "ROOT_DOMAIN" "$root_domain"
   if [[ -n "$env_name" ]]; then
     set_env_var "$env_file" "ENV_KEY" "$env_name"
+    set_env_var "$env_file" "COMPOSE_PROJECT_NAME" "$(project_name "$env_name")"
   fi
   if [[ -n "$env_port" ]]; then
     set_env_var "$env_file" "ENV_PORT" "$env_port"
@@ -227,10 +228,68 @@ patch_repo_proxy_compose_ports() {
   mv "$tmp_file" "$compose_file"
 }
 
+patch_repo_compose_container_names() {
+  local repo_dir="$1"
+  local compose_file="$repo_dir/docker-compose.yml"
+  local tmp_file
+
+  if [[ ! -f "$compose_file" ]]; then
+    return
+  fi
+
+  tmp_file="$(mktemp)"
+  awk '
+    function is_top_level_key(line) {
+      return line ~ /^[A-Za-z0-9_.-]+:[[:space:]]*($|#)/
+    }
+    function is_service(line) {
+      return in_services && line ~ /^  [A-Za-z0-9_.-]+:[[:space:]]*($|#)/
+    }
+    function service_name_from(line, value) {
+      value = line
+      sub(/^  /, "", value)
+      sub(/:.*/, "", value)
+      return value
+    }
+    {
+      if ($0 ~ /^services:[[:space:]]*($|#)/) {
+        in_services = 1
+        current_service = ""
+        print
+        next
+      }
+
+      if (in_services && is_top_level_key($0) && $0 !~ /^services:[[:space:]]*($|#)/) {
+        in_services = 0
+        current_service = ""
+        print
+        next
+      }
+
+      if (is_service($0)) {
+        current_service = service_name_from($0)
+        print
+        print "    container_name: \"${ENV_KEY:-env}-" current_service "\""
+        next
+      }
+
+      if (in_services && current_service != "") {
+        if ($0 ~ /^    container_name:[[:space:]]*/) {
+          next
+        }
+      }
+
+      print
+    }
+  ' "$compose_file" > "$tmp_file"
+  mv "$tmp_file" "$compose_file"
+}
+
 patch_repo_for_composer() {
   local repo_dir="$1"
 
   patch_repo_proxy_dockerfile "$repo_dir"
+  patch_repo_compose_container_names "$repo_dir"
   patch_repo_proxy_compose_ports "$repo_dir"
   patch_repo_storybook_compose_volume "$repo_dir"
 }
