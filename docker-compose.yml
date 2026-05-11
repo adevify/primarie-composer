@@ -1,6 +1,7 @@
 services:
   proxy:
     image: nginx:1.27-alpine
+    restart: unless-stopped
     depends_on:
       api:
         condition: service_healthy
@@ -12,18 +13,24 @@ services:
       - ./proxy/ssl:/etc/nginx/ssl:ro
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    networks:
+      - composer
 
   db:
     image: mongo:7.0.12
+    restart: unless-stopped
     command: ["mongod", "--quiet"]
     volumes:
       - ./runtime/db:/data/db
     logging:
       driver: "none"
+    networks:
+      - composer
 
   api:
     build:
       context: ./apps/api
+    restart: unless-stopped
     depends_on:
       - db
     extra_hosts:
@@ -53,7 +60,18 @@ services:
       BUS_WORKER_READY_PATH: /bus/worker.ready
       SSH_AUTH_SOCK: /ssh-agent
     healthcheck:
-      test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1/health', r => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))\""]
+      test:
+        [
+          "CMD-SHELL",
+          "node -e \"require('http').get('http://127.0.0.1/health', r => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))\""
+        ]
       interval: 5s
       timeout: 3s
       retries: 20
+      start_period: 10s
+    networks:
+      - composer
+
+networks:
+  composer:
+    name: primarie-composer
