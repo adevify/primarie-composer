@@ -1,0 +1,598 @@
+[
+  {
+    "_id": "670359c67115508784dd62ae",
+    "tennant": "filipeni",
+    "name": {
+      "ro": "proiect-de-decizie-5.11",
+      "ru": "проект-решения-5.11",
+      "en": "draft-decision-5.11"
+    },
+    "slug": "proiect-de-decizie-5.11",
+    "path": "/consultari-publice/proiecte-de-decizii/",
+    "url": "670350c47115508784dd6294",
+    "type": "file",
+    "date": "2024-10-07T03:47:18.251Z"
+  },
+  {
+    "_id": "6703576d7115508784dd62a0",
+    "tennant": "filipeni",
+    "name": {
+      "ro": "Consultări publice",
+      "ru": "Общественные консультации",
+      "en": "Public consultations"
+    },
+    "slug": "consultari-publice",
+    "path": "/",
+    "type": "folder",
+    "date": "2024-10-07T03:37:17.868Z"
+  },
+  {
+    "_id": "670358e27115508784dd62a6",
+    "tennant": "filipeni",
+    "name": {
+      "ro": "proiect-de-decizie-5.3",
+      "ru": "проект-решения-5.3",
+      "en": "draft-decision-5.3"
+    },
+    "slug": "proiect-de-decizie-5.3",
+    "path": "/consultari-publice/proiecte-de-decizii/",
+    "url": "670350937115508784dd628c",
+    "type": "file",
+    "date": "2024-10-07T03:43:30.249Z"
+  },
+  {
+    "_id": "67035ab27115508784dd62b5",
+    "tennant": "filipeni",
+    "name": {
+      "ro": "proiect-de-decizi-4.5.1",
+      "ru": "проект решения-4.5.1",
+      "en": "draft-of-decisions-4.5.1"
+    },
+    "slug": "proiect-de-decizi-4.5.1",
+    "path": "/consultari-publice/proiecte-de-decizii/",
+    "url": "670350eb7115508784dd629b",
+    "type": "file",
+    "date": "2024-10-07T03:51:14.083Z"
+  },
+  {
+    "_id": "67035a837115508784dd62b3",
+    "tennant": "filipeni",
+    "name": {
+      "ro": "proiect-de-decizi-4.4",
+      "ru": "проект решения-4.4",
+      "en": "draft-of-decisions-4.4"
+    },
+    "slug": "proiect-de-decizi-4.4",
+    "path": "/consultari-publice/proiecte-de-decizii/",
+    "url": "670350d97115508784dd6298",
+    "type": "file",
+    "date": "2024-10-07T03:50:27.262Z"
+  },
+  {
+    "_id": "670359037115508784dd62a7",
+    "tennant": "filipeni",
+    "name": {
+      "ro": "proiect-de-decizie-5.4",
+      "ru": "проект-решения-5.4",
+      "en": "draft-decision-5.4"
+    },
+    "slug": "proiect-de-decizie-5.4",
+    "path": "/consultari-publice/proiecte-de-decizii/",
+    "url": "6703509a7115508784dd628d",
+    "type": "file",
+    "date": "2024-10-07T03:44:03.216Z"
+  },
+  {
+    "_id": "67035fab7115508784dd62c5",
+    "tennant": "filipeni",
+    "name": {
+      "ro": "Dezbateri Publice",
+      "ru": "Публичные дебаты",
+      "en": "Public Debates"
+    },
+    "slug": "dezbateri-publice",
+    "path": "/consultari-publice/",
+    "type": "folder",
+    "date": "2024-10-07T04:12:27.912Z"
+  },
+  {
+    "_id": "6703596e7115508784dd62ab",
+    "tennant": "filipeni",
+    "name": {
+      "ro": "proiect-de-decizie-5.8",
+      "ru": "проект-решения-5.8",
+      "en": "draft-decision-5.8"
+    },
+    "slug": "proiect-de-decizie-5.8",
+    "path": "/consultari-publice/proiecte-de-decizii/",
+    "url": "670350b77115508784dd6292",
+    "type": "file",
+    "date": "2024-10-07T03:45:50.619Z"
+  },
+  {
+    "_id": "6703591d7115508784dd62a8",
+    "tennant": "filipeni",
+    "name": {
+      "ro": "proiect-de-decizie-5.5",
+      "ru": "проект-решения-5.5",
+      "en": "draft-decision-5.5"
+    },
+    "slug": "proiect-de-decizie-5.5",
+    "path": "/consultari-publice/proiecte-de-decizii/",
+    "url": "670350a07115508784dd628e",
+    "type": "file",
+    "date": "2024-10-07T03:44:29.332Z"
+  },
+  {
+    "_id": "67035cb47115508784dd62c1",
+    "tennant": "filipeni",
+    "name": {
+      "ro": "Privind proiectul Satul European 2 (2)",
+      "ru": "Глядя на проект «Европейская деревня 2» (2)",
+      "en": "Looking at the European Village 2 project (2)"
+    },
+    "slug": "privind-proiectul-satul-european-2-(2)",
+    "path": "/consultari-publice/audieri-publice/",
+    "url": "67035b757115508784dd62bb",
+    "type": "file",
+    "date": "2024-10-07T03:59:48.117Z"
+  },
+  {
+    "_id": "67035a137115508784dd62af",
+    "tennant": "filipeni",
+    "name": {
+      "ro": "proiect-de-decizie-5.12",
+      "ru": "проект-решения-5.12",
+      "en": "draft-decision-5.12"
+    },
+    "slug": "proiect-de-decizie-5.12",
+    "path": "/consultari-publice/proiecte-de-decizii/",
+    "url": "670350c87115508784dd6295",
+    "type": "file",
+    "date": "2024-10-07T03:48:35.435Z"
+  },
+  {
+    "_id": "67035ac87115508784dd62b6",
+    "tennant": "filipeni",
+    "name": {
+      "ro": "proiect-de-decizi-4.6",
+      "ru": "проекты решений-4.6",
+      "en": "draft-of-decisions-4.6"
+    },
+    "slug": "proiect-de-decizi-4.6",
+    "path": "/consultari-publice/proiecte-de-decizii/",
+    "url": "670350ee7115508784dd629c",
+    "type": "file",
+    "date": "2024-10-07T03:51:36.497Z"
+  },
+  {
+    "_id": "6703589d7115508784dd62a3",
+    "tennant": "filipeni",
+    "name": {
+      "ro": "proiect-de-decizie-5.1",
+      "ru": "draft-decision-5.1",
+      "en": "draft-decision-5.1"
+    },
+    "slug": "proiect-de-decizie-5.1",
+    "path": "/consultari-publice/proiecte-de-decizii/",
+    "url": "670350857115508784dd628a",
+    "type": "file",
+    "date": "2024-10-07T03:42:21.656Z"
+  },
+  {
+    "_id": "67035a6a7115508784dd62b2",
+    "tennant": "filipeni",
+    "name": {
+      "ro": "proiect-de-decizi-4.3",
+      "ru": "проект решения-4.3",
+      "en": "draft-of-decisions-4.3"
+    },
+    "slug": "proiect-de-decizi-4.3",
+    "path": "/consultari-publice/proiecte-de-decizii/",
+    "url": "670350e47115508784dd629a",
+    "type": "file",
+    "date": "2024-10-07T03:50:02.943Z"
+  },
+  {
+    "_id": "670357857115508784dd62a1",
+    "tennant": "filipeni",
+    "name": {
+      "ro": "Proiecte de decizii",
+      "ru": "Проекты решений",
+      "en": "Draft decisions"
+    },
+    "slug": "proiecte-de-decizii",
+    "path": "/consultari-publice/",
+    "type": "folder",
+    "date": "2024-10-07T03:37:41.401Z"
+  },
+  {
+    "_id": "670359aa7115508784dd62ad",
+    "tennant": "filipeni",
+    "name": {
+      "ro": "proiect-de-decizie-5.10",
+      "ru": "проект-решения-5.10",
+      "en": "draft-decision-5.10"
+    },
+    "slug": "proiect-de-decizie-5.10",
+    "path": "/consultari-publice/proiecte-de-decizii/",
+    "url": "670350bd7115508784dd6293",
+    "type": "file",
+    "date": "2024-10-07T03:46:50.030Z"
+  },
+  {
+    "_id": "670359897115508784dd62ac",
+    "tennant": "filipeni",
+    "name": {
+      "ro": "proiect-de-decizie-5.9",
+      "ru": "проект-решения-5.9",
+      "en": "draft-decision-5.9"
+    },
+    "slug": "proiect-de-decizie-5.9",
+    "path": "/consultari-publice/proiecte-de-decizii/",
+    "url": "670350b17115508784dd6291",
+    "type": "file",
+    "date": "2024-10-07T03:46:17.173Z"
+  },
+  {
+    "_id": "67035c0f7115508784dd62be",
+    "tennant": "filipeni",
+    "name": {
+      "ro": "Prezentarea proiectului bugetului pentru anul 2024 al satului Filipeni",
+      "ru": "Презентация проекта бюджета на 2024 год села Филипень",
+      "en": "Presentation of the budget project for the year 2024 of the village of Filipeni"
+    },
+    "slug": "prezentarea-proiectului-bugetului-pentru-anul-2024-al-satului-filipeni",
+    "path": "/consultari-publice/audieri-publice/",
+    "url": "67035b6b7115508784dd62b8",
+    "type": "file",
+    "date": "2024-10-07T03:57:03.128Z"
+  },
+  {
+    "_id": "670366247115508784dd62d3",
+    "tennant": "filipeni",
+    "name": {
+      "ro": "Statutul",
+      "ru": "Статут",
+      "en": "Statute"
+    },
+    "slug": "statutul",
+    "path": "/",
+    "url": "66f66f8f10d83a056297dfa8",
+    "type": "file",
+    "date": "2024-10-07T04:40:04.986Z"
+  },
+  {
+    "_id": "67035a9d7115508784dd62b4",
+    "tennant": "filipeni",
+    "name": {
+      "ro": "proiect-de-decizi-4.5",
+      "ru": "проекты решений-4.5",
+      "en": "draft-of-decisions-4.5"
+    },
+    "slug": "proiect-de-decizi-4.5",
+    "path": "/consultari-publice/proiecte-de-decizii/",
+    "url": "670350df7115508784dd6299",
+    "type": "file",
+    "date": "2024-10-07T03:50:53.942Z"
+  },
+  {
+    "_id": "670364817115508784dd62cb",
+    "tennant": "filipeni",
+    "name": {
+      "ro": "decizia-4.2",
+      "ru": "решение-4.2",
+      "en": "decision-4.2"
+    },
+    "slug": "decizia-4.2",
+    "path": "/taxe-si-impozite-locale/",
+    "url": "66ff76a290be41e5ec0412dd",
+    "type": "file",
+    "date": "2024-10-07T04:33:05.424Z"
+  },
+  {
+    "_id": "670359397115508784dd62a9",
+    "tennant": "filipeni",
+    "name": {
+      "ro": "proiect-de-decizie-5.6",
+      "ru": "проект-решения-5.6",
+      "en": "draft-decision-5.6"
+    },
+    "slug": "proiect-de-decizie-5.6",
+    "path": "/consultari-publice/proiecte-de-decizii/",
+    "url": "670350a57115508784dd628f",
+    "type": "file",
+    "date": "2024-10-07T03:44:57.907Z"
+  },
+  {
+    "_id": "670358c27115508784dd62a4",
+    "tennant": "filipeni",
+    "name": {
+      "ro": "proiect-de-decizie-5.2",
+      "ru": "проект-решения-5.2",
+      "en": "draft-decision-5.2"
+    },
+    "slug": "proiect-de-decizie-5.2",
+    "path": "/consultari-publice/proiecte-de-decizii/",
+    "url": "6703508b7115508784dd628b",
+    "type": "file",
+    "date": "2024-10-07T03:42:58.619Z"
+  },
+  {
+    "_id": "670364987115508784dd62cc",
+    "tennant": "filipeni",
+    "name": {
+      "ro": "decizia-4.3-1",
+      "ru": "решение-4.3-1",
+      "en": "decision-4.3-1"
+    },
+    "slug": "decizia-4.3-1",
+    "path": "/taxe-si-impozite-locale/",
+    "url": "66ff777090be41e5ec0412de",
+    "type": "file",
+    "date": "2024-10-07T04:33:28.344Z"
+  },
+  {
+    "_id": "67035c5a7115508784dd62bf",
+    "tennant": "filipeni",
+    "name": {
+      "ro": "Strategiei de dezvoltare socio economicii a satului Filipeni pe anii 2024-2029",
+      "ru": "Стратегия социально-экономического развития села Филипень на 2024-2029 годы",
+      "en": "The socio-economic development strategy of Filipeni village for the years 2024-2029"
+    },
+    "slug": "strategiei-de-dezvoltare-socio-economicii-a-satului-filipeni-pe-anii-2024-2029",
+    "path": "/consultari-publice/audieri-publice/",
+    "url": "67035b6f7115508784dd62b9",
+    "type": "file",
+    "date": "2024-10-07T03:58:18.330Z"
+  },
+  {
+    "_id": "6703655f7115508784dd62ce",
+    "tennant": "filipeni",
+    "name": {
+      "ro": "GHIDUL UTILIZATORULUI (FOCAS)",
+      "ru": "РУКОВОДСТВО ПОЛЬЗОВАТЕЛЯ (ФОКАС)",
+      "en": "USER GUIDE (FOCAS)"
+    },
+    "slug": "ghidul-utilizatorului-(focas)",
+    "path": "/autoevaluare-(focas)/",
+    "url": "66fdbc6490be41e5ec0412d8",
+    "type": "file",
+    "date": "2024-10-07T04:36:47.246Z"
+  },
+  {
+    "_id": "670365fb7115508784dd62d2",
+    "tennant": "filipeni",
+    "name": {
+      "ro": "Regulamentul intern",
+      "ru": "Внутреннее регулирование",
+      "en": "Internal regulation"
+    },
+    "slug": "regulamentul-intern",
+    "path": "/",
+    "url": "66f6b529f08d9c050f9d7a34",
+    "type": "file",
+    "date": "2024-10-07T04:39:23.087Z"
+  },
+  {
+    "_id": "6703666f7115508784dd62d4",
+    "tennant": "filipeni",
+    "name": {
+      "ro": "Planul Strategic 2024 – 2029",
+      "ru": "Стратегический план на 2024–2029 годы",
+      "en": "Strategic Plan 2024 – 2029"
+    },
+    "slug": "planul-strategic-2024-2029",
+    "path": "/",
+    "url": "66f6bff1f08d9c050f9d7a3c",
+    "type": "file",
+    "date": "2024-10-07T04:41:19.729Z"
+  },
+  {
+    "_id": "670359557115508784dd62aa",
+    "tennant": "filipeni",
+    "name": {
+      "ro": "proiect-de-decizie-5.7",
+      "ru": "проект-решения-5.7",
+      "en": "draft-decision-5.7"
+    },
+    "slug": "proiect-de-decizie-5.7",
+    "path": "/consultari-publice/proiecte-de-decizii/",
+    "url": "670350ac7115508784dd6290",
+    "type": "file",
+    "date": "2024-10-07T03:45:25.278Z"
+  },
+  {
+    "_id": "670360397115508784dd62c7",
+    "tennant": "filipeni",
+    "name": {
+      "ro": "Proces-verbal nr.02",
+      "ru": "Протокол № 02.",
+      "en": "Record no. 02"
+    },
+    "slug": "proces-verbal-nr.02",
+    "path": "/consultari-publice/dezbateri-publice/",
+    "url": "67035f877115508784dd62c3",
+    "type": "file",
+    "date": "2024-10-07T04:14:49.268Z"
+  },
+  {
+    "_id": "67035c8b7115508784dd62c0",
+    "tennant": "filipeni",
+    "name": {
+      "ro": "Privind proiectul Satul European 2",
+      "ru": "Глядя на проект «Европейская деревня 2»",
+      "en": "Looking at the European Village 2 project"
+    },
+    "slug": "privind-proiectul-satul-european-2",
+    "path": "/consultari-publice/audieri-publice/",
+    "url": "67035b727115508784dd62ba",
+    "type": "file",
+    "date": "2024-10-07T03:59:07.991Z"
+  },
+  {
+    "_id": "670364e87115508784dd62cd",
+    "tennant": "filipeni",
+    "name": {
+      "ro": "Autoevaluare (FOCAS)",
+      "ru": "Самооценка (FOCAS)",
+      "en": "Self-assessment (FOCAS)"
+    },
+    "slug": "autoevaluare-(focas)",
+    "path": "/",
+    "type": "folder",
+    "date": "2024-10-07T04:34:48.182Z"
+  },
+  {
+    "_id": "670365a27115508784dd62d0",
+    "tennant": "filipeni",
+    "name": {
+      "ro": "Planul de Acțiuni FOCAS pentru anii 2023-2024",
+      "ru": "План действий FOCAS на 2023-2024 годы",
+      "en": "The FOCAS Action Plan for the years 2023-2024"
+    },
+    "slug": "planul-de-actiuni-focas-pentru-anii-2023-2024",
+    "path": "/autoevaluare-(focas)/",
+    "url": "66fdbdb790be41e5ec0412da",
+    "type": "file",
+    "date": "2024-10-07T04:37:54.991Z"
+  },
+  {
+    "_id": "670360507115508784dd62c8",
+    "tennant": "filipeni",
+    "name": {
+      "ro": "Proces-verbal nr.03",
+      "ru": "Протокол № 03.",
+      "en": "Record No. 03"
+    },
+    "slug": "proces-verbal-nr.03",
+    "path": "/consultari-publice/dezbateri-publice/",
+    "url": "67035f8b7115508784dd62c4",
+    "type": "file",
+    "date": "2024-10-07T04:15:12.710Z"
+  },
+  {
+    "_id": "670360177115508784dd62c6",
+    "tennant": "filipeni",
+    "name": {
+      "ro": "Proces-verbal nr.01",
+      "ru": "Протокол № 01.",
+      "en": "Record no. 01"
+    },
+    "slug": "proces-verbal-nr.01",
+    "path": "/consultari-publice/dezbateri-publice/",
+    "url": "67035f847115508784dd62c2",
+    "type": "file",
+    "date": "2024-10-07T04:14:15.497Z"
+  },
+  {
+    "_id": "670365857115508784dd62cf",
+    "tennant": "filipeni",
+    "name": {
+      "ro": "Tabel de evaluare FOCAS pentru anul 2023",
+      "ru": "Оценочная таблица FOCAS на 2023 год",
+      "en": "FOCAS evaluation table for the year 2023"
+    },
+    "slug": "tabel-de-evaluare-focas-pentru-anul-2023",
+    "path": "/autoevaluare-(focas)/",
+    "url": "66fdbd1c90be41e5ec0412d9",
+    "type": "file",
+    "date": "2024-10-07T04:37:25.391Z"
+  },
+  {
+    "_id": "670365d77115508784dd62d1",
+    "tennant": "filipeni",
+    "name": {
+      "ro": "Control intern managerial",
+      "ru": "Внутренний управленческий контроль",
+      "en": "Internal managerial control"
+    },
+    "slug": "control-intern-managerial",
+    "path": "/",
+    "url": "66f6bf2ff08d9c050f9d7a3a",
+    "type": "file",
+    "date": "2024-10-07T04:38:47.237Z"
+  },
+  {
+    "_id": "670364297115508784dd62c9",
+    "tennant": "filipeni",
+    "name": {
+      "ro": "Taxe și impozite locale",
+      "ru": "Местные налоги и сборы",
+      "en": "Local taxes and fees"
+    },
+    "slug": "taxe-si-impozite-locale",
+    "path": "/",
+    "type": "folder",
+    "date": "2024-10-07T04:31:37.112Z"
+  },
+  {
+    "_id": "67035a4c7115508784dd62b1",
+    "tennant": "filipeni",
+    "name": {
+      "ro": "proiect-de-decizi-4.2",
+      "ru": "проект решения-4.2",
+      "en": "draft-of-decisions-4.2"
+    },
+    "slug": "proiect-de-decizi-4.2",
+    "path": "/consultari-publice/proiecte-de-decizii/",
+    "url": "670350d47115508784dd6297",
+    "type": "file",
+    "date": "2024-10-07T03:49:32.967Z"
+  },
+  {
+    "_id": "67035ae37115508784dd62b7",
+    "tennant": "filipeni",
+    "name": {
+      "ro": "proiect-de-decizi-4.7",
+      "ru": "проекты решений-4.7",
+      "en": "draft-of-decisions-4.7"
+    },
+    "slug": "proiect-de-decizi-4.7",
+    "path": "/consultari-publice/proiecte-de-decizii/",
+    "url": "670350f27115508784dd629d",
+    "type": "file",
+    "date": "2024-10-07T03:52:03.363Z"
+  },
+  {
+    "_id": "67035b887115508784dd62bc",
+    "tennant": "filipeni",
+    "name": {
+      "ro": "Audieri publice",
+      "ru": "Общественные слушания",
+      "en": "Public hearings"
+    },
+    "slug": "audieri-publice",
+    "path": "/consultari-publice/",
+    "type": "folder",
+    "date": "2024-10-07T03:54:48.627Z"
+  },
+  {
+    "_id": "67035a387115508784dd62b0",
+    "tennant": "filipeni",
+    "name": {
+      "ro": "proiect-de-decizi-4.1",
+      "ru": "проект решения-4.1",
+      "en": "draft-of-decisions-4.1"
+    },
+    "slug": "proiect-de-decizi-4.1",
+    "path": "/consultari-publice/proiecte-de-decizii/",
+    "url": "670350d07115508784dd6296",
+    "type": "file",
+    "date": "2024-10-07T03:49:12.531Z"
+  },
+  {
+    "_id": "670364697115508784dd62ca",
+    "tennant": "filipeni",
+    "name": {
+      "ro": "decizia-4.1",
+      "ru": "решение-4.1",
+      "en": "decision-4.1"
+    },
+    "slug": "decizia-4.1",
+    "path": "/taxe-si-impozite-locale/",
+    "url": "66ff751a90be41e5ec0412dc",
+    "type": "file",
+    "date": "2024-10-07T04:32:41.843Z"
+  }
+]

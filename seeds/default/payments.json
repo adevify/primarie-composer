@@ -1,0 +1,197 @@
+[
+  {
+    "_id": "6995a200f4ec6496d9bba1a5",
+    "tennant": "filipeni",
+    "iban": "MD60TRPDBA222999A10894AC",
+    "amount": 1,
+    "date": "2025-01-22T20:04:00.000Z",
+    "number": 20,
+    "createdAt": "2026-02-18T11:26:56.278Z",
+    "allocations": [
+      {
+        "invoiceId": "69959e63f4ec6496d9bb843a",
+        "amount": 1
+      }
+    ]
+  },
+  {
+    "_id": "6995a200f4ec6496d9bba1a7",
+    "tennant": "filipeni",
+    "iban": "MD60TRPDBA222999A10894AC",
+    "amount": 1,
+    "date": "2025-03-12T20:05:00.000Z",
+    "number": 69,
+    "createdAt": "2026-02-18T11:26:56.300Z",
+    "allocations": [
+      {
+        "invoiceId": "69959ec4f4ec6496d9bb899d",
+        "amount": 1
+      }
+    ]
+  },
+  {
+    "_id": "6995a218f4ec6496d9bba1bf",
+    "tennant": "filipeni",
+    "iban": "MD60TRPDBA222999A10894AC",
+    "amount": 1,
+    "date": "2025-06-11T15:11:00.000Z",
+    "number": 238,
+    "createdAt": "2026-02-18T11:27:20.014Z",
+    "allocations": [
+      {
+        "invoiceId": "69959e58f4ec6496d9bb83f6",
+        "amount": 1
+      }
+    ]
+  },
+  {
+    "_id": "6995a225f4ec6496d9bba213",
+    "tennant": "filipeni",
+    "iban": "MD60TRPDBA222999A10894AC",
+    "amount": 1,
+    "date": "2025-04-02T20:05:00.000Z",
+    "number": 118,
+    "createdAt": "2026-02-18T11:27:33.053Z",
+    "allocations": [
+      {
+        "invoiceId": "69959f32f4ec6496d9bb8f31",
+        "amount": 1
+      }
+    ]
+  },
+  {
+    "_id": "6995a22bf4ec6496d9bba226",
+    "tennant": "filipeni",
+    "iban": "MD60TRPDBA222999A10894AC",
+    "amount": 1,
+    "date": "2025-09-29T20:09:00.000Z",
+    "number": 705,
+    "createdAt": "2026-02-18T11:27:39.462Z",
+    "allocations": [
+      {
+        "invoiceId": "69959e6ef4ec6496d9bb84fa",
+        "amount": 1
+      }
+    ]
+  },
+  {
+    "_id": "6995a23af4ec6496d9bba2ae",
+    "tennant": "filipeni",
+    "iban": "MD60TRPDBA222999A10894AC",
+    "amount": 1,
+    "date": "2025-08-12T20:06:00.000Z",
+    "number": 619,
+    "createdAt": "2026-02-18T11:27:54.936Z",
+    "allocations": [
+      {
+        "invoiceId": "69959e63f4ec6496d9bb846c",
+        "amount": 1
+      }
+    ]
+  },
+  {
+    "_id": "6995a258f4ec6496d9bba3aa",
+    "tennant": "filipeni",
+    "iban": "MD60TRPDBA222999A10894AC",
+    "amount": 1,
+    "date": "2025-12-02T20:11:00.000Z",
+    "number": 817,
+    "createdAt": "2026-02-18T11:28:24.422Z",
+    "allocations": [
+      {
+        "invoiceId": "69959ea4f4ec6496d9bb87bf",
+        "amount": 1
+      }
+    ]
+  },
+  {
+    "_id": "6995a268f4ec6496d9bba44a",
+    "tennant": "filipeni",
+    "iban": "MD60TRPDBA222999A10894AC",
+    "amount": 1,
+    "date": "2025-11-12T20:03:00.000Z",
+    "number": 795,
+    "createdAt": "2026-02-18T11:28:40.683Z",
+    "allocations": [
+      {
+        "invoiceId": "69959edaf4ec6496d9bb8abf",
+        "amount": 1
+      }
+    ]
+  },
+  {
+    "_id": "6995a268f4ec6496d9bba45c",
+    "tennant": "filipeni",
+    "iban": "MD60TRPDBA222999A10894AC",
+    "amount": 1,
+    "date": "2025-11-06T15:11:00.000Z",
+    "number": 761,
+    "createdAt": "2026-02-18T11:28:40.884Z",
+    "allocations": [
+      {
+        "invoiceId": "69959e8ef4ec6496d9bb86c5",
+        "amount": 1
+      }
+    ]
+  },
+  {
+    "_id": "6995a281f4ec6496d9bba54a",
+    "tennant": "filipeni",
+    "iban": "MD60TRPDBA222999A10894AC",
+    "amount": 1,
+    "date": "2026-02-10T15:17:00.000Z",
+    "number": 48,
+    "createdAt": "2026-02-18T11:29:05.263Z",
+    "allocations": [
+      {
+        "invoiceId": "69959edaf4ec6496d9bb8ad7",
+        "amount": 1
+      }
+    ]
+  },
+  {
+    "_id": "69b41b7f21fccf4fad5582ee",
+    "tennant": "filipeni",
+    "iban": "MD65AG000000022516345184",
+    "amount": 1,
+    "date": "2026-03-13T15:14:00.000Z",
+    "number": 114,
+    "createdAt": "2026-03-13T14:13:19.577Z",
+    "allocations": [
+      {
+        "invoiceId": "69959f3df4ec6496d9bb8fbb",
+        "amount": 1
+      }
+    ]
+  },
+  {
+    "_id": "69cfbce31920fc9354d360da",
+    "tennant": "filipeni",
+    "iban": "MD65AG000000022516345184",
+    "amount": 1,
+    "date": "2026-04-02T20:03:00.000Z",
+    "number": 151,
+    "createdAt": "2026-04-03T13:13:07.952Z",
+    "allocations": [
+      {
+        "invoiceId": "69959f48f4ec6496d9bb9059",
+        "amount": 1
+      }
+    ]
+  },
+  {
+    "_id": "69fdc68449ae43f194e25d9b",
+    "tennant": "filipeni",
+    "iban": "MD65AG000000022516345184",
+    "amount": 1,
+    "date": "2026-05-07T20:02:00.000Z",
+    "number": 216,
+    "createdAt": "2026-05-08T11:18:28.761Z",
+    "allocations": [
+      {
+        "invoiceId": "69959f67f4ec6496d9bb91a7",
+        "amount": 1
+      }
+    ]
+  }
+]

@@ -1,0 +1,84 @@
+[
+  {
+    "_id": "66f540dd8078273fc85e739c",
+    "hostname": "filipeni.primarie.md",
+    "key": "filipeni",
+    "template": "thegov",
+    "schedule": {
+      "mon": {
+        "from": "08:00",
+        "to": "17:00",
+        "breakFrom": "12:00",
+        "breakTo": "13:00"
+      },
+      "tue": {
+        "from": "08:00",
+        "to": "17:00",
+        "breakFrom": "12:00",
+        "breakTo": "13:00"
+      },
+      "wed": {
+        "from": "08:00",
+        "to": "17:00",
+        "breakFrom": "12:00",
+        "breakTo": "13:00"
+      },
+      "thu": {
+        "from": "08:00",
+        "to": "17:00",
+        "breakFrom": "12:00",
+        "breakTo": "13:00"
+      },
+      "fri": {
+        "from": "08:00",
+        "to": "17:00",
+        "breakFrom": "12:00",
+        "breakTo": "13:00"
+      },
+      "sat": {},
+      "sun": {}
+    },
+    "contacts": [
+      {
+        "type": "phone",
+        "title": {
+          "ro": "Telefon",
+          "ru": "Телефон",
+          "en": "Phone"
+        },
+        "value": "(+373) 263 40 2 36"
+      },
+      {
+        "type": "email",
+        "title": {
+          "ro": "Email",
+          "ru": "Электронная почта",
+          "en": "Email"
+        },
+        "value": "primaria.filipeni@apl.gov.md"
+      }
+    ],
+    "location": {
+      "name": {
+        "ro": "Filipeni, Leova",
+        "ru": "Филипени, Леова",
+        "en": "Filipeni, Leova"
+      },
+      "geo": {
+        "lat": 46.439746717672925,
+        "lng": 28.328697523807367
+      }
+    },
+    "socialLinks": [],
+    "theme": "midnightTeal",
+    "apl": 19217,
+    "removeDate": "",
+    "lastUpdate": 1777966895247,
+    "assigned": "671a2f79d4f39680d5fbfcc4",
+    "languages": [
+      "ro",
+      "ru",
+      "en"
+    ]
+  }
+]

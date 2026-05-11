@@ -1,0 +1,582 @@
+[
+  {
+    "_id": "6763e16d2d30d8792be7f5e0",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/tender/21057699/",
+    "title": "Construcția unei porțiuni de drum din beton în s. Filipeni (repetat)",
+    "date": "2022-06-06T15:03:00.000Z",
+    "value": 1152250,
+    "status": "review",
+    "domain": "tender"
+  },
+  {
+    "_id": "6763e16c2d30d8792be7f5da",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/tender/21029033/",
+    "title": "Crearea plantațiilor forestiere de protecție în s. Filipeni",
+    "date": "2020-10-03T13:54:00.000Z",
+    "value": 272635,
+    "status": "review",
+    "domain": "tender"
+  },
+  {
+    "_id": "6763e16d2d30d8792be7f5ee",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/tender/21093838/",
+    "title": "Construcția centralei fotovoltaice pe primăria Filipeni ",
+    "date": "2023-10-04T09:41:00.000Z",
+    "value": 526648.16,
+    "status": "review",
+    "domain": "tender"
+  },
+  {
+    "_id": "6763e16d2d30d8792be7f5e6",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/tender/21234648/",
+    "title": "Produse alimentare sem II 2024",
+    "date": "2024-06-07T11:59:00.000Z",
+    "value": 320550.88,
+    "status": "review",
+    "domain": "tender"
+  },
+  {
+    "_id": "6763e16d2d30d8792be7f5e5",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/tender/21130601/",
+    "title": "Produse alimentare sem I 2024",
+    "date": "2023-12-14T09:10:00.000Z",
+    "value": 449044.7,
+    "status": "review",
+    "domain": "tender"
+  },
+  {
+    "_id": "6763e16d2d30d8792be7f5e1",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/tender/21056811/",
+    "title": "Construcția unei porțiuni de drum din beton în satul Filipeni ",
+    "date": "2022-05-19T21:15:00.000Z",
+    "value": 1152250,
+    "status": "annuled",
+    "domain": "tender"
+  },
+  {
+    "_id": "6763e16d2d30d8792be7f5ed",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/tender/21092872/",
+    "title": "Construcția rigolei de scurgere în s. Filipeni",
+    "date": "2023-09-21T08:54:00.000Z",
+    "value": 210000,
+    "status": "review",
+    "domain": "tender"
+  },
+  {
+    "_id": "6763e16d2d30d8792be7f5fa",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/eplan/21324384/",
+    "title": "Produse alimentare sem I 2025",
+    "date": "2024-01-12T00:00:00.000Z",
+    "value": 0,
+    "status": "planning",
+    "domain": "eplan"
+  },
+  {
+    "_id": "676d001a2d30d8792be7fd6e",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/tender/21298897/",
+    "title": "Reparația acoperișului la Casa de Cultură Filipeni",
+    "date": "2024-12-06T09:36:00.000Z",
+    "value": 3269875,
+    "status": "bid",
+    "domain": "tender"
+  },
+  {
+    "_id": "6763e16d2d30d8792be7f5e2",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/tender/21061987/",
+    "title": "Instrumente didactice digitale în IP Gimnaziul Filipeni ",
+    "date": "2022-09-01T11:50:00.000Z",
+    "value": 1156480,
+    "status": "review",
+    "domain": "tender"
+  },
+  {
+    "_id": "6763e16d2d30d8792be7f5ea",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/tender/21040998/",
+    "title": "Reabilitarea iluminatului stradal în satul Filipeni ",
+    "date": "2021-06-18T14:45:00.000Z",
+    "value": 600000,
+    "status": "annuled",
+    "domain": "tender"
+  },
+  {
+    "_id": "6763e16d2d30d8792be7f5f9",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/eplan/21028123/",
+    "title": "Procurarea tractor",
+    "date": "2020-01-09T00:00:00.000Z",
+    "value": 0,
+    "status": "planning",
+    "domain": "eplan"
+  },
+  {
+    "_id": "6763e16c2d30d8792be7f5db",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/tender/21042466/",
+    "title": "Reabilitarea iluminatului stradal în s. Filipeni ",
+    "date": "2021-07-28T15:26:00.000Z",
+    "value": 600000,
+    "status": "annuled",
+    "domain": "tender"
+  },
+  {
+    "_id": "6763e16d2d30d8792be7f5f8",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/eplan/21028623/",
+    "title": "Înființarea plantațiilor forestiere ",
+    "date": "2020-01-10T00:00:00.000Z",
+    "value": 0,
+    "status": "planning",
+    "domain": "eplan"
+  },
+  {
+    "_id": "6763e16c2d30d8792be7f5dd",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/tender/21045256/",
+    "title": "Construcția unei porțiuni de drum în satul Filipeni, raionul Leova ",
+    "date": "2021-10-13T12:09:00.000Z",
+    "value": 333000,
+    "status": "canceled",
+    "domain": "tender"
+  },
+  {
+    "_id": "6763e16c2d30d8792be7f5d6",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/tender/21061813/",
+    "title": "Produse alimentare pentru IET sem II",
+    "date": "2022-08-17T16:44:00.000Z",
+    "value": 326914.6,
+    "status": "review",
+    "domain": "tender"
+  },
+  {
+    "_id": "6763e16d2d30d8792be7f5eb",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/tender/21087474/",
+    "title": "Produse alimentare pentru IET Filipeni",
+    "date": "2023-08-09T08:49:00.000Z",
+    "value": 338020,
+    "status": "review",
+    "domain": "tender"
+  },
+  {
+    "_id": "6763e16c2d30d8792be7f5df",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/tender/21055770/",
+    "title": "Construcția unei porțiuni de drum din beton în satul Filipeni ",
+    "date": "2022-04-29T15:06:00.000Z",
+    "value": 1152250,
+    "status": "annuled",
+    "domain": "tender"
+  },
+  {
+    "_id": "6763e16d2d30d8792be7f5f7",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/eplan/21044877/",
+    "title": "Construcția unei porțiuni de drum în satul Filipeni, raionul Leova ",
+    "date": "2021-01-10T00:00:00.000Z",
+    "value": 0,
+    "status": "planning",
+    "domain": "eplan"
+  },
+  {
+    "_id": "6763e16c2d30d8792be7f5dc",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/tender/21042424/",
+    "title": "Reabilitarea iluminatului stradal în s. Filipeni (Repetat)",
+    "date": "2021-07-29T16:21:00.000Z",
+    "value": 600000,
+    "status": "review",
+    "domain": "tender"
+  },
+  {
+    "_id": "6763e16d2d30d8792be7f5ec",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/tender/21090577/",
+    "title": "Construcția centralei fotovoltaice pe pirmăria Filipeni ",
+    "date": "2023-09-04T12:08:00.000Z",
+    "value": 526648.16,
+    "status": "annuled",
+    "domain": "tender"
+  },
+  {
+    "_id": "6763e16d2d30d8792be7f5e7",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/tender/21203073/",
+    "title": "Construcția străzii Independenței etapa I cu lungimea de 500 m",
+    "date": "2024-04-18T14:05:00.000Z",
+    "value": 3668718.64,
+    "status": "annuled",
+    "domain": "tender"
+  },
+  {
+    "_id": "676e97f62d30d8792be7fe1e",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/tender/21325000/",
+    "title": "Produse alimentare sem I 2025",
+    "date": "2024-12-16T16:57:00.000Z",
+    "value": 333262.28,
+    "status": "review",
+    "domain": "tender"
+  },
+  {
+    "_id": "6763e16c2d30d8792be7f5d7",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/tender/21028661/",
+    "title": "Crearea plantațiilor forestiere de protecție",
+    "date": "2020-09-25T09:27:00.000Z",
+    "value": 272635,
+    "status": "annuled",
+    "domain": "tender"
+  },
+  {
+    "_id": "6763e16d2d30d8792be7f5fb",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/eplan/21086848/",
+    "title": "Echipament de sonorizare ",
+    "date": "2023-01-08T00:00:00.000Z",
+    "value": 0,
+    "status": "planning",
+    "domain": "eplan"
+  },
+  {
+    "_id": "6763e16c2d30d8792be7f5d9",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/tender/21028761/",
+    "title": "Achiziționarea unui tractor multifuncțional cu 2 utilaje",
+    "date": "2020-09-28T16:54:00.000Z",
+    "value": 600000,
+    "status": "annuled",
+    "domain": "tender"
+  },
+  {
+    "_id": "6763e16d2d30d8792be7f5e3",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/tender/21065072/",
+    "title": "Instrumente didactice digitale în IP Gimnaziul Filipeni (repetat)",
+    "date": "2022-10-14T11:39:00.000Z",
+    "value": 269000,
+    "status": "review",
+    "domain": "tender"
+  },
+  {
+    "_id": "6763e16d2d30d8792be7f5f5",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/eplan/21093836/",
+    "title": "Construcția centralei fotovoltaice pe primăria Filipeni ",
+    "date": "2023-01-09T00:00:00.000Z",
+    "value": 0,
+    "status": "planning",
+    "domain": "eplan"
+  },
+  {
+    "_id": "6799d544e461ce403ac46d9d",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/tender/21353470/",
+    "title": "Reparația acoperișului la casa de cultură Filipeni",
+    "date": "2025-01-23T15:41:00.000Z",
+    "value": 3269875,
+    "status": "annuled",
+    "domain": "tender"
+  },
+  {
+    "_id": "6763e16d2d30d8792be7f5f2",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/tender/21082069/",
+    "title": "Reparația din piatră spartă a unei porțiuni de drum din s. Filipeni ",
+    "date": "2023-06-09T15:07:00.000Z",
+    "value": 420000,
+    "status": "review",
+    "domain": "tender"
+  },
+  {
+    "_id": "6763e16d2d30d8792be7f5f4",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/eplan/21068488/",
+    "title": "Produse alimentare pentru IET din s. Filipeni sem. I 2023",
+    "date": "2022-01-12T00:00:00.000Z",
+    "value": 0,
+    "status": "planning",
+    "domain": "eplan"
+  },
+  {
+    "_id": "6763e16d2d30d8792be7f5f6",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/eplan/21055769/",
+    "title": "Construcția unei porțiuni de drum din beton  în satul Filipeni ",
+    "date": "2022-01-04T00:00:00.000Z",
+    "value": 0,
+    "status": "planning",
+    "domain": "eplan"
+  },
+  {
+    "_id": "6763e16d2d30d8792be7f5e8",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/tender/21217442/",
+    "title": "Construcția străzii Independenței etapa I cu lungimea de 500 m",
+    "date": "2024-04-18T16:10:00.000Z",
+    "value": 3668718.64,
+    "status": "review",
+    "domain": "tender"
+  },
+  {
+    "_id": "6763e16c2d30d8792be7f5de",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/tender/21050198/",
+    "title": "Produse alimentare pentru instituțiile de educație timpurie din s. Filipeni, sem. I",
+    "date": "2022-01-19T10:56:00.000Z",
+    "value": 302018,
+    "status": "review",
+    "domain": "tender"
+  },
+  {
+    "_id": "6763e16d2d30d8792be7f5f1",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/tender/21034842/",
+    "title": "Crearea plantațiilor forestiere de protecție în satul Filipeni",
+    "date": "2021-01-22T12:46:00.000Z",
+    "value": 239764,
+    "status": "annuled",
+    "domain": "tender"
+  },
+  {
+    "_id": "6763e16d2d30d8792be7f5f3",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/eplan/21130582/",
+    "title": "Produse alimentare sem I 2024",
+    "date": "2023-01-12T00:00:00.000Z",
+    "value": 0,
+    "status": "planning",
+    "domain": "eplan"
+  },
+  {
+    "_id": "6763e16d2d30d8792be7f5e4",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/tender/21070145/",
+    "title": "Produse alimentare pentru IET din s. Filipeni sem. I 2023",
+    "date": "2022-12-20T18:49:00.000Z",
+    "value": 402302.35,
+    "status": "review",
+    "domain": "tender"
+  },
+  {
+    "_id": "6763e16c2d30d8792be7f5d8",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/tender/21029378/",
+    "title": "Achiziționarea unui tractor multifuncțional cu 2 utilaje ",
+    "date": "2020-10-14T12:01:00.000Z",
+    "value": 600000,
+    "status": "review",
+    "domain": "tender"
+  },
+  {
+    "_id": "679248351ad493d0d6cf979c",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/tender/21353435/",
+    "title": "Reparația acoperișului la casa de cultură Filipeni ",
+    "date": "2025-01-23T15:35:00.000Z",
+    "value": 3269875,
+    "status": "annuled",
+    "domain": "tender"
+  },
+  {
+    "_id": "6763e16d2d30d8792be7f5e9",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/tender/21093407/",
+    "title": "Construcția rigolei de scurgere ",
+    "date": "2023-09-21T09:09:00.000Z",
+    "value": 210000,
+    "status": "annuled",
+    "domain": "tender"
+  },
+  {
+    "_id": "67bc23a6e39f95e5e14c2a17",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/tender/21370218/",
+    "title": "Reparatia acoperisului la casa de cultura s.Filipeni",
+    "date": "2025-02-24T09:16:00.000Z",
+    "value": 3269875,
+    "status": "update",
+    "domain": "tender"
+  },
+  {
+    "_id": "67bc6a02e39f95e5e14c2a1d",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/eplan/21370562/",
+    "title": "Reparația unor străzi din s. Filipeni ",
+    "date": "2025-01-03T00:00:00.000Z",
+    "value": 0,
+    "status": "planning",
+    "domain": "eplan"
+  },
+  {
+    "_id": "67e2de27a4522c526046d36d",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/tender/21386692/",
+    "title": "Reparația unor străzi din s. Filipeni",
+    "date": "2025-03-25T18:42:00.000Z",
+    "value": 9810396.05,
+    "status": "update",
+    "domain": "tender"
+  },
+  {
+    "_id": "67d7ce59803423b87cd175f1",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/tender/21370562/",
+    "title": "Reparația unor străzi din s. Filipeni ",
+    "date": "2025-03-17T08:49:00.000Z",
+    "value": 9216667,
+    "status": "update",
+    "domain": "tender"
+  },
+  {
+    "_id": "6815cd42e2b9d72f15d47d8c",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/tender/21414193/",
+    "title": "Reparația unor străzi din satul Filipeni",
+    "date": "2025-05-03T10:21:00.000Z",
+    "value": 1874319.39,
+    "status": "update",
+    "domain": "tender"
+  },
+  {
+    "_id": "687618a581c0b3d3ff1c8a81",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/eplan/21453752/",
+    "title": "Produse alimentare sem.II 2025",
+    "date": "2025-01-07T00:00:00.000Z",
+    "value": 0,
+    "status": "planning",
+    "domain": "eplan"
+  },
+  {
+    "_id": "687a0de9c5aa0c007c3632ab",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/eplan/21456123/",
+    "title": "Construcția Străzii Indepenenței etapa II",
+    "date": "2025-01-07T00:00:00.000Z",
+    "value": 0,
+    "status": "planning",
+    "domain": "eplan"
+  },
+  {
+    "_id": "68986caae0a63f35c4a625d6",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/eplan/21464207/",
+    "title": "Reparația străzii Tineretului",
+    "date": "2025-01-08T00:00:00.000Z",
+    "value": 0,
+    "status": "planning",
+    "domain": "eplan"
+  },
+  {
+    "_id": "68acbc2db7753eb231f78fde",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/tender/21456503/",
+    "title": "Construcția străzii Independenței etapa II",
+    "date": "2025-07-17T13:41:00.000Z",
+    "value": 7411000,
+    "status": "review",
+    "domain": "tender"
+  },
+  {
+    "_id": "68acbc2db7753eb231f78fdf",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/tender/21464911/",
+    "title": "Reparația străzii Tineretului",
+    "date": "2025-08-08T15:56:00.000Z",
+    "value": 1108333.33,
+    "status": "review",
+    "domain": "tender"
+  },
+  {
+    "_id": "68b22f54ad7abc3b036e0fed",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/tender/21453752/",
+    "title": "Produse alimentare sem.II 2025",
+    "date": "2025-07-17T15:04:00.000Z",
+    "value": 336415.29,
+    "status": "review",
+    "domain": "tender"
+  },
+  {
+    "_id": "693cfefb5a0d0197c30e17d9",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/eplan/21521468/",
+    "title": "Produse alimentare semestru I 2026",
+    "date": "2025-01-12T00:00:00.000Z",
+    "value": 0,
+    "status": "planning",
+    "domain": "eplan"
+  },
+  {
+    "_id": "697367adf13b0b7adbf88757",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/eplan/21553318/",
+    "title": "Elaborarea Planului Urbanistic în s. Filipeni ",
+    "date": "2026-01-01T00:00:00.000Z",
+    "value": 0,
+    "status": "planning",
+    "domain": "eplan"
+  },
+  {
+    "_id": "698126e4370d240dd14e5eb9",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/eplan/21556465/",
+    "title": "Procurare gaze naturale",
+    "date": "2026-01-01T00:00:00.000Z",
+    "value": 0,
+    "status": "planning",
+    "domain": "eplan"
+  },
+  {
+    "_id": "698126e4370d240dd14e5eb8",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/eplan/21556475/",
+    "title": "Gaze naturale",
+    "date": "2026-01-01T00:00:00.000Z",
+    "value": 0,
+    "status": "planning",
+    "domain": "eplan"
+  },
+  {
+    "_id": "69815f2d370d240dd14e60a7",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/contract/21556494",
+    "title": "\nGaze naturale \n",
+    "date": "2026-01-27T00:00:00.000Z",
+    "value": 222222,
+    "status": "active",
+    "domain": "contract"
+  },
+  {
+    "_id": "69815f2d370d240dd14e60a5",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/contract/21556563",
+    "title": "\nServicii de evaluare bunuri imobile \n",
+    "date": "2026-01-27T00:00:00.000Z",
+    "value": 24750,
+    "status": "active",
+    "domain": "contract"
+  },
+  {
+    "_id": "69815f2d370d240dd14e60a6",
+    "tennant": "filipeni",
+    "url": "https://achizitii.md//ro/public/contract/21556522",
+    "title": "\nEnergie electrică \n",
+    "date": "2026-01-27T00:00:00.000Z",
+    "value": 208330,
+    "status": "active",
+    "domain": "contract"
+  }
+]

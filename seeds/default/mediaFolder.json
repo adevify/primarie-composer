@@ -1,0 +1,14 @@
+[
+  {
+    "_id": "682d88f984e0d7eea7dac6fc",
+    "tennant": "bujor",
+    "name": "Casa de cultura",
+    "parentId": "",
+    "access": [
+      {
+        "userId": "66eabb721d44f9197254571a"
+      }
+    ],
+    "createdAt": "2025-05-21T08:04:09.604Z"
+  }
+]

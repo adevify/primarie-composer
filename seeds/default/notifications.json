@@ -1,0 +1,24 @@
+[
+  {
+    "_id": "69908c753426720b876096f6",
+    "tennant": "mindic",
+    "title": "Sincronizare achiziții publice finalizată",
+    "message": "Achiziții publice au fost sincronizate [mindic.primarie.md](https://mindic.primarie.md/public-acqs) | 6 achiziții noi găsite in domeniu contract",
+    "type": "success",
+    "reads": [
+      "671a2f79d4f39680d5fbfcc4",
+      "66f18cc30677ec7faa528aec",
+      "66f142eb0677ec7faa528ae1"
+    ],
+    "recipients": [
+      "67b5b7b7fd5b260dd3dd68db",
+      "66f142eb0677ec7faa528ae1",
+      "671a2f79d4f39680d5fbfcc4",
+      "66f18cc30677ec7faa528aec",
+      "66eabb721d44f9197254571a",
+      "692436a01a1a8119615e739c"
+    ],
+    "scheduledAt": "2026-02-14T14:53:41.798Z",
+    "createdAt": "2026-02-14T14:53:41.798Z"
+  }
+]

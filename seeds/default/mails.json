@@ -1,0 +1,437 @@
+[
+  {
+    "_id": "69f1f9afacd75ae4dc2ba1ab",
+    "tennant": "filipeni",
+    "to": {
+      "name": "Andrei Sirbu",
+      "address": "aaw2012sirbu.andrei@gmail.com"
+    },
+    "cc": [],
+    "bcc": [],
+    "delivery": {
+      "status": "succeeded",
+      "response": {
+        "messageId": "<648e4169-55c7-8989-62ff-2f3c91837c54@primarie.md>",
+        "raw": "250 2.0.0 OK  1777465775 d9443c01a7336-2b988a2970asi50655285ad.164 - gsmtp"
+      }
+    },
+    "text": "\n\t\n\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\t\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t",
+    "messageId": "<648e4169-55c7-8989-62ff-2f3c91837c54@primarie.md>",
+    "contentMedia": "69f1f9afacd75ae4dc2ba1aa",
+    "seen": true,
+    "date": "2026-04-29T12:29:35.110Z",
+    "type": "out",
+    "attachments": [],
+    "from": {
+      "name": "Primarie.md",
+      "address": "no-reply@primarie.md"
+    },
+    "subject": "Parola a fost modificată"
+  },
+  {
+    "_id": "69fb2fdf29fcbf22c5118280",
+    "tennant": "filipeni",
+    "to": {
+      "name": "test",
+      "address": "aaw2012sirbu.andrei@gmail.com"
+    },
+    "cc": [],
+    "bcc": [],
+    "delivery": {
+      "status": "succeeded",
+      "response": {
+        "messageId": "<cfb7116c-7e95-97ff-db97-ee9cdbfcab20@filipeni.primarie.md>",
+        "raw": "250 2.0.0 OK  1778069470 98e67ed59e1d1-365b4fb9cabsi3570484a91.12 - gsmtp"
+      }
+    },
+    "text": "\n\t\n\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\t\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t",
+    "messageId": "<cfb7116c-7e95-97ff-db97-ee9cdbfcab20@filipeni.primarie.md>",
+    "contentMedia": "69fb2fdf29fcbf22c511827f",
+    "seen": true,
+    "date": "2026-05-06T12:11:11.094Z",
+    "type": "out",
+    "attachments": [],
+    "from": {
+      "name": "Primarie.md",
+      "address": "contact@filipeni.primarie.md"
+    },
+    "subject": "Cererea de inregistrare a fost aprobata"
+  },
+  {
+    "_id": "69fb30d029fcbf22c5118285",
+    "tennant": "filipeni",
+    "to": {
+      "name": "test",
+      "address": "sirbusiandrei@gmail.com"
+    },
+    "cc": [],
+    "bcc": [],
+    "delivery": {
+      "status": "succeeded",
+      "response": {
+        "messageId": "<31996239-60e8-8dd6-890f-648a146a8551@filipeni.primarie.md>",
+        "raw": "250 2.0.0 OK  1778069712 41be03b00d2f7-c8242abbbdesi3723430a12.70 - gsmtp"
+      }
+    },
+    "text": "\n\t\n\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\t\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t",
+    "messageId": "<31996239-60e8-8dd6-890f-648a146a8551@filipeni.primarie.md>",
+    "contentMedia": "69fb30d029fcbf22c5118284",
+    "seen": true,
+    "date": "2026-05-06T12:15:12.215Z",
+    "type": "out",
+    "attachments": [],
+    "from": {
+      "name": "Primarie.md",
+      "address": "contact@filipeni.primarie.md"
+    },
+    "subject": "Cererea de inregistrare a fost respinsa"
+  },
+  {
+    "_id": "69fb338229fcbf22c5118287",
+    "tennant": "filipeni",
+    "to": {
+      "name": "test",
+      "address": "aaw2012sirbu.andrei@gmail.com"
+    },
+    "cc": [],
+    "bcc": [],
+    "delivery": {
+      "status": "succeeded",
+      "response": {
+        "messageId": "<0ffc56b6-5262-ed88-ebcf-8334da8901da@filipeni.primarie.md>",
+        "raw": "250 2.0.0 OK  1778070402 41be03b00d2f7-c8242d1033fsi3600888a12.217 - gsmtp"
+      }
+    },
+    "text": "\n\t\n\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\t\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t",
+    "messageId": "<0ffc56b6-5262-ed88-ebcf-8334da8901da@filipeni.primarie.md>",
+    "contentMedia": "69fb338229fcbf22c5118286",
+    "seen": true,
+    "date": "2026-05-06T12:26:42.572Z",
+    "type": "out",
+    "attachments": [],
+    "from": {
+      "name": "Primarie.md",
+      "address": "contact@filipeni.primarie.md"
+    },
+    "subject": "Cererea de inregistrare a fost aprobata"
+  },
+  {
+    "_id": "69fb4534e80d46339791de12",
+    "tennant": "filipeni",
+    "to": {
+      "name": "test",
+      "address": "aaw2012sirbu.andrei@gmail.com"
+    },
+    "cc": [],
+    "bcc": [],
+    "delivery": {
+      "status": "succeeded",
+      "response": {
+        "messageId": "<5a5b7494-e49d-6f9e-23c5-2f1a049e47c7@filipeni.primarie.md>",
+        "raw": "250 2.0.0 OK  1778074932 a640c23a62f3a-bc55f91760bsi124798566b.306 - gsmtp"
+      }
+    },
+    "text": "\n\t\n\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\t\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\n                \n                    \n                 ",
+    "messageId": "<5a5b7494-e49d-6f9e-23c5-2f1a049e47c7@filipeni.primarie.md>",
+    "contentMedia": "69fb4534e80d46339791de11",
+    "seen": true,
+    "date": "2026-05-06T13:42:12.928Z",
+    "type": "out",
+    "attachments": [],
+    "from": {
+      "name": "Primarie.md",
+      "address": "contact@filipeni.primarie.md"
+    },
+    "subject": "Cererea de inregistrare a fost primita"
+  },
+  {
+    "_id": "69fb4653e80d46339791de14",
+    "tennant": "filipeni",
+    "to": {
+      "name": "test",
+      "address": "aaw2012sirbu.andrei@gmail.com"
+    },
+    "cc": [],
+    "bcc": [],
+    "delivery": {
+      "status": "succeeded",
+      "response": {
+        "messageId": "<a43ed24c-e2ba-16e9-29d0-b0405d10e6e3@filipeni.primarie.md>",
+        "raw": "250 2.0.0 OK  1778075218 d2e1a72fcca58-83965d361dcsi11417878b3a.74 - gsmtp"
+      }
+    },
+    "text": "\n\t\n\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\t\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\n                \n                    \n                 ",
+    "messageId": "<a43ed24c-e2ba-16e9-29d0-b0405d10e6e3@filipeni.primarie.md>",
+    "contentMedia": "69fb4653e80d46339791de13",
+    "seen": true,
+    "date": "2026-05-06T13:46:59.064Z",
+    "type": "out",
+    "attachments": [],
+    "from": {
+      "name": "Primarie.md",
+      "address": "contact@filipeni.primarie.md"
+    },
+    "subject": "Cererea de inregistrare a fost aprobata"
+  },
+  {
+    "_id": "69fb4723e80d46339791de17",
+    "tennant": "filipeni",
+    "to": {
+      "name": "test",
+      "address": "aaw2012sirbu.andrei@gmail.com"
+    },
+    "cc": [],
+    "bcc": [],
+    "delivery": {
+      "status": "succeeded",
+      "response": {
+        "messageId": "<b9699e33-6a6d-bf5f-85dc-48387ac201d0@filipeni.primarie.md>",
+        "raw": "250 2.0.0 OK  1778075427 d2e1a72fcca58-83968c8c6bdsi10946689b3a.163 - gsmtp"
+      }
+    },
+    "text": "\n\t\n\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\t\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\n                \n                    \n                 ",
+    "messageId": "<b9699e33-6a6d-bf5f-85dc-48387ac201d0@filipeni.primarie.md>",
+    "contentMedia": "69fb4723e80d46339791de16",
+    "seen": true,
+    "date": "2026-05-06T13:50:27.928Z",
+    "type": "out",
+    "attachments": [],
+    "from": {
+      "name": "Primarie.md",
+      "address": "contact@filipeni.primarie.md"
+    },
+    "subject": "Parola a fost modificata"
+  },
+  {
+    "_id": "69fb478ee80d46339791de19",
+    "tennant": "filipeni",
+    "to": {
+      "name": "test",
+      "address": "aaw2012sirbu.andrei@gmail.com"
+    },
+    "cc": [],
+    "bcc": [],
+    "delivery": {
+      "status": "succeeded",
+      "response": {
+        "messageId": "<edacfbef-1e05-e0ca-6d3a-e9e304762812@filipeni.primarie.md>",
+        "raw": "250 2.0.0 OK  1778075534 a640c23a62f3a-bc55f91769asi125952766b.305 - gsmtp"
+      }
+    },
+    "text": "\n\t\n\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\t\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\n                \n                    \n                 ",
+    "messageId": "<edacfbef-1e05-e0ca-6d3a-e9e304762812@filipeni.primarie.md>",
+    "contentMedia": "69fb478ee80d46339791de18",
+    "seen": true,
+    "date": "2026-05-06T13:52:14.251Z",
+    "type": "out",
+    "attachments": [],
+    "from": {
+      "name": "Primarie.md",
+      "address": "contact@filipeni.primarie.md"
+    },
+    "subject": "Parola a fost modificata"
+  },
+  {
+    "_id": "69fb4830e80d46339791de1b",
+    "tennant": "filipeni",
+    "to": {
+      "name": "test",
+      "address": "aaw2012sirbu.andrei@gmail.com"
+    },
+    "cc": [],
+    "bcc": [],
+    "delivery": {
+      "status": "succeeded",
+      "response": {
+        "messageId": "<b4964848-5282-ab25-cd88-c6b8d387e039@filipeni.primarie.md>",
+        "raw": "250 2.0.0 OK  1778075696 41be03b00d2f7-c8242ce4d21si3853245a12.197 - gsmtp"
+      }
+    },
+    "text": "\n\t\n\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\t\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\n                \n                    \n                 ",
+    "messageId": "<b4964848-5282-ab25-cd88-c6b8d387e039@filipeni.primarie.md>",
+    "contentMedia": "69fb4830e80d46339791de1a",
+    "seen": true,
+    "date": "2026-05-06T13:54:56.310Z",
+    "type": "out",
+    "attachments": [],
+    "from": {
+      "name": "Primarie.md",
+      "address": "contact@filipeni.primarie.md"
+    },
+    "subject": "Parola a fost modificata"
+  },
+  {
+    "_id": "69fb64e62b7a8ad5b3d6b152",
+    "tennant": "filipeni",
+    "to": {
+      "name": "test",
+      "address": "aaw2012sirbu.andrei@gmail.com"
+    },
+    "cc": [],
+    "bcc": [],
+    "delivery": {
+      "status": "succeeded",
+      "response": {
+        "messageId": "<f83347b3-c009-d880-ef86-a244dd308775@filipeni.primarie.md>",
+        "raw": "250 2.0.0 OK  1778083046 d2e1a72fcca58-8396564662asi11250124b3a.35 - gsmtp"
+      }
+    },
+    "text": "\n\t\n\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\t\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\n                \n                    \n                 ",
+    "messageId": "<f83347b3-c009-d880-ef86-a244dd308775@filipeni.primarie.md>",
+    "contentMedia": "69fb64e62b7a8ad5b3d6b151",
+    "seen": true,
+    "date": "2026-05-06T15:57:26.921Z",
+    "type": "out",
+    "attachments": [],
+    "from": {
+      "name": "Primarie.md",
+      "address": "contact@filipeni.primarie.md"
+    },
+    "subject": "Cererea de inregistrare a fost primita"
+  },
+  {
+    "_id": "69fb68c3f3267d1a0f75593a",
+    "tennant": "filipeni",
+    "to": {
+      "name": "test",
+      "address": "aaw2012sirbu.andrei@gmail.com"
+    },
+    "cc": [],
+    "bcc": [],
+    "delivery": {
+      "status": "succeeded",
+      "response": {
+        "messageId": "<8b1a7c11-42d3-bb38-440d-1f376f2a2180@filipeni.primarie.md>",
+        "raw": "250 2.0.0 OK  1778084035 4fb4d7f45d1cf-67cd91d435esi2641016a12.249 - gsmtp"
+      }
+    },
+    "text": "\n\t\n\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\t\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\n                \n                    \n                 ",
+    "messageId": "<8b1a7c11-42d3-bb38-440d-1f376f2a2180@filipeni.primarie.md>",
+    "contentMedia": "69fb68c3f3267d1a0f755939",
+    "seen": true,
+    "date": "2026-05-06T16:13:55.589Z",
+    "type": "out",
+    "attachments": [],
+    "from": {
+      "name": "Primarie.md",
+      "address": "contact@filipeni.primarie.md"
+    },
+    "subject": "Cererea de inregistrare a fost aprobata"
+  },
+  {
+    "_id": "69fb68f2f3267d1a0f75593c",
+    "tennant": "filipeni",
+    "to": {
+      "name": "test",
+      "address": "aaw2012sirbu.andrei@gmail.com"
+    },
+    "cc": [],
+    "bcc": [],
+    "delivery": {
+      "status": "succeeded",
+      "response": {
+        "messageId": "<b5287c52-cd05-7b18-88d8-c99a6ce13952@filipeni.primarie.md>",
+        "raw": "250 2.0.0 OK  1778084081 d2e1a72fcca58-839684a841asi11225200b3a.121 - gsmtp"
+      }
+    },
+    "text": "\n\t\n\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\t\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\n                \n                    \n                 ",
+    "messageId": "<b5287c52-cd05-7b18-88d8-c99a6ce13952@filipeni.primarie.md>",
+    "contentMedia": "69fb68f2f3267d1a0f75593b",
+    "seen": true,
+    "date": "2026-05-06T16:14:42.069Z",
+    "type": "out",
+    "attachments": [],
+    "from": {
+      "name": "Primarie.md",
+      "address": "contact@filipeni.primarie.md"
+    },
+    "subject": "Parola a fost modificata"
+  },
+  {
+    "_id": "69fb6925f3267d1a0f75593e",
+    "tennant": "filipeni",
+    "to": {
+      "name": "test",
+      "address": "aaw2012sirbu.andrei@gmail.com"
+    },
+    "cc": [],
+    "bcc": [],
+    "delivery": {
+      "status": "succeeded",
+      "response": {
+        "messageId": "<42b06d69-0b62-9642-38fc-06f8d4f15072@filipeni.primarie.md>",
+        "raw": "250 2.0.0 OK  1778084132 41be03b00d2f7-c8242ce43a3si4655627a12.194 - gsmtp"
+      }
+    },
+    "text": "\n\t\n\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\t\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\n                \n                    \n                 ",
+    "messageId": "<42b06d69-0b62-9642-38fc-06f8d4f15072@filipeni.primarie.md>",
+    "contentMedia": "69fb6925f3267d1a0f75593d",
+    "seen": true,
+    "date": "2026-05-06T16:15:33.223Z",
+    "type": "out",
+    "attachments": [],
+    "from": {
+      "name": "Primarie.md",
+      "address": "contact@filipeni.primarie.md"
+    },
+    "subject": "Parola a fost modificata"
+  },
+  {
+    "_id": "69fb6990f3267d1a0f755941",
+    "tennant": "filipeni",
+    "to": {
+      "name": "test2",
+      "address": "sirbusiandrei@gmail.com"
+    },
+    "cc": [],
+    "bcc": [],
+    "delivery": {
+      "status": "succeeded",
+      "response": {
+        "messageId": "<49cf7d5c-e892-4089-6713-908968cea2c2@filipeni.primarie.md>",
+        "raw": "250 2.0.0 OK  1778084240 a640c23a62f3a-bc55b17c752si150933766b.34 - gsmtp"
+      }
+    },
+    "text": "\n\t\n\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\t\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\n                \n                    \n                 ",
+    "messageId": "<49cf7d5c-e892-4089-6713-908968cea2c2@filipeni.primarie.md>",
+    "contentMedia": "69fb6990f3267d1a0f755940",
+    "seen": true,
+    "date": "2026-05-06T16:17:20.260Z",
+    "type": "out",
+    "attachments": [],
+    "from": {
+      "name": "Primarie.md",
+      "address": "contact@filipeni.primarie.md"
+    },
+    "subject": "Cererea de inregistrare a fost primita"
+  },
+  {
+    "_id": "69fb69bbf3267d1a0f755943",
+    "tennant": "filipeni",
+    "to": {
+      "name": "test2",
+      "address": "sirbusiandrei@gmail.com"
+    },
+    "cc": [],
+    "bcc": [],
+    "delivery": {
+      "status": "succeeded",
+      "response": {
+        "messageId": "<cab275f7-f82b-4ad3-c92b-12238ea49a90@filipeni.primarie.md>",
+        "raw": "250 2.0.0 OK  1778084283 4fb4d7f45d1cf-67cd91ecc56si2646677a12.305 - gsmtp"
+      }
+    },
+    "text": "\n\t\n\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\t\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\n                \n                    \n                 ",
+    "messageId": "<cab275f7-f82b-4ad3-c92b-12238ea49a90@filipeni.primarie.md>",
+    "contentMedia": "69fb69bbf3267d1a0f755942",
+    "seen": true,
+    "date": "2026-05-06T16:18:03.784Z",
+    "type": "out",
+    "attachments": [],
+    "from": {
+      "name": "Primarie.md",
+      "address": "contact@filipeni.primarie.md"
+    },
+    "subject": "Cererea de inregistrare a fost respinsa"
+  }
+]

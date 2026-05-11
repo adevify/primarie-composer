@@ -1,0 +1,53 @@
+[
+  {
+    "_id": "67b2d066e9f22a09437971be",
+    "key": "avansat",
+    "name": "Avansat",
+    "description": "Crearea pagină web + acces la pagina de administrare.<br/>Publicare de conținut: Noutăți, Evenimente, etc...<br/>Pagini personalizate.<br/>Asistent la traduceri RO/RU/EN.<br/>Actele Locale GOV + Achiziții Publice.<br/>Migrarea informațiilor din surse oficiale pentru un „start rapid și eficient”<br/><br/>Pe panelul administrativ- gestionarea dumneavoastră",
+    "features": [
+      "localDocs",
+      "aiTranslation",
+      "publicAcqs",
+      "customPages"
+    ],
+    "prices": [
+      {
+        "persons": 0,
+        "price": 250
+      },
+      {
+        "persons": 1000,
+        "price": 300
+      },
+      {
+        "persons": 2000,
+        "price": 400
+      },
+      {
+        "persons": 3000,
+        "price": 450
+      },
+      {
+        "persons": 4000,
+        "price": 500
+      },
+      {
+        "persons": 5000,
+        "price": 550
+      },
+      {
+        "persons": 6000,
+        "price": 650
+      },
+      {
+        "persons": 7000,
+        "price": 700
+      },
+      {
+        "persons": 8000,
+        "price": 800
+      }
+    ],
+    "aditional": []
+  }
+]

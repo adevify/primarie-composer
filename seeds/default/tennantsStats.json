@@ -1,0 +1,1280 @@
+[
+  {
+    "_id": "69933492ba8578d72aff8d6f",
+    "tennant": "filipeni",
+    "users": {
+      "used": 1,
+      "count": 3
+    },
+    "storage": {
+      "used": 400231940,
+      "count": 5
+    },
+    "offer": {
+      "packages": [
+        {
+          "key": "start",
+          "price": 175,
+          "selected": false
+        },
+        {
+          "key": "avansat",
+          "price": 500,
+          "selected": false
+        },
+        {
+          "key": "integral",
+          "price": 700,
+          "selected": true
+        }
+      ],
+      "features": [
+        {
+          "key": "customPages",
+          "price": 100,
+          "selected": true
+        },
+        {
+          "key": "localDocs",
+          "price": 75,
+          "selected": true
+        },
+        {
+          "key": "aiTranslation",
+          "price": 100,
+          "selected": true
+        },
+        {
+          "key": "publicAcqs",
+          "price": 75,
+          "selected": true
+        },
+        {
+          "key": "socialMediaSync",
+          "price": 150,
+          "selected": true
+        },
+        {
+          "key": "photoSesions",
+          "price": 200,
+          "selected": true
+        },
+        {
+          "key": "dataModeration",
+          "price": 100,
+          "selected": true
+        }
+      ]
+    },
+    "basePrice": 1,
+    "month": 2,
+    "year": 2026
+  },
+  {
+    "_id": "69933499ba8578d72aff8d99",
+    "tennant": "filipeni",
+    "users": {
+      "used": 1,
+      "count": 3
+    },
+    "storage": {
+      "used": 392736619,
+      "count": 5
+    },
+    "offer": {
+      "packages": [
+        {
+          "key": "start",
+          "price": 175,
+          "selected": false
+        },
+        {
+          "key": "avansat",
+          "price": 500,
+          "selected": false
+        },
+        {
+          "key": "integral",
+          "price": 700,
+          "selected": true
+        }
+      ],
+      "features": [
+        {
+          "key": "customPages",
+          "price": 100,
+          "selected": true
+        },
+        {
+          "key": "localDocs",
+          "price": 75,
+          "selected": true
+        },
+        {
+          "key": "aiTranslation",
+          "price": 100,
+          "selected": true
+        },
+        {
+          "key": "publicAcqs",
+          "price": 75,
+          "selected": true
+        },
+        {
+          "key": "socialMediaSync",
+          "price": 150,
+          "selected": true
+        },
+        {
+          "key": "photoSesions",
+          "price": 200,
+          "selected": true
+        },
+        {
+          "key": "dataModeration",
+          "price": 100,
+          "selected": true
+        }
+      ]
+    },
+    "basePrice": 1,
+    "month": 2,
+    "year": 2025
+  },
+  {
+    "_id": "69933492ba8578d72aff8d6e",
+    "tennant": "filipeni",
+    "users": {
+      "used": 1,
+      "count": 3
+    },
+    "storage": {
+      "used": 392486609,
+      "count": 5
+    },
+    "offer": {
+      "packages": [
+        {
+          "key": "start",
+          "price": 175,
+          "selected": false
+        },
+        {
+          "key": "avansat",
+          "price": 500,
+          "selected": false
+        },
+        {
+          "key": "integral",
+          "price": 700,
+          "selected": true
+        }
+      ],
+      "features": [
+        {
+          "key": "customPages",
+          "price": 100,
+          "selected": true
+        },
+        {
+          "key": "localDocs",
+          "price": 75,
+          "selected": true
+        },
+        {
+          "key": "aiTranslation",
+          "price": 100,
+          "selected": true
+        },
+        {
+          "key": "publicAcqs",
+          "price": 75,
+          "selected": true
+        },
+        {
+          "key": "socialMediaSync",
+          "price": 150,
+          "selected": true
+        },
+        {
+          "key": "photoSesions",
+          "price": 200,
+          "selected": true
+        },
+        {
+          "key": "dataModeration",
+          "price": 100,
+          "selected": true
+        }
+      ]
+    },
+    "basePrice": 1,
+    "month": 1,
+    "year": 2025
+  },
+  {
+    "_id": "699334b7ba8578d72aff8e6f",
+    "tennant": "filipeni",
+    "users": {
+      "used": 1,
+      "count": 3
+    },
+    "storage": {
+      "used": 392986634,
+      "count": 5
+    },
+    "offer": {
+      "packages": [
+        {
+          "key": "start",
+          "price": 175,
+          "selected": false
+        },
+        {
+          "key": "avansat",
+          "price": 500,
+          "selected": false
+        },
+        {
+          "key": "integral",
+          "price": 700,
+          "selected": true
+        }
+      ],
+      "features": [
+        {
+          "key": "customPages",
+          "price": 100,
+          "selected": true
+        },
+        {
+          "key": "localDocs",
+          "price": 75,
+          "selected": true
+        },
+        {
+          "key": "aiTranslation",
+          "price": 100,
+          "selected": true
+        },
+        {
+          "key": "publicAcqs",
+          "price": 75,
+          "selected": true
+        },
+        {
+          "key": "socialMediaSync",
+          "price": 150,
+          "selected": true
+        },
+        {
+          "key": "photoSesions",
+          "price": 200,
+          "selected": true
+        },
+        {
+          "key": "dataModeration",
+          "price": 100,
+          "selected": true
+        }
+      ]
+    },
+    "basePrice": 1,
+    "month": 4,
+    "year": 2025
+  },
+  {
+    "_id": "699334b0ba8578d72aff8e3b",
+    "tennant": "filipeni",
+    "users": {
+      "used": 1,
+      "count": 3
+    },
+    "storage": {
+      "used": 392861623,
+      "count": 5
+    },
+    "offer": {
+      "packages": [
+        {
+          "key": "start",
+          "price": 175,
+          "selected": false
+        },
+        {
+          "key": "avansat",
+          "price": 500,
+          "selected": false
+        },
+        {
+          "key": "integral",
+          "price": 700,
+          "selected": true
+        }
+      ],
+      "features": [
+        {
+          "key": "customPages",
+          "price": 100,
+          "selected": true
+        },
+        {
+          "key": "localDocs",
+          "price": 75,
+          "selected": true
+        },
+        {
+          "key": "aiTranslation",
+          "price": 100,
+          "selected": true
+        },
+        {
+          "key": "publicAcqs",
+          "price": 75,
+          "selected": true
+        },
+        {
+          "key": "socialMediaSync",
+          "price": 150,
+          "selected": true
+        },
+        {
+          "key": "photoSesions",
+          "price": 200,
+          "selected": true
+        },
+        {
+          "key": "dataModeration",
+          "price": 100,
+          "selected": true
+        }
+      ]
+    },
+    "basePrice": 1,
+    "month": 3,
+    "year": 2025
+  },
+  {
+    "_id": "69933488ba8578d72aff8d23",
+    "tennant": "filipeni",
+    "users": {
+      "used": 1,
+      "count": 3
+    },
+    "storage": {
+      "used": 392361593,
+      "count": 5
+    },
+    "offer": {
+      "packages": [
+        {
+          "key": "start",
+          "price": 175,
+          "selected": false
+        },
+        {
+          "key": "avansat",
+          "price": 500,
+          "selected": false
+        },
+        {
+          "key": "integral",
+          "price": 700,
+          "selected": true
+        }
+      ],
+      "features": [
+        {
+          "key": "customPages",
+          "price": 100,
+          "selected": true
+        },
+        {
+          "key": "localDocs",
+          "price": 75,
+          "selected": true
+        },
+        {
+          "key": "aiTranslation",
+          "price": 100,
+          "selected": true
+        },
+        {
+          "key": "publicAcqs",
+          "price": 75,
+          "selected": true
+        },
+        {
+          "key": "socialMediaSync",
+          "price": 150,
+          "selected": true
+        },
+        {
+          "key": "photoSesions",
+          "price": 200,
+          "selected": true
+        },
+        {
+          "key": "dataModeration",
+          "price": 100,
+          "selected": true
+        }
+      ]
+    },
+    "basePrice": 1,
+    "month": 12,
+    "year": 2024
+  },
+  {
+    "_id": "6993350aba8578d72aff92f5",
+    "tennant": "filipeni",
+    "users": {
+      "used": 1,
+      "count": 3
+    },
+    "storage": {
+      "used": 393111636,
+      "count": 5
+    },
+    "offer": {
+      "packages": [
+        {
+          "key": "start",
+          "price": 175,
+          "selected": false
+        },
+        {
+          "key": "avansat",
+          "price": 500,
+          "selected": false
+        },
+        {
+          "key": "integral",
+          "price": 700,
+          "selected": true
+        }
+      ],
+      "features": [
+        {
+          "key": "customPages",
+          "price": 100,
+          "selected": true
+        },
+        {
+          "key": "localDocs",
+          "price": 75,
+          "selected": true
+        },
+        {
+          "key": "aiTranslation",
+          "price": 100,
+          "selected": true
+        },
+        {
+          "key": "publicAcqs",
+          "price": 75,
+          "selected": true
+        },
+        {
+          "key": "socialMediaSync",
+          "price": 150,
+          "selected": true
+        },
+        {
+          "key": "photoSesions",
+          "price": 200,
+          "selected": true
+        },
+        {
+          "key": "dataModeration",
+          "price": 100,
+          "selected": true
+        }
+      ]
+    },
+    "basePrice": 1,
+    "month": 5,
+    "year": 2025
+  },
+  {
+    "_id": "69933530ba8578d72aff93ee",
+    "tennant": "filipeni",
+    "users": {
+      "used": 1,
+      "count": 3
+    },
+    "storage": {
+      "used": 393236635,
+      "count": 5
+    },
+    "offer": {
+      "packages": [
+        {
+          "key": "start",
+          "price": 175,
+          "selected": false
+        },
+        {
+          "key": "avansat",
+          "price": 500,
+          "selected": false
+        },
+        {
+          "key": "integral",
+          "price": 700,
+          "selected": true
+        }
+      ],
+      "features": [
+        {
+          "key": "customPages",
+          "price": 100,
+          "selected": true
+        },
+        {
+          "key": "localDocs",
+          "price": 75,
+          "selected": true
+        },
+        {
+          "key": "aiTranslation",
+          "price": 100,
+          "selected": true
+        },
+        {
+          "key": "publicAcqs",
+          "price": 75,
+          "selected": true
+        },
+        {
+          "key": "socialMediaSync",
+          "price": 150,
+          "selected": true
+        },
+        {
+          "key": "photoSesions",
+          "price": 200,
+          "selected": true
+        },
+        {
+          "key": "dataModeration",
+          "price": 100,
+          "selected": true
+        }
+      ]
+    },
+    "basePrice": 1,
+    "month": 8,
+    "year": 2025
+  },
+  {
+    "_id": "6993353cba8578d72aff9441",
+    "tennant": "filipeni",
+    "users": {
+      "used": 1,
+      "count": 3
+    },
+    "storage": {
+      "used": 393361629,
+      "count": 5
+    },
+    "offer": {
+      "packages": [
+        {
+          "key": "start",
+          "price": 175,
+          "selected": false
+        },
+        {
+          "key": "avansat",
+          "price": 500,
+          "selected": false
+        },
+        {
+          "key": "integral",
+          "price": 700,
+          "selected": true
+        }
+      ],
+      "features": [
+        {
+          "key": "customPages",
+          "price": 100,
+          "selected": true
+        },
+        {
+          "key": "localDocs",
+          "price": 75,
+          "selected": true
+        },
+        {
+          "key": "aiTranslation",
+          "price": 100,
+          "selected": true
+        },
+        {
+          "key": "publicAcqs",
+          "price": 75,
+          "selected": true
+        },
+        {
+          "key": "socialMediaSync",
+          "price": 150,
+          "selected": true
+        },
+        {
+          "key": "photoSesions",
+          "price": 200,
+          "selected": true
+        },
+        {
+          "key": "dataModeration",
+          "price": 100,
+          "selected": true
+        }
+      ]
+    },
+    "basePrice": 1,
+    "month": 6,
+    "year": 2025
+  },
+  {
+    "_id": "69933595ba8578d72aff96a1",
+    "tennant": "filipeni",
+    "users": {
+      "used": 1,
+      "count": 3
+    },
+    "storage": {
+      "used": 393486601,
+      "count": 5
+    },
+    "offer": {
+      "packages": [
+        {
+          "key": "start",
+          "price": 175,
+          "selected": false
+        },
+        {
+          "key": "avansat",
+          "price": 500,
+          "selected": false
+        },
+        {
+          "key": "integral",
+          "price": 700,
+          "selected": true
+        }
+      ],
+      "features": [
+        {
+          "key": "customPages",
+          "price": 100,
+          "selected": true
+        },
+        {
+          "key": "localDocs",
+          "price": 75,
+          "selected": true
+        },
+        {
+          "key": "aiTranslation",
+          "price": 100,
+          "selected": true
+        },
+        {
+          "key": "publicAcqs",
+          "price": 75,
+          "selected": true
+        },
+        {
+          "key": "socialMediaSync",
+          "price": 150,
+          "selected": true
+        },
+        {
+          "key": "photoSesions",
+          "price": 200,
+          "selected": true
+        },
+        {
+          "key": "dataModeration",
+          "price": 100,
+          "selected": true
+        }
+      ]
+    },
+    "basePrice": 1,
+    "month": 7,
+    "year": 2025
+  },
+  {
+    "_id": "699335adba8578d72aff9741",
+    "tennant": "filipeni",
+    "users": {
+      "used": 1,
+      "count": 3
+    },
+    "storage": {
+      "used": 393611592,
+      "count": 5
+    },
+    "offer": {
+      "packages": [
+        {
+          "key": "start",
+          "price": 175,
+          "selected": false
+        },
+        {
+          "key": "avansat",
+          "price": 500,
+          "selected": false
+        },
+        {
+          "key": "integral",
+          "price": 700,
+          "selected": true
+        }
+      ],
+      "features": [
+        {
+          "key": "customPages",
+          "price": 100,
+          "selected": true
+        },
+        {
+          "key": "localDocs",
+          "price": 75,
+          "selected": true
+        },
+        {
+          "key": "aiTranslation",
+          "price": 100,
+          "selected": true
+        },
+        {
+          "key": "publicAcqs",
+          "price": 75,
+          "selected": true
+        },
+        {
+          "key": "socialMediaSync",
+          "price": 150,
+          "selected": true
+        },
+        {
+          "key": "photoSesions",
+          "price": 200,
+          "selected": true
+        },
+        {
+          "key": "dataModeration",
+          "price": 100,
+          "selected": true
+        }
+      ]
+    },
+    "basePrice": 1,
+    "month": 12,
+    "year": 2025
+  },
+  {
+    "_id": "69933610ba8578d72aff99f1",
+    "tennant": "filipeni",
+    "users": {
+      "used": 1,
+      "count": 3
+    },
+    "storage": {
+      "used": 393736613,
+      "count": 5
+    },
+    "offer": {
+      "packages": [
+        {
+          "key": "start",
+          "price": 175,
+          "selected": false
+        },
+        {
+          "key": "avansat",
+          "price": 500,
+          "selected": false
+        },
+        {
+          "key": "integral",
+          "price": 700,
+          "selected": true
+        }
+      ],
+      "features": [
+        {
+          "key": "customPages",
+          "price": 100,
+          "selected": true
+        },
+        {
+          "key": "localDocs",
+          "price": 75,
+          "selected": true
+        },
+        {
+          "key": "aiTranslation",
+          "price": 100,
+          "selected": true
+        },
+        {
+          "key": "publicAcqs",
+          "price": 75,
+          "selected": true
+        },
+        {
+          "key": "socialMediaSync",
+          "price": 150,
+          "selected": true
+        },
+        {
+          "key": "photoSesions",
+          "price": 200,
+          "selected": true
+        },
+        {
+          "key": "dataModeration",
+          "price": 100,
+          "selected": true
+        }
+      ]
+    },
+    "basePrice": 1,
+    "month": 9,
+    "year": 2025
+  },
+  {
+    "_id": "6993366aba8578d72aff9c56",
+    "tennant": "filipeni",
+    "users": {
+      "used": 1,
+      "count": 3
+    },
+    "storage": {
+      "used": 393862142,
+      "count": 5
+    },
+    "offer": {
+      "packages": [
+        {
+          "key": "start",
+          "price": 175,
+          "selected": false
+        },
+        {
+          "key": "avansat",
+          "price": 500,
+          "selected": false
+        },
+        {
+          "key": "integral",
+          "price": 700,
+          "selected": true
+        }
+      ],
+      "features": [
+        {
+          "key": "customPages",
+          "price": 100,
+          "selected": true
+        },
+        {
+          "key": "localDocs",
+          "price": 75,
+          "selected": true
+        },
+        {
+          "key": "aiTranslation",
+          "price": 100,
+          "selected": true
+        },
+        {
+          "key": "publicAcqs",
+          "price": 75,
+          "selected": true
+        },
+        {
+          "key": "socialMediaSync",
+          "price": 150,
+          "selected": true
+        },
+        {
+          "key": "photoSesions",
+          "price": 200,
+          "selected": true
+        },
+        {
+          "key": "dataModeration",
+          "price": 100,
+          "selected": true
+        }
+      ]
+    },
+    "basePrice": 1,
+    "month": 11,
+    "year": 2025
+  },
+  {
+    "_id": "69933699ba8578d72aff9d9d",
+    "tennant": "filipeni",
+    "users": {
+      "used": 1,
+      "count": 3
+    },
+    "storage": {
+      "used": 394112996,
+      "count": 5
+    },
+    "offer": {
+      "packages": [
+        {
+          "key": "start",
+          "price": 175,
+          "selected": false
+        },
+        {
+          "key": "avansat",
+          "price": 500,
+          "selected": false
+        },
+        {
+          "key": "integral",
+          "price": 700,
+          "selected": true
+        }
+      ],
+      "features": [
+        {
+          "key": "customPages",
+          "price": 100,
+          "selected": true
+        },
+        {
+          "key": "localDocs",
+          "price": 75,
+          "selected": true
+        },
+        {
+          "key": "aiTranslation",
+          "price": 100,
+          "selected": true
+        },
+        {
+          "key": "publicAcqs",
+          "price": 75,
+          "selected": true
+        },
+        {
+          "key": "socialMediaSync",
+          "price": 150,
+          "selected": true
+        },
+        {
+          "key": "photoSesions",
+          "price": 200,
+          "selected": true
+        },
+        {
+          "key": "dataModeration",
+          "price": 100,
+          "selected": true
+        }
+      ]
+    },
+    "basePrice": 1,
+    "month": 10,
+    "year": 2025
+  },
+  {
+    "_id": "69933734ba8578d72affa1c5",
+    "tennant": "filipeni",
+    "users": {
+      "used": 1,
+      "count": 3
+    },
+    "storage": {
+      "used": 394238016,
+      "count": 5
+    },
+    "offer": {
+      "packages": [
+        {
+          "key": "start",
+          "price": 175,
+          "selected": false
+        },
+        {
+          "key": "avansat",
+          "price": 500,
+          "selected": false
+        },
+        {
+          "key": "integral",
+          "price": 700,
+          "selected": true
+        }
+      ],
+      "features": [
+        {
+          "key": "customPages",
+          "price": 100,
+          "selected": true
+        },
+        {
+          "key": "localDocs",
+          "price": 75,
+          "selected": true
+        },
+        {
+          "key": "aiTranslation",
+          "price": 100,
+          "selected": true
+        },
+        {
+          "key": "publicAcqs",
+          "price": 75,
+          "selected": true
+        },
+        {
+          "key": "socialMediaSync",
+          "price": 150,
+          "selected": true
+        },
+        {
+          "key": "photoSesions",
+          "price": 200,
+          "selected": true
+        },
+        {
+          "key": "dataModeration",
+          "price": 100,
+          "selected": true
+        }
+      ]
+    },
+    "basePrice": 1,
+    "month": 1,
+    "year": 2026
+  },
+  {
+    "_id": "69a381e29d1bb4e40830090d",
+    "tennant": "filipeni",
+    "users": {
+      "used": 1,
+      "count": 3
+    },
+    "storage": {
+      "used": 404687781,
+      "count": 5
+    },
+    "offer": {
+      "packages": [
+        {
+          "key": "start",
+          "price": 175,
+          "selected": false
+        },
+        {
+          "key": "avansat",
+          "price": 500,
+          "selected": false
+        },
+        {
+          "key": "integral",
+          "price": 700,
+          "selected": true
+        }
+      ],
+      "features": [
+        {
+          "key": "customPages",
+          "price": 100,
+          "selected": true
+        },
+        {
+          "key": "localDocs",
+          "price": 75,
+          "selected": true
+        },
+        {
+          "key": "aiTranslation",
+          "price": 100,
+          "selected": true
+        },
+        {
+          "key": "publicAcqs",
+          "price": 75,
+          "selected": true
+        },
+        {
+          "key": "socialMediaSync",
+          "price": 150,
+          "selected": true
+        },
+        {
+          "key": "photoSesions",
+          "price": 200,
+          "selected": true
+        },
+        {
+          "key": "dataModeration",
+          "price": 100,
+          "selected": true
+        }
+      ]
+    },
+    "basePrice": 1,
+    "month": 3,
+    "year": 2026
+  },
+  {
+    "_id": "69d6905432d700d7f23db542",
+    "tennant": "filipeni",
+    "users": {
+      "used": 1,
+      "count": 3
+    },
+    "storage": {
+      "used": 413452673,
+      "count": 5
+    },
+    "offer": {
+      "packages": [
+        {
+          "key": "start",
+          "price": 175,
+          "selected": false
+        },
+        {
+          "key": "avansat",
+          "price": 500,
+          "selected": false
+        },
+        {
+          "key": "integral",
+          "price": 700,
+          "selected": true
+        }
+      ],
+      "features": [
+        {
+          "key": "customPages",
+          "price": 100,
+          "selected": true
+        },
+        {
+          "key": "localDocs",
+          "price": 75,
+          "selected": true
+        },
+        {
+          "key": "aiTranslation",
+          "price": 100,
+          "selected": true
+        },
+        {
+          "key": "publicAcqs",
+          "price": 75,
+          "selected": true
+        },
+        {
+          "key": "socialMediaSync",
+          "price": 150,
+          "selected": true
+        },
+        {
+          "key": "photoSesions",
+          "price": 200,
+          "selected": true
+        },
+        {
+          "key": "dataModeration",
+          "price": 100,
+          "selected": true
+        }
+      ]
+    },
+    "basePrice": 1,
+    "month": 4,
+    "year": 2026
+  },
+  {
+    "_id": "69f3ed6f604905d6296d7a90",
+    "tennant": "filipeni",
+    "users": {
+      "used": 1,
+      "count": 3
+    },
+    "storage": {
+      "used": 414317887,
+      "count": 5
+    },
+    "offer": {
+      "packages": [
+        {
+          "key": "start",
+          "price": 175,
+          "selected": false
+        },
+        {
+          "key": "avansat",
+          "price": 500,
+          "selected": false
+        },
+        {
+          "key": "integral",
+          "price": 700,
+          "selected": true
+        }
+      ],
+      "features": [
+        {
+          "key": "customPages",
+          "price": 100,
+          "selected": true
+        },
+        {
+          "key": "localDocs",
+          "price": 75,
+          "selected": true
+        },
+        {
+          "key": "aiTranslation",
+          "price": 100,
+          "selected": true
+        },
+        {
+          "key": "publicAcqs",
+          "price": 75,
+          "selected": true
+        },
+        {
+          "key": "socialMediaSync",
+          "price": 150,
+          "selected": true
+        },
+        {
+          "key": "photoSesions",
+          "price": 200,
+          "selected": true
+        },
+        {
+          "key": "dataModeration",
+          "price": 100,
+          "selected": true
+        }
+      ]
+    },
+    "basePrice": 1,
+    "month": 5,
+    "year": 2026
+  }
+]

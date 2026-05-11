@@ -1,0 +1,92 @@
+[
+  {
+    "_id": "66f6b43ef08d9c050f9d7a32",
+    "tennant": "filipeni",
+    "title": {
+      "ro": "Achiziții",
+      "ru": "Приобретения",
+      "en": "Purchases"
+    },
+    "key": "purchases"
+  },
+  {
+    "_id": "66f9f0d84ce72d3f9ba83969",
+    "tennant": "filipeni",
+    "title": {
+      "ro": "Aviz",
+      "ru": "Объявление",
+      "en": "Announcement"
+    },
+    "key": "announcement"
+  },
+  {
+    "_id": "66ffad63fa2ce50501d2cca5",
+    "tennant": "filipeni",
+    "title": {
+      "ro": "Alegeri",
+      "ru": "Выборы",
+      "en": "Elections"
+    },
+    "key": "elections"
+  },
+  {
+    "_id": "66f6b479f08d9c050f9d7a33",
+    "tennant": "filipeni",
+    "title": {
+      "ro": "Dezbateri",
+      "ru": "Дебаты",
+      "en": "Discussions"
+    },
+    "key": "discussions"
+  },
+  {
+    "_id": "66f6b3b0f08d9c050f9d7a31",
+    "tennant": "filipeni",
+    "title": {
+      "ro": "Proiecte",
+      "ru": "Проекты",
+      "en": "Projects"
+    },
+    "key": "projects"
+  },
+  {
+    "_id": "66f6b386f08d9c050f9d7a30",
+    "tennant": "filipeni",
+    "title": {
+      "ro": "Divertisment",
+      "ru": "Развлечение",
+      "en": "Entertainment"
+    },
+    "key": "entertainment"
+  },
+  {
+    "_id": "66f6b364f08d9c050f9d7a2f",
+    "tennant": "filipeni",
+    "title": {
+      "ro": "Educație",
+      "ru": "Образование",
+      "en": "Education"
+    },
+    "key": "education"
+  },
+  {
+    "_id": "66f6b316f08d9c050f9d7a2e",
+    "tennant": "filipeni",
+    "title": {
+      "ro": "Tradiție",
+      "ru": "Традиция",
+      "en": "Tradition"
+    },
+    "key": "tradition"
+  },
+  {
+    "_id": "66f6ad29f08d9c050f9d7a23",
+    "tennant": "filipeni",
+    "title": {
+      "ro": "Cultură",
+      "ru": "Культура",
+      "en": "Culture"
+    },
+    "key": "culture"
+  }
+]

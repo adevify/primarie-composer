@@ -1,0 +1,424 @@
+[
+  {
+    "_id": "69959e63f4ec6496d9bb843a",
+    "tennant": "filipeni",
+    "month": 12,
+    "year": 2024,
+    "price": 1,
+    "population": 0,
+    "users": {
+      "used": 1,
+      "count": 3
+    },
+    "storage": {
+      "used": 392361593,
+      "count": 5
+    },
+    "contractId": "69942b83158c9bc14e5d52aa",
+    "statsId": "69933488ba8578d72aff8d23",
+    "mediaId": "69959e64f4ec6496d9bb8481",
+    "registrationNumber": 1,
+    "payments": [
+      {
+        "paymentId": "6995a200f4ec6496d9bba1a5",
+        "amount": 1
+      }
+    ]
+  },
+  {
+    "_id": "69959e63f4ec6496d9bb846c",
+    "tennant": "filipeni",
+    "month": 5,
+    "year": 2025,
+    "price": 1,
+    "population": 0,
+    "users": {
+      "used": 1,
+      "count": 3
+    },
+    "storage": {
+      "used": 393111636,
+      "count": 5
+    },
+    "contractId": "69942b83158c9bc14e5d52aa",
+    "statsId": "6993350aba8578d72aff92f5",
+    "mediaId": "69959e66f4ec6496d9bb8491",
+    "registrationNumber": 18,
+    "payments": [
+      {
+        "paymentId": "6995a23af4ec6496d9bba2ae",
+        "amount": 1
+      }
+    ]
+  },
+  {
+    "_id": "69959e58f4ec6496d9bb83f6",
+    "tennant": "filipeni",
+    "month": 2,
+    "year": 2025,
+    "price": 1,
+    "population": 0,
+    "users": {
+      "used": 1,
+      "count": 3
+    },
+    "storage": {
+      "used": 392736619,
+      "count": 5
+    },
+    "contractId": "69942b83158c9bc14e5d52aa",
+    "statsId": "69933499ba8578d72aff8d99",
+    "mediaId": "69959e5df4ec6496d9bb841b",
+    "registrationNumber": 12,
+    "payments": [
+      {
+        "paymentId": "6995a218f4ec6496d9bba1bf",
+        "amount": 1
+      }
+    ]
+  },
+  {
+    "_id": "69959e6ef4ec6496d9bb84fa",
+    "tennant": "filipeni",
+    "month": 4,
+    "year": 2025,
+    "price": 1,
+    "population": 0,
+    "users": {
+      "used": 1,
+      "count": 3
+    },
+    "storage": {
+      "used": 392986634,
+      "count": 5
+    },
+    "contractId": "69942b83158c9bc14e5d52aa",
+    "statsId": "699334b7ba8578d72aff8e6f",
+    "mediaId": "69959e71f4ec6496d9bb8525",
+    "registrationNumber": 27,
+    "payments": [
+      {
+        "paymentId": "6995a22bf4ec6496d9bba226",
+        "amount": 1
+      }
+    ]
+  },
+  {
+    "_id": "69959e8ef4ec6496d9bb86c5",
+    "tennant": "filipeni",
+    "month": 8,
+    "year": 2025,
+    "price": 1,
+    "population": 0,
+    "users": {
+      "used": 1,
+      "count": 3
+    },
+    "storage": {
+      "used": 393236635,
+      "count": 5
+    },
+    "contractId": "69942b83158c9bc14e5d52aa",
+    "statsId": "69933530ba8578d72aff93ee",
+    "mediaId": "69959e92f4ec6496d9bb86ea",
+    "registrationNumber": 58,
+    "payments": [
+      {
+        "paymentId": "6995a268f4ec6496d9bba45c",
+        "amount": 1
+      }
+    ]
+  },
+  {
+    "_id": "69959ea4f4ec6496d9bb87bf",
+    "tennant": "filipeni",
+    "month": 6,
+    "year": 2025,
+    "price": 1,
+    "population": 0,
+    "users": {
+      "used": 1,
+      "count": 3
+    },
+    "storage": {
+      "used": 393361629,
+      "count": 5
+    },
+    "contractId": "69942b83158c9bc14e5d52aa",
+    "statsId": "6993353cba8578d72aff9441",
+    "mediaId": "69959ea5f4ec6496d9bb880c",
+    "registrationNumber": 72,
+    "payments": [
+      {
+        "paymentId": "6995a258f4ec6496d9bba3aa",
+        "amount": 1
+      }
+    ]
+  },
+  {
+    "_id": "69959ec4f4ec6496d9bb899d",
+    "tennant": "filipeni",
+    "month": 1,
+    "year": 2025,
+    "price": 1,
+    "population": 0,
+    "users": {
+      "used": 1,
+      "count": 3
+    },
+    "storage": {
+      "used": 392486609,
+      "count": 5
+    },
+    "contractId": "69942b83158c9bc14e5d52aa",
+    "statsId": "69933492ba8578d72aff8d6e",
+    "mediaId": "69959ec6f4ec6496d9bb89e2",
+    "registrationNumber": 103,
+    "payments": [
+      {
+        "paymentId": "6995a200f4ec6496d9bba1a7",
+        "amount": 1
+      }
+    ]
+  },
+  {
+    "_id": "69959edaf4ec6496d9bb8abf",
+    "tennant": "filipeni",
+    "month": 7,
+    "year": 2025,
+    "price": 1,
+    "population": 0,
+    "users": {
+      "used": 1,
+      "count": 3
+    },
+    "storage": {
+      "used": 393486601,
+      "count": 5
+    },
+    "contractId": "69942b83158c9bc14e5d52aa",
+    "statsId": "69933595ba8578d72aff96a1",
+    "mediaId": "69959edcf4ec6496d9bb8afc",
+    "registrationNumber": 124,
+    "payments": [
+      {
+        "paymentId": "6995a268f4ec6496d9bba44a",
+        "amount": 1
+      }
+    ]
+  },
+  {
+    "_id": "69959edaf4ec6496d9bb8ad7",
+    "tennant": "filipeni",
+    "month": 9,
+    "year": 2025,
+    "price": 1,
+    "population": 0,
+    "users": {
+      "used": 1,
+      "count": 3
+    },
+    "storage": {
+      "used": 393736613,
+      "count": 5
+    },
+    "contractId": "69942b83158c9bc14e5d52aa",
+    "statsId": "69933610ba8578d72aff99f1",
+    "mediaId": "69959eddf4ec6496d9bb8b04",
+    "registrationNumber": 126,
+    "payments": [
+      {
+        "paymentId": "6995a281f4ec6496d9bba54a",
+        "amount": 1
+      }
+    ]
+  },
+  {
+    "_id": "69959f32f4ec6496d9bb8f31",
+    "tennant": "filipeni",
+    "month": 3,
+    "year": 2025,
+    "price": 1,
+    "population": 0,
+    "users": {
+      "used": 1,
+      "count": 3
+    },
+    "storage": {
+      "used": 392861623,
+      "count": 5
+    },
+    "contractId": "69942b83158c9bc14e5d52aa",
+    "statsId": "699334b0ba8578d72aff8e3b",
+    "mediaId": "69959f34f4ec6496d9bb8f6c",
+    "registrationNumber": 204,
+    "payments": [
+      {
+        "paymentId": "6995a225f4ec6496d9bba213",
+        "amount": 1
+      }
+    ]
+  },
+  {
+    "_id": "69959f3df4ec6496d9bb8fbb",
+    "tennant": "filipeni",
+    "month": 10,
+    "year": 2025,
+    "price": 1,
+    "population": 0,
+    "users": {
+      "used": 1,
+      "count": 3
+    },
+    "storage": {
+      "used": 394112996,
+      "count": 5
+    },
+    "contractId": "69942b83158c9bc14e5d52aa",
+    "statsId": "69933699ba8578d72aff9d9d",
+    "mediaId": "69959f3ef4ec6496d9bb8fec",
+    "registrationNumber": 214,
+    "payments": [
+      {
+        "paymentId": "69b41b7f21fccf4fad5582ee",
+        "amount": 1
+      }
+    ]
+  },
+  {
+    "_id": "69959f48f4ec6496d9bb9059",
+    "tennant": "filipeni",
+    "month": 11,
+    "year": 2025,
+    "price": 1,
+    "population": 0,
+    "users": {
+      "used": 1,
+      "count": 3
+    },
+    "storage": {
+      "used": 393862142,
+      "count": 5
+    },
+    "contractId": "69942b83158c9bc14e5d52aa",
+    "statsId": "6993366aba8578d72aff9c56",
+    "mediaId": "69959f4bf4ec6496d9bb9088",
+    "registrationNumber": 226,
+    "payments": [
+      {
+        "paymentId": "69cfbce31920fc9354d360da",
+        "amount": 1
+      }
+    ]
+  },
+  {
+    "_id": "69959f67f4ec6496d9bb91a7",
+    "tennant": "filipeni",
+    "month": 12,
+    "year": 2025,
+    "price": 1,
+    "population": 0,
+    "users": {
+      "used": 1,
+      "count": 3
+    },
+    "storage": {
+      "used": 393611592,
+      "count": 5
+    },
+    "contractId": "69942b83158c9bc14e5d52aa",
+    "statsId": "699335adba8578d72aff9741",
+    "mediaId": "69959f69f4ec6496d9bb91d0",
+    "registrationNumber": 250,
+    "payments": [
+      {
+        "paymentId": "69fdc68449ae43f194e25d9b",
+        "amount": 1
+      }
+    ]
+  },
+  {
+    "_id": "69959fc7f4ec6496d9bb964f",
+    "tennant": "filipeni",
+    "month": 1,
+    "year": 2026,
+    "price": 1,
+    "population": 0,
+    "users": {
+      "used": 1,
+      "count": 3
+    },
+    "storage": {
+      "used": 394238016,
+      "count": 5
+    },
+    "contractId": "69942b83158c9bc14e5d52aa",
+    "statsId": "69933734ba8578d72affa1c5",
+    "mediaId": "69959fccf4ec6496d9bb9674",
+    "registrationNumber": 86,
+    "payments": []
+  },
+  {
+    "_id": "69aeaf3f9e67a7358923151e",
+    "tennant": "filipeni",
+    "month": 2,
+    "year": 2026,
+    "price": 1,
+    "population": 0,
+    "users": {
+      "used": 1,
+      "count": 3
+    },
+    "storage": {
+      "used": 400231940,
+      "count": 5
+    },
+    "contractId": "69942b83158c9bc14e5d52aa",
+    "statsId": "69933492ba8578d72aff8d6f",
+    "mediaId": "69aeaf409e67a7358923152f",
+    "registrationNumber": 171,
+    "payments": []
+  },
+  {
+    "_id": "69cb9bba556efd32a2cecf4d",
+    "tennant": "filipeni",
+    "month": 3,
+    "year": 2026,
+    "price": 1,
+    "population": 0,
+    "users": {
+      "used": 1,
+      "count": 3
+    },
+    "storage": {
+      "used": 404624242,
+      "count": 5
+    },
+    "contractId": "69942b83158c9bc14e5d52aa",
+    "statsId": "69a381e29d1bb4e40830090d",
+    "mediaId": "69cb9bbc556efd32a2cecf5c",
+    "registrationNumber": 251,
+    "payments": []
+  },
+  {
+    "_id": "69f3ed3f604905d6296d7a37",
+    "tennant": "filipeni",
+    "month": 4,
+    "year": 2026,
+    "price": 1,
+    "population": 0,
+    "users": {
+      "used": 1,
+      "count": 3
+    },
+    "storage": {
+      "used": 413452673,
+      "count": 5
+    },
+    "contractId": "69942b83158c9bc14e5d52aa",
+    "statsId": "69d6905432d700d7f23db542",
+    "mediaId": "69f3ed40604905d6296d7a3f",
+    "registrationNumber": 349,
+    "payments": []
+  }
+]

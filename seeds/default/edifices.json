@@ -1,0 +1,1226 @@
+[
+  {
+    "_id": "672348e8870b84dbb34681de",
+    "tennant": "filipeni",
+    "title": {
+      "ro": "Casa de cultură",
+      "ru": "Дом культуры",
+      "en": "House of culture"
+    },
+    "excerpt": {
+      "ro": "Un loc de educație culturală, un punct de întâlnire pentru tineri și vârstnici, unde fiecare poate contribui și participa activ la viața culturală a satului.\n",
+      "ru": "Место культурного образования, место встречи молодых и старых, где каждый может внести свой вклад и активно участвовать в культурной жизни села.",
+      "en": "A place of cultural education, a meeting point for young and old, where everyone can contribute and actively participate in the cultural life of the village."
+    },
+    "slug": "casa-de-cultura",
+    "sections": [
+      {
+        "type": "GALLERY",
+        "slidesPerView": 2,
+        "content": [
+          "67200b04ee25fe40ed70ff4e",
+          "67200b04ee25fe40ed70ff4f",
+          "67200b04ee25fe40ed70ff4d",
+          "67200b04ee25fe40ed70ff52",
+          "67200b04ee25fe40ed70ff50",
+          "67200b05ee25fe40ed70ff59",
+          "67200b07ee25fe40ed70ff76",
+          "67200b07ee25fe40ed70ff77"
+        ]
+      },
+      {
+        "type": "PARAGRAPH",
+        "content": {
+          "ro": "Casa de Cultură din sat Filipeni reprezintă un important centru comunitar, găzduind o sală de festivități și un muzeu etnografic local. Sala este decorată cu picturi murale tradiționale și motive florale, fiind locul unde se desfășoară evenimente culturale, sociale și de divertisment pentru localnici. Muzeul expune o varietate de obiecte tradiționale, de la țesături și broderii lucrate manual până la obiecte casnice și piese ceramice, oferind o imagine autentică a vieții de odinioară din comunitate. Totodată, Casa de Cultură servește ca locație oficială pentru alegerile electorale, fiind un loc de întâlnire esențial pentru activitățile civice ale satului.",
+          "ru": "Дом культуры в селе Филипень является важным общественным центром, в котором находится зал торжеств и местный этнографический музей. Зал украшен традиционными фресками и цветочными мотивами и является местом проведения культурных, социальных и развлекательных мероприятий для местных жителей. В музее представлены разнообразные традиционные предметы, от тканей ручной работы и вышивки до предметов домашнего обихода и керамики, которые дают подлинную картину жизни общины в прошлом. В то же время Дом культуры служит официальным местом проведения избирательных выборов, являясь важным местом встречи гражданской активности села.",
+          "en": "The House of Culture in the village of Filipeni is an important community center, hosting a hall of festivities and a local ethnographic museum. The hall is decorated with traditional murals and floral motifs, being the venue for cultural, social and entertainment events for the locals. The museum exhibits a variety of traditional objects, from hand-made fabrics and embroidery to household items and ceramics, providing an authentic picture of life in the community in the past. At the same time, the House of Culture serves as the official location for the electoral elections, being an essential meeting place for the civic activities of the village."
+        }
+      },
+      {
+        "type": "GALLERY",
+        "slidesPerView": 2,
+        "content": [
+          "67200b05ee25fe40ed70ff56",
+          "67200b05ee25fe40ed70ff57",
+          "67200b05ee25fe40ed70ff54",
+          "67200b05ee25fe40ed70ff53",
+          "67200b05ee25fe40ed70ff58"
+        ]
+      }
+    ],
+    "cover": "67200b04ee25fe40ed70ff4c",
+    "location": {
+      "ro": "L598 Filipeni, Leova",
+      "ru": "L598 Филипень, Леова",
+      "en": "L598 Filipeni, Leova"
+    },
+    "phone": 0,
+    "geo": {
+      "lat": 46.44031980120702,
+      "lng": 28.328976631164554
+    },
+    "socialLinks": [],
+    "schedule": {
+      "mon": {
+        "from": "08:00",
+        "to": "17:00",
+        "breakFrom": "",
+        "breakTo": ""
+      },
+      "tue": {
+        "from": "08:00",
+        "to": "17:00",
+        "breakFrom": "",
+        "breakTo": ""
+      },
+      "wed": {
+        "from": "08:00",
+        "to": "17:00",
+        "breakFrom": "",
+        "breakTo": ""
+      },
+      "thu": {
+        "from": "08:00",
+        "to": "17:00",
+        "breakFrom": "",
+        "breakTo": ""
+      },
+      "fri": {
+        "from": "08:00",
+        "to": "17:00",
+        "breakFrom": "",
+        "breakTo": ""
+      },
+      "sat": {},
+      "sun": {}
+    },
+    "category": {
+      "tennant": "filipeni",
+      "title": {
+        "ro": "Cultură",
+        "ru": "Культура",
+        "en": "Culture"
+      },
+      "key": "culture"
+    }
+  },
+  {
+    "_id": "6705bdce8221e9146ea19c44",
+    "tennant": "filipeni",
+    "title": {
+      "ro": "ÎET ”Fluturaș\"",
+      "ru": "ИЭПП \"Fluturaș\"",
+      "en": "IET \"Fluturaș\""
+    },
+    "excerpt": {
+      "ro": "Grădinița \"Fluturaș\" își desfășoară activitatea având ca scop principal crearea unui mediu educațional sigur, captivant și creativ, în care copiii să aibă posibilitatea de a descoperi lumea înconjurătoare prin joc, de a-și dezvolta abilitățile sociale și de a se pregăti pentru etapa școlară. Personalul devotat, împreună cu facilitățile moderne, contribuie semnificativ la atingerea acestui obiectiv esențial, asigurând o experiență educativă de calitate pentru fiecare copil.",
+      "ru": "Детский сад «Флутураш» работает с основной целью создания безопасной, увлекательной и творческой образовательной среды, где дети имеют возможность познавать окружающий мир через игру, развивать свои социальные навыки и готовиться к школьной сцене. Преданный своему делу персонал, а также современное оборудование вносят значительный вклад в достижение этой важной цели, обеспечивая качественный образовательный опыт для каждого ребенка.",
+      "en": "\"Fluturaș\" Kindergarten operates with the main aim of creating a safe, engaging and creative educational environment, where children have the opportunity to discover the world around them through play, develop their social skills and prepare for the school stage . Dedicated staff, along with modern facilities, contribute significantly to achieving this essential goal, ensuring a quality educational experience for every child."
+    },
+    "slug": "iet-fluturas",
+    "sections": [
+      {
+        "type": "PARAGRAPH",
+        "content": {
+          "ro": "Întreprinderea de Educație Timpurie \"Fluturaș\", înființată în anul 1985, este o grădiniță situată în localitatea Filipeni, care oferă educație de calitate pentru copiii cu vârste fragede. Cu o istorie de peste trei decenii, instituția s-a consacrat ca un loc sigur și plin de grijă pentru dezvoltarea și educația copiilor.",
+          "ru": "Компания раннего образования «Флутураш», основанная в 1985 году, представляет собой детский сад, расположенный в городе Филипень, который предлагает качественное образование для детей младшего возраста. Имея более чем трехдесятилетнюю историю, учреждение зарекомендовало себя как безопасное и заботливое место для развития и образования детей.",
+          "en": "The \"Fluturaș\" Early Education Company, established in 1985, is a kindergarten located in the town of Filipeni, which offers quality education for young children. With a history of over three decades, the institution has established itself as a safe and caring place for the development and education of children."
+        }
+      },
+      {
+        "type": "TITLE",
+        "content": {
+          "ro": "Personal și resurse umane",
+          "ru": "Персонал и человеческие ресурсы",
+          "en": "Personnel and human resources"
+        }
+      },
+      {
+        "type": "PARAGRAPH",
+        "content": {
+          "ro": "În cadrul grădiniței ÎET \"Fluturaș\" lucrează un colectiv de 13 angajați, dintre care 6 sunt educatori dedicați, cu o vârstă medie de 45 de ani. Personalul grădiniței este format din cadre bine pregătite profesional, care pun accent pe crearea unui mediu de învățare pozitiv, centrat pe nevoile copiilor. Personalul administrativ și auxiliar contribuie la buna funcționare a activităților zilnice și la menținerea unui spațiu sigur și curat pentru copii.\n\n",
+          "ru": "В детском саду ОЭТ «Флутураш» работает группа из 13 сотрудников, из них 6 — педагоги, средний возраст — 45 лет. Персонал детского сада состоит из хорошо обученных специалистов, которые уделяют особое внимание созданию позитивной учебной среды, ориентированной на потребности детей. Административный и вспомогательный персонал способствует бесперебойной повседневной деятельности и поддержанию безопасного и чистого пространства для детей.",
+          "en": "A group of 13 employees work in the ÎET \"Fluturaș\" kindergarten, of which 6 are dedicated educators, with an average age of 45. The kindergarten staff is made up of well-trained professionals who focus on creating a positive learning environment, centered on the children's needs. Administrative and auxiliary staff contribute to the smooth functioning of daily activities and to maintaining a safe and clean space for children."
+        }
+      },
+      {
+        "type": "TITLE",
+        "content": {
+          "ro": "Capacitatea și structura",
+          "ru": "Емкость и структура",
+          "en": "Capacity and structure"
+        }
+      },
+      {
+        "type": "PARAGRAPH",
+        "content": {
+          "ro": "Grădinița are o capacitate totală de 150 de copii, însă în prezent este frecventată de 90 de copii, dintre care 47 sunt fete și 43 băieți. Această distribuție echilibrată de copii reflectă diversitatea și interesul comunității în educația timpurie oferită de această instituție.\n\n",
+          "ru": "Детский сад рассчитан на 150 детей, но в настоящее время его посещают 90 детей, из них 47 девочек и 43 мальчика. Такое сбалансированное распределение детей отражает разнообразие и интерес сообщества к дошкольному образованию, предоставляемому этим учреждением.",
+          "en": "The kindergarten has a total capacity of 150 children, but currently it is attended by 90 children, of which 47 are girls and 43 are boys. This balanced distribution of children reflects the diversity and interest of the community in the early education provided by this institution."
+        }
+      },
+      {
+        "type": "TITLE",
+        "content": {
+          "ro": "Infrastructură",
+          "ru": "Инфраструктура",
+          "en": "Infrastructure"
+        }
+      },
+      {
+        "type": "PARAGRAPH",
+        "content": {
+          "ro": "ÎET \"Fluturaș\" dispune de o clădire modernizată cu o suprafață totală de 1105 m², din care 1005 m² sunt utilizați în mod activ pentru activitățile educaționale și de îngrijire. Clădirea include săli de clasă, spații de joacă, dormitoare și alte facilități necesare pentru dezvoltarea armonioasă a copiilor.\n\n",
+          "ru": "ÎET «Fluturaş» располагает модернизированным зданием общей площадью 1105 м², из которых 1005 м² активно используются для образовательной и воспитательной деятельности. В здании предусмотрены классы, игровые зоны, спальни и другие помещения, необходимые для гармоничного развития детей.",
+          "en": "ÎET \"Fluturaș\" has a modernized building with a total area of ​​1105 m², of which 1005 m² are actively used for educational and care activities. The building includes classrooms, play areas, bedrooms and other facilities necessary for the harmonious development of children."
+        }
+      },
+      {
+        "type": "TITLE",
+        "content": {
+          "ro": "Misiunea instituției",
+          "ru": "Миссия учреждения",
+          "en": "The mission of the institution"
+        }
+      },
+      {
+        "type": "PARAGRAPH",
+        "content": {
+          "ro": "Grădinița \"Fluturaș\" are misiunea de a oferi un mediu educațional sigur, creativ și stimulant, în care fiecare copil să aibă oportunitatea de a învăța prin joc, de a dezvolta abilități sociale și de a se pregăti pentru învățământul primar. Personalul dedicat, alături de facilitățile moderne, contribuie la atingerea acestui obiectiv esențial.\n\n\n\n\n\n\n",
+          "ru": "Миссия детского сада «Флутураш» — обеспечить безопасную, творческую и стимулирующую образовательную среду, где каждый ребенок имеет возможность учиться через игру, развивать социальные навыки и готовиться к начальному образованию. Преданный своему делу персонал и современное оборудование помогают достичь этой важной цели.",
+          "en": "\"Fluturaș\" Kindergarten has the mission of providing a safe, creative and stimulating educational environment, where every child has the opportunity to learn through play, develop social skills and prepare for primary education. Dedicated staff, along with modern facilities, help achieve this essential goal."
+        }
+      },
+      {
+        "type": "GALLERY",
+        "slidesPerView": 2,
+        "content": [
+          "67200b09ee25fe40ed70ffa1",
+          "67200b09ee25fe40ed70ffa3",
+          "67200b0aee25fe40ed70ffa6",
+          "67200b0aee25fe40ed70ffa5",
+          "67200b0aee25fe40ed70ffa7",
+          "67200b09ee25fe40ed70ff9f",
+          "67200b0aee25fe40ed70ffa9"
+        ]
+      },
+      {
+        "type": "GALLERY",
+        "slidesPerView": 1,
+        "content": [
+          "67200b0aee25fe40ed70ffac",
+          "67200b0aee25fe40ed70ffaa",
+          "67200b0aee25fe40ed70ffab",
+          "67200b09ee25fe40ed70ffa1"
+        ]
+      }
+    ],
+    "cover": "67200b09ee25fe40ed70ffa0",
+    "location": {
+      "ro": "Filipeni, Leova",
+      "ru": "Филипень, Леова",
+      "en": "Filipeni, Leova"
+    },
+    "phone": 0,
+    "geo": {
+      "lat": 46.44137519821464,
+      "lng": 28.331706793133776
+    },
+    "socialLinks": [],
+    "schedule": {
+      "mon": {
+        "from": "08:00",
+        "to": "17:00",
+        "breakFrom": "12:00",
+        "breakTo": "13:00"
+      },
+      "tue": {
+        "from": "08:00",
+        "to": "17:00",
+        "breakFrom": "12:00",
+        "breakTo": "13:00"
+      },
+      "wed": {
+        "from": "08:00",
+        "to": "17:00",
+        "breakFrom": "12:00",
+        "breakTo": "13:00"
+      },
+      "thu": {
+        "from": "08:00",
+        "to": "17:00",
+        "breakFrom": "12:00",
+        "breakTo": "13:00"
+      },
+      "fri": {
+        "from": "08:00",
+        "to": "17:00",
+        "breakFrom": "12:00",
+        "breakTo": "13:00"
+      },
+      "sat": {},
+      "sun": {}
+    },
+    "category": {
+      "tennant": "filipeni",
+      "title": {
+        "ro": "Educație",
+        "ru": "Образование",
+        "en": "Education"
+      },
+      "key": "education"
+    }
+  },
+  {
+    "_id": "6705c40a8221e9146ea19c54",
+    "tennant": "filipeni",
+    "title": {
+      "ro": "Gimnaziul Filipeni",
+      "ru": "Гимназии Филипени",
+      "en": "Filipeni Gymnasium"
+    },
+    "excerpt": {
+      "ro": "Gimnaziul Filipeni își propune să ofere o educație de calitate, axată pe dezvoltarea abilităților critice și a cunoștințelor necesare pentru succesul în viitor. Prin angajamentul personalului său și facilitățile moderne, instituția se dedică formării tinerilor, promovând valori precum respectul, responsabilitatea și colaborarea, esențiale în societatea contemporană.",
+      "ru": "Gimnaziul Filipeni стремится предоставить качественное образование, ориентированное на развитие важнейших навыков и знаний, необходимых для будущего успеха. Благодаря преданности своему персоналу и современному оснащению учреждение занимается обучением молодых людей, продвижением таких ценностей, как уважение, ответственность и сотрудничество, которые необходимы в современном обществе.",
+      "en": "Gimnaziul Filipeni aims to provide a quality education, focused on the development of critical skills and knowledge necessary for future success. Through the commitment of its staff and modern facilities, the institution is dedicated to training young people, promoting values ​​such as respect, responsibility and collaboration, which are essential in contemporary society."
+    },
+    "slug": "gimnaziul-filipeni",
+    "sections": [
+      {
+        "type": "PARAGRAPH",
+        "content": {
+          "ro": "Gimnaziul Filipeni, înființat în anul 1962, este o instituție de învățământ mediu, dedicată educației elevilor din comunitatea Filipeni. Cu o tradiție de peste 60 de ani, gimnaziul a devenit un loc important pentru formarea intelectuală și socială a tinerilor, oferind un mediu educațional stimulant și sigur.\n\n",
+          "ru": "Филипeнская средняя школа, основанная в 1962 году, является средним учебным заведением, предназначенным для обучения учащихся филиппенской общины. Имея более чем 60-летнюю традицию, гимназия стала важным местом интеллектуального и социального формирования молодежи, предлагая стимулирующую и безопасную образовательную среду.",
+          "en": "The Filipeni High School, established in 1962, is a secondary education institution, dedicated to the education of students from the Filipeni community. With a tradition of more than 60 years, the gymnasium has become an important place for the intellectual and social formation of young people, offering a stimulating and safe educational environment."
+        }
+      },
+      {
+        "type": "TITLE",
+        "content": {
+          "ro": "Personal",
+          "ru": "Персонал",
+          "en": "Staff"
+        }
+      },
+      {
+        "type": "PARAGRAPH",
+        "content": {
+          "ro": "În cadrul Gimnaziului Filipeni lucrează un colectiv de 46 de angajați, dintre care 28 sunt profesori. Vârsta medie a personalului didactic este de 49 de ani, ceea ce reflectă experiența și expertiza acestora în domeniul educațional. Cadrele didactice sunt dedicate formării elevilor, oferind suport și îndrumare în procesul de învățare.\n\n",
+          "ru": "В филипеньской средней школе работает коллектив из 46 сотрудников, из которых 28 – учителя. Средний возраст профессорско-преподавательского состава составляет 49 лет, что отражает их опыт и знания в образовательной сфере. Преподаватели занимаются обучением студентов, предлагая поддержку и руководство в процессе обучения.",
+          "en": "A collective of 46 employees work within the Filipeni High School, of which 28 are teachers. The average age of the teaching staff is 49 years, which reflects their experience and expertise in the educational field. The teachers are dedicated to the training of students, offering support and guidance in the learning process."
+        }
+      },
+      {
+        "type": "TITLE",
+        "content": {
+          "ro": "Capacitatea și structura",
+          "ru": "Вместимость и структура",
+          "en": "Capacity and structure"
+        }
+      },
+      {
+        "type": "PARAGRAPH",
+        "content": {
+          "ro": "Gimnaziul are o capacitate totală de 420 de elevi, însă în prezent este frecventat de 350 de elevi, dintre care 172 sunt fete și 178 sunt băieți. Această distribuție echilibrată de genuri reflectă diversitatea și interesul comunității pentru educația oferită de instituție.\n\n",
+          "ru": "Общая вместимость гимназии составляет 420 учеников, но в настоящее время ее посещают 350 учеников, из которых 172 девочки и 178 мальчиков. Такое сбалансированное распределение полов отражает разнообразие и интерес сообщества к образованию, предлагаемому учреждением.",
+          "en": "The gymnasium has a total capacity of 420 students, but is currently attended by 350 students, of which 172 are girls and 178 are boys. This balanced distribution of genders reflects the diversity and interest of the community in the education offered by the institution."
+        }
+      },
+      {
+        "type": "TITLE",
+        "content": {
+          "ro": "Infrastructură",
+          "ru": "Инфраструктура",
+          "en": "Infrastructure"
+        }
+      },
+      {
+        "type": "PARAGRAPH",
+        "content": {
+          "ro": "Clădirea gimnaziului are o suprafață totală de 3083,76 m², dintre care 2977,9 m² sunt utilizați efectiv pentru activitățile educaționale. Instituția dispune de săli de clasă, laboratoare, bibliotecă și alte facilități necesare pentru desfășurarea activităților didactice. Este important de menționat că clădirea necesită doar reparație cosmetică, asigurând un mediu plăcut pentru elevi și profesori.\n\n",
+          "ru": "Здание гимназии имеет общую площадь 3083,76 м², из которых 2977,9 м² фактически используется для учебной деятельности. В учреждении имеются учебные аудитории, лаборатории, библиотека и другие помещения, необходимые для педагогической деятельности. Важно отметить, что здание требует лишь косметического ремонта, что обеспечивает приятную среду для студентов и преподавателей.",
+          "en": "The gymnasium building has a total area of ​​3083.76 m², of which 2977.9 m² are actually used for educational activities. The institution has classrooms, laboratories, a library and other facilities necessary for teaching activities. It is important to note that the building only requires cosmetic repair, ensuring a pleasant environment for students and teachers."
+        }
+      },
+      {
+        "type": "TITLE",
+        "content": {
+          "ro": "Misiunea instituției",
+          "ru": "Миссия учреждения",
+          "en": "The mission of the institution"
+        }
+      },
+      {
+        "type": "PARAGRAPH",
+        "content": {
+          "ro": "Gimnaziul Filipeni își propune să ofere o educație de calitate, axată pe dezvoltarea abilităților critice și a cunoștințelor necesare pentru succesul în viitor. Prin angajamentul personalului său și facilitățile moderne, instituția se dedică formării tinerilor, promovând valori precum respectul, responsabilitatea și colaborarea, esențiale în societatea contemporană.\n\n\n\n\n\n\n",
+          "ru": "Gimnaziul Filipeni стремится предоставить качественное образование, ориентированное на развитие важнейших навыков и знаний, необходимых для будущего успеха. Благодаря преданности своему персоналу и современному оснащению учреждение занимается обучением молодых людей, продвижением таких ценностей, как уважение, ответственность и сотрудничество, которые необходимы в современном обществе.",
+          "en": "Gimnaziul Filipeni aims to provide a quality education, focused on the development of critical skills and knowledge necessary for future success. Through the commitment of its staff and modern facilities, the institution is dedicated to training young people, promoting values ​​such as respect, responsibility and collaboration, which are essential in contemporary society."
+        }
+      },
+      {
+        "type": "GALLERY",
+        "slidesPerView": 1,
+        "content": [
+          "67200b08ee25fe40ed70ff8b",
+          "67200b08ee25fe40ed70ff90",
+          "67200b08ee25fe40ed70ff8a",
+          "67200b08ee25fe40ed70ff88",
+          "67200b08ee25fe40ed70ff87",
+          "67200b08ee25fe40ed70ff83",
+          "67200b08ee25fe40ed70ff91"
+        ]
+      },
+      {
+        "type": "GALLERY",
+        "slidesPerView": 2,
+        "content": [
+          "6705c6f58221e9146ea19c5e",
+          "67200b08ee25fe40ed70ff80",
+          "6705c6ea8221e9146ea19c5b",
+          "67200b07ee25fe40ed70ff7e",
+          "67200b07ee25fe40ed70ff7c",
+          "67200b07ee25fe40ed70ff7b"
+        ]
+      }
+    ],
+    "cover": "6705c4f68221e9146ea19c5a",
+    "location": {
+      "ro": "str. Ștefan cel Mare, Filipeni, Leova ",
+      "ru": "улица Штефан чел Маре, Филипень, Леова",
+      "en": "Stefan cel Mare Street, Filipeni, Leova"
+    },
+    "phone": 0,
+    "geo": {
+      "lat": 46.439558570522145,
+      "lng": 28.330710938154454
+    },
+    "socialLinks": [],
+    "schedule": {
+      "mon": {
+        "from": "08:00",
+        "to": "17:00",
+        "breakFrom": "",
+        "breakTo": ""
+      },
+      "tue": {
+        "from": "08:00",
+        "to": "17:00",
+        "breakFrom": "",
+        "breakTo": ""
+      },
+      "wed": {
+        "from": "08:00",
+        "to": "17:00",
+        "breakFrom": "",
+        "breakTo": ""
+      },
+      "thu": {
+        "from": "08:00",
+        "to": "17:00",
+        "breakFrom": "",
+        "breakTo": ""
+      },
+      "fri": {
+        "from": "08:00",
+        "to": "17:00",
+        "breakFrom": "",
+        "breakTo": ""
+      },
+      "sat": {},
+      "sun": {}
+    },
+    "category": {
+      "tennant": "filipeni",
+      "title": {
+        "ro": "Educație",
+        "ru": "Образование",
+        "en": "Education"
+      },
+      "key": "education"
+    }
+  },
+  {
+    "_id": "66fa03c04ce72d3f9ba8396f",
+    "tennant": "filipeni",
+    "title": {
+      "ro": "Primăria Filipeni",
+      "ru": "Мэрия Филиппены",
+      "en": "Filipeni village town hall"
+    },
+    "excerpt": {
+      "ro": "Satul Filipeni, parte integrantă a raionului Leova, își desfășoară activitatea sub conducerea primarului Tudor Camerzan. Cu o populație de aproximativ 3024 de locuitori, conform recensământului din 2014, comunitatea Filipeni a cunoscut o evoluție constantă. Situat la doar 9 km de orașul Leova și la 81 km de capitala Chișinău, satul beneficiază de o poziție geografică favorabilă.",
+      "ru": "Деревня Филипень, являющаяся неотъемлемой частью района Леова, действует под руководством мэра Тудора Камерзана. По данным переписи 2014 года, население Филиппин, составляющее около 3024 человек, постоянно развивается. Расположенный всего в 9 км от города Леова и в 81 км от столицы Кишинева, село имеет выгодное географическое положение.",
+      "en": "The village of Filipeni, an integral part of the Leova district, operates under the leadership of mayor Tudor Camerzan. With a population of approximately 3024 inhabitants, according to the 2014 census, the Filipino community has seen a constant evolution. Located only 9 km from the city of Leova and 81 km from the capital Chisinau, the village benefits from a favorable geographical position."
+    },
+    "slug": "primaria-filipeni",
+    "sections": [
+      {
+        "type": "TITLE",
+        "content": {
+          "ro": "Primăria Filipeni",
+          "ru": "Мэрия Филипены ",
+          "en": "Filipeni Hall"
+        }
+      },
+      {
+        "type": "PARAGRAPH",
+        "content": {
+          "ro": "Satul Filipeni, parte integrantă a raionului Leova, își desfășoară activitatea sub conducerea primarului Tudor Camerzan. Cu o populație de aproximativ 3024 de locuitori, conform recensământului din 2014, comunitatea Filipeni a cunoscut o evoluție constantă. Situat la doar 9 km de orașul Leova și la 81 km de capitala Chișinău, satul beneficiază de o poziție geografică favorabilă. În ultimii ani, Primăria Filipeni a implementat mai multe proiecte de dezvoltare, axate pe modernizarea infrastructurii, îmbunătățirea serviciilor publice și creșterea calității vieții cetățenilor.",
+          "ru": "Село Филипень, составная часть Леовского района, действует под руководством примара Тудора Камерзана. По данным переписи 2014 года, население Филиппин, составляющее около 3024 человек, постоянно развивается. Расположенный всего в 9 км от города Леова и в 81 км от столицы Кишинева, село имеет выгодное географическое положение. За последние годы мэрия Филиппин реализовала несколько проектов развития, направленных на модернизацию инфраструктуры, улучшение государственных услуг и повышение качества жизни граждан.",
+          "en": "The village of Filipeni, an integral part of Leova district, operates under the leadership of mayor Tudor Camerzan. With a population of approximately 3024 inhabitants, according to the 2014 census, the Filipino community has seen a constant evolution. Located only 9 km from the city of Leova and 81 km from the capital Chisinau, the village benefits from a favorable geographical position. In recent years, Filipeni City Hall has implemented several development projects, focused on modernizing the infrastructure, improving public services and increasing the quality of life of citizens."
+        }
+      },
+      {
+        "type": "GALLERY",
+        "slidesPerView": 2,
+        "content": [
+          "67200b03ee25fe40ed70ff2d",
+          "67200b0cee25fe40ed70ffcf",
+          "67200b04ee25fe40ed70ff4a",
+          "66fa013e4ce72d3f9ba8396d",
+          "67200b04ee25fe40ed70ff4b",
+          "67200b04ee25fe40ed70ff48"
+        ]
+      },
+      {
+        "type": "PARAGRAPH",
+        "content": {
+          "ro": "Primăria este instituția administrației publice locale condusă de primar prin care se realizează principiile de autonomie locală, descentralizarea serviciilor publice, consultarea cetățenilor și este organul de conducere operativă a treburilor publice locale. Primarul este autoritatea reprezentativă a populației și executivă a Consiliului local. Echipa de lucru este compusă din primar, secretarul consiliului, un specialist în reglementările proprietății funciare, un contabil și un perceptor fiscal.  ",
+          "ru": "Ратуша является органом местного публичного управления во главе с мэром, посредством которого реализуются принципы местной автономии, децентрализации общественных услуг, консультирования граждан и является органом оперативного управления местными общественными делами. Мэр является представительным органом населения и исполнительным органом местного совета. В состав рабочей группы входят мэр, секретарь совета, специалист по регулированию земельной собственности, бухгалтер и сборщик налогов.",
+          "en": "The town hall is the local public administration institution led by the mayor through which the principles of local autonomy, decentralization of public services, consultation of citizens and is the operative management body of local public affairs are carried out. The mayor is the representative authority of the population and the executive authority of the local council. The task force is composed of the mayor, the secretary of the council, a specialist in land property regulations, an accountant and a tax collector."
+        }
+      }
+    ],
+    "cover": "66fa013e4ce72d3f9ba8396d",
+    "location": {
+      "ro": "Filipeni, Leova",
+      "ru": "Филипень, Леова",
+      "en": "Filipeni, Leova"
+    },
+    "phone": 26340701,
+    "geo": {
+      "lat": 46.43973231586068,
+      "lng": 28.328762054443363
+    },
+    "socialLinks": [
+      {
+        "type": "facebook",
+        "link": "https://www.facebook.com/profile.php?id=100063615662701"
+      }
+    ],
+    "schedule": {
+      "mon": {
+        "from": "08:00",
+        "to": "17:00",
+        "breakFrom": "12:00",
+        "breakTo": "13:00"
+      },
+      "tue": {
+        "from": "08:00",
+        "to": "17:00",
+        "breakFrom": "12:00",
+        "breakTo": "13:00"
+      },
+      "wed": {
+        "from": "08:00",
+        "to": "17:00",
+        "breakFrom": "12:00",
+        "breakTo": "13:00"
+      },
+      "thu": {
+        "from": "08:00",
+        "to": "17:00",
+        "breakFrom": "12:00",
+        "breakTo": "13:00"
+      },
+      "fri": {
+        "from": "08:00",
+        "to": "17:00",
+        "breakFrom": "12:00",
+        "breakTo": "13:00"
+      },
+      "sat": {},
+      "sun": {}
+    },
+    "category": {
+      "tennant": "filipeni",
+      "title": {
+        "ro": "Cultură",
+        "ru": "Культура",
+        "en": "Culture"
+      },
+      "key": "culture"
+    },
+    "email": "primaria.filipeni@apl.gov.md",
+    "webSite": "https://filipeni.primarie.md/"
+  },
+  {
+    "_id": "6723490c870b84dbb34681df",
+    "tennant": "filipeni",
+    "title": {
+      "ro": "Biblioteca",
+      "ru": "Библиотека",
+      "en": "Library"
+    },
+    "excerpt": {
+      "ro": "Biblioteca Publică pentru Copii \"Filipeni\": Un Centru de Cultură, Educație și Creativitate",
+      "ru": "Детская публичная библиотека Филипень: центр культуры, образования и творчества",
+      "en": "Filipeni Children's Public Library: A Center for Culture, Education and Creativity"
+    },
+    "slug": "biblioteca",
+    "sections": [
+      {
+        "type": "PARAGRAPH",
+        "content": {
+          "ro": "Misiunea Bibliotecii Biblioteca Publică pentru Copii Filipeni este un spațiu dedicat dezvoltării culturale, educaționale și recreative a comunității. Cu o gamă diversificată de servicii și activități, biblioteca își propune să sprijine copiii și tinerii în explorarea lumii lecturii, să le cultive creativitatea și să le ofere un loc unde pot învăța și socializa într-un mediu plăcut și primitor.",
+          "ru": "Детская публичная библиотека Филипень - это пространство, посвященное культурному, образовательному и развлекательному развитию сообщества. С разнообразными услугами и мероприятиями библиотека стремится поддерживать детей и молодежь в исследовании мира чтения, развивать их творческие способности и предоставлять место, где они могут учиться и общаться в дружественной и приветливой атмосфере.",
+          "en": "The Filipeni Children's Public Library is a space dedicated to the cultural, educational, and recreational development of the community. With a variety of services and activities, the library aims to support children and youth in exploring the world of reading, cultivating their creativity, and providing a place where they can learn and socialize in a friendly and welcoming environment."
+        }
+      },
+      {
+        "type": "GALLERY",
+        "slidesPerView": 2,
+        "content": [
+          "67200b06ee25fe40ed70ff70",
+          "67200b06ee25fe40ed70ff6e",
+          "67200b06ee25fe40ed70ff6f",
+          "67200b06ee25fe40ed70ff6d"
+        ]
+      },
+      {
+        "type": "CAPITALISED_PARAGRAPH",
+        "content": {
+          "ro": "Pe parcursul a 16 ani de activitate, biblioteca a implementat servicii moderne pentru a atrage un număr cât mai mare de utilizatori și pentru a întări relațiile de parteneriat. Printre cele mai populare activități se numără:",
+          "ru": "За 16 лет работы библиотека внедрила современные услуги, чтобы привлечь больше пользователей и укрепить партнерские связи. Среди самых популярных мероприятий:",
+          "en": "Over 16 years of activity, the library has implemented modern services to attract more users and strengthen partnerships. Among the most popular activities are:"
+        }
+      },
+      {
+        "type": "LIST",
+        "content": [
+          {
+            "ro": "Ora de lectură – Un parteneriat cu gimnaziul local și grădinițele \"Andrieș\" și \"Fluturaș\", care încurajează copiii să redescopere bucuria lecturii.",
+            "ru": "Час чтения – Партнерство с местной школой и детскими садами \"Андриеш\" и \"Флутораш\", поощряющее детей заново открывать для себя радость чтения.",
+            "en": "Reading Hour – A partnership with the local school and kindergartens \"Andrieș\" and \"Fluturaș,\" encouraging children to rediscover the joy of reading."
+          },
+          {
+            "ro": "Pregătirea temei pentru acasă – Un serviciu săptămânal gratuit care oferă elevilor un spațiu liniștit și resurse pentru a-și face temele, sub supravegherea unui bibliotecar.",
+            "ru": "Помощь в подготовке домашних заданий – Бесплатная еженедельная услуга, которая предоставляет студентам спокойное место и ресурсы для выполнения домашних заданий под руководством библиотекаря.",
+            "en": "Homework Assistance – A free weekly service that provides students with a quiet space and resources for doing their homework, under the guidance of a librarian."
+          }
+        ]
+      },
+      {
+        "type": "PARAGRAPH",
+        "content": {
+          "ro": "Centrul de Creație „Lăstărel” Pe lângă activitățile tradiționale, biblioteca găzduiește și centrul de meșteșugărit „Lăstărel”, fondat în 2010, care promovează creativitatea și meșteșugurile tradiționale. Centrul, condus de bibliotecar, adună copii pasionați de artele manuale și le oferă posibilitatea să lucreze cu materiale din natură, bumbac și pănușă de porumb. Lucrările realizate de copii și de bibliotecar au fost expuse la diverse evenimente locale și raionale, unde au fost apreciate de public.",
+          "ru": "Центр творчества \"Лэстарел\" Помимо традиционных мероприятий, библиотека принимает центр ремесел \"Лэстарел\", основанный в 2010 году, который продвигает творчество и традиционные ремесла. Центр, возглавляемый библиотекарем, собирает детей, увлеченных искусством и ремеслами, предлагая им возможность работать с натуральными материалами, хлопком и кукурузной шелухой. Работы, созданные детьми и библиотекарем, выставлялись на различных местных и региональных мероприятиях, где были по достоинству оценены публикой.\n\n",
+          "en": "\"Lăstărel\" Creation Center In addition to traditional activities, the library hosts the \"Lăstărel\" crafting center, founded in 2010, promoting creativity and traditional crafts. The center, led by the librarian, brings together children passionate about arts and crafts, offering them the opportunity to work with natural materials, cotton, and corn husk. The works created by children and the librarian have been displayed at various local and regional events, where they have been appreciated by the public."
+        }
+      },
+      {
+        "type": "GALLERY",
+        "slidesPerView": 1,
+        "content": [
+          "67200b05ee25fe40ed70ff5e",
+          "67200b05ee25fe40ed70ff60",
+          "67200b05ee25fe40ed70ff60",
+          "67200b05ee25fe40ed70ff61",
+          "67200b06ee25fe40ed70ff6c",
+          "67200b06ee25fe40ed70ff69",
+          "67200b06ee25fe40ed70ff6a",
+          "67200b06ee25fe40ed70ff6b",
+          "67200b05ee25fe40ed70ff5f",
+          "67200b06ee25fe40ed70ff63",
+          "67200b06ee25fe40ed70ff68",
+          "67200b06ee25fe40ed70ff66",
+          "67200b07ee25fe40ed70ff74"
+        ]
+      },
+      {
+        "type": "PARAGRAPH",
+        "content": {
+          "ro": "Realizări și Parteneriate. Biblioteca Filipeni a devenit un loc central al comunității și prin numeroasele colaborări cu instituțiile locale. A organizat numeroase activități culturale, concursuri de creație, expoziții de artizanat și a oferit diverse servicii electronice gratuite (copiere, scanare, digitizare de documente).\n\n",
+          "ru": "Достижения и партнерства. Библиотека Филипень стала центральным местом в сообществе благодаря многочисленным сотрудничествам с местными учреждениями. Она организовала различные культурные мероприятия, конкурсы творчества, выставки ремесел и предоставила бесплатные электронные услуги (копирование, сканирование и оцифровка документов).\n\n",
+          "en": "Achievements and Partnerships. The Filipeni Library has become a central place in the community through numerous collaborations with local institutions. It has organized various cultural activities, creative competitions, craft exhibitions, and has provided free electronic services (copying, scanning, and document digitizing).\n\n"
+        }
+      },
+      {
+        "type": "PARAGRAPH",
+        "content": {
+          "ro": "Obiective pentru Dezvoltarea Bibliotecii. Bibliotecarul se străduiește să transforme biblioteca tradițională într-o instituție modernă, capabilă să ofere acces public gratuit la internet, instruiri și evenimente care să răspundă nevoilor comunității. Scopul este de a crea un spațiu în care copiii și tinerii să se simtă motivați să exploreze lumea lecturii și a culturii.\n\n",
+          "ru": "Цели развития библиотеки. Библиотекарь стремится преобразовать традиционную библиотеку в современное учреждение, способное предложить бесплатный доступ к интернету, тренинги и мероприятия, соответствующие потребностям сообщества. Цель - создать пространство, где дети и молодежь будут чувствовать мотивацию к исследованию мира чтения и культуры.\n\n",
+          "en": "Objectives for Library Development. The librarian strives to transform the traditional library into a modern institution capable of offering free public access to the internet, training sessions, and events that meet community needs. The goal is to create a space where children and youth feel motivated to explore the world of reading and culture.\n\n"
+        }
+      },
+      {
+        "type": "PARAGRAPH",
+        "content": {
+          "ro": "Cursuri și Formare Continuă. Bibliotecarul participă activ la seminare, ateliere și cursuri de formare continuă organizate de biblioteca raională și Centrul Regional de Excelență Profesională Cahul, dobândind competențe în IT, abilități de comunicare și dezvoltare profesională.\n\n",
+          "ru": "Обучение и повышение квалификации. Библиотекарь активно участвует в семинарах, мастер-классах и курсах повышения квалификации, организуемых региональной библиотекой и Центром профессионального совершенствования в Кагуле, приобретая навыки в IT, коммуникации и профессиональном развитии.\n\n",
+          "en": "Training and Continuing Education. The librarian actively participates in seminars, workshops, and continuing education courses organized by the regional library and the Cahul Regional Center for Professional Excellence, gaining skills in IT, communication, and professional development.\n\n"
+        }
+      },
+      {
+        "type": "PARAGRAPH",
+        "content": {
+          "ro": "Planuri de Viitor. Biblioteca își propune să creeze noi condiții atractive pentru utilizatori și să ofere noi servicii de bibliotecă moderne. De asemenea, continuă să dezvolte Centrul „Lăstărel” prin noi tehnici de meșteșugărit, precum lucrul cu pănușa de porumb, pentru a îmbogăți cunoștințele copiilor despre tradițiile și arta populară.\n\n",
+          "ru": "Планы на будущее. Библиотека стремится создать новые привлекательные условия для пользователей и предлагать уникальные современные библиотечные услуги. Кроме того, она продолжает развивать Центр \"Лэстарел\" через новые техники ремесел, такие как работа с кукурузной шелухой, чтобы обогатить знания детей о традициях и народном искусстве.\n\n",
+          "en": "Future Plans. The library aims to create new attractive conditions for users and provide unique modern library services. Additionally, it continues to develop the \"Lăstărel\" Center through new crafting techniques, such as working with corn husk, to enrich children's knowledge of traditions and folk art.\n\n"
+        }
+      },
+      {
+        "type": "PARAGRAPH",
+        "content": {
+          "ro": "Evenimente și Expoziții. Biblioteca este activă în organizarea de evenimente și expoziții la nivel local și raional:\n\n\n",
+          "ru": "Мероприятия и выставки. Библиотека активно участвует в организации мероприятий и выставок на местном и районном уровнях:",
+          "en": "Events and Exhibitions. The library is active in organizing events and exhibitions at the local and regional levels:\n\n"
+        }
+      },
+      {
+        "type": "LIST",
+        "content": [
+          {
+            "ro": "Ziua Limbii Române – Expoziție de lucrări la Leova.",
+            "ru": "День румынского языка – Выставка работ в Леова.",
+            "en": "Romanian Language Day – Exhibition of works in Leova."
+          },
+          {
+            "ro": "Festivalul Sărbătorilor Locale – Expoziții tematice la Hramul Satului și Zilele Diasporei.",
+            "ru": "Фестиваль местных праздников – тематические выставки в деревенском храме и Дни диаспоры.",
+            "en": "Local Holidays Festival – Thematic exhibitions at the Village Temple and Diaspora Days."
+          },
+          {
+            "ro": "Ziua Vinului – Expoziție la nivel de raion.",
+            "ru": "День вина – выставка районного уровня.",
+            "en": "Wine Day – Exhibition at district level."
+          }
+        ]
+      },
+      {
+        "type": "PARAGRAPH",
+        "content": {
+          "ro": "Parteneriate de Succes. Cu sprijinul administrației publice locale și al părinților, biblioteca continuă să organizeze activități educative și să ofere suport material pentru diverse proiecte.\n\n",
+          "ru": "Партнерство успеха. При поддержке местной государственной администрации и родителей библиотека продолжает организовывать просветительскую деятельность и оказывать материальную поддержку различным проектам.",
+          "en": "Success Partnerships. With the support of the local public administration and parents, the library continues to organize educational activities and provide material support for various projects."
+        }
+      },
+      {
+        "type": "TITLE",
+        "content": {
+          "ro": "Biblioteca Filipeni: Un Loc al Comunității",
+          "ru": "Библиотека Филипень: Место для сообщества",
+          "en": "The Filipeni Library: A Community Place"
+        }
+      },
+      {
+        "type": "EMPHASIZED_PARAGRAPH",
+        "content": {
+          "ro": "Biblioteca Publică pentru Copii Filipeni este mai mult decât un spațiu de lectură. Este un loc de întâlnire pentru comunitate, un centru de cultură și tradiție, unde fiecare copil poate descoperi magia cărților și frumusețea creației.",
+          "ru": "Детская публичная библиотека Филипень - это больше, чем просто место для чтения. Это место встречи для сообщества, центр культуры и традиций, где каждый ребенок может открыть для себя магию книг и красоту творчества.",
+          "en": "The Filipeni Children's Public Library is more than a reading space. It is a meeting place for the community, a center of culture and tradition, where every child can discover the magic of books and the beauty of creation."
+        }
+      }
+    ],
+    "cover": "67200b05ee25fe40ed70ff61",
+    "location": {
+      "ro": "L598 Filipeni, Leova",
+      "ru": "L598 Филипень, Леова",
+      "en": "L598 Filipeni, Leova"
+    },
+    "phone": 0,
+    "geo": {
+      "lat": 46.440286531141304,
+      "lng": 28.328981995582584
+    },
+    "socialLinks": [],
+    "schedule": {
+      "mon": {
+        "from": "08:00",
+        "to": "17:00",
+        "breakFrom": "12:00",
+        "breakTo": "13:00"
+      },
+      "tue": {
+        "from": "08:00",
+        "to": "17:00",
+        "breakFrom": "12:00",
+        "breakTo": "13:00"
+      },
+      "wed": {
+        "from": "08:00",
+        "to": "17:00",
+        "breakFrom": "12:00",
+        "breakTo": "13:00"
+      },
+      "thu": {
+        "from": "08:00",
+        "to": "17:00",
+        "breakFrom": "12:00",
+        "breakTo": "13:00"
+      },
+      "fri": {
+        "from": "08:00",
+        "to": "17:00",
+        "breakFrom": "12:00",
+        "breakTo": "13:00"
+      },
+      "sat": {},
+      "sun": {}
+    },
+    "category": {
+      "tennant": "filipeni",
+      "title": {
+        "ro": "Cultură",
+        "ru": "Культура",
+        "en": "Culture"
+      },
+      "key": "culture"
+    }
+  },
+  {
+    "_id": "6705c1e88221e9146ea19c50",
+    "tennant": "filipeni",
+    "title": {
+      "ro": "ÎET \"Andrieș\"",
+      "ru": "ИЭПП «Andries»",
+      "en": "IET \"Andries\""
+    },
+    "excerpt": {
+      "ro": "Grădinița \"Andrieș\" are misiunea de a oferi un mediu educațional sigur, creativ și stimulant, în care fiecare copil să aibă oportunitatea de a învăța prin joc, de a dezvolta abilități sociale și de a se pregăti pentru învățământul primar. Personalul dedicat, alături de facilitățile moderne, contribuie la atingerea acestui obiectiv esențial.",
+      "ru": "Миссия детского сада «Андриеш» — предоставить безопасную, творческую и стимулирующую образовательную среду, в которой каждый ребенок получает возможность учиться через игру, развивать социальные навыки и готовиться к начальной школе. Посвященный делу персонал и современные условия способствуют достижению этой важной цели.",
+      "en": " The mission of the \"Andrieș\" Kindergarten is to provide a safe, creative, and stimulating educational environment where every child has the opportunity to learn through play, develop social skills, and prepare for primary education. The dedicated staff, along with modern facilities, contribute to achieving this essential goal."
+    },
+    "slug": "iet-andries",
+    "sections": [
+      {
+        "type": "PARAGRAPH",
+        "content": {
+          "ro": "Întreprinderea de Educație Timpurie \"Andrieș\", înființată în anul 1967, este o grădiniță cu o tradiție îndelungată, situată în localitatea Filipeni. De-a lungul celor peste 50 de ani de activitate, grădinița a rămas un pilon esențial pentru educația copiilor din comunitate, oferind un mediu sigur și îngrijit pentru dezvoltarea lor timpurie.\n\n",
+          "ru": "Компания дошкольного образования «Андриес», основанная в 1967 году, представляет собой детский сад с давними традициями, расположенный в городе Филипень. На протяжении более чем 50-летней деятельности детский сад оставался важной опорой в образовании детей в обществе, обеспечивая безопасную и заботливую среду для их раннего развития.",
+          "en": "The \"Andries\" Early Childhood Education Company, established in 1967, is a kindergarten with a long tradition, located in the town of Filipeni. Throughout its more than 50 years of activity, the kindergarten has remained an essential pillar for the education of children in the community, providing a safe and caring environment for their early development."
+        }
+      },
+      {
+        "type": "TITLE",
+        "content": {
+          "ro": "Personal ",
+          "ru": " 41 / 5.000 Персонал ",
+          "en": "Staff"
+        }
+      },
+      {
+        "type": "PARAGRAPH",
+        "content": {
+          "ro": "Grădinița ÎET \"Andrieș\" funcționează cu un colectiv format din 9 angajați, dintre care 3 sunt educatori cu o vârstă medie de 40 de ani. Personalul didactic este format din educatori bine pregătiți, care oferă copiilor sprijin în învățare și dezvoltare. Restul echipei contribuie la buna funcționare a instituției, asigurând un mediu sigur și confortabil pentru toți copiii.\n\n",
+          "ru": "В детском саду «Андриес» ÎET работает коллектив из 9 сотрудников, 3 из которых – воспитатели, средний возраст – 40 лет. Преподавательский состав состоит из хорошо обученных педагогов, которые предлагают детям поддержку в обучении и развитии. Остальной коллектив способствует бесперебойной работе учреждения, обеспечивая безопасную и комфортную среду для всех детей.",
+          "en": "\"Andries\" Kindergarten ÎET works with a team of 9 employees, 3 of whom are educators with an average age of 40. The teaching staff consists of well-trained educators who offer children support in learning and development. The rest of the team contributes to the smooth running of the institution, ensuring a safe and comfortable environment for all children."
+        }
+      },
+      {
+        "type": "TITLE",
+        "content": {
+          "ro": "Capacitatea și structura",
+          "ru": "Емкость и структура",
+          "en": "Capacity and structure"
+        }
+      },
+      {
+        "type": "PARAGRAPH",
+        "content": {
+          "ro": "Instituția are o capacitate totală de 50 de copii, iar în prezent este frecventată de 28 de copii, dintre care 16 sunt fete și 12 băieți. Grădinița oferă spațiu suficient pentru toți copiii să învețe și să se dezvolte într-un mediu educațional corespunzător.\n\n",
+          "ru": "Общая вместимость учреждения составляет 50 детей, в настоящее время его посещают 28 детей, из которых 16 девочек и 12 мальчиков. Детский сад предоставляет всем детям достаточно места для обучения и развития в соответствующей образовательной среде.",
+          "en": "The institution has a total capacity of 50 children, and is currently attended by 28 children, of which 16 are girls and 12 are boys. The kindergarten provides sufficient space for all children to learn and develop in an appropriate educational environment."
+        }
+      },
+      {
+        "type": "TITLE",
+        "content": {
+          "ro": "Infrastructură",
+          "ru": "Инфраструктура",
+          "en": "Infrastructure"
+        }
+      },
+      {
+        "type": "PARAGRAPH",
+        "content": {
+          "ro": "ÎET \"Andrieș\" utilizează integral clădirea sa, care are o suprafață totală de 409 m². Aceasta include săli de clasă, spații de joacă și alte facilități necesare pentru desfășurarea activităților educative și recreative. Toate spațiile sunt destinate îngrijirii și educării copiilor, oferindu-le un mediu plăcut și funcțional.\n\n",
+          "ru": "ОЭТ «Андрис» полностью использует свое здание, общая площадь которого составляет 409 м². Сюда входят классы, игровые площадки и другие объекты, необходимые для образовательной и развлекательной деятельности. Все помещения предназначены для ухода и обучения детей, предлагая им приятную и функциональную среду.",
+          "en": "ÎET \"Andries\" fully uses its building, which has a total area of ​​409 m². This includes classrooms, playgrounds and other facilities necessary for educational and recreational activities. All spaces are intended for the care and education of children, offering them a pleasant and functional environment."
+        }
+      },
+      {
+        "type": "TITLE",
+        "content": {
+          "ro": "Misiunea instituției",
+          "ru": "Миссия учреждения",
+          "en": "The mission of the institution"
+        }
+      },
+      {
+        "type": "PARAGRAPH",
+        "content": {
+          "ro": "Misiunea grădiniței \"Andrieș\" este de a oferi un mediu educațional care să sprijine dezvoltarea armonioasă a copiilor prin activități educative, jocuri și interacțiuni sociale. Prin personalul său dedicat și spațiile moderne, grădinița își propune să pregătească copiii pentru tranziția către învățământul primar, punând accent pe formarea de abilități esențiale pentru viitor.\n\n\n\n\n\n\n",
+          "ru": "Миссия детского сада «Андриес» — обеспечить образовательную среду, поддерживающую гармоничное развитие детей посредством образовательной деятельности, игр и социального взаимодействия. Благодаря своему преданному персоналу и современным помещениям детский сад стремится подготовить детей к переходу к начальному образованию, уделяя особое внимание формированию необходимых навыков для будущего.",
+          "en": "The mission of the kindergarten \"Andries\" is to provide an educational environment that supports the harmonious development of children through educational activities, games and social interactions. Through its dedicated staff and modern premises, the kindergarten aims to prepare children for the transition to primary education, emphasizing the formation of essential skills for the future."
+        }
+      },
+      {
+        "type": "GALLERY",
+        "slidesPerView": 2,
+        "content": [
+          "67200b0aee25fe40ed70ffae",
+          "67200b0aee25fe40ed70ffaf",
+          "67200b0aee25fe40ed70ffb0",
+          "67200b0aee25fe40ed70ffad"
+        ]
+      },
+      {
+        "type": "GALLERY",
+        "slidesPerView": 1,
+        "content": [
+          "67200b0bee25fe40ed70ffb3",
+          "67200b0bee25fe40ed70ffb6",
+          "67200b0bee25fe40ed70ffb4",
+          "67200b0bee25fe40ed70ffb6",
+          "67200b0bee25fe40ed70ffb8",
+          "67200b0bee25fe40ed70ffb7",
+          "67200b0bee25fe40ed70ffb9",
+          "67200b0bee25fe40ed70ffbb",
+          "67200b0bee25fe40ed70ffba"
+        ]
+      }
+    ],
+    "cover": "67200b0aee25fe40ed70ffb1",
+    "location": {
+      "ro": "Filipeni, Leova",
+      "ru": "Филипень, Леова",
+      "en": "Filipeni, Leova"
+    },
+    "phone": 0,
+    "geo": {
+      "lat": 46.43130997599702,
+      "lng": 28.3226608613282
+    },
+    "socialLinks": [],
+    "schedule": {
+      "mon": {
+        "from": "08:00",
+        "to": "17:00",
+        "breakFrom": "12:00",
+        "breakTo": "13:00"
+      },
+      "tue": {
+        "from": "08:00",
+        "to": "17:00",
+        "breakFrom": "12:00",
+        "breakTo": "13:00"
+      },
+      "wed": {
+        "from": "08:00",
+        "to": "17:00",
+        "breakFrom": "12:00",
+        "breakTo": "13:00"
+      },
+      "thu": {
+        "from": "08:00",
+        "to": "17:00",
+        "breakFrom": "12:00",
+        "breakTo": "13:00"
+      },
+      "fri": {
+        "from": "08:00",
+        "to": "17:00",
+        "breakFrom": "12:00",
+        "breakTo": "13:00"
+      },
+      "sat": {},
+      "sun": {}
+    },
+    "category": {
+      "tennant": "filipeni",
+      "title": {
+        "ro": "Educație",
+        "ru": "Образование",
+        "en": "Education"
+      },
+      "key": "education"
+    }
+  },
+  {
+    "_id": "672348c4870b84dbb34681dd",
+    "tennant": "filipeni",
+    "title": {
+      "ro": "Oficiul poștal",
+      "ru": "Почтовое отделение",
+      "en": "The post office"
+    },
+    "excerpt": {
+      "ro": "Oficiul Poștal din Filipeni asigură servicii esențiale de corespondență și logistică pentru comunitate, facilitând comunicarea și accesul la servicii poștale și financiare în zonă.",
+      "ru": "Почтовое отделение в Филипень предоставляет важные услуги по корреспонденции и логистике для сообщества, обеспечивая связь и доступ к почтовым и финансовым услугам в этом районе.",
+      "en": "The Post Office in Filipeni provides essential correspondence and logistics services for the community, facilitating communication and access to postal and financial services in the area."
+    },
+    "slug": "oficiul-postal",
+    "sections": [
+      {
+        "type": "PARAGRAPH",
+        "content": {
+          "ro": "\nOficiul Poștal din localitatea Filipeni, raionul Leova, reprezintă un punct important de comunicare și servicii pentru locuitorii comunei. Clădirea oficiului poștal îndeplinește funcții esențiale de expediere și primire a corespondenței, procesare a coletelor, servicii financiare și alte facilități utile comunității locale. De-a lungul anilor, oficiul poștal din Filipeni a rămas un simbol de legătură între comunitate și restul țării, adaptându-se noilor tehnologii și cerințe ale serviciilor poștale moderne.",
+          "ru": "Почтовое отделение в городе Филипень района Леова представляет собой важный пункт связи и услуг для жителей коммуны. Здание почтового отделения выполняет важные функции по отправке и получению почты, обработке посылок, оказанию финансовых услуг и другим объектам, полезным для местного сообщества. На протяжении многих лет почтовое отделение на Филиппинах оставалось символом связи между сообществом и остальной частью страны, адаптируясь к новым технологиям и требованиям современных почтовых услуг.",
+          "en": "The Post Office in the town of Filipeni, Leova district, represents an important point of communication and services for the inhabitants of the commune. The post office building performs essential functions of sending and receiving mail, parcel processing, financial services and other facilities useful to the local community. Over the years, the post office in the Philippines has remained a symbol of connection between the community and the rest of the country, adapting to new technologies and requirements of modern postal services."
+        }
+      },
+      {
+        "type": "GALLERY",
+        "slidesPerView": 2,
+        "content": [
+          "67200b09ee25fe40ed70ff9d",
+          "67200b09ee25fe40ed70ff9c",
+          "67200b09ee25fe40ed70ff9e",
+          "67200b09ee25fe40ed70ff98"
+        ]
+      }
+    ],
+    "cover": "67200b09ee25fe40ed70ff98",
+    "location": {
+      "ro": "str. Ștefan cel Mare, Filipeni, Leova",
+      "ru": "улица Штефан чел Маре, Филипень, Леова",
+      "en": "Stefan cel Mare Street, Filipeni, Leova"
+    },
+    "phone": 0,
+    "geo": {
+      "lat": 46.440837332946785,
+      "lng": 28.33056449890137
+    },
+    "socialLinks": [],
+    "schedule": {
+      "mon": {
+        "from": "08:00",
+        "to": "17:00",
+        "breakFrom": "12:00",
+        "breakTo": "13:00"
+      },
+      "tue": {
+        "from": "08:00",
+        "to": "17:00",
+        "breakFrom": "12:00",
+        "breakTo": "13:00"
+      },
+      "wed": {
+        "from": "08:00",
+        "to": "17:00",
+        "breakFrom": "12:00",
+        "breakTo": "13:00"
+      },
+      "thu": {
+        "from": "08:00",
+        "to": "17:00",
+        "breakFrom": "12:00",
+        "breakTo": "13:00"
+      },
+      "fri": {
+        "from": "08:00",
+        "to": "17:00",
+        "breakFrom": "12:00",
+        "breakTo": "13:00"
+      },
+      "sat": {},
+      "sun": {}
+    },
+    "category": {
+      "tennant": "filipeni",
+      "title": {
+        "ro": "Tradiție",
+        "ru": "Традиция",
+        "en": "Tradition"
+      },
+      "key": "tradition"
+    }
+  },
+  {
+    "_id": "670728066a2aac0fdd9ebbfe",
+    "tennant": "filipeni",
+    "title": {
+      "ro": "Centrul de Sănătate Filipeni",
+      "ru": "Центр Здравоохранения Филипени",
+      "en": "Filipeni Health Center"
+    },
+    "excerpt": {
+      "ro": "Centrul de Sănătate Filipeni are misiunea de a asigura îngrijirea medicală pentru toți locuitorii, indiferent de vârstă sau stare financiară, și de a promova un stil de viață sănătos în comunitate. Cu toate că se confruntă cu unele limitări în ceea ce privește infrastructura și echipamentele, centrul își propune să ofere servicii de calitate și să îmbunătățească continuu standardele de îngrijire.\n\n\n\n\n\n\n",
+      "ru": "Центр Здравоохранения Филипени ставит перед собой задачу обеспечивать медицинское обслуживание для всех жителей, независимо от возраста или финансового положения, и пропагандировать здоровый образ жизни в сообществе. Несмотря на некоторые ограничения в инфраструктуре и оборудовании, центр стремится предоставлять качественные услуги и постоянно улучшать стандарты медицинского обслуживания.",
+      "en": "The Filipeni Health Center is committed to providing healthcare to all residents, regardless of age or financial status, and promoting a healthy lifestyle in the community. While it faces some limitations in terms of infrastructure and equipment, the center aims to offer quality services and continuously improve healthcare standards."
+    },
+    "slug": "centrul-de-sanatate-filipeni",
+    "sections": [
+      {
+        "type": "PARAGRAPH",
+        "content": {
+          "ro": "În satul Filipeni, asistența medicală este asigurată de Centrul de Sănătate Filipeni, care joacă un rol esențial în menținerea sănătății locuitorilor și oferirea de servicii medicale de bază. Cu o echipă dedicată de personal medical și resurse accesibile, centrul reprezintă un punct central pentru îngrijirea comunității.",
+          "ru": "В селе Филипень медицинскую помощь оказывает Центр здоровья Филипень, который играет важную роль в поддержании здоровья жителей и предоставлении основных медицинских услуг. Благодаря специализированной команде медицинского персонала и доступным ресурсам центр является центром оказания помощи населению.",
+          "en": "In the village of Filipeni, medical assistance is provided by the Filipeni Health Center, which plays an essential role in maintaining the health of the residents and providing basic medical services. With a dedicated team of medical staff and accessible resources, the center is a focal point for community care."
+        }
+      },
+      {
+        "type": "TITLE",
+        "content": {
+          "ro": "Infrastructura și facilitățile centrului",
+          "ru": "Инфраструктура и оснащение центра",
+          "en": "Center infrastructure and facilities"
+        }
+      },
+      {
+        "type": "PARAGRAPH",
+        "content": {
+          "ro": "Centrul de Sănătate Filipeni dispune de o clădire proprie, aflată într-o stare decentă, oferind condiții corespunzătoare pentru desfășurarea activităților medicale. În pofida stării satisfăcătoare a infrastructurii, există spațiu pentru îmbunătățiri în ceea ce privește modernizarea echipamentelor și facilităților.\n\n",
+          "ru": "Медицинский центр «Филипени» имеет собственное здание, в приличном состоянии, предлагающее соответствующие условия для проведения медицинской деятельности. Несмотря на удовлетворительное состояние инфраструктуры, есть возможности для улучшения в плане модернизации оборудования и сооружений.",
+          "en": "The Filipeni Health Center has its own building, in a decent condition, offering appropriate conditions for carrying out medical activities. Despite the satisfactory state of infrastructure, there is room for improvement in terms of upgrading equipment and facilities."
+        }
+      },
+      {
+        "type": "TITLE",
+        "content": {
+          "ro": "Echipamente medicale",
+          "ru": "Медицинское оборудование",
+          "en": "Medical equipment"
+        }
+      },
+      {
+        "type": "PARAGRAPH",
+        "content": {
+          "ro": "Centrul beneficiază de echipamente medicale de nivel mediu, care permit realizarea unor proceduri și consultații de bază. Deși nu dispune de tehnologie avansată, dotările actuale sunt suficiente pentru diagnosticarea și tratamentul problemelor comune de sănătate. Personalul este bine instruit pentru a utiliza aceste echipamente eficient, oferind îngrijire medicală de calitate locuitorilor.\n\n",
+          "ru": "Центр оснащен медицинским оборудованием среднего уровня, позволяющим проводить базовые процедуры и консультации. Несмотря на отсутствие передовых технологий, имеющихся возможностей достаточно для диагностики и лечения распространенных проблем со здоровьем. Персонал хорошо обучен эффективно использовать это оборудование, оказывая жителям качественную медицинскую помощь.",
+          "en": "The center benefits from medium-level medical equipment, which allows basic procedures and consultations to be carried out. Although it lacks advanced technology, the current facilities are sufficient for the diagnosis and treatment of common health problems. The staff is well trained to use this equipment effectively, providing quality medical care to the residents."
+        }
+      },
+      {
+        "type": "TITLE",
+        "content": {
+          "ro": "Conectivitate și utilități",
+          "ru": "Связь и утилиты",
+          "en": "Connectivity and utilities"
+        }
+      },
+      {
+        "type": "PARAGRAPH",
+        "content": {
+          "ro": "Centrul este conectat la rețelele de electricitate și telecomunicații, ceea ce asigură accesul la servicii de bază, inclusiv comunicarea cu alte unități medicale și autorități. În plus, centrul are acces la utilitățile de bază, inclusiv apă potabilă, contribuind la menținerea unui mediu igienic și sigur pentru pacienți și personal.\n\n",
+          "ru": "Центр подключен к электросетям и телекоммуникационным сетям, что обеспечивает доступ к основным услугам, включая связь с другими медицинскими учреждениями и органами власти. Кроме того, центр имеет доступ к основным коммунальным услугам, включая питьевую воду, что помогает поддерживать гигиеническую и безопасную среду для пациентов и персонала.",
+          "en": "The center is connected to electricity and telecommunications networks, which ensures access to basic services, including communication with other medical facilities and authorities. In addition, the center has access to basic utilities, including potable water, helping to maintain a hygienic and safe environment for patients and staff."
+        }
+      },
+      {
+        "type": "TITLE",
+        "content": {
+          "ro": "Sistem de încălzire",
+          "ru": "Система отопления",
+          "en": "Heating system"
+        }
+      },
+      {
+        "type": "PARAGRAPH",
+        "content": {
+          "ro": "Clădirea centrului este încălzită printr-un sistem tradițional, bazat pe utilizarea sobelor alimentate cu lemn sau cărbune. În perioada rece, acesta reprezintă principala sursă de căldură, însă ar putea fi necesare investiții în modernizarea sistemului de încălzire pentru a îmbunătăți eficiența și confortul.\n\n",
+          "ru": "Здание центра отапливается по традиционной системе, основанной на использовании печей, работающих на дровах или угле. В холодное время года оно является основным источником тепла, но для повышения эффективности и комфорта могут потребоваться инвестиции в модернизацию системы отопления.",
+          "en": "The center building is heated by a traditional system, based on the use of stoves fueled by wood or coal. In the cold season, it is the main source of heat, but investment in modernizing the heating system may be needed to improve efficiency and comfort."
+        }
+      },
+      {
+        "type": "TITLE",
+        "content": {
+          "ro": "Servicii medicale oferite",
+          "ru": "Оказанные медицинские услуги",
+          "en": "Medical services provided"
+        }
+      },
+      {
+        "type": "PARAGRAPH",
+        "content": {
+          "ro": "Centrul de Sănătate Filipeni oferă o gamă variată de servicii medicale de bază, precum consultații generale, monitorizarea sănătății copiilor și vârstnicilor, tratamente pentru afecțiuni comune și servicii de vaccinare. Personalul medical este pregătit să asiste în cazuri de urgență până la sosirea ambulanței sau transferul pacienților către spitale mai mari din apropiere.\n\n",
+          "ru": "Филиппинский центр здоровья предлагает широкий спектр основных медицинских услуг, таких как общие консультации, наблюдение за здоровьем детей и пожилых людей, лечение распространенных заболеваний и услуги вакцинации. Медицинский персонал готов оказать помощь в экстренных случаях до прибытия машины скорой помощи или перевода пациентов в близлежащие более крупные больницы.",
+          "en": "The Philippine Health Center offers a wide range of basic medical services, such as general consultations, health monitoring of children and the elderly, treatments for common ailments and vaccination services. Medical personnel are prepared to assist in emergency cases until the arrival of an ambulance or the transfer of patients to larger hospitals nearby."
+        }
+      },
+      {
+        "type": "TITLE",
+        "content": {
+          "ro": "Misiunea centrului",
+          "ru": "Миссия центра",
+          "en": "The mission of the center"
+        }
+      },
+      {
+        "type": "PARAGRAPH",
+        "content": {
+          "ro": "Centrul de Sănătate Filipeni are misiunea de a asigura îngrijirea medicală pentru toți locuitorii, indiferent de vârstă sau stare financiară, și de a promova un stil de viață sănătos în comunitate. Cu toate că se confruntă cu unele limitări în ceea ce privește infrastructura și echipamentele, centrul își propune să ofere servicii de calitate și să îmbunătățească continuu standardele de îngrijire.\n\n\n\n\n\n\n",
+          "ru": "Миссия Филипeнского центра здоровья — оказание медицинской помощи всем жителям, независимо от возраста и финансового положения, а также пропаганда здорового образа жизни в обществе. Несмотря на некоторые ограничения с точки зрения инфраструктуры и оборудования, центр стремится предоставлять качественные услуги и постоянно улучшать стандарты медицинского обслуживания.",
+          "en": "The Filipeni Health Center is committed to providing healthcare to all residents, regardless of age or financial status, and promoting a healthy lifestyle in the community. While it faces some limitations in terms of infrastructure and equipment, the center aims to offer quality services and continuously improve healthcare standards.\n\n\n\n\n\n\n"
+        }
+      },
+      {
+        "type": "GALLERY",
+        "slidesPerView": 2,
+        "content": [
+          "67200b08ee25fe40ed70ff93",
+          "67200b09ee25fe40ed70ff96",
+          "67200b08ee25fe40ed70ff94"
+        ]
+      }
+    ],
+    "cover": "67200b08ee25fe40ed70ff94",
+    "location": {
+      "ro": "Filipeni, Leova",
+      "ru": "Филипень, Леова",
+      "en": "Filipeni, Leova"
+    },
+    "phone": 0,
+    "geo": {
+      "lat": 46.4410033927836,
+      "lng": 28.33109363232601
+    },
+    "socialLinks": [],
+    "schedule": {
+      "mon": {
+        "from": "08:00",
+        "to": "17:00",
+        "breakFrom": "12:00",
+        "breakTo": "13:00"
+      },
+      "tue": {
+        "from": "08:00",
+        "to": "17:00",
+        "breakFrom": "12:00",
+        "breakTo": "13:00"
+      },
+      "wed": {
+        "from": "08:00",
+        "to": "17:00",
+        "breakFrom": "12:00",
+        "breakTo": "13:00"
+      },
+      "thu": {
+        "from": "08:00",
+        "to": "17:00",
+        "breakFrom": "12:00",
+        "breakTo": "13:00"
+      },
+      "fri": {
+        "from": "08:00",
+        "to": "17:00",
+        "breakFrom": "12:00",
+        "breakTo": "13:00"
+      },
+      "sat": {},
+      "sun": {}
+    },
+    "category": {
+      "tennant": "filipeni",
+      "title": {
+        "ro": "Cultură",
+        "ru": "Культура",
+        "en": "Culture"
+      },
+      "key": "culture"
+    }
+  }
+]

@@ -1,0 +1,14 @@
+[
+  {
+    "_id": "69d4d49ab3e6c2d2740809fd",
+    "code": "03000000-1",
+    "name": {
+      "ro": "Produse agricole, de fermă, de pescuit, de silvicultură şi produse conexe",
+      "ru": "Produse agricole, de fermă, de pescuit, de silvicultură şi produse conexe",
+      "en": "Agricultural, farming, fishing, forestry and related products",
+      "bg": "Селскостопански, фермерски, риболовни, горски и свързани продукти",
+      "gag": "Tarım, fermă, balıkçılık, orman ürünleri ve ilgili ürünler"
+    },
+    "icon": "agriculture"
+  }
+]

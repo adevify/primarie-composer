@@ -1,0 +1,25 @@
+[
+  {
+    "_id": "69b01712056fd0d9b8279ca2",
+    "tennant": "",
+    "template": "",
+    "date": "2026-03-10T13:05:22.747Z",
+    "url": "",
+    "type": "info",
+    "message": "Saga start procesing: notification.cleanup",
+    "stack": "",
+    "context": {
+      "event": {
+        "id": "a6434201-337e-4156-93db-690d645cd730",
+        "type": "notification.cleanup",
+        "payload": {},
+        "createdAt": 1773147922577,
+        "readyAt": 1773147922576,
+        "retries": 0,
+        "maxRetries": 3,
+        "data": "look at the logs for more details (69b01712056fd0d9b8279ca1)"
+      },
+      "logid": "69b01712056fd0d9b8279ca1"
+    }
+  }
+]

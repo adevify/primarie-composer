@@ -1,0 +1,19 @@
+[
+  {
+    "_id": "67b2dd85e9f22a09437971c4",
+    "key": "dataModeration",
+    "name": "Moderarea Datelor",
+    "description": "Prestatorul va oferi suport în moderarea datelor pe platformă, iar beneficiarul va trimite informațiile prin diverse surse de informare, pentru a fi procesate și actualizate pe platformă.",
+    "obligations": "Prestatorul este obligat să asigure recepționarea informațiilor transmise de beneficiar. Prestatorul este obligat să adauge sau să ajusteze informațiile pe platformă în decurs de 2 zile lucrătoare de la recepționarea acestora.",
+    "prices": [
+      {
+        "persons": 0,
+        "price": 50
+      },
+      {
+        "persons": 2000,
+        "price": 100
+      }
+    ]
+  }
+]

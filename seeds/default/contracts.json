@@ -1,0 +1,82 @@
+[
+  {
+    "_id": "69942b83158c9bc14e5d52aa",
+    "tennant": "filipeni",
+    "contractDate": "2024-10-01T00:00:00.000Z",
+    "startDate": "2024-12-01T00:00:00.000Z",
+    "endDate": "2027-10-01T00:00:00.000Z",
+    "idno": 1007601004146,
+    "adress": "MD-6319, s. Filipeni, rl. Leova",
+    "beneficiarName": "Primăria Satului Filipeni",
+    "beneficiarRepresentant": "Camerzan Tudor",
+    "entityLimits": false,
+    "limits": {
+      "storage": 5,
+      "users": 3
+    },
+    "price": 1,
+    "offer": {
+      "packages": [
+        {
+          "key": "start",
+          "price": 175,
+          "selected": false
+        },
+        {
+          "key": "avansat",
+          "price": 500,
+          "selected": false
+        },
+        {
+          "key": "integral",
+          "price": 700,
+          "selected": true
+        }
+      ],
+      "features": [
+        {
+          "key": "customPages",
+          "price": 100,
+          "selected": true
+        },
+        {
+          "key": "localDocs",
+          "price": 75,
+          "selected": true
+        },
+        {
+          "key": "aiTranslation",
+          "price": 100,
+          "selected": true
+        },
+        {
+          "key": "publicAcqs",
+          "price": 75,
+          "selected": true
+        },
+        {
+          "key": "socialMediaSync",
+          "price": 150,
+          "selected": true
+        },
+        {
+          "key": "photoSesions",
+          "price": 200,
+          "selected": true
+        },
+        {
+          "key": "dataModeration",
+          "price": 100,
+          "selected": true
+        }
+      ]
+    },
+    "createdAt": "2026-02-15T12:49:27.165Z",
+    "updatedAt": "2026-02-15T12:49:27.165Z",
+    "representant": {
+      "name": "Camerzan Tudor",
+      "phone": ""
+    },
+    "contractMedia": ""
+  }
+]

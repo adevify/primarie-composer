@@ -1,0 +1,136 @@
+[
+  {
+    "_id": "67697164fc205becbbcccc6a",
+    "name": "Crasnoarmeiscoe",
+    "storage": {
+      "count": 3
+    },
+    "users": {
+      "count": 2
+    },
+    "photoSesions": {
+      "count": 2
+    },
+    "basePrice": 700,
+    "address": "",
+    "mayor": {
+      "fullName": " Alexandru Todoseiciuc",
+      "email": "prim259ria@rambler.ru",
+      "phone": "+373 79 481 912"
+    },
+    "apl": 18518,
+    "notes": [
+      {
+        "text": "GADCHII PRIMAR,am trimis oferta, dar nu sunt sigura ca o va analiza",
+        "date": "2025-03-26T07:46:19.539Z",
+        "user": "671a2f79d4f39680d5fbfcc4"
+      },
+      {
+        "text": "chind va lua o decizie finala, o sa ne sune singur [ nu doreste sa-l deranjam ]",
+        "date": "2025-01-31T08:46:16.240Z",
+        "user": "671a2f79d4f39680d5fbfcc4"
+      },
+      {
+        "text": "PRIMARII SUNT LA SEMINAR REPUBLICAN",
+        "date": "2025-01-30T07:58:01.133Z",
+        "user": "671a2f79d4f39680d5fbfcc4"
+      },
+      {
+        "text": "chind se va apreciza, singur ne va suna",
+        "date": "2025-01-10T09:55:08.608Z",
+        "user": "671a2f79d4f39680d5fbfcc4"
+      },
+      {
+        "text": "in proces de convorbire\t",
+        "date": "2024-12-23T14:21:46.155Z",
+        "user": "671a2f79d4f39680d5fbfcc4"
+      }
+    ],
+    "contacts": [
+      {
+        "fullName": "Alexandru Todoseiciuc",
+        "email": "mobil",
+        "phone": "079 481 912"
+      },
+      {
+        "fullName": "MAI TIRZIU"
+      },
+      {
+        "fullName": " Alexandru Todoseiciuc",
+        "email": "prim259ria@rambler.ru",
+        "phone": "+373 269-71236"
+      },
+      {
+        "fullName": "SECRETAR",
+        "phone": "0269-71238"
+      },
+      {
+        "fullName": "s. Crasnoarmeiscoe  ;\ts. Talaiesti"
+      }
+    ],
+    "nrPopulation": 2747,
+    "type": "COMUNA",
+    "status": "UNKNOWN",
+    "id": "67697164fc205becbbcccc6a",
+    "entityLimits": false,
+    "offer": {
+      "packages": [
+        {
+          "key": "start",
+          "price": 175,
+          "selected": false
+        },
+        {
+          "key": "avansat",
+          "price": 500,
+          "selected": false
+        },
+        {
+          "key": "integral",
+          "price": 700,
+          "selected": false
+        }
+      ],
+      "features": [
+        {
+          "key": "socialMediaSync",
+          "price": 150,
+          "selected": false
+        },
+        {
+          "key": "dataModeration",
+          "price": 100,
+          "selected": false
+        },
+        {
+          "key": "localDocs",
+          "price": 75,
+          "selected": false
+        },
+        {
+          "key": "aiTranslation",
+          "price": 100,
+          "selected": false
+        },
+        {
+          "key": "photoSesions",
+          "price": 200,
+          "selected": false
+        },
+        {
+          "key": "publicAcqs",
+          "price": 75,
+          "selected": false
+        },
+        {
+          "key": "customPages",
+          "price": 100,
+          "selected": false
+        }
+      ]
+    },
+    "assigned": "671a2f79d4f39680d5fbfcc4",
+    "calls": [],
+    "deleted": false
+  }
+]

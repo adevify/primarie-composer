@@ -1,0 +1,77 @@
+[
+  {
+    "_id": "69eb2d98ea80919b65d5e146",
+    "tennant": "glingeni",
+    "contractDate": "2026-04-23T21:00:00.000Z",
+    "startDate": "2026-04-30T21:00:00.000Z",
+    "endDate": "2026-12-30T22:00:00.000Z",
+    "idno": 1007601002544,
+    "adress": "MD-5924,s.Glinjeni,rl.Fălești",
+    "beneficiarName": "Primăria Satului Glinjeni",
+    "representant": {
+      "name": "Zarija Viorel",
+      "phone": "068171410"
+    },
+    "limits": {
+      "storage": 3,
+      "users": 3,
+      "entities": 3
+    },
+    "price": 600,
+    "offer": {
+      "packages": [
+        {
+          "key": "start",
+          "price": 150,
+          "selected": false
+        },
+        {
+          "key": "avansat",
+          "price": 450,
+          "selected": false
+        },
+        {
+          "key": "integral",
+          "price": 600,
+          "selected": true
+        }
+      ],
+      "features": [
+        {
+          "key": "dataModeration",
+          "price": 100,
+          "selected": true
+        },
+        {
+          "key": "publicAcqs",
+          "price": 75,
+          "selected": true
+        },
+        {
+          "key": "localDocs",
+          "price": 75,
+          "selected": true
+        },
+        {
+          "key": "aiTranslation",
+          "price": 100,
+          "selected": true
+        },
+        {
+          "key": "customPages",
+          "price": 100,
+          "selected": true
+        },
+        {
+          "key": "socialMediaSync",
+          "price": 150,
+          "selected": true
+        }
+      ]
+    },
+    "createdAt": "2026-04-24T08:45:12.445Z",
+    "updatedAt": "2026-04-24T08:45:12.651Z",
+    "contractMedia": "69eb2d98ea80919b65d5e147",
+    "generatedAt": "2026-04-24T08:45:12.651Z"
+  }
+]

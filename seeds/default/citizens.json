@@ -1,0 +1,34 @@
+[
+  {
+    "_id": "69fb64de2b7a8ad5b3d6b150",
+    "tennant": "filipeni",
+    "name": "test",
+    "email": "aaw2012sirbu.andrei@gmail.com",
+    "language": "ro",
+    "accepted": true,
+    "isFirstTimeLogged": false,
+    "password": "$2a$10$31kDeHbpb7Mo3SKLpBbgM.KTJqUbmMhDzXhvdoOZI9Z80VfME3pRm",
+    "idnp": 1234567891234,
+    "phone": 79875354,
+    "createdAt": "2026-05-06T15:57:18.845Z",
+    "loggedAt": "2026-05-06T16:15:38.569Z"
+  },
+  {
+    "_id": "69fb698ff3267d1a0f75593f",
+    "tennant": "filipeni",
+    "name": "test2",
+    "email": "sirbusiandrei@gmail.com",
+    "language": "ro",
+    "accepted": false,
+    "isFirstTimeLogged": true,
+    "password": "$2a$10$eFtiJdnBuGeCyM/r.8ibSO2k42/EGoQCyqJiqHuMXItGOIwintF/u",
+    "idnp": 1234567891233,
+    "phone": 79875354,
+    "createdAt": "2026-05-06T16:17:19.028Z",
+    "reject": {
+      "reason": "test de respingere a cetatenilor in mod normalas asd asd",
+      "by": "66f18cc30677ec7faa528aec",
+      "at": 1778084283073
+    }
+  }
+]
