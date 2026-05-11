@@ -158,10 +158,80 @@ patch_repo_storybook_compose_volume() {
   perl -0pi -e 's|(storybook:\n(?:.*\n)*?\s+volumes:\n\s+- ./apps/storybook:/code/apps/storybook\n)|$1      - /code/apps/storybook/node_modules\n|s' "$compose_file"
 }
 
+patch_repo_proxy_compose_ports() {
+  local repo_dir="$1"
+  local compose_file="$repo_dir/docker-compose.yml"
+  local tmp_file
+
+  if [[ ! -f "$compose_file" ]]; then
+    return
+  fi
+
+  tmp_file="$(mktemp)"
+  awk '
+    function is_service(line) {
+      return line ~ /^  [A-Za-z0-9_.-]+:[[:space:]]*($|#)/
+    }
+    function is_proxy_service(line) {
+      return line ~ /^  proxy:[[:space:]]*($|#)/
+    }
+    function is_proxy_key(line) {
+      return line ~ /^    [A-Za-z0-9_.-]+:[[:space:]]*($|#)/
+    }
+    function emit_proxy_port() {
+      if (!emitted_proxy_port) {
+        print "      - \"${PROXY_EXTERNAL_PORT:-80}:80\""
+        emitted_proxy_port = 1
+      }
+    }
+    {
+      if (is_service($0)) {
+        if (in_proxy && in_proxy_ports) {
+          emit_proxy_port()
+        }
+        in_proxy = is_proxy_service($0)
+        in_proxy_ports = 0
+        emitted_proxy_port = 0
+        print
+        next
+      }
+
+      if (in_proxy && in_proxy_ports) {
+        if (is_proxy_key($0)) {
+          emit_proxy_port()
+          in_proxy_ports = 0
+          print
+          next
+        }
+
+        if ($0 ~ /^[[:space:]]*-[[:space:]]*/) {
+          next
+        }
+      }
+
+      if (in_proxy && $0 ~ /^    ports:[[:space:]]*($|#)/) {
+        in_proxy_ports = 1
+        emitted_proxy_port = 0
+        print
+        next
+      }
+
+      print
+    }
+    END {
+      if (in_proxy && in_proxy_ports) {
+        emit_proxy_port()
+      }
+    }
+  ' "$compose_file" > "$tmp_file"
+  mv "$tmp_file" "$compose_file"
+}
+
 patch_repo_for_composer() {
   local repo_dir="$1"
 
   patch_repo_proxy_dockerfile "$repo_dir"
+  patch_repo_proxy_compose_ports "$repo_dir"
   patch_repo_storybook_compose_volume "$repo_dir"
 }
 
