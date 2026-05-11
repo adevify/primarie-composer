@@ -523,14 +523,11 @@ export class EnvironmentsService {
     await EnvironmentActionCollection.update(id, { status: "running" });
 
     try {
-      const logFilePath = this.actionLogPath(id);
       const environment = await this.streamLifecycleAction(
         key,
         action,
         user,
-        async (entry) => {
-          await fs.appendFile(logFilePath, `${entry.log}\n`, "utf8").catch(() => undefined);
-        },
+        async () => undefined,
         undefined,
         id
       );
@@ -620,6 +617,30 @@ export class EnvironmentsService {
         });
         logEnvironment("info", "lifecycle_action_completed", { key, action, status: updated.status });
         return updated;
+      }
+
+      if (action === "delete") {
+        throwIfAborted(signal);
+        await this.updateStatus(key, "removing");
+        await this.logSystemEvent(key, "environment.remove_requested", "Removing environment", {
+          actor: actorFromUser(user),
+          target: targetForEnvironment(key, record.createdBy),
+          actionId: hostActionId,
+          metadata: { action, previousStatus: record.status }
+        });
+        const result = await this.publishEnvironmentAction("environment.remove", key, {}, onLog, hostActionId);
+        await emitBusResult(result, onLog);
+        await onLog({ log: "Environment removed", level: "info" });
+        const removed = await this.updateStatus(key, "removed");
+        await this.logSystemEvent(key, "environment.removed", "Environment removed", {
+          actor: actorFromUser(user),
+          target: targetForEnvironment(key, record.createdBy),
+          actionId: hostActionId,
+          metadata: { action, previousStatus: record.status }
+        });
+        await EnvironmentCollection.delete(key);
+        logEnvironment("info", "lifecycle_action_completed", { key, action, status: removed.status });
+        return removed;
       }
 
       throwIfAborted(signal);

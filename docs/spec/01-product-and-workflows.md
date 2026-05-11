@@ -66,7 +66,7 @@ Lifecycle actions are exposed in two forms:
 - Direct routes: `/environments/:key/start`, `/stop`, `/restart`, `/resume`.
 - Queued action routes: `/environments/:key/actions/:action`, with a file-backed log attachment and NDJSON tail streaming.
 
-The Electron UI primarily uses queued actions for `start`, `stop`, `restart`, and `resume`, then reads or streams the action's attached log file through `/environments/actions/:id/logs` and `/environments/actions/:id/logs/stream`.
+The Electron UI primarily uses queued actions for `start`, `stop`, `restart`, `resume`, and `delete`, then reads or streams the action's attached log file through `/environments/actions/:id/logs` and `/environments/actions/:id/logs/stream`.
 
 Start/resume:
 
@@ -88,6 +88,13 @@ Restart:
 
 1. API marks status `starting`.
 2. API publishes `environment.restart`.
+
+Delete:
+
+1. API marks status `removing`.
+2. API publishes `environment.remove`.
+3. Worker runs `scripts/remove-env.sh`.
+4. API marks status `removed` and deletes the environment record after the action record has captured the removed environment snapshot.
 3. Worker runs `scripts/restart-env.sh`.
 4. API marks status `running`.
 

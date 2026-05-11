@@ -11,7 +11,7 @@ export type EnvironmentStatus =
   | "failed"
   | "removing"
   | "removed";
-export type LifecycleAction = "start" | "stop" | "restart" | "resume";
+export type LifecycleAction = "start" | "stop" | "restart" | "resume" | "delete";
 
 export type EnvironmentOwner = {
   email: string;

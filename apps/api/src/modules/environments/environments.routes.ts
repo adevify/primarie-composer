@@ -5,7 +5,7 @@ import { createEnvironmentSchema, syncFilesSchema } from "./environment.dtos.js"
 import { EnvironmentSource, PullRequestRef } from "./environment.dtos.js";
 
 const containerNameSchema = z.string().regex(/^[a-zA-Z0-9_.-]+$/);
-const lifecycleActionSchema = z.enum(["start", "stop", "restart", "resume"]);
+const lifecycleActionSchema = z.enum(["start", "stop", "restart", "resume", "delete"]);
 const execSchema = z.object({
   command: z.string().min(1)
 });

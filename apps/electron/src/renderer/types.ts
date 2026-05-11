@@ -168,7 +168,7 @@ export type ContainerExecResult = {
   stderr: string;
 };
 
-export type LifecycleAction = "start" | "stop" | "restart" | "resume";
+export type LifecycleAction = "start" | "stop" | "restart" | "resume" | "delete";
 
 export type EnvironmentActionStatus = "queued" | "running" | "complete" | "error";
 

@@ -12,7 +12,7 @@ import { LatestChangesCard, type LatestChangeEvent } from "./components/LatestCh
 import { LoginView } from "./components/LoginView";
 import { RepoPicker } from "./components/RepoPicker";
 import { UsersPage } from "./components/UsersPage";
-import type { AuthSession, ChangedFilePayload, EnvExampleEntry, EnvironmentActionLogsPage, EnvironmentActionsPage, EnvironmentLog, EnvironmentLogsPage, EnvironmentRecord, EnvironmentStatus, GitState, LifecycleAction, LiveLogSession, RepoSyncSnapshot, StreamLogEvent, SyncState, SystemMetrics, UserDirectoryRecord } from "./types";
+import type { AuthSession, ChangedFilePayload, EnvExampleEntry, EnvironmentActionLogsPage, EnvironmentActionRecord, EnvironmentActionsPage, EnvironmentLog, EnvironmentLogsPage, EnvironmentRecord, EnvironmentStatus, GitState, LifecycleAction, LiveLogSession, RepoSyncSnapshot, StreamLogEvent, SyncState, SystemMetrics, UserDirectoryRecord } from "./types";
 
 const AUTH_STORAGE_KEY = "primarie-composer.auth";
 const REPO_STORAGE_KEY = "primarie-composer.repoPath";
@@ -53,6 +53,7 @@ export default function App() {
   const [creationMonitorError, setCreationMonitorError] = useState<string>();
   const [detailsEnvironment, setDetailsEnvironment] = useState<EnvironmentRecord>();
   const [detailsLogRefreshToken, setDetailsLogRefreshToken] = useState(0);
+  const [focusedLifecycleAction, setFocusedLifecycleAction] = useState<{ environmentKey: string; action: EnvironmentActionRecord; token: number }>();
   const [liveLogSessions, setLiveLogSessions] = useState<LiveLogSession[]>([]);
   const [latestChanges, setLatestChanges] = useState<LatestChangeEvent[]>([]);
   const streamControllers = useRef(new Map<string, AbortController>());
@@ -468,18 +469,13 @@ export default function App() {
     setEnvironmentsError(undefined);
     try {
       let updatedEnvironment: EnvironmentRecord | undefined;
-      if (action !== "delete") {
-        const environment = environments.find((item) => item.key === key);
-        if (environment) {
-          setDetailsEnvironment(environment);
-        }
+      const environment = environments.find((item) => item.key === key) ?? (detailsEnvironment?.key === key ? detailsEnvironment : undefined);
+      if (environment) {
+        setActivePage("environments");
+        setDetailsEnvironment(environment);
       }
 
-      if (action === "delete") {
-        await api.deleteEnvironment(key);
-      } else {
-        updatedEnvironment = await runLifecycleAction(key, action);
-      }
+      updatedEnvironment = await runLifecycleAction(key, action);
       if (action === "start" || action === "restart" || action === "resume") {
         setActiveEnvironment(key);
       }
@@ -488,8 +484,6 @@ export default function App() {
       }
       if (updatedEnvironment) {
         setDetailsEnvironment(updatedEnvironment);
-      } else if (detailsEnvironment?.key === key) {
-        setDetailsEnvironment(undefined);
       }
       await refreshEnvironments();
     } catch (error) {
@@ -510,24 +504,20 @@ export default function App() {
     let latestEnvironment: EnvironmentRecord | undefined;
     let failedMessage: string | undefined;
 
+    setFocusedLifecycleAction({ environmentKey: key, action: createdAction, token: Date.now() });
     setDetailsLogRefreshToken((current) => current + 1);
-    addLiveLogSession({
-      id: sessionId,
-      environmentKey: key,
-      title: `${capitalize(action)} ${key}`,
-      subtitle: "Docker Compose lifecycle",
-      status: "running",
-      entries: []
-    });
 
     try {
       await api.streamLifecycleActionLogs(sessionId, { replayTail: 200 }, (event) => {
         if (event.type === "line") {
-          appendLiveLogEntry(sessionId, event.line ?? event.log ?? "", event.level);
           return;
         }
 
         if (event.type === "action") {
+          setFocusedLifecycleAction((current) => current?.action.id === event.action.id
+            ? { ...current, action: event.action }
+            : current
+          );
           if (event.action.environment) {
             latestEnvironment = event.action.environment;
             setDetailsEnvironment(event.action.environment);
@@ -540,14 +530,11 @@ export default function App() {
         }
 
         if (event.type === "complete") {
-          markLiveLogSession(sessionId, "complete");
           return;
         }
 
         if (event.type === "error") {
           failedMessage = event.message ?? event.log;
-          appendLiveLogEntry(sessionId, event.message ?? event.log ?? "Action failed", "error");
-          markLiveLogSession(sessionId, "error");
         }
       });
 
@@ -558,8 +545,6 @@ export default function App() {
       setDetailsLogRefreshToken((current) => current + 1);
       return latestEnvironment;
     } catch (error) {
-      appendLiveLogEntry(sessionId, toErrorMessage(error), "error");
-      markLiveLogSession(sessionId, "error");
       throw error;
     }
   }
@@ -954,6 +939,7 @@ export default function App() {
             onAction={runEnvironmentAction}
             onExecInContainer={execInContainer}
             actionRefreshToken={detailsLogRefreshToken}
+            focusAction={focusedLifecycleAction?.environmentKey === detailsEnvironment.key ? focusedLifecycleAction : undefined}
             liveLogSessions={liveLogSessions.filter((session) => session.environmentKey === detailsEnvironment.key)}
             onStartComposeLogStream={startComposeLogStream}
             onStartContainerLogStream={startContainerLogStream}

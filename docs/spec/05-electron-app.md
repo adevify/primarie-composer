@@ -197,7 +197,7 @@ The API client supports:
 - User listing.
 - Environment list/get/create/delete.
 - Direct lifecycle operations.
-- Queued lifecycle actions and file-backed action log tails.
+- Queued lifecycle actions, including delete, and file-backed action log tails.
 - Dashboard system logs and system metrics.
 - Container list, file list, exec, and log streams.
 - Runtime file browsing.

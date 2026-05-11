@@ -57,6 +57,7 @@ type EnvironmentDetailsProps = {
   onAction: (key: string, action: "start" | "stop" | "restart" | "resume" | "delete") => Promise<void>;
   onExecInContainer: (key: string, container: string, command: string) => Promise<{ command: string; exitCode: number; stdout: string; stderr: string }>;
   actionRefreshToken: number;
+  focusAction?: { action: EnvironmentActionRecord; token: number };
   liveLogSessions: LiveLogSession[];
   onStartComposeLogStream: (key: string) => void;
   onStartContainerLogStream: (key: string, container: string) => void;
@@ -79,6 +80,7 @@ export function EnvironmentDetails({
   onAction,
   onExecInContainer,
   actionRefreshToken,
+  focusAction,
   liveLogSessions,
   onStartComposeLogStream,
   onStartContainerLogStream,
@@ -176,6 +178,23 @@ export function EnvironmentDetails({
 
     void loadActions();
   }, [open, environment?.key, utilityTab, actionRefreshToken]);
+
+  useEffect(() => {
+    if (!open || !environment || !focusAction || focusAction.action.environmentKey !== environment.key) {
+      return;
+    }
+
+    setSelectedContainer("");
+    setContainerPath("/");
+    setFiles([]);
+    setExecOutput("");
+    setToolError(undefined);
+    setUtilityTab("actions");
+    setSelectedActionId(focusAction.action.id);
+    setActions((current) => upsertAction(current, focusAction.action));
+    setActionLogs([]);
+    setActionLogsPage(undefined);
+  }, [open, environment?.key, focusAction?.action.id, focusAction?.token]);
 
   useEffect(() => {
     if (!open || !selectedActionId || utilityTab !== "actions") {
@@ -1389,6 +1408,11 @@ function appendUniqueActions(current: EnvironmentActionRecord[], next: Environme
   return merged.sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime());
 }
 
+function upsertAction(current: EnvironmentActionRecord[], action: EnvironmentActionRecord): EnvironmentActionRecord[] {
+  return [action, ...current.filter((item) => item.id !== action.id)]
+    .sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime());
+}
+
 function relativeAge(value: string): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
@@ -1406,6 +1430,7 @@ function relativeAge(value: string): string {
 function statusColor(status: string): string {
   if (status === "running") return "#4edea3";
   if (status === "failed") return "#ffb4ab";
+  if (status === "error") return "#ffb4ab";
   if (status === "queued") return "#00f0ff";
   if (status === "creating") return "#00f0ff";
   if (status === "complete") return "#d7e3ee";

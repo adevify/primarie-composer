@@ -384,6 +384,7 @@ Valid `action` values:
 - `stop`
 - `restart`
 - `resume`
+- `delete`
 
 Runs the lifecycle action directly and streams live NDJSON events. The UI currently uses the queued action route instead.
 
@@ -399,6 +400,8 @@ Success:
 - Returns the action record.
 
 The background job writes its execution transcript to the action's attached log file and updates action status to `complete` or `error`.
+
+For `delete`, the background job publishes `environment.remove`, stores the removed environment snapshot on the completed action, and then deletes the environment record.
 
 ### Chapter 2.7.18 GET /environments/:key/containers/:container/files
 
