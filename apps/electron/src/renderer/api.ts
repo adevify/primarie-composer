@@ -182,6 +182,13 @@ export class ComposerApiClient {
     return this.request<ComposeLogEntry[]>(`/environments/${encodeURIComponent(key)}/compose/logs?${params.toString()}`);
   }
 
+  containerLogs(key: string, container: string, page = 0, perPage = 50): Promise<ComposeLogEntry[]> {
+    const params = new URLSearchParams({ page: String(page), perPage: String(perPage) });
+    return this.request<ComposeLogEntry[]>(
+      `/environments/${encodeURIComponent(key)}/containers/${encodeURIComponent(container)}/logs?${params.toString()}`
+    );
+  }
+
   execInContainer(key: string, container: string, command: string): Promise<ContainerExecResult> {
     return this.request<ContainerExecResult>(
       `/environments/${encodeURIComponent(key)}/containers/${encodeURIComponent(container)}/exec`,

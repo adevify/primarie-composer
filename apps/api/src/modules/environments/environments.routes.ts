@@ -282,6 +282,21 @@ export function createEnvironmentRouter(): Router {
     }
   });
 
+  router.get("/:key/containers/:container/logs", async (req, res, next) => {
+    try {
+      const parsed = containerNameSchema.safeParse(req.params.container);
+      if (!parsed.success) {
+        return res.status(400).json({ error: parsed.error.flatten() });
+      }
+
+      const page = parseInt(req.query.page as string || "0");
+      const perPage = parseInt(req.query.perPage as string || "50");
+      return res.json(await service.listContainerLogs(req.params.key, parsed.data, page, perPage));
+    } catch (error) {
+      return next(error);
+    }
+  });
+
   router.get("/:key/containers/:container/logs/stream", async (req, res) => {
     const parsed = containerNameSchema.safeParse(req.params.container);
     if (!parsed.success) {

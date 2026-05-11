@@ -677,6 +677,21 @@ export class EnvironmentsService {
     }
   }
 
+  async listContainerLogs(key: string, container: string, page = 0, perPage = 50) {
+    await this.get(key);
+    const safePage = Math.max(0, Number.isFinite(page) ? Math.floor(page) : 0);
+    const safePerPage = Math.max(1, Math.min(100, Number.isFinite(perPage) ? Math.floor(perPage) : 50));
+    const tailLines = (safePage + 1) * safePerPage;
+    const result = await this.publishEnvironmentAction("environment.container.logs", key, { container, tailLines });
+    const lines = splitLogLines(result.output);
+    const pageEnd = Math.max(0, lines.length - safePage * safePerPage);
+    const pageStart = Math.max(0, pageEnd - safePerPage);
+
+    return lines
+      .slice(pageStart, pageEnd)
+      .map((log) => ({ log, level: "info" as const }));
+  }
+
   async listComposeLogs(key: string, page = 0, perPage = 50) {
     await this.get(key);
     const safePage = Math.max(0, Number.isFinite(page) ? Math.floor(page) : 0);

@@ -719,6 +719,20 @@ export default function App() {
     return api.lifecycleActions(key, page, perPage);
   }
 
+  async function listComposeLogs(key: string, page = 0, perPage = 50) {
+    if (!api) {
+      throw new Error("API client is unavailable.");
+    }
+    return api.composeLogs(key, page, perPage);
+  }
+
+  async function listContainerLogs(key: string, container: string, page = 0, perPage = 50) {
+    if (!api) {
+      throw new Error("API client is unavailable.");
+    }
+    return api.containerLogs(key, container, page, perPage);
+  }
+
   async function getLifecycleActionLogs(id: string, cursor?: string, limit = 200): Promise<EnvironmentActionLogsPage> {
     if (!api) {
       throw new Error("API client is unavailable.");
@@ -933,6 +947,8 @@ export default function App() {
             onListEnvironmentFiles={listEnvironmentFiles}
             onInspectMongo={inspectMongo}
             onListLifecycleActions={listLifecycleActions}
+            onListComposeLogs={listComposeLogs}
+            onListContainerLogs={listContainerLogs}
             onGetLifecycleActionLogs={getLifecycleActionLogs}
             onStreamLifecycleActionLogs={streamLifecycleActionLogs}
             onAction={runEnvironmentAction}

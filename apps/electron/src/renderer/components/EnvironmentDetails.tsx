@@ -23,6 +23,7 @@ import TerminalIcon from "@mui/icons-material/Terminal";
 import ViewInArIcon from "@mui/icons-material/ViewInAr";
 import { useEffect, useMemo, useRef, useState, type UIEvent } from "react";
 import type {
+  ComposeLogEntry,
   ContainerFileEntry,
   EnvironmentActionLog,
   EnvironmentActionLogsPage,
@@ -36,6 +37,9 @@ import type {
 } from "../types";
 
 type UtilityTab = "logs" | "files" | "exec" | "mongo" | "actions";
+type LogScope = "environment" | "container";
+
+const LOG_TAIL_PAGE_SIZE = 100;
 
 type EnvironmentDetailsProps = {
   environment?: EnvironmentRecord;
@@ -46,6 +50,8 @@ type EnvironmentDetailsProps = {
   onListEnvironmentFiles: (key: string, path: string) => Promise<ContainerFileEntry[]>;
   onInspectMongo: (key: string) => Promise<MongoPreviewPayload>;
   onListLifecycleActions: (key: string, page?: number, perPage?: number) => Promise<EnvironmentActionsPage>;
+  onListComposeLogs: (key: string, page?: number, perPage?: number) => Promise<ComposeLogEntry[]>;
+  onListContainerLogs: (key: string, container: string, page?: number, perPage?: number) => Promise<ComposeLogEntry[]>;
   onGetLifecycleActionLogs: (id: string, cursor?: string, limit?: number) => Promise<EnvironmentActionLogsPage>;
   onStreamLifecycleActionLogs: (id: string, options: { from?: number; replayTail?: number }, onEvent: (event: StreamLogEvent) => void, signal?: AbortSignal) => Promise<void>;
   onAction: (key: string, action: "start" | "stop" | "restart" | "resume" | "delete") => Promise<void>;
@@ -66,6 +72,8 @@ export function EnvironmentDetails({
   onListEnvironmentFiles,
   onInspectMongo,
   onListLifecycleActions,
+  onListComposeLogs,
+  onListContainerLogs,
   onGetLifecycleActionLogs,
   onStreamLifecycleActionLogs,
   onAction,
@@ -92,12 +100,18 @@ export function EnvironmentDetails({
   const [actionLogsPage, setActionLogsPage] = useState<EnvironmentActionLogsPage>();
   const [loadingActions, setLoadingActions] = useState(false);
   const [loadingActionLogs, setLoadingActionLogs] = useState(false);
+  const [logTailEntries, setLogTailEntries] = useState<Array<{ at: string; message: string; level: "info" | "error"; system: boolean }>>([]);
+  const [logTailPage, setLogTailPage] = useState(0);
+  const [logTailHasMore, setLogTailHasMore] = useState(false);
+  const [loadingLogTail, setLoadingLogTail] = useState(false);
   const [execCommand, setExecCommand] = useState("pwd && ls -la");
   const [execOutput, setExecOutput] = useState("");
   const [execRunning, setExecRunning] = useState(false);
   const [utilityTab, setUtilityTab] = useState<UtilityTab>("logs");
   const fileRequestIdRef = useRef(0);
 
+  const environmentSelected = selectedContainer === "";
+  const activeTabs = useMemo<UtilityTab[]>(() => environmentSelected ? ["logs", "files", "mongo", "actions"] : ["logs", "files", "exec"], [environmentSelected]);
   const environmentLogSessions = useMemo(() => liveLogSessions.filter((session) => session.environmentKey === environment?.key), [liveLogSessions, environment?.key]);
   const selectedLiveSession = selectedContainer
     ? environmentLogSessions.find((session) => session.title === selectedContainer && session.status === "running")
@@ -118,6 +132,7 @@ export function EnvironmentDetails({
     level: entry.level,
     system: false
   })), [actionLogs, selectedAction?.createdAt]);
+  const displayedPrimaryLogs = displayedLiveLogs.length ? displayedLiveLogs : logTailEntries;
 
   useEffect(() => {
     if (!open || !environment) {
@@ -135,6 +150,12 @@ export function EnvironmentDetails({
     setFiles([]);
     setMongoPreview(undefined);
   }, [open, environment?.key, environment?.status]);
+
+  useEffect(() => {
+    if (!activeTabs.includes(utilityTab)) {
+      setUtilityTab("logs");
+    }
+  }, [activeTabs, utilityTab]);
 
   useEffect(() => {
     if (!open || !environment) {
@@ -162,6 +183,34 @@ export function EnvironmentDetails({
     setContainerPath("/");
     void loadFiles("/");
   }, [open, environment?.key, environment?.status, selectedContainer]);
+
+  useEffect(() => {
+    setLogTailEntries([]);
+    setLogTailPage(0);
+    setLogTailHasMore(false);
+    if (open && environment && utilityTab === "logs") {
+      void loadLogTail(0, true);
+    }
+  }, [open, environment?.key, selectedContainer]);
+
+  useEffect(() => {
+    if (!open || !environment) {
+      return;
+    }
+
+    if (utilityTab === "logs") {
+      void loadLogTail(0, true);
+    }
+    if (utilityTab === "files") {
+      void loadFiles("/");
+    }
+    if (utilityTab === "mongo" && environmentSelected) {
+      void loadMongo();
+    }
+    if (utilityTab === "actions" && environmentSelected) {
+      void loadActions();
+    }
+  }, [open, utilityTab, environmentSelected]);
 
   useEffect(() => {
     if (!open || !selectedActionId || !selectedAction || (selectedAction.status !== "queued" && selectedAction.status !== "running")) {
@@ -270,8 +319,7 @@ export function EnvironmentDetails({
     try {
       const nextContainers = await onListContainers(environment.key);
       setContainers(nextContainers);
-      const firstName = nextContainers.map(containerName).find(Boolean) ?? "";
-      setSelectedContainer((current) => nextContainers.some((container) => containerName(container) === current) ? current : firstName);
+      setSelectedContainer((current) => current && nextContainers.some((container) => containerName(container) === current) ? current : "");
     } catch (error) {
       setToolError(toErrorMessage(error));
     } finally {
@@ -285,6 +333,18 @@ export function EnvironmentDetails({
     }
 
     setSelectedContainer(name);
+    setContainerPath("/");
+    setFiles([]);
+    setExecOutput("");
+    setToolError(undefined);
+  }
+
+  function selectEnvironment(): void {
+    if (environmentSelected) {
+      return;
+    }
+
+    setSelectedContainer("");
     setContainerPath("/");
     setFiles([]);
     setExecOutput("");
@@ -321,6 +381,50 @@ export function EnvironmentDetails({
         setLoadingFiles(false);
       }
     }
+  }
+
+  async function loadLogTail(page = 0, replace = true): Promise<void> {
+    if (!environment || environment.status !== "running") {
+      setLogTailEntries([]);
+      setLogTailHasMore(false);
+      return;
+    }
+
+    const scope: LogScope = selectedContainer ? "container" : "environment";
+    const containerAtRequest = selectedContainer;
+    setLoadingLogTail(true);
+    setToolError(undefined);
+    try {
+      const entries = scope === "container"
+        ? await onListContainerLogs(environment.key, containerAtRequest, page, LOG_TAIL_PAGE_SIZE)
+        : await onListComposeLogs(environment.key, page, LOG_TAIL_PAGE_SIZE);
+
+      if (containerAtRequest !== selectedContainer) {
+        return;
+      }
+
+      const mapped = entries.map((entry, index) => ({
+        at: new Date(Date.now() - Math.max(0, entries.length - index - 1) * 1000).toISOString(),
+        message: entry.log,
+        level: entry.level,
+        system: true
+      }));
+      setLogTailPage(page);
+      setLogTailHasMore(entries.length === LOG_TAIL_PAGE_SIZE);
+      setLogTailEntries((current) => replace ? mapped : mergeTerminalLogs(mapped, current));
+    } catch (error) {
+      setToolError(toErrorMessage(error));
+    } finally {
+      setLoadingLogTail(false);
+    }
+  }
+
+  async function loadOlderLogTail(): Promise<void> {
+    if (!logTailHasMore || loadingLogTail) {
+      return;
+    }
+
+    await loadLogTail(logTailPage + 1, false);
   }
 
   async function runExecCommand(): Promise<void> {
@@ -514,7 +618,7 @@ export function EnvironmentDetails({
           <Box component="aside" sx={{ minHeight: 0, overflow: "auto" }}>
             <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ px: 0.5, mb: 1.5 }}>
               <Typography variant="caption" color="text.secondary" sx={{ fontFamily: monoFont, fontWeight: 900, textTransform: "uppercase" }}>
-                Active Containers ({containers.filter((container) => container.State === "running").length || containers.length})
+                Environment Scope
               </Typography>
               <IconButton aria-label="Refresh containers" onClick={() => void loadContainers()} disabled={loadingContainers || environment.status !== "running"} sx={iconButtonSx}>
                 {loadingContainers ? <CircularProgress size={18} /> : <RefreshIcon />}
@@ -522,6 +626,44 @@ export function EnvironmentDetails({
             </Stack>
 
             <Stack spacing={1.5}>
+              <Button
+                onClick={selectEnvironment}
+                sx={{
+                  display: "block",
+                  textAlign: "left",
+                  p: 2,
+                  borderRadius: "8px",
+                  border: environmentSelected ? "2px solid #00dbe9" : "1px solid #3b494b",
+                  bgcolor: environmentSelected ? "rgba(0, 240, 255, 0.1)" : "#192122",
+                  color: "text.primary",
+                  textTransform: "none",
+                  "&:hover": { borderColor: "rgba(0, 240, 255, 0.65)", bgcolor: environmentSelected ? "rgba(0, 240, 255, 0.13)" : "#232b2c" }
+                }}
+              >
+                <Stack spacing={1}>
+                  <Stack direction="row" alignItems="flex-start" justifyContent="space-between" spacing={1}>
+                    <Typography sx={{ color: environmentSelected ? "#dbfcff" : "text.primary", fontFamily: monoFont, fontSize: 14, fontWeight: 900 }} noWrap>
+                      {environment.key}
+                    </Typography>
+                    <StorageIcon sx={{ color: environment.status === "running" ? "#4edea3" : "#849495", fontSize: 18, flexShrink: 0 }} />
+                  </Stack>
+                  <Typography sx={{ color: "text.secondary", fontFamily: monoFont, fontSize: 10, textTransform: "uppercase" }} noWrap>
+                    Compose environment
+                  </Typography>
+                  <Stack direction="row" spacing={0.75} flexWrap="wrap" useFlexGap>
+                    <Box component="span" sx={{ px: 0.75, py: 0.25, borderRadius: "2px", bgcolor: "#2e3637", color: "text.secondary", fontFamily: monoFont, fontSize: 10 }}>
+                      {environment.status}
+                    </Box>
+                    <Box component="span" sx={{ px: 0.75, py: 0.25, borderRadius: "2px", bgcolor: "#2e3637", color: "#00f0ff", fontFamily: monoFont, fontSize: 10 }}>
+                      {containers.length} containers
+                    </Box>
+                  </Stack>
+                </Stack>
+              </Button>
+
+              <Typography variant="caption" color="text.secondary" sx={{ px: 0.5, fontFamily: monoFont, fontWeight: 900, textTransform: "uppercase" }}>
+                Containers ({containers.filter((container) => container.State === "running").length || containers.length})
+              </Typography>
               {containers.length === 0 ? (
                 <Box sx={{ border: "1px solid #3b494b", bgcolor: "#192122", p: 2, color: "text.secondary", fontFamily: monoFont, fontSize: 13 }}>
                   {environment.status === "running" ? "No containers found." : "Start the environment to inspect containers."}
@@ -574,17 +716,31 @@ export function EnvironmentDetails({
           <Box sx={{ minWidth: 0, minHeight: 0, border: "1px solid #3b494b", borderRadius: "8px", bgcolor: "#192122", overflow: "hidden", display: "flex", flexDirection: "column" }}>
             <Box sx={{ display: "flex", alignItems: "center", px: 2, bgcolor: "#232b2c", borderBottom: "1px solid #3b494b", minHeight: 48, overflowX: "auto" }}>
               <Stack direction="row" sx={{ minWidth: 0 }}>
-                <UtilityTabButton label="Logs" active={utilityTab === "logs"} onClick={() => setUtilityTab("logs")} />
-                <UtilityTabButton label="Files" active={utilityTab === "files"} onClick={() => { setUtilityTab("files"); void loadFiles(containerPath); }} />
-                <UtilityTabButton label="Exec" active={utilityTab === "exec"} onClick={() => setUtilityTab("exec")} />
-                <UtilityTabButton label="Mongo" active={utilityTab === "mongo"} onClick={() => { setUtilityTab("mongo"); void loadMongo(); }} />
-                <UtilityTabButton label="Actions" active={utilityTab === "actions"} onClick={() => setUtilityTab("actions")} />
+                {activeTabs.map((tab) => (
+                  <UtilityTabButton
+                    key={tab}
+                    label={tab === "mongo" ? "Database" : tab}
+                    active={utilityTab === tab}
+                    onClick={() => {
+                      setUtilityTab(tab);
+                      if (tab === "files") {
+                        void loadFiles("/");
+                      }
+                      if (tab === "mongo") {
+                        void loadMongo();
+                      }
+                      if (tab === "actions") {
+                        void loadActions();
+                      }
+                    }}
+                  />
+                ))}
               </Stack>
               <Stack direction="row" spacing={1.5} alignItems="center" sx={{ ml: "auto", pl: 2 }}>
                 <Stack direction="row" spacing={1} alignItems="center">
                   <Box sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: selectedLiveSession?.status === "running" ? "#4edea3" : "#849495" }} />
                   <Typography sx={{ color: "text.secondary", fontFamily: monoFont, fontSize: 10, textTransform: "uppercase" }} noWrap>
-                    {selectedLiveSession?.status === "running" ? "Streaming" : selectedContainer ? shortName(selectedContainer) : "Idle"}
+                    {selectedLiveSession?.status === "running" ? "Streaming" : selectedContainer ? shortName(selectedContainer) : "Compose"}
                   </Typography>
                 </Stack>
                 {utilityTab === "logs" ? (
@@ -593,7 +749,7 @@ export function EnvironmentDetails({
                       Stop
                     </Button>
                   ) : (
-                    <Button size="small" variant="outlined" disabled={!selectedContainer && containers.length > 0} onClick={() => selectedContainer ? onStartContainerLogStream(environment.key, selectedContainer) : onStartComposeLogStream(environment.key)} sx={smallButtonSx}>
+                    <Button size="small" variant="outlined" disabled={environment.status !== "running"} onClick={() => selectedContainer ? onStartContainerLogStream(environment.key, selectedContainer) : onStartComposeLogStream(environment.key)} sx={smallButtonSx}>
                       Stream
                     </Button>
                   )
@@ -603,7 +759,14 @@ export function EnvironmentDetails({
 
             <Box sx={{ flex: 1, minHeight: 0, overflow: "auto", bgcolor: utilityTab === "logs" || utilityTab === "exec" ? "#080f10" : "#192122" }}>
               {utilityTab === "logs" ? (
-                <LogTerminal logs={displayedLiveLogs.length ? displayedLiveLogs : displayedActionLogs} emptyText="Open compose or container logs to populate this terminal." compact />
+                <LogTerminal
+                  logs={displayedPrimaryLogs}
+                  emptyText={environment.status === "running" ? "No log tail loaded yet." : "Start the environment to read logs."}
+                  compact
+                  hasOlder={logTailHasMore && displayedLiveLogs.length === 0}
+                  loadingOlder={loadingLogTail}
+                  onReachTop={() => void loadOlderLogTail()}
+                />
               ) : null}
 
               {utilityTab === "files" ? (
@@ -670,27 +833,29 @@ export function EnvironmentDetails({
               ) : null}
             </Box>
 
-            <Box sx={{ p: 1.5, bgcolor: "#2e3637", borderTop: "1px solid #3b494b", display: "flex", alignItems: "center", gap: 1.5 }}>
-              <TerminalIcon sx={{ color: "#00f0ff", fontSize: 18 }} />
-              <TextField
-                size="small"
-                placeholder="Run command..."
-                value={execCommand}
-                onChange={(event) => setExecCommand(event.target.value)}
-                disabled={!selectedContainer || execRunning}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter") {
-                    event.preventDefault();
-                    void runExecCommand();
-                    setUtilityTab("exec");
-                  }
-                }}
-                sx={commandFieldSx}
-              />
-              <Button variant="outlined" disabled={!selectedContainer || execRunning} onClick={() => { setUtilityTab("exec"); void runExecCommand(); }} sx={smallButtonSx}>
-                {execRunning ? "Running" : "Enter"}
-              </Button>
-            </Box>
+            {selectedContainer ? (
+              <Box sx={{ p: 1.5, bgcolor: "#2e3637", borderTop: "1px solid #3b494b", display: "flex", alignItems: "center", gap: 1.5 }}>
+                <TerminalIcon sx={{ color: "#00f0ff", fontSize: 18 }} />
+                <TextField
+                  size="small"
+                  placeholder="Run command..."
+                  value={execCommand}
+                  onChange={(event) => setExecCommand(event.target.value)}
+                  disabled={execRunning}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      event.preventDefault();
+                      void runExecCommand();
+                      setUtilityTab("exec");
+                    }
+                  }}
+                  sx={commandFieldSx}
+                />
+                <Button variant="outlined" disabled={execRunning} onClick={() => { setUtilityTab("exec"); void runExecCommand(); }} sx={smallButtonSx}>
+                  {execRunning ? "Running" : "Enter"}
+                </Button>
+              </Box>
+            ) : null}
           </Box>
         </Box>
       </Box>
@@ -1175,6 +1340,22 @@ function appendUniqueLogs(current: EnvironmentActionLog[], next: EnvironmentActi
     }
     return (left.createdAt ?? "").localeCompare(right.createdAt ?? "");
   });
+}
+
+function mergeTerminalLogs(primary: Array<{ at: string; message: string; level: "info" | "error"; system: boolean }>, secondary: Array<{ at: string; message: string; level: "info" | "error"; system: boolean }>) {
+  const seen = new Set<string>();
+  const merged: Array<{ at: string; message: string; level: "info" | "error"; system: boolean }> = [];
+
+  for (const entry of [...primary, ...secondary]) {
+    const id = `${entry.level}:${entry.message}`;
+    if (seen.has(id)) {
+      continue;
+    }
+    seen.add(id);
+    merged.push(entry);
+  }
+
+  return merged;
 }
 
 function logIdentity(entry: EnvironmentActionLog): string {
