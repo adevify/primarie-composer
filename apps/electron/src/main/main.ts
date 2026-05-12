@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain, type OpenDialogOptions } from "electron";
+import { app, BrowserWindow, dialog, ipcMain, shell, type IpcMainInvokeEvent, type OpenDialogOptions } from "electron";
 import path from "node:path";
 import { assertRepoPath, getGitState, readChangedFiles, readEnvExample } from "./git.js";
 import { startWatchingRepo, stopWatchingRepo } from "./file-sync.js";
@@ -21,6 +21,7 @@ function createWindow(): void {
   });
 
   attachDebugHandlers(mainWindow);
+  attachExternalLinkHandler(mainWindow);
   mainWindow.webContents.openDevTools({ mode: "detach" });
 
   if (process.env.ELECTRON_RENDERER_URL) {
@@ -28,6 +29,15 @@ function createWindow(): void {
   } else {
     void mainWindow.loadFile(path.join(__dirname, "../renderer/index.html"));
   }
+}
+
+function attachExternalLinkHandler(window: BrowserWindow): void {
+  window.webContents.setWindowOpenHandler(({ url }) => {
+    void openExternalUrl(url).catch((error) => {
+      console.error(`[external-link:open-failed] ${url}`, error);
+    });
+    return { action: "deny" };
+  });
 }
 
 function attachDebugHandlers(window: BrowserWindow): void {
@@ -71,7 +81,7 @@ app.on("before-quit", () => {
 });
 
 function registerIpcHandlers(): void {
-  ipcMain.handle("repo:select-directory", async () => {
+  registerIpcHandler("repo:select-directory", async () => {
     const options: OpenDialogOptions = {
       title: "Choose local repository",
       properties: ["openDirectory"]
@@ -87,25 +97,37 @@ function registerIpcHandlers(): void {
     return selectedPath;
   });
 
-  ipcMain.handle("repo:get-git-state", async (_event, repoPath: unknown) => {
+  registerIpcHandler("repo:get-git-state", async (_event, repoPath: unknown) => {
     return getGitState(validateRepoPathInput(repoPath));
   });
 
-  ipcMain.handle("repo:read-changed-files", async (_event, repoPath: unknown) => {
+  registerIpcHandler("repo:read-changed-files", async (_event, repoPath: unknown) => {
     return readChangedFiles(validateRepoPathInput(repoPath));
   });
 
-  ipcMain.handle("repo:read-env-example", async (_event, repoPath: unknown) => {
+  registerIpcHandler("repo:read-env-example", async (_event, repoPath: unknown) => {
     return readEnvExample(validateRepoPathInput(repoPath));
   });
 
-  ipcMain.handle("repo:start-watching", (_event, repoPath: unknown) => {
+  registerIpcHandler("repo:start-watching", (_event, repoPath: unknown) => {
     startWatchingRepo(validateRepoPathInput(repoPath));
   });
 
-  ipcMain.handle("repo:stop-watching", () => {
+  registerIpcHandler("repo:stop-watching", () => {
     stopWatchingRepo();
   });
+
+  registerIpcHandler("external:open-url", async (_event, url: unknown) => {
+    await openExternalUrl(validateExternalUrlInput(url));
+  });
+}
+
+function registerIpcHandler(
+  channel: string,
+  listener: (event: IpcMainInvokeEvent, ...args: unknown[]) => unknown
+): void {
+  ipcMain.removeHandler(channel);
+  ipcMain.handle(channel, listener);
 }
 
 function validateRepoPathInput(repoPath: unknown): string {
@@ -113,4 +135,33 @@ function validateRepoPathInput(repoPath: unknown): string {
     throw new Error("Repository path must be a string.");
   }
   return assertRepoPath(repoPath);
+}
+
+function validateExternalUrlInput(url: unknown): string {
+  if (typeof url !== "string") {
+    throw new Error("External URL must be a string.");
+  }
+
+  return normalizeExternalUrl(url);
+}
+
+function normalizeExternalUrl(url: string): string {
+  const parsedUrl = new URL(url);
+  if (parsedUrl.protocol !== "http:" && parsedUrl.protocol !== "https:") {
+    throw new Error("Only HTTP and HTTPS URLs can be opened externally.");
+  }
+  return parsedUrl.toString();
+}
+
+async function openExternalUrl(url: string): Promise<void> {
+  const normalizedUrl = normalizeExternalUrl(url);
+  console.log(`[external-link:${getHostPlatform()}] ${normalizedUrl}`);
+  await shell.openExternal(normalizedUrl);
+}
+
+function getHostPlatform(): "macos" | "windows" | "linux" | "unknown" {
+  if (process.platform === "darwin") return "macos";
+  if (process.platform === "win32") return "windows";
+  if (process.platform === "linux") return "linux";
+  return "unknown";
 }

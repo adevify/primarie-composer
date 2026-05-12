@@ -14,6 +14,7 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import FolderIcon from "@mui/icons-material/Folder";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
+import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import PauseCircleOutlineIcon from "@mui/icons-material/PauseCircleOutline";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import RefreshIcon from "@mui/icons-material/Refresh";
@@ -62,6 +63,7 @@ type EnvironmentDetailsProps = {
   onStartComposeLogStream: (key: string) => void;
   onStartContainerLogStream: (key: string, container: string) => void;
   onStopLiveLogSession: (id: string) => void;
+  onOpenExternalUrl: (url: string) => void;
 };
 
 export function EnvironmentDetails({
@@ -84,7 +86,8 @@ export function EnvironmentDetails({
   liveLogSessions,
   onStartComposeLogStream,
   onStartContainerLogStream,
-  onStopLiveLogSession
+  onStopLiveLogSession,
+  onOpenExternalUrl
 }: EnvironmentDetailsProps) {
   const [containers, setContainers] = useState<EnvironmentContainer[]>([]);
   const [selectedContainer, setSelectedContainer] = useState("");
@@ -607,12 +610,28 @@ export function EnvironmentDetails({
 
         <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5} alignItems={{ xs: "stretch", sm: "center" }}>
           <Box sx={{ minWidth: { xl: 230 }, mr: { xl: 2 }, textAlign: { xs: "left", sm: "right" } }}>
-            <Typography color="#00f0ff" fontWeight={800} noWrap>
-              {buildDomains(environment)[0]}
-            </Typography>
-            <Typography color="text.secondary" noWrap>
-              {buildDomains(environment)[1]}
-            </Typography>
+            <Stack spacing={0.25} alignItems={{ xs: "flex-start", sm: "flex-end" }}>
+              {buildDomains(environment).map((domain, index) => (
+                <Button
+                  key={domain}
+                  onClick={() => onOpenExternalUrl(toExternalUrl(domain))}
+                  endIcon={<OpenInNewIcon fontSize="small" />}
+                  sx={{
+                    color: index === 0 ? "#00f0ff" : "text.secondary",
+                    fontWeight: index === 0 ? 800 : 400,
+                    justifyContent: { xs: "flex-start", sm: "flex-end" },
+                    maxWidth: "100%",
+                    minWidth: 0,
+                    p: 0,
+                    textTransform: "none"
+                  }}
+                >
+                  <Typography component="span" color="inherit" fontWeight="inherit" noWrap>
+                    {domain}
+                  </Typography>
+                </Button>
+              ))}
+            </Stack>
           </Box>
           <Button
             variant="outlined"
@@ -1298,6 +1317,10 @@ function buildDomains(environment: EnvironmentRecord): string[] {
     `admin-${environment.key}.prmr.md`,
     `api-${environment.key}.prmr.md`
   ];
+}
+
+function toExternalUrl(domain: string): string {
+  return `https://${domain}`;
 }
 
 function isPullRequest(value: EnvironmentRecord["createdBy"]): value is { title?: string; url: string } {

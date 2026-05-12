@@ -1,4 +1,4 @@
-import type { PrimarieElectronAPI } from "../main/preload";
+import type { ElectronOpenAPI, PrimarieElectronAPI } from "../main/preload";
 
 export type ChangedFileStatus = "modified" | "added" | "deleted";
 
@@ -260,6 +260,7 @@ export type SyncState = {
 
 declare global {
   interface Window {
+    electron: ElectronOpenAPI;
     primarieElectron: PrimarieElectronAPI;
   }
 }

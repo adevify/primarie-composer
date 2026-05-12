@@ -22,6 +22,7 @@ const DASHBOARD_LOGS_PER_PAGE = 50;
 
 export default function App() {
   const electronBridge = window.primarieElectron;
+  const externalLinkBridge = window.electron;
   const [activePage, setActivePage] = useState<"dashboard" | "environments" | "users">("dashboard");
   const [session, setSession] = useState<AuthSession | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
@@ -861,7 +862,7 @@ export default function App() {
     );
   }
 
-  if (!electronBridge) {
+  if (!electronBridge || !externalLinkBridge) {
     return (
       <Box sx={{ minHeight: "100vh", display: "grid", placeItems: "center", p: 3 }}>
         <Alert severity="error" sx={{ maxWidth: 720 }}>
@@ -920,6 +921,7 @@ export default function App() {
               onDetails={setDetailsEnvironment}
               onSelectActive={setActiveEnvironment}
               onAction={runEnvironmentAction}
+              onOpenExternalUrl={(url) => void externalLinkBridge.openUrl(url)}
             />
           </>
         ) : detailsEnvironment ? (
@@ -944,6 +946,7 @@ export default function App() {
             onStartComposeLogStream={startComposeLogStream}
             onStartContainerLogStream={startContainerLogStream}
             onStopLiveLogSession={stopLiveLogSession}
+            onOpenExternalUrl={(url) => void externalLinkBridge.openUrl(url)}
           />
         ) : (
           <>

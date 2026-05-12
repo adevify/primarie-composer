@@ -36,6 +36,7 @@ type EnvironmentsPageProps = {
   onDetails: (environment: EnvironmentRecord) => void;
   onSelectActive: (key: string) => void;
   onAction: (key: string, action: "start" | "stop" | "restart" | "resume" | "delete") => Promise<void>;
+  onOpenExternalUrl: (url: string) => void;
 };
 
 type Filter = "all" | "mine" | "production" | "prs";
@@ -49,7 +50,8 @@ export function EnvironmentsPage({
   onCreate,
   onDetails,
   onSelectActive,
-  onAction
+  onAction,
+  onOpenExternalUrl
 }: EnvironmentsPageProps) {
   const [filter, setFilter] = useState<Filter>("all");
   const filtered = useMemo(() => {
@@ -146,9 +148,13 @@ export function EnvironmentsPage({
                 </TableCell>
                 <TableCell>
                   {environment.status === "running" ? (
-                    <Button href={`https://${buildDomains(environment)[0]}`} target="_blank" rel="noreferrer" endIcon={<OpenInNewIcon fontSize="small" />} sx={{ color: "#00f0ff", justifyContent: "flex-start", p: 0 }}>
-                      {buildDomains(environment)[0]}
-                    </Button>
+                    <Stack spacing={0.5} alignItems="flex-start">
+                      {buildDomains(environment).map((domain) => (
+                        <Button key={domain} onClick={() => onOpenExternalUrl(toExternalUrl(domain))} endIcon={<OpenInNewIcon fontSize="small" />} sx={{ color: "#00f0ff", justifyContent: "flex-start", p: 0, textTransform: "none" }}>
+                          {domain}
+                        </Button>
+                      ))}
+                    </Stack>
                   ) : (
                     <Typography color={environment.status === "failed" ? "#ffb4ab" : "text.secondary"} fontStyle="italic">
                       {environment.status === "failed" ? "connection refused" : environment.status === "creating" ? "provisioning..." : "offline"}
@@ -237,6 +243,10 @@ function ResourceBar({ label, value, color, detail }: { label: string; value: nu
 
 function buildDomains(environment: EnvironmentRecord): string[] {
   return [`admin-${environment.key}.prmr.md`, `api-${environment.key}.prmr.md`];
+}
+
+function toExternalUrl(domain: string): string {
+  return `https://${domain}`;
 }
 
 function isPullRequest(value: EnvironmentRecord["createdBy"]): value is { title?: string; url: string } {
