@@ -169,6 +169,33 @@ write_lock_conflict_result() {
   esac
 }
 
+run_heartbeat() {
+  local log_file="$1"
+  local interval="${2:-30}"
+  local sleep_pid=""
+
+  stop_heartbeat_sleep() {
+    if [[ -n "$sleep_pid" ]]; then
+      kill "$sleep_pid" >/dev/null 2>&1 || true
+      wait "$sleep_pid" >/dev/null 2>&1 || true
+      sleep_pid=""
+    fi
+  }
+
+  trap 'stop_heartbeat_sleep; exit 0' TERM INT EXIT
+
+  while true; do
+    sleep "$interval" &
+    sleep_pid="$!"
+    if ! wait "$sleep_pid" >/dev/null 2>&1; then
+      sleep_pid=""
+      exit 0
+    fi
+    sleep_pid=""
+    printf "[composer-worker] action still running at %s\n" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$log_file"
+  done
+}
+
 run_and_capture() {
   local log_file="$1"
   shift
@@ -184,12 +211,7 @@ run_and_capture() {
   : >> "$log_file"
 
   printf "[composer-worker] running command at %s: %s\n" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$*" >> "$log_file"
-  (
-    while true; do
-      sleep "${ACTION_HEARTBEAT_SECONDS:-30}"
-      printf "[composer-worker] action still running at %s\n" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$log_file"
-    done
-  ) &
+  run_heartbeat "$log_file" "${ACTION_HEARTBEAT_SECONDS:-30}" >/dev/null 2>&1 &
   heartbeat_pid="$!"
 
   set +e
@@ -198,6 +220,7 @@ run_and_capture() {
   set -e
 
   kill "$heartbeat_pid" >/dev/null 2>&1 || true
+  wait "$heartbeat_pid" >/dev/null 2>&1 || true
   printf "[composer-worker] action finished with exit code %s at %s\n" "$code" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$log_file"
 
   cat "$output_file"
