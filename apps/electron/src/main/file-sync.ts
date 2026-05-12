@@ -92,7 +92,7 @@ async function flushPendingPaths(): Promise<void> {
   }
 
   pendingPaths.clear();
-  await emitRepoSyncSnapshot(false);
+  await emitRepoSyncSnapshot(true);
 }
 
 function startGitStatePolling(): void {

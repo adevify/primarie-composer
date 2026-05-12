@@ -65,8 +65,13 @@ export default function App() {
     activeEnvironmentKey: localStorage.getItem(ACTIVE_ENV_STORAGE_KEY) ?? "",
     errors: []
   });
+  const activeEnvironmentKeyRef = useRef(syncState.activeEnvironmentKey);
 
   const api = useMemo(() => (session ? new ComposerApiClient(session) : null), [session]);
+
+  useEffect(() => {
+    activeEnvironmentKeyRef.current = syncState.activeEnvironmentKey;
+  }, [syncState.activeEnvironmentKey]);
 
   useEffect(() => {
     return () => {
@@ -768,6 +773,7 @@ export default function App() {
 
   function setActiveEnvironment(key: string): void {
     void electronBridge?.stopWatchingRepo();
+    activeEnvironmentKeyRef.current = key;
     if (key) {
       localStorage.setItem(ACTIVE_ENV_STORAGE_KEY, key);
     } else {
@@ -786,9 +792,11 @@ export default function App() {
       if (!electronBridge) {
         throw new Error("Electron preload bridge is unavailable.");
       }
-      await electronBridge.startWatchingRepo(repoPath);
+      activeEnvironmentKeyRef.current = key;
       setSyncState((current) => ({ ...current, watching: true, activeEnvironmentKey: key }));
+      await electronBridge.startWatchingRepo(repoPath);
     } catch (error) {
+      setSyncState((current) => ({ ...current, watching: false }));
       pushSyncError(toErrorMessage(error));
     }
   }
@@ -828,17 +836,18 @@ export default function App() {
   }
 
   async function syncRepoSnapshot(snapshot: RepoSyncSnapshot): Promise<void> {
-    if (!api || !repoPath || !syncState.activeEnvironmentKey) {
+    const activeEnvironmentKey = activeEnvironmentKeyRef.current;
+    if (!api || !repoPath || !activeEnvironmentKey) {
       return;
     }
 
     try {
       const syncableFiles = snapshot.files.filter((file) => !file.warning);
       snapshot.files.filter((file) => file.warning).forEach((file) => pushSyncError(`${file.path}: ${file.warning}`));
-      const chunks = chunkChangedFiles(syncableFiles);
+      const chunks = syncableFiles.length > 0 ? chunkChangedFiles(syncableFiles) : [[]];
 
       for (const files of chunks) {
-        await api.syncFiles(syncState.activeEnvironmentKey, {
+        await api.syncFiles(activeEnvironmentKey, {
           branch: snapshot.gitState.branch,
           commit: snapshot.gitState.commit,
           files
