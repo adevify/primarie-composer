@@ -12,7 +12,7 @@ import { HostActionBusService, type HostActionLogHandler, type HostActionResult 
 import type { AuthenticatedUser } from "../auth/auth.middleware.js";
 import type { ChangedFilePayload, CreateEnvironmentPayload, EnvironmentOwner, EnvironmentSource, LifecycleAction, PullRequestRef, SyncFilesPayload } from "./environment.dtos.js";
 import { SystemLogCollection, type SystemLogActor, type SystemLogLevel, type SystemLogSource, type SystemLogTarget } from "../../db/logs.js";
-import { EnvironmentActionCollection, type EnvironmentActionLogFile } from "../../db/environment-actions.js";
+import { EnvironmentActionCollection, type EnvironmentActionLogFile, type EnvironmentActionRecord } from "../../db/environment-actions.js";
 
 const keyPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const execFileAsync = promisify(execFile);
@@ -559,6 +559,16 @@ export class EnvironmentsService {
         actionId: id,
         status: environment.status
       });
+      if (action === "delete") {
+        setTimeout(() => {
+          void this.cleanupEnvironmentData(key).catch((error) => {
+            logEnvironment("error", "cleanup_failed", {
+              key,
+              message: error instanceof Error ? error.message : String(error)
+            });
+          });
+        }, 3000);
+      }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       logEnvironment("error", "lifecycle_job_failed", {
@@ -653,7 +663,7 @@ export class EnvironmentsService {
           actionId: hostActionId,
           metadata: { action, previousStatus: record.status }
         });
-        await EnvironmentCollection.delete(key);
+        await this.cleanupEnvironmentData(key, { preserveActionId: hostActionId });
         logEnvironment("info", "lifecycle_action_completed", { key, action, status: removed.status });
         return removed;
       }
@@ -967,7 +977,7 @@ export class EnvironmentsService {
     });
 
     await this.updateStatus(key, "removed");
-    await EnvironmentCollection.delete(key);
+    await this.cleanupEnvironmentData(key);
     logEnvironment("info", "delete_completed", { key });
   }
 
@@ -1015,12 +1025,6 @@ export class EnvironmentsService {
     });
 
     await this.delete(matching.key);
-
-    await this.logSystemEvent(matching.key, "environment.pr_removed", "Pull request environment deleted", {
-      actor: actorFromPullRequest(reference),
-      source: "github",
-      target: targetForEnvironment(matching.key, reference)
-    });
   }
 
   private async publishEnvironmentAction(type: string, key: string, payload: Record<string, unknown> = {}, onLog?: HostActionLogHandler, actionId?: string): Promise<HostActionResult> {
@@ -1139,6 +1143,42 @@ export class EnvironmentsService {
 
   private actionLogPath(id: string, logFile?: EnvironmentActionLogFile): string {
     return logFile?.path ?? path.join(env.BUS_LOGS_DIR, `${id}.log`);
+  }
+
+  private async cleanupEnvironmentData(key: string, options: { preserveActionId?: string } = {}): Promise<void> {
+    const actions = await EnvironmentActionCollection.listAllByEnvironment(key);
+    const actionIdsFromLogs = await SystemLogCollection.actionIdsByEnvironment(key);
+    const actionRecordIds = new Set(actions.map((action) => action.id));
+    await Promise.all(actions
+      .filter((action) => action.id !== options.preserveActionId)
+      .map((action) => this.deleteActionLogFile(action))
+    );
+    await Promise.all(actionIdsFromLogs
+      .filter((actionId) => actionId !== options.preserveActionId && !actionRecordIds.has(actionId))
+      .map((actionId) => this.deleteLogPath(this.actionLogPath(actionId)))
+    );
+    await EnvironmentActionCollection.deleteByEnvironment(key, options.preserveActionId);
+    await SystemLogCollection.deleteByEnvironment(key);
+    await EnvironmentCollection.delete(key);
+    logEnvironment("info", "cleanup_completed", {
+      key,
+      actionRecords: actions.filter((action) => action.id !== options.preserveActionId).length,
+      hostActionLogs: actionIdsFromLogs.filter((actionId) => actionId !== options.preserveActionId && !actionRecordIds.has(actionId)).length,
+      preservedActionId: options.preserveActionId
+    });
+  }
+
+  private async deleteActionLogFile(action: EnvironmentActionRecord): Promise<void> {
+    await this.deleteLogPath(this.actionLogPath(action.id, action.logFile));
+  }
+
+  private async deleteLogPath(logPath: string): Promise<void> {
+    await fs.unlink(logPath).catch((error) => {
+      if (isNodeError(error) && error.code === "ENOENT") {
+        return;
+      }
+      throw error;
+    });
   }
 
   private async logSystemEvent(

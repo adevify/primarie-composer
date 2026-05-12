@@ -81,6 +81,21 @@ export const SystemLogCollection = (() => {
           .toArray()
       };
     }),
+    deleteByEnvironment: async (environmentKey: string) => withCol(col => col.deleteMany({
+      $or: [
+        { environmentKey },
+        { "target.environmentKey": environmentKey }
+      ]
+    })),
+    actionIdsByEnvironment: async (environmentKey: string) => withCol(async col => {
+      const actionIds = await col.distinct("actionId", {
+        $or: [
+          { environmentKey },
+          { "target.environmentKey": environmentKey }
+        ]
+      });
+      return actionIds.filter((actionId): actionId is string => typeof actionId === "string" && actionId.length > 0);
+    }),
     ensureIndexes: async () => {
       await withCol(col => col.createIndex({ createdAt: -1 }));
       await withCol(col => col.createIndex({ environmentKey: 1, createdAt: -1 }));

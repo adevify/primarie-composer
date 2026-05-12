@@ -62,6 +62,7 @@ export const EnvironmentActionCollection = (() => {
           .toArray()
       };
     }),
+    listAllByEnvironment: async (environmentKey: string) => withActionsCol(col => col.find({ environmentKey }).toArray()),
     update: async (id: string, patch: Partial<Omit<EnvironmentActionRecord, "id" | "createdAt">>) => withActionsCol(async col => {
       await col.updateOne({ id }, { $set: { ...patch, updatedAt: new Date() } });
       const record = await col.findOne({ id });
@@ -70,6 +71,10 @@ export const EnvironmentActionCollection = (() => {
       }
       return record;
     }),
+    deleteByEnvironment: async (environmentKey: string, exceptId?: string) => withActionsCol(col => col.deleteMany({
+      environmentKey,
+      ...(exceptId ? { id: { $ne: exceptId } } : {})
+    })),
     ensureIndexes: async () => {
       await withActionsCol(col => col.createIndex({ id: 1 }, { unique: true }));
       await withActionsCol(col => col.createIndex({ environmentKey: 1, createdAt: -1 }));
