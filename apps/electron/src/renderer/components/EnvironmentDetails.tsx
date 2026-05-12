@@ -114,6 +114,8 @@ export function EnvironmentDetails({
   const [execRunning, setExecRunning] = useState(false);
   const [utilityTab, setUtilityTab] = useState<UtilityTab>("logs");
   const fileRequestIdRef = useRef(0);
+  const mongoRequestIdRef = useRef(0);
+  const mongoRequestRef = useRef<{ key: string; id: number; promise: Promise<void> } | null>(null);
 
   const environmentSelected = selectedContainer === "";
   const activeTabs = useMemo<UtilityTab[]>(() => environmentSelected ? ["logs", "files", "mongo", "actions"] : ["logs", "files", "exec"], [environmentSelected]);
@@ -153,6 +155,9 @@ export function EnvironmentDetails({
 
   useEffect(() => {
     if (!open || !environment) {
+      mongoRequestIdRef.current += 1;
+      mongoRequestRef.current = null;
+      setLoadingMongo(false);
       return;
     }
 
@@ -166,6 +171,9 @@ export function EnvironmentDetails({
     setSelectedContainer("");
     setFiles([]);
     setMongoPreview(undefined);
+    mongoRequestIdRef.current += 1;
+    mongoRequestRef.current = null;
+    setLoadingMongo(false);
   }, [open, environment?.key, environment?.status]);
 
   useEffect(() => {
@@ -308,7 +316,7 @@ export function EnvironmentDetails({
   }, [open, selectedActionId, selectedAction?.status]);
 
   useEffect(() => {
-    if (!open || !environment) {
+    if (!open || !environment || environment.status !== "running") {
       return undefined;
     }
 
@@ -317,26 +325,50 @@ export function EnvironmentDetails({
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [open, environment?.key]);
+  }, [open, environment?.key, environment?.status]);
 
   async function loadMongo(showSpinner = true): Promise<void> {
-    if (!environment) {
+    if (!environment || environment.status !== "running") {
       return;
     }
 
+    const environmentKey = environment.key;
+    const activeRequest = mongoRequestRef.current;
+    if (activeRequest?.key === environmentKey) {
+      if (showSpinner) {
+        setLoadingMongo(true);
+      }
+      return activeRequest.promise;
+    }
+
+    const requestId = mongoRequestIdRef.current + 1;
+    mongoRequestIdRef.current = requestId;
     if (showSpinner) {
       setLoadingMongo(true);
     }
     setToolError(undefined);
-    try {
-      setMongoPreview(await onInspectMongo(environment.key));
-    } catch (error) {
-      setToolError(toErrorMessage(error));
-    } finally {
-      if (showSpinner) {
+    const request = onInspectMongo(environmentKey)
+      .then((preview) => {
+        if (mongoRequestRef.current?.id === requestId) {
+          setMongoPreview(preview);
+        }
+      })
+      .catch((error) => {
+        if (mongoRequestRef.current?.id === requestId) {
+          setToolError(toErrorMessage(error));
+        }
+      })
+      .finally(() => {
+        if (mongoRequestRef.current?.id !== requestId) {
+          return;
+        }
+
+        mongoRequestRef.current = null;
         setLoadingMongo(false);
-      }
-    }
+      });
+
+    mongoRequestRef.current = { key: environmentKey, id: requestId, promise: request };
+    return request;
   }
 
   async function loadContainers(): Promise<void> {
@@ -840,7 +872,7 @@ export function EnvironmentDetails({
               ) : null}
 
               {utilityTab === "mongo" ? (
-                <MongoPreview preview={mongoPreview} fill />
+                <MongoPreview preview={mongoPreview} loading={loadingMongo} fill />
               ) : null}
 
               {utilityTab === "actions" ? (
@@ -1176,7 +1208,7 @@ function LogTerminal({
   );
 }
 
-function MongoPreview({ preview, fill = false }: { preview?: MongoPreviewPayload; fill?: boolean }) {
+function MongoPreview({ preview, loading = false, fill = false }: { preview?: MongoPreviewPayload; loading?: boolean; fill?: boolean }) {
   const [selectedCollectionName, setSelectedCollectionName] = useState("");
   const collections = preview?.collections ?? [];
   const selected = collections.find((collection) => collection.name === selectedCollectionName) ?? collections[0];
@@ -1196,7 +1228,12 @@ function MongoPreview({ preview, fill = false }: { preview?: MongoPreviewPayload
   return (
     <Box sx={{ display: "grid", gridTemplateColumns: "38% 62%", minHeight: fill ? "100%" : 320 }}>
       <Stack sx={{ bgcolor: "#151d1e", borderRight: "1px solid #3b494b", maxHeight: fill ? "none" : 420, overflow: "auto" }}>
-        {!preview ? (
+        {loading && !preview ? (
+          <Stack direction="row" spacing={1} alignItems="center" sx={{ px: 1.5, py: 1, color: "text.secondary" }}>
+            <CircularProgress size={14} />
+            <Box>Loading MongoDB status</Box>
+          </Stack>
+        ) : !preview ? (
           <Box sx={{ px: 1.5, py: 1, color: "text.secondary" }}>Loading MongoDB status</Box>
         ) : !preview.available ? (
           <Box sx={{ px: 1.5, py: 1, color: "text.secondary" }}>{preview.reason ?? "MongoDB container is not running"}</Box>

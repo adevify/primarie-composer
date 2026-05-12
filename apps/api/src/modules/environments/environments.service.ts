@@ -340,12 +340,11 @@ export class EnvironmentsService {
       sourceRepoUrl: env.SOURCE_REPO_URL,
       environmentVariables: {
         ...environmentVariables,
-        HOST_1: env.ROOT_DOMAIN,
-        HOST_2: env.ROOT_DOMAIN,
+        COMPANY_HOST: "advf.md",
+        PLATFORM_HOST: env.ROOT_DOMAIN,
         NETWORK_NAME: `primarie-${key}-net`,
         ENV_KEY: key,
         ENV_PORT: String((await EnvironmentCollection.get(key)).port),
-        ROOT_DOMAIN: env.ROOT_DOMAIN,
         MONGO_DATABASE: "primarie"
       }
     });
@@ -736,8 +735,12 @@ export class EnvironmentsService {
 
   async inspectMongo(key: string) {
     await this.get(key);
-    const result = await this.publishEnvironmentAction("environment.mongo.inspect", key, { limit: 100 });
-    return parseJsonValue(result.output ?? "{}");
+    const result = await this.publishEnvironmentAction("environment.mongo.inspect", key, {
+      limit: 20,
+      maxBytes: 50_000,
+      maxDocBytes: 2_000
+    });
+    return parseMongoPreviewOutput(result.output ?? "{}");
   }
 
   async stop(key: string, user?: AuthenticatedUser): Promise<EnvironmentRecord> {
@@ -1475,6 +1478,22 @@ function parseJsonValue(output: string): unknown {
     return null;
   }
   return JSON.parse(trimmed) as unknown;
+}
+
+function parseMongoPreviewOutput(output: string): unknown {
+  try {
+    return parseJsonValue(output);
+  } catch (error) {
+    const trimmed = output.trim();
+    if (trimmed.startsWith("[output truncated")) {
+      return {
+        available: false,
+        reason: "MongoDB preview was too large and was truncated by the host worker. Restart the worker with the bounded preview script.",
+        truncated: true
+      };
+    }
+    throw error;
+  }
 }
 
 function splitLogLines(output: string | undefined): string[] {
