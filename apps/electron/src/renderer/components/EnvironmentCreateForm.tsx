@@ -2,6 +2,7 @@ import {
   Alert,
   Box,
   Button,
+  Collapse,
   CircularProgress,
   Dialog,
   DialogActions,
@@ -19,7 +20,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
 import { FormEvent, useEffect, useState } from "react";
-import type { EnvExampleEntry } from "../types";
+import type { EnvExampleEntry, EnvironmentRecord, EnvironmentStatus } from "../types";
 
 type EnvironmentCreateFormProps = {
   open: boolean;
@@ -27,6 +28,8 @@ type EnvironmentCreateFormProps = {
   loading: boolean;
   envLoading: boolean;
   envEntries: EnvExampleEntry[];
+  environment?: EnvironmentRecord;
+  monitorLoading: boolean;
   error?: string;
   onCancel: () => void;
   onCreate: (input: { seed: string; useCurrentRepoState: boolean; env: Record<string, string> }) => Promise<void>;
@@ -37,20 +40,22 @@ const databaseSeedOptions = [
 ];
 
 const createSteps = [
-  { label: "Preparing repository", state: "done" },
-  { label: "Writing env file", state: "done" },
-  { label: "Creating environment record", state: "active" },
-  { label: "Opening environment page", state: "pending" },
-  { label: "Ready to start", state: "pending" }
+  { label: "Environment key" },
+  { label: "Clone repository" },
+  { label: "Check out commit" },
+  { label: "Apply changed files" },
+  { label: "Ready to start" }
 ] as const;
 
-export function EnvironmentCreateForm({ open, disabled, loading, envLoading, envEntries, error, onCancel, onCreate }: EnvironmentCreateFormProps) {
+export function EnvironmentCreateForm({ open, disabled, loading, envLoading, envEntries, environment, monitorLoading, error, onCancel, onCreate }: EnvironmentCreateFormProps) {
   const [seed, setSeed] = useState(databaseSeedOptions[0].seed);
   const [envValues, setEnvValues] = useState<Record<string, string>>({});
+  const [envOpen, setEnvOpen] = useState(false);
 
   useEffect(() => {
     if (open) {
       setEnvValues(Object.fromEntries(envEntries.map((entry) => [entry.key, entry.value])));
+      setEnvOpen(false);
     }
   }, [envEntries, open]);
 
@@ -62,6 +67,10 @@ export function EnvironmentCreateForm({ open, disabled, loading, envLoading, env
       env: envValues
     });
   }
+
+  const activeStep = createProgressIndex(environment?.status, loading);
+  const finalStatus = environment?.status === "stopped" || environment?.status === "running";
+  const failed = environment?.status === "failed";
 
   return (
     <Dialog
@@ -133,6 +142,22 @@ export function EnvironmentCreateForm({ open, disabled, loading, envLoading, env
         <Stack spacing={3}>
           {error ? <Alert severity="error">{error}</Alert> : null}
 
+          {environment ? (
+            <Stack spacing={0.8} sx={{ border: "1px solid #3b494b", bgcolor: "#151d1e", px: 2, py: 1.5 }}>
+              <Typography variant="caption" color="text.secondary" sx={{ fontFamily: monoFont, textTransform: "uppercase" }}>
+                New environment
+              </Typography>
+              <Stack direction="row" spacing={1.5} alignItems="center" justifyContent="space-between">
+                <Typography color="#00f0ff" fontWeight={900} sx={{ fontFamily: monoFont, fontSize: 18 }}>
+                  {environment.key}
+                </Typography>
+                <Typography variant="caption" color={failed ? "#ffb4ab" : finalStatus ? "#4edea3" : "#c7d4e2"} sx={{ fontFamily: monoFont, textTransform: "uppercase" }}>
+                  {monitorLoading && !finalStatus ? "refreshing" : environment.status}
+                </Typography>
+              </Stack>
+            </Stack>
+          ) : null}
+
           <Stack spacing={1.4}>
             <FieldLabel>Database seed</FieldLabel>
             <Select
@@ -150,49 +175,74 @@ export function EnvironmentCreateForm({ open, disabled, loading, envLoading, env
             </Select>
           </Stack>
 
-          <Stack spacing={1.4}>
-            <FieldLabel>Environment variables</FieldLabel>
-            <Stack spacing={1.2} sx={{ maxHeight: 260, overflow: "auto", pr: 0.5 }}>
-              {envLoading ? (
-                <Stack direction="row" spacing={1.5} alignItems="center" sx={{ border: "1px solid #3b494b", bgcolor: "#151d1e", px: 2, py: 1.5 }}>
-                  <CircularProgress size={18} />
-                  <Typography color="text.secondary">Loading environment values</Typography>
-                </Stack>
-              ) : envEntries.length === 0 ? (
-                <Alert severity="info">No `.env` or `.env.example` values were found. Server defaults will still be applied.</Alert>
-              ) : envEntries.map((entry) => (
-                <TextField
-                  key={entry.key}
-                  label={entry.key}
-                  value={envValues[entry.key] ?? ""}
-                  onChange={(event) => setEnvValues((current) => ({ ...current, [entry.key]: event.target.value }))}
-                  disabled={disabled || loading}
-                  sx={fieldSx}
-                />
-              ))}
-            </Stack>
+          <Stack spacing={1.2}>
+            <Button
+              type="button"
+              onClick={() => setEnvOpen((current) => !current)}
+              disabled={loading}
+              endIcon={<ExpandMoreIcon sx={{ transform: envOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 160ms ease" }} />}
+              sx={collapseButtonSx}
+            >
+              <Stack direction="row" spacing={1} alignItems="center" sx={{ width: "100%" }}>
+                <Typography sx={{ fontFamily: monoFont, fontWeight: 900, fontSize: 12, textTransform: "uppercase" }}>
+                  Env overrides
+                </Typography>
+                <Typography variant="caption" color="text.secondary" sx={{ fontFamily: monoFont }}>
+                  {envLoading ? "loading" : `${envEntries.length} vars`}
+                </Typography>
+              </Stack>
+            </Button>
+            <Collapse in={envOpen} timeout="auto" unmountOnExit>
+              <Stack spacing={1.2} sx={{ maxHeight: 260, overflow: "auto", pr: 0.5 }}>
+                {envLoading ? (
+                  <Stack direction="row" spacing={1.5} alignItems="center" sx={{ border: "1px solid #3b494b", bgcolor: "#151d1e", px: 2, py: 1.5 }}>
+                    <CircularProgress size={18} />
+                    <Typography color="text.secondary">Loading environment values</Typography>
+                  </Stack>
+                ) : envEntries.length === 0 ? (
+                  <Alert severity="info">No `.env` or `.env.example` values were found. Server defaults will still be applied.</Alert>
+                ) : envEntries.map((entry) => (
+                  <TextField
+                    key={entry.key}
+                    label={entry.key}
+                    value={envValues[entry.key] ?? ""}
+                    onChange={(event) => setEnvValues((current) => ({ ...current, [entry.key]: event.target.value }))}
+                    disabled={disabled || loading}
+                    sx={fieldSx}
+                  />
+                ))}
+              </Stack>
+            </Collapse>
           </Stack>
 
           <Stack spacing={2} sx={{ border: "1px solid #3b494b", bgcolor: "#151d1e", px: 2.5, py: 2.25 }}>
-            {createSteps.map((step) => (
-              <Stack key={step.label} direction="row" spacing={1.5} alignItems="center">
-                {step.state === "done" ? (
-                  <CheckCircleOutlineIcon sx={{ color: "#4edea3", fontSize: 20 }} />
-                ) : step.state === "active" && loading ? (
-                  <CircularProgress size={20} thickness={5} sx={{ color: "#00f0ff" }} />
-                ) : (
-                  <RadioButtonUncheckedIcon sx={{ color: step.state === "active" ? "#00f0ff" : "#6f879d", fontSize: 20 }} />
-                )}
-                <Typography
-                  fontWeight={step.state === "active" ? 900 : 500}
-                  color={step.state === "active" ? "#00f0ff" : step.state === "pending" ? "#71889e" : "text.primary"}
-                  fontStyle={step.state === "pending" ? "italic" : "normal"}
-                  sx={{ fontSize: 14 }}
-                >
-                  {step.label}
-                </Typography>
-              </Stack>
-            ))}
+            {createSteps.map((step, index) => {
+              const state = progressStepState(index, activeStep, finalStatus, failed);
+              return (
+                <Stack key={step.label} direction="row" spacing={1.5} alignItems="center">
+                  {state === "done" ? (
+                    <CheckCircleOutlineIcon sx={{ color: "#4edea3", fontSize: 20 }} />
+                  ) : state === "active" && loading ? (
+                    <CircularProgress size={20} thickness={5} sx={{ color: failed ? "#ffb4ab" : "#00f0ff" }} />
+                  ) : (
+                    <RadioButtonUncheckedIcon sx={{ color: state === "active" ? failed ? "#ffb4ab" : "#00f0ff" : "#6f879d", fontSize: 20 }} />
+                  )}
+                  <Typography
+                    fontWeight={state === "active" ? 900 : 500}
+                    color={state === "active" ? failed ? "#ffb4ab" : "#00f0ff" : state === "pending" ? "#71889e" : "text.primary"}
+                    fontStyle={state === "pending" ? "italic" : "normal"}
+                    sx={{ fontSize: 14 }}
+                  >
+                    {step.label}
+                  </Typography>
+                </Stack>
+              );
+            })}
+            {environment?.status ? (
+              <Typography variant="caption" color="text.secondary" sx={{ fontFamily: monoFont, textTransform: "uppercase" }}>
+                STATUS / {environment.status}
+              </Typography>
+            ) : null}
           </Stack>
         </Stack>
       </DialogContent>
@@ -221,6 +271,39 @@ function FieldLabel({ children }: { children: string }) {
   );
 }
 
+function createProgressIndex(status: EnvironmentStatus | undefined, loading: boolean): number {
+  if (!status) {
+    return loading ? 0 : -1;
+  }
+
+  if (status === "creating") return 0;
+  if (status === "cloning") return 1;
+  if (status === "checking_out") return 2;
+  if (status === "applying_changes") return 3;
+  if (status === "starting") return 4;
+  if (status === "stopped" || status === "running") return 4;
+  if (status === "failed") return 4;
+  return -1;
+}
+
+function progressStepState(index: number, activeStep: number, finalStatus: boolean, failed: boolean): "done" | "active" | "pending" {
+  if (finalStatus) {
+    return "done";
+  }
+  if (failed && index === activeStep) {
+    return "active";
+  }
+  if (index < activeStep) {
+    return "done";
+  }
+  if (index === activeStep) {
+    return "active";
+  }
+  return "pending";
+}
+
+const monoFont = "Space Grotesk, ui-monospace, SFMono-Regular, Menlo, monospace";
+
 const fieldSx = {
   "& .MuiInputBase-root": {
     borderRadius: 0,
@@ -243,6 +326,24 @@ const fieldSx = {
     opacity: 1
   },
   "& .MuiSelect-icon": {
+    color: "#9fb3c3"
+  }
+};
+
+const collapseButtonSx = {
+  justifyContent: "space-between",
+  borderRadius: 0,
+  border: "1px solid #3b494b",
+  bgcolor: "#151d1e",
+  color: "#c7d4e2",
+  px: 2,
+  py: 1.3,
+  textTransform: "none",
+  "&:hover": {
+    borderColor: "rgba(0, 240, 255, 0.55)",
+    bgcolor: "#1d2728"
+  },
+  "& .MuiButton-endIcon": {
     color: "#9fb3c3"
   }
 };

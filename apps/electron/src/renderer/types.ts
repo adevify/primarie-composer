@@ -242,6 +242,7 @@ export type CreateEnvironmentInput = {
   seed: string;
   source: EnvironmentSource;
   env?: Record<string, string>;
+  changedFiles?: ChangedFilePayload[];
 };
 
 export type SyncFilesInput = {

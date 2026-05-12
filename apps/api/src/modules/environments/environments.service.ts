@@ -10,13 +10,19 @@ import { env } from "../../config/env.js";
 import { EnvironmentCollection, EnvironmentRecord } from "../../db/environments.js";
 import { HostActionBusService, type HostActionLogHandler, type HostActionResult } from "../../services/bus/HostActionBusService.js";
 import type { AuthenticatedUser } from "../auth/auth.middleware.js";
-import type { CreateEnvironmentPayload, EnvironmentOwner, EnvironmentSource, LifecycleAction, PullRequestRef, SyncFilesPayload } from "./environment.dtos.js";
+import type { ChangedFilePayload, CreateEnvironmentPayload, EnvironmentOwner, EnvironmentSource, LifecycleAction, PullRequestRef, SyncFilesPayload } from "./environment.dtos.js";
 import { SystemLogCollection, type SystemLogActor, type SystemLogLevel, type SystemLogSource, type SystemLogTarget } from "../../db/logs.js";
 import { EnvironmentActionCollection, type EnvironmentActionLogFile } from "../../db/environment-actions.js";
 
 const keyPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const execFileAsync = promisify(execFile);
 let previousCpuSnapshot = readCpuSnapshot();
+const longRunningHostActions = new Set([
+  "environment.prepare",
+  "environment.start",
+  "environment.restart",
+  "environment.remove"
+]);
 
 type ActionLogLine = {
   actionId: string;
@@ -292,7 +298,7 @@ export class EnvironmentsService {
     void this.prepareEnvironment(key, runtimePath, input.seed, input.source, {
       ...input.env,
       PROXY_EXTERNAL_PORT: String(port),
-    }).catch(async (error) => {
+    }, input.changedFiles).catch(async (error) => {
       logEnvironment("error", "create_failed", {
         key,
         message: error instanceof Error ? error.message : String(error)
@@ -315,7 +321,8 @@ export class EnvironmentsService {
     runtimePath: string,
     seedName: string,
     source: EnvironmentSource,
-    environmentVariables: Record<string, string>
+    environmentVariables: Record<string, string>,
+    changedFiles: ChangedFilePayload[]
   ): Promise<void> {
     logEnvironment("info", "prepare_started", {
       key,
@@ -332,12 +339,20 @@ export class EnvironmentsService {
     });
 
     await this.updateStatus(key, "cloning");
+    const updatePrepareStatusFromLog: HostActionLogHandler = async ({ log }) => {
+      const nextStatus = prepareStatusFromLog(log);
+      if (nextStatus) {
+        await this.updateStatus(key, nextStatus).catch(() => undefined);
+      }
+    };
+
     const result = await this.publishEnvironmentAction("environment.prepare", key, {
       runtimePath,
       seedName,
       hostSeedsDir: env.HOST_SEEDS_DIR,
       source,
       sourceRepoUrl: env.SOURCE_REPO_URL,
+      changedFiles,
       environmentVariables: {
         ...environmentVariables,
         COMPANY_HOST: "advf.md",
@@ -347,12 +362,13 @@ export class EnvironmentsService {
         ENV_PORT: String((await EnvironmentCollection.get(key)).port),
         MONGO_DATABASE: "primarie"
       }
-    });
+    }, updatePrepareStatusFromLog);
 
     await this.logSystemEvent(key, "environment.prepared", result.message || "Repository prepared", {
       metadata: {
         branch: source.branch,
         commit: source.commit,
+        changedFiles: changedFiles.length,
         outputLength: result.output?.length ?? 0
       }
     });
@@ -972,7 +988,8 @@ export class EnvironmentsService {
     const record = await this.create({
       source,
       seed: "default",
-      env: {}
+      env: {},
+      changedFiles: []
     }, pullRequest);
 
     await this.logSystemEvent(record.key, "environment.pr_updated", "Pull request environment updated", {
@@ -1017,7 +1034,7 @@ export class EnvironmentsService {
       runtimeRoot: env.HOST_RUNTIME_DIR,
       runtimePath: path.join(env.HOST_RUNTIME_DIR, key),
       ...payload
-    }, env.BUS_ACTION_TIMEOUT_MS, onLog, { id: actionId });
+    }, hostActionTimeoutMs(type), onLog, { id: actionId });
 
     if (!isReadOnlyHostAction(type)) {
       await this.logHostActionResult(key, type, result, actionId);
@@ -1401,6 +1418,19 @@ function syncRestoreStatus(status: EnvironmentRecord["status"]): EnvironmentReco
   return status;
 }
 
+function prepareStatusFromLog(log: string): EnvironmentRecord["status"] | undefined {
+  if (log.includes("[composer-progress] cloning")) {
+    return "cloning";
+  }
+  if (log.includes("[composer-progress] checking_out")) {
+    return "checking_out";
+  }
+  if (log.includes("[composer-progress] applying_changes")) {
+    return "applying_changes";
+  }
+  return undefined;
+}
+
 function logEnvironment(level: "info" | "warn" | "error", event: string, details: Record<string, unknown>): void {
   console[level](JSON.stringify({
     at: new Date().toISOString(),
@@ -1510,6 +1540,12 @@ function isReadOnlyHostAction(type: string): boolean {
     || type === "environment.container.files"
     || type === "environment.container.exec"
     || type === "environment.mongo.inspect";
+}
+
+function hostActionTimeoutMs(type: string): number {
+  return longRunningHostActions.has(type)
+    ? env.BUS_LONG_ACTION_TIMEOUT_MS
+    : env.BUS_ACTION_TIMEOUT_MS;
 }
 
 function resolveInside(rootPath: string, targetPath: string): string {

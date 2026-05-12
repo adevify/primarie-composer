@@ -53,7 +53,8 @@ export type PullRequestRef = z.infer<typeof pullRequestSchema>;
 export const createEnvironmentSchema = z.object({
   seed: z.string().regex(/^[a-zA-Z0-9_-]+$/).default("default"),
   source: sourceSchema,
-  env: z.record(z.string(), z.string()).default({})
+  env: z.record(z.string(), z.string()).default({}),
+  changedFiles: z.array(changedFileSchema).default([])
 });
 
 export type CreateEnvironmentPayload = z.infer<typeof createEnvironmentSchema>;

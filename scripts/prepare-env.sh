@@ -50,13 +50,47 @@ copy_seed_data() {
   fi
 }
 
+apply_changed_files() {
+  local count
+  count="$(jq '.changedFiles // [] | length' "$PAYLOAD_FILE")"
+  if (( count == 0 )); then
+    return
+  fi
+
+  echo "[composer-progress] applying_changes"
+  for ((index = 0; index < count; index += 1)); do
+    local file_path status target content_base64
+    file_path="$(jq -r ".changedFiles[$index].path" "$PAYLOAD_FILE")"
+    status="$(jq -r ".changedFiles[$index].status" "$PAYLOAD_FILE")"
+    assert_safe_relative_path "$file_path"
+    target="$RUNTIME_PATH/$file_path"
+
+    if [[ "$status" == "deleted" ]]; then
+      rm -f "$target"
+      continue
+    fi
+
+    content_base64="$(jq -r ".changedFiles[$index].contentBase64 // empty" "$PAYLOAD_FILE")"
+    if [[ -z "$content_base64" ]]; then
+      continue
+    fi
+
+    mkdir -p "$(dirname "$target")"
+    printf "%s" "$content_base64" | base64 --decode > "$target"
+  done
+  echo "Applied $count changed files into $ENV_NAME"
+}
+
+echo "[composer-progress] cloning"
 rm -rf "$RUNTIME_PATH"
 git clone "$SOURCE_REPO_URL" "$RUNTIME_PATH"
 cd "$RUNTIME_PATH"
 git fetch --all --prune
+echo "[composer-progress] checking_out"
 git checkout -f "origin/$BRANCH"
 git reset --hard "$COMMIT"
 patch_repo_for_composer "$RUNTIME_PATH"
+apply_changed_files
 copy_seed_data "$SEED_NAME" "$HOST_SEEDS_DIR"
 
 write_env_file() {

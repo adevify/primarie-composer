@@ -22,6 +22,7 @@ const envSchema = z.object({
   BUS_LOGS_DIR: z.string().default("/bus/logs"),
   BUS_WORKER_READY_PATH: z.string().default("/bus/worker.ready"),
   BUS_ACTION_TIMEOUT_MS: z.coerce.number().int().positive().default(120_000),
+  BUS_LONG_ACTION_TIMEOUT_MS: z.coerce.number().int().positive().default(900_000),
   BUS_POLL_INTERVAL_MS: z.coerce.number().int().positive().default(200)
 });
 

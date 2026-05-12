@@ -369,6 +369,10 @@ export default function App() {
     setCreateDialogOpen(true);
     setCreateError(undefined);
     setEnvExampleEntries([]);
+    setMonitoredEnvironment(undefined);
+    setMonitoredEnvironmentKey(undefined);
+    setCreationLogs([]);
+    setCreationMonitorError(undefined);
 
     if (!repoPath) {
       return;
@@ -396,6 +400,7 @@ export default function App() {
     setCreateError(undefined);
     try {
       let source;
+      let changedFiles: ChangedFilePayload[] = [];
       if (input.useCurrentRepoState) {
         const latestGitState = await refreshGitState();
         if (!latestGitState || !repoPath) {
@@ -409,6 +414,17 @@ export default function App() {
           commit: latestGitState.commit,
           repoPath
         };
+
+        const localChanges = await electronBridge.readChangedFiles(repoPath);
+        recordLatestChanges(localChanges);
+        localChanges.filter((file) => file.warning).forEach((file) => pushSyncError(`${file.path}: ${file.warning}`));
+        changedFiles = localChanges
+          .filter((file) => !file.warning)
+          .map((file) => ({
+            path: file.path,
+            status: file.status,
+            contentBase64: file.contentBase64
+          }));
       }
 
       if (!source) {
@@ -422,7 +438,8 @@ export default function App() {
       const created = await api.createEnvironment({
         seed: input.seed,
         source,
-        env: input.env
+        env: input.env,
+        changedFiles
       });
       setEnvironments((current) => [created, ...current.filter((item) => item.key !== created.key)]);
       setMonitoredEnvironment(created);
@@ -1012,7 +1029,9 @@ export default function App() {
         loading={createLoading}
         envLoading={envExampleLoading}
         envEntries={envExampleEntries}
-        error={createError}
+        environment={monitoredEnvironment}
+        monitorLoading={creationMonitorLoading}
+        error={createError ?? creationMonitorError}
         onCancel={() => setCreateDialogOpen(false)}
         onCreate={createEnvironment}
       />
