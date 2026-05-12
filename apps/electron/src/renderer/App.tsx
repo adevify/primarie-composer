@@ -58,6 +58,8 @@ export default function App() {
   const [liveLogSessions, setLiveLogSessions] = useState<LiveLogSession[]>([]);
   const [latestChanges, setLatestChanges] = useState<LatestChangeEvent[]>([]);
   const streamControllers = useRef(new Map<string, AbortController>());
+  const syncInFlightRef = useRef(false);
+  const pendingSyncSnapshotRef = useRef<RepoSyncSnapshot | null>(null);
   const [syncState, setSyncState] = useState<SyncState>({
     watching: false,
     activeEnvironmentKey: localStorage.getItem(ACTIVE_ENV_STORAGE_KEY) ?? "",
@@ -799,7 +801,33 @@ export default function App() {
   async function handleRepoSyncSnapshot(snapshot: RepoSyncSnapshot): Promise<void> {
     setGitState(snapshot.gitState);
     recordLatestChanges(snapshot.files);
+    pendingSyncSnapshotRef.current = snapshot;
 
+    if (syncInFlightRef.current) {
+      return;
+    }
+
+    await flushRepoSyncQueue();
+  }
+
+  async function flushRepoSyncQueue(): Promise<void> {
+    if (syncInFlightRef.current) {
+      return;
+    }
+
+    syncInFlightRef.current = true;
+    try {
+      while (pendingSyncSnapshotRef.current) {
+        const snapshot = pendingSyncSnapshotRef.current;
+        pendingSyncSnapshotRef.current = null;
+        await syncRepoSnapshot(snapshot);
+      }
+    } finally {
+      syncInFlightRef.current = false;
+    }
+  }
+
+  async function syncRepoSnapshot(snapshot: RepoSyncSnapshot): Promise<void> {
     if (!api || !repoPath || !syncState.activeEnvironmentKey) {
       return;
     }

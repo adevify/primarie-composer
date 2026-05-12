@@ -86,12 +86,10 @@ export class HostActionBusService {
     const startedAt = Date.now();
     let deadlineAt = startedAt + timeoutMs;
     let logOffset = 0;
-    let observedLogSize = 0;
 
     while (Date.now() < deadlineAt) {
-      const logProgress = await readNewLogLines(logPath, logOffset, observedLogSize, onLog);
+      const logProgress = await readNewLogLines(logPath, logOffset, onLog);
       logOffset = logProgress.offset;
-      observedLogSize = logProgress.size;
       if (logProgress.advanced) {
         deadlineAt = Date.now() + timeoutMs;
       }
@@ -104,7 +102,7 @@ export class HostActionBusService {
       });
 
       if (content !== null) {
-        const finalLogProgress = await readNewLogLines(logPath, logOffset, observedLogSize, onLog);
+        const finalLogProgress = await readNewLogLines(logPath, logOffset, onLog);
         logOffset = finalLogProgress.offset;
         await fs.unlink(filePath).catch(() => undefined);
         const result = parseResult(content, actionId);
@@ -167,7 +165,6 @@ function delay(ms: number): Promise<void> {
 async function readNewLogLines(
   logPath: string,
   offset: number,
-  observedSize: number,
   onLog?: HostActionLogHandler
 ): Promise<{ offset: number; size: number; advanced: boolean }> {
   const content = await fs.readFile(logPath, "utf8").catch((error) => {
@@ -182,29 +179,31 @@ async function readNewLogLines(
   }
 
   const normalizedOffset = offset > content.length ? 0 : offset;
-  const advanced = content.length > observedSize;
-  if (!onLog) {
-    return { offset: content.length, size: content.length, advanced };
-  }
-
   if (normalizedOffset >= content.length) {
-    return { offset: normalizedOffset, size: content.length, advanced };
+    return { offset: normalizedOffset, size: content.length, advanced: false };
   }
 
   const nextChunk = content.slice(normalizedOffset);
   const lastNewlineIndex = nextChunk.lastIndexOf("\n");
   if (lastNewlineIndex === -1) {
-    return { offset: normalizedOffset, size: content.length, advanced };
+    return { offset: normalizedOffset, size: content.length, advanced: false };
   }
 
   const completeChunk = nextChunk.slice(0, lastNewlineIndex + 1);
   const completeLines = completeChunk.split(/\r?\n/).filter(Boolean);
+  const hasActionOutput = completeLines.some((line) => !isHeartbeatLine(line));
 
-  for (const line of completeLines) {
-    await onLog({ log: line, level: "info" });
+  if (onLog) {
+    for (const line of completeLines) {
+      await onLog({ log: line, level: "info" });
+    }
   }
 
-  return { offset: normalizedOffset + completeChunk.length, size: content.length, advanced };
+  return { offset: normalizedOffset + completeChunk.length, size: content.length, advanced: hasActionOutput };
+}
+
+function isHeartbeatLine(line: string): boolean {
+  return line.startsWith("[composer-worker] action still running at ");
 }
 
 function isNodeError(error: unknown): error is NodeJS.ErrnoException {

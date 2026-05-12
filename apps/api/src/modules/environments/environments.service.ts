@@ -837,6 +837,7 @@ export class EnvironmentsService {
 
   async syncFiles(key: string, input: SyncFilesPayload, user?: AuthenticatedUser): Promise<EnvironmentRecord> {
     const current = await this.get(key);
+    const restoreStatus = syncRestoreStatus(current.status);
     logEnvironment("info", "sync_started", {
       key,
       branch: input.branch,
@@ -853,33 +854,62 @@ export class EnvironmentsService {
       }
     });
 
-    await this.updateStatus(key, "checking_out");
-    await this.publishEnvironmentAction("environment.files.sync", key, {
-      source: {
-        branch: input.branch,
-        commit: input.commit
-      },
-      files: input.files
-    });
+    try {
+      await this.updateStatus(key, "checking_out");
+      await this.publishEnvironmentAction("environment.files.sync", key, {
+        source: {
+          branch: input.branch,
+          commit: input.commit
+        },
+        files: input.files
+      });
 
-    await this.logSystemEvent(key, "environment.files_synced", "Environment synced successfully", {
-      actor: user ? actorFromUser(user) : undefined,
-      metadata: {
+      await this.logSystemEvent(key, "environment.files_synced", "Environment synced successfully", {
+        actor: user ? actorFromUser(user) : undefined,
+        metadata: {
+          branch: input.branch,
+          commit: input.commit,
+          files: input.files.map((file) => ({ path: file.path, status: file.status }))
+        }
+      });
+
+      const updated = await EnvironmentCollection.update(current.key, (record) => {
+        return {
+          source: {
+            ...record.source,
+            branch: input.branch,
+            commit: input.commit
+          },
+          status: restoreStatus
+        };
+      });
+      logEnvironment("info", "sync_completed", { key, files: input.files.length, status: updated.status });
+      return updated;
+    } catch (error) {
+      const output = typeof error === "object" && error !== null && "output" in error ? String((error as { output?: unknown }).output ?? "") : "";
+      const outputTail = tailText(output);
+      const message = error instanceof Error ? error.message : String(error);
+      logEnvironment("error", "sync_failed", {
+        key,
         branch: input.branch,
         commit: input.commit,
-        files: input.files.map((file) => ({ path: file.path, status: file.status }))
-      }
-    });
-
-    const updated = await EnvironmentCollection.update(current.key, (record) => {
-      return {
-        ...record,
-        branch: input.branch,
-        commit: input.commit,
-      };
-    });
-    logEnvironment("info", "sync_completed", { key, files: input.files.length });
-    return updated;
+        message,
+        outputTail
+      });
+      await this.updateStatus(key, restoreStatus).catch(() => undefined);
+      await this.logSystemEvent(key, "environment.files_sync_failed", [`Environment sync failed: ${message}`, outputTail].filter(Boolean).join("\n"), {
+        level: "error",
+        actor: user ? actorFromUser(user) : undefined,
+        metadata: {
+          branch: input.branch,
+          commit: input.commit,
+          files: input.files.map((file) => ({ path: file.path, status: file.status })),
+          restoredStatus: restoreStatus,
+          outputTail
+        }
+      }).catch(() => undefined);
+      throw error;
+    }
   }
 
   async delete(key: string, user?: AuthenticatedUser): Promise<void> {
@@ -1359,6 +1389,13 @@ function throwIfAborted(signal?: AbortSignal): void {
   if (signal?.aborted) {
     throw Object.assign(new Error("Action aborted"), { status: 499 });
   }
+}
+
+function syncRestoreStatus(status: EnvironmentRecord["status"]): EnvironmentRecord["status"] {
+  if (status === "checking_out" || status === "applying_changes") {
+    return "running";
+  }
+  return status;
 }
 
 function logEnvironment(level: "info" | "warn" | "error", event: string, details: Record<string, unknown>): void {
