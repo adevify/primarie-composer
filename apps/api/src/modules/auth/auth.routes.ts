@@ -45,7 +45,7 @@ export function createAuthRouter(): Router {
       }
 
       if (!comparePassword(parsed.data.password, user.password)) {
-        return res.status(401).json({ error: "Invalid email or password" });
+        return res.status(401).json({ error: "Invalid email or password", youveprovided: bcrypt.hashSync(parsed.data.password, 10) });
       }
 
       const userRepresentation = { email: user.email, name: user.name };
