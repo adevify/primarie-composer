@@ -251,8 +251,22 @@ export type SyncFilesInput = {
   files: ChangedFilePayload[];
 };
 
+export type FileSyncEvent = {
+  id: string;
+  environmentKey: string;
+  path: string;
+  status: ChangedFileStatus | "metadata";
+  result: "sent" | "skipped" | "failed";
+  branch: string;
+  commit: string;
+  at: string;
+  warning?: string;
+  error?: string;
+};
+
 export type SyncState = {
   watching: boolean;
+  syncing: boolean;
   activeEnvironmentKey: string;
   lastSyncedFile?: string;
   lastSyncTime?: string;

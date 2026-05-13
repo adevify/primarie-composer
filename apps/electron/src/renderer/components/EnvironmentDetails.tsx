@@ -4,8 +4,10 @@ import {
   Button,
   Chip,
   CircularProgress,
+  FormControlLabel,
   IconButton,
   Stack,
+  Switch,
   TextField,
   Typography
 } from "@mui/material";
@@ -20,6 +22,7 @@ import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import StorageIcon from "@mui/icons-material/Storage";
 import StopCircleIcon from "@mui/icons-material/StopCircle";
+import SyncIcon from "@mui/icons-material/Sync";
 import TerminalIcon from "@mui/icons-material/Terminal";
 import ViewInArIcon from "@mui/icons-material/ViewInAr";
 import { useEffect, useMemo, useRef, useState, type UIEvent } from "react";
@@ -32,12 +35,15 @@ import type {
   EnvironmentActionsPage,
   EnvironmentContainer,
   EnvironmentRecord,
+  FileSyncEvent,
+  GitState,
   LiveLogSession,
   MongoPreview as MongoPreviewPayload,
-  StreamLogEvent
+  StreamLogEvent,
+  SyncState
 } from "../types";
 
-type UtilityTab = "logs" | "files" | "exec" | "mongo" | "actions";
+type UtilityTab = "logs" | "files" | "sync" | "exec" | "mongo" | "actions";
 type LogScope = "environment" | "container";
 
 const LOG_TAIL_PAGE_SIZE = 100;
@@ -60,6 +66,12 @@ type EnvironmentDetailsProps = {
   actionRefreshToken: number;
   focusAction?: { action: EnvironmentActionRecord; token: number };
   liveLogSessions: LiveLogSession[];
+  repoPath: string;
+  gitState?: GitState;
+  syncState: SyncState;
+  fileSyncEvents: FileSyncEvent[];
+  onStartSync: (key: string) => Promise<void>;
+  onStopSync: () => Promise<void>;
   onStartComposeLogStream: (key: string) => void;
   onStartContainerLogStream: (key: string, container: string) => void;
   onStopLiveLogSession: (id: string) => void;
@@ -84,6 +96,12 @@ export function EnvironmentDetails({
   actionRefreshToken,
   focusAction,
   liveLogSessions,
+  repoPath,
+  gitState,
+  syncState,
+  fileSyncEvents,
+  onStartSync,
+  onStopSync,
   onStartComposeLogStream,
   onStartContainerLogStream,
   onStopLiveLogSession,
@@ -118,7 +136,7 @@ export function EnvironmentDetails({
   const mongoRequestRef = useRef<{ key: string; id: number; promise: Promise<void> } | null>(null);
 
   const environmentSelected = selectedContainer === "";
-  const activeTabs = useMemo<UtilityTab[]>(() => environmentSelected ? ["logs", "files", "mongo", "actions"] : ["logs", "files", "exec"], [environmentSelected]);
+  const activeTabs = useMemo<UtilityTab[]>(() => environmentSelected ? ["logs", "files", "sync", "mongo", "actions"] : ["logs", "files", "exec"], [environmentSelected]);
   const environmentLogSessions = useMemo(() => liveLogSessions.filter((session) => session.environmentKey === environment?.key), [liveLogSessions, environment?.key]);
   const selectedLiveSession = selectedContainer
     ? environmentLogSessions.find((session) => session.title === selectedContainer && session.status === "running")
@@ -801,7 +819,7 @@ export function EnvironmentDetails({
                 {activeTabs.map((tab) => (
                   <UtilityTabButton
                     key={tab}
-                    label={tab === "mongo" ? "Database" : tab}
+                    label={tab === "mongo" ? "Database" : tab === "sync" ? "File Sync" : tab}
                     active={utilityTab === tab}
                     onClick={() => {
                       setUtilityTab(tab);
@@ -860,6 +878,18 @@ export function EnvironmentDetails({
                   onOpenDirectory={(path) => void loadFiles(path)}
                   sourceLabel={selectedContainer ? `Container filesystem: ${shortName(selectedContainer)}` : "Runtime directory filesystem"}
                   fill
+                />
+              ) : null}
+
+              {utilityTab === "sync" ? (
+                <FileSyncPanel
+                  environment={environment}
+                  repoPath={repoPath}
+                  gitState={gitState}
+                  syncState={syncState}
+                  events={fileSyncEvents}
+                  onStartSync={onStartSync}
+                  onStopSync={onStopSync}
                 />
               ) : null}
 
@@ -1336,6 +1366,155 @@ function FileExplorer({
   );
 }
 
+function FileSyncPanel({
+  environment,
+  repoPath,
+  gitState,
+  syncState,
+  events,
+  onStartSync,
+  onStopSync
+}: {
+  environment: EnvironmentRecord;
+  repoPath: string;
+  gitState?: GitState;
+  syncState: SyncState;
+  events: FileSyncEvent[];
+  onStartSync: (key: string) => Promise<void>;
+  onStopSync: () => Promise<void>;
+}) {
+  const syncEnabled = syncState.watching && syncState.activeEnvironmentKey === environment.key;
+  const selectedForSync = syncState.activeEnvironmentKey === environment.key;
+  const canStartSync = Boolean(repoPath) && canEnvironmentSync(environment.status);
+  const disabled = syncEnabled ? false : !canStartSync;
+  const statusLabel = syncEnabled ? syncState.syncing ? "Sending" : "Watching" : selectedForSync ? "Selected" : "Stopped";
+
+  async function toggleSync(checked: boolean): Promise<void> {
+    if (checked) {
+      await onStartSync(environment.key);
+      return;
+    }
+
+    if (syncEnabled) {
+      await onStopSync();
+    }
+  }
+
+  return (
+    <Stack spacing={1.5} sx={{ p: 1.5, minHeight: "100%" }}>
+      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2, flexWrap: "wrap" }}>
+        <Stack direction="row" spacing={1.1} alignItems="center" minWidth={0}>
+          <SyncIcon sx={{ color: syncEnabled ? "#4edea3" : "#849495", fontSize: 20 }} />
+          <Typography sx={{ color: "#d7e3ee", fontFamily: monoFont, fontWeight: 900 }} noWrap>
+            FILE SYNC
+          </Typography>
+          <Chip
+            size="small"
+            label={statusLabel}
+            sx={{
+              height: 22,
+              borderRadius: "2px",
+              color: syncEnabled ? "#4edea3" : selectedForSync ? "#00f0ff" : "text.secondary",
+              border: `1px solid ${syncEnabled ? "#4edea3" : selectedForSync ? "#00f0ff" : "#3b494b"}`,
+              bgcolor: syncEnabled ? "rgba(78, 222, 163, 0.1)" : "rgba(220, 228, 229, 0.05)",
+              fontFamily: monoFont,
+              textTransform: "uppercase"
+            }}
+          />
+        </Stack>
+        <FormControlLabel
+          control={
+            <Switch
+              checked={syncEnabled}
+              disabled={disabled}
+              onChange={(event) => void toggleSync(event.target.checked)}
+            />
+          }
+          label={syncEnabled ? "Enabled" : "Disabled"}
+          sx={{ m: 0, color: "text.secondary", "& .MuiFormControlLabel-label": { fontFamily: monoFont, fontSize: 12, textTransform: "uppercase" } }}
+        />
+      </Box>
+
+      <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1.3fr repeat(4, 1fr)" }, gap: 1.25 }}>
+        <SyncMetric label="Repository" value={repoPath || "None"} />
+        <SyncMetric label="Branch" value={gitState?.branch ?? "n/a"} />
+        <SyncMetric label="Local changes" value={gitState ? String(gitState.changedFiles.length) : "n/a"} />
+        <SyncMetric label="Last file" value={syncState.activeEnvironmentKey === environment.key ? syncState.lastSyncedFile ?? "None" : "None"} />
+        <SyncMetric label="Last sync" value={syncState.activeEnvironmentKey === environment.key ? syncState.lastSyncTime ?? "None" : "None"} />
+      </Box>
+
+      {syncState.activeEnvironmentKey === environment.key && syncState.errors.length > 0 ? (
+        <Stack spacing={0.75}>
+          {syncState.errors.slice(-3).map((error) => (
+            <Box key={error} sx={{ px: 1.2, py: 0.85, border: "1px solid rgba(254, 214, 57, 0.35)", bgcolor: "rgba(254, 214, 57, 0.08)", color: "#fed639", fontFamily: monoFont, fontSize: 12, wordBreak: "break-word" }}>
+              {error}
+            </Box>
+          ))}
+        </Stack>
+      ) : null}
+
+      <Box sx={{ border: "1px solid #3b494b", bgcolor: "#151d1e", flex: 1, minHeight: 0, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+        <Box sx={{ px: 1.5, py: 1.1, borderBottom: "1px solid #3b494b", display: "flex", justifyContent: "space-between", gap: 2 }}>
+          <Typography variant="caption" color="text.secondary" sx={{ fontFamily: monoFont, fontWeight: 900 }}>
+            FILE EVENTS
+          </Typography>
+          <Typography variant="caption" color="text.secondary" sx={{ fontFamily: monoFont }}>
+            {events.length}
+          </Typography>
+        </Box>
+        <Box sx={{ overflow: "auto", flex: 1 }}>
+          {events.length === 0 ? (
+            <Box sx={{ px: 1.5, py: 2, color: "text.secondary", fontFamily: monoFont, fontSize: 13 }}>
+              No file sync events yet.
+            </Box>
+          ) : (
+            <Box sx={{ minWidth: 780 }}>
+              <Box sx={{ display: "grid", gridTemplateColumns: "155px 90px 100px minmax(260px, 1fr) 90px", gap: 1, px: 1.5, py: 0.9, color: "text.secondary", fontFamily: monoFont, fontSize: 10, fontWeight: 900, textTransform: "uppercase", borderBottom: "1px solid #3b494b" }}>
+                <Box>Time</Box>
+                <Box>Result</Box>
+                <Box>Status</Box>
+                <Box>Path</Box>
+                <Box>Commit</Box>
+              </Box>
+              {events.map((event) => (
+                <Box key={event.id} sx={{ display: "grid", gridTemplateColumns: "155px 90px 100px minmax(260px, 1fr) 90px", gap: 1, px: 1.5, py: 1.05, borderBottom: "1px solid #263334", alignItems: "start", fontFamily: monoFont, fontSize: 12 }}>
+                  <Box sx={{ color: "text.secondary" }}>{formatTimestamp(event.at)}</Box>
+                  <Box sx={{ color: syncResultColor(event.result), fontWeight: 900, textTransform: "uppercase" }}>{event.result}</Box>
+                  <Box sx={{ color: "#d7e3ee", textTransform: "uppercase" }}>{event.status}</Box>
+                  <Box sx={{ minWidth: 0 }}>
+                    <Typography sx={{ color: "text.primary", fontFamily: monoFont, fontSize: 12, wordBreak: "break-all" }}>
+                      {event.path}
+                    </Typography>
+                    {event.warning || event.error ? (
+                      <Typography sx={{ color: event.error ? "#ffb4ab" : "#fed639", fontFamily: monoFont, fontSize: 11, wordBreak: "break-word", mt: 0.25 }}>
+                        {event.error ?? event.warning}
+                      </Typography>
+                    ) : null}
+                  </Box>
+                  <Box sx={{ color: "#00f0ff" }}>{shortId(event.commit)}</Box>
+                </Box>
+              ))}
+            </Box>
+          )}
+        </Box>
+      </Box>
+    </Stack>
+  );
+}
+
+function SyncMetric({ label, value }: { label: string; value: string }) {
+  return (
+    <Box sx={{ border: "1px solid #3b494b", bgcolor: "#151d1e", px: 1.25, py: 1, minWidth: 0 }}>
+      <Typography variant="caption" color="text.secondary" sx={{ display: "block", fontFamily: monoFont, fontWeight: 900, textTransform: "uppercase" }}>
+        {label}
+      </Typography>
+      <Typography sx={{ color: "#d7e3ee", fontFamily: monoFont, fontSize: 13, wordBreak: "break-word" }}>
+        {value}
+      </Typography>
+    </Box>
+  );
+}
+
 function MetaLabel({ icon, label, accent = false }: { icon: "user" | "branch" | "calendar" | "refresh"; label: string; accent?: boolean }) {
   return (
     <Stack direction="row" spacing={0.65} alignItems="center">
@@ -1495,6 +1674,16 @@ function statusColor(status: string): string {
   if (status === "creating") return "#00f0ff";
   if (status === "complete") return "#d7e3ee";
   return "#d7e3ee";
+}
+
+function canEnvironmentSync(status: EnvironmentRecord["status"]): boolean {
+  return status === "running" || status === "stopped";
+}
+
+function syncResultColor(result: FileSyncEvent["result"]): string {
+  if (result === "sent") return "#4edea3";
+  if (result === "skipped") return "#fed639";
+  return "#ffb4ab";
 }
 
 function toErrorMessage(error: unknown): string {

@@ -26,6 +26,11 @@ export function DashboardLayout({ apiBaseUrl, activePage, sidebar, children, onL
           sx={{
             display: { xs: "none", md: "flex" },
             flexDirection: "column",
+            position: "sticky",
+            top: 0,
+            height: "100vh",
+            minHeight: 0,
+            overflow: "hidden",
             bgcolor: "#080f10",
             borderRight: "1px solid #3b494b"
           }}
@@ -53,7 +58,7 @@ export function DashboardLayout({ apiBaseUrl, activePage, sidebar, children, onL
             <NavItem icon={<SettingsIcon />} label="Settings" />
           </Stack>
           {sidebar ? (
-            <Box sx={{ mt: "auto", minHeight: 0, overflow: "auto", p: 3 }}>
+            <Box sx={{ flex: 1, minHeight: 0, overflow: "auto", p: 3 }}>
               {sidebar}
               <Box sx={{ mt: 2, border: "1px solid #3b494b", bgcolor: "#151d1e", p: 2 }}>
                 <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>

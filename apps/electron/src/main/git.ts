@@ -5,6 +5,8 @@ import { promisify } from "node:util";
 
 const execFileAsync = promisify(execFile);
 const MAX_FILE_SIZE_BYTES = 1024 * 1024;
+// Editors can save through unlink + replace; confirm before syncing a delete.
+const DELETE_CONFIRMATION_DELAY_MS = 1500;
 const IGNORED_SEGMENTS = new Set([".git", "node_modules", "dist", "build", ".next", "coverage"]);
 const IGNORED_FILES = new Set([".env"]);
 
@@ -21,6 +23,7 @@ export type ChangedFilePayload = {
   path: string;
   contentBase64?: string;
   status: ChangedFileStatus;
+  deleteConfirmed?: boolean;
   warning?: string;
 };
 
@@ -93,13 +96,11 @@ export async function readChangedFiles(repoPath: string, specificPaths?: string[
   const resolvedRepo = assertRepoPath(repoPath);
   const porcelainEntries = parsePorcelain(await git(resolvedRepo, ["status", "--porcelain"]));
   const statusByPath = new Map(porcelainEntries.map((entry) => [entry.path, entry.status]));
-  const entries = specificPaths?.length
-    ? specificPaths.map((filePath) => {
+  const entries: PorcelainEntry[] = specificPaths?.length
+    ? specificPaths.flatMap((filePath) => {
         const normalizedPath = normalizeRelativePath(filePath);
-        return {
-          path: normalizedPath,
-          status: statusByPath.get(normalizedPath) ?? "modified"
-        };
+        const status = statusByPath.get(normalizedPath);
+        return status ? [{ path: normalizedPath, status }] : [];
       })
     : porcelainEntries;
 
@@ -151,8 +152,16 @@ async function readChangedFile(repoPath: string, entry: PorcelainEntry): Promise
   const relativePath = normalizeRelativePath(entry.path);
   const absolutePath = ensureInsideRepo(repoPath, relativePath);
 
-  if (entry.status === "deleted" || !existsSync(absolutePath)) {
-    return { path: relativePath, status: "deleted" };
+  if (!existsSync(absolutePath)) {
+    await delay(DELETE_CONFIRMATION_DELAY_MS);
+  }
+
+  if (!existsSync(absolutePath)) {
+    const recheckedStatus = await readPathStatus(repoPath, relativePath);
+    if (recheckedStatus !== "deleted") {
+      return null;
+    }
+    return { path: relativePath, status: "deleted", deleteConfirmed: true };
   }
 
   const stat = await fs.stat(absolutePath);
@@ -160,10 +169,12 @@ async function readChangedFile(repoPath: string, entry: PorcelainEntry): Promise
     return null;
   }
 
+  const status = entry.status === "deleted" ? "modified" : entry.status;
+
   if (stat.size > MAX_FILE_SIZE_BYTES) {
     return {
       path: relativePath,
-      status: entry.status,
+      status,
       warning: `Skipped file larger than ${MAX_FILE_SIZE_BYTES} bytes.`
     };
   }
@@ -172,16 +183,25 @@ async function readChangedFile(repoPath: string, entry: PorcelainEntry): Promise
   if (isProbablyBinary(buffer)) {
     return {
       path: relativePath,
-      status: entry.status,
+      status,
       warning: "Skipped binary file."
     };
   }
 
   return {
     path: relativePath,
-    status: entry.status,
+    status,
     contentBase64: buffer.toString("base64")
   };
+}
+
+async function readPathStatus(repoPath: string, relativePath: string): Promise<ChangedFileStatus | undefined> {
+  const output = await git(repoPath, ["status", "--porcelain", "--", relativePath]);
+  return parsePorcelain(output).find((entry) => entry.path === relativePath)?.status;
+}
+
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 function parsePorcelain(output: string): PorcelainEntry[] {

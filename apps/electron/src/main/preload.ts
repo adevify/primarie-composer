@@ -7,8 +7,8 @@ const openUrl = (url: string): Promise<void> => ipcRenderer.invoke("external:ope
 const electronAPI = {
   selectDirectory: (): Promise<string | null> => ipcRenderer.invoke("repo:select-directory"),
   getGitState: (repoPath: string): Promise<GitState> => ipcRenderer.invoke("repo:get-git-state", repoPath),
-  readChangedFiles: (repoPath: string): Promise<ChangedFilePayload[]> =>
-    ipcRenderer.invoke("repo:read-changed-files", repoPath),
+  readChangedFiles: (repoPath: string, specificPaths?: string[]): Promise<ChangedFilePayload[]> =>
+    ipcRenderer.invoke("repo:read-changed-files", repoPath, specificPaths),
   readEnvExample: (repoPath: string): Promise<EnvExampleEntry[]> => ipcRenderer.invoke("repo:read-env-example", repoPath),
   startWatchingRepo: (repoPath: string): Promise<void> => ipcRenderer.invoke("repo:start-watching", repoPath),
   stopWatchingRepo: (): Promise<void> => ipcRenderer.invoke("repo:stop-watching"),

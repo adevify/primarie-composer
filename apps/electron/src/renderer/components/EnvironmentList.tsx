@@ -32,11 +32,8 @@ type EnvironmentListProps = {
   metrics?: SystemMetrics;
   loading: boolean;
   error?: string;
-  activeEnvironmentKey: string;
   onRefresh: () => Promise<void>;
-  onSelectActive: (key: string) => void;
   onDetails: (environment: EnvironmentRecord) => void;
-  onAction: (key: string, action: "start" | "stop" | "restart" | "resume" | "delete") => Promise<void>;
   onLoadMoreLogs: () => Promise<void>;
 };
 
@@ -263,11 +260,9 @@ function eventLabel(event: string): string {
 }
 
 function buildStats(environments: EnvironmentRecord[], metrics?: SystemMetrics): Array<{ label: string; value: string; color: string; progress?: number; detail?: string }> {
-  const today = new Date().toDateString();
   const running = environments.filter((environment) => environment.status === "running").length;
   const stopped = environments.filter((environment) => environment.status === "stopped").length;
   const failed = environments.filter((environment) => environment.status === "failed").length;
-  const createdToday = environments.filter((environment) => new Date(environment.createdAt).toDateString() === today).length;
   const cpuPercent = metrics?.cpu.percent ?? 0;
   const memoryPercent = metrics?.memory.percent ?? 0;
   const storagePercent = metrics?.storage.percent ?? 0;
@@ -277,7 +272,6 @@ function buildStats(environments: EnvironmentRecord[], metrics?: SystemMetrics):
     { label: "Active envs", value: pad(running), color: "#4edea3" },
     { label: "Stopped envs", value: pad(stopped), color: "#edf4fa" },
     { label: "Failed envs", value: pad(failed), color: "#ffb4ab" },
-    { label: "Created today", value: pad(createdToday), color: "#00f0ff" },
     { label: "Containers", value: String(Math.max(environments.length * 3, running)), color: "#edf4fa" },
     { label: "CPU usage", value: `${formatMetric(cpuPercent)}%`, color: "#00f0ff", progress: cpuPercent, detail: metrics ? `${metrics.cpu.cores} cores` : "loading" },
     { label: "RAM usage", value: `${formatMetric(memoryPercent)}%`, color: "#4edea3", progress: memoryPercent, detail: metrics ? `${formatBytes(metrics.memory.usedBytes)} / ${formatBytes(metrics.memory.totalBytes)}` : "loading" },

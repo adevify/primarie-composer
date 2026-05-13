@@ -1,18 +1,16 @@
 import { Alert, Box, CircularProgress, Stack, Typography } from "@mui/material";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ApiError, ComposerApiClient, isSessionExpired, normalizeBaseUrl } from "./api";
-import { ActiveEnvironmentCard } from "./components/ActiveEnvironmentCard";
 import { DashboardLayout } from "./components/DashboardLayout";
 import { EnvironmentCreateForm } from "./components/EnvironmentCreateForm";
 import { EnvironmentDetails } from "./components/EnvironmentDetails";
 import { EnvironmentsPage } from "./components/EnvironmentsPage";
 import { EnvironmentList } from "./components/EnvironmentList";
 import { GitStatusCard } from "./components/GitStatusCard";
-import { LatestChangesCard, type LatestChangeEvent } from "./components/LatestChangesCard";
 import { LoginView } from "./components/LoginView";
 import { RepoPicker } from "./components/RepoPicker";
 import { UsersPage } from "./components/UsersPage";
-import type { AuthSession, ChangedFilePayload, EnvExampleEntry, EnvironmentActionLogsPage, EnvironmentActionRecord, EnvironmentActionsPage, EnvironmentLog, EnvironmentLogsPage, EnvironmentRecord, EnvironmentStatus, GitState, LifecycleAction, LiveLogSession, RepoSyncSnapshot, StreamLogEvent, SyncState, SystemMetrics, UserDirectoryRecord } from "./types";
+import type { AuthSession, ChangedFilePayload, EnvExampleEntry, EnvironmentActionLogsPage, EnvironmentActionRecord, EnvironmentActionsPage, EnvironmentLog, EnvironmentLogsPage, EnvironmentRecord, EnvironmentStatus, FileSyncEvent, GitState, LifecycleAction, LiveLogSession, RepoSyncSnapshot, StreamLogEvent, SyncState, SystemMetrics, UserDirectoryRecord } from "./types";
 
 const AUTH_STORAGE_KEY = "primarie-composer.auth";
 const REPO_STORAGE_KEY = "primarie-composer.repoPath";
@@ -56,12 +54,13 @@ export default function App() {
   const [detailsLogRefreshToken, setDetailsLogRefreshToken] = useState(0);
   const [focusedLifecycleAction, setFocusedLifecycleAction] = useState<{ environmentKey: string; action: EnvironmentActionRecord; token: number }>();
   const [liveLogSessions, setLiveLogSessions] = useState<LiveLogSession[]>([]);
-  const [latestChanges, setLatestChanges] = useState<LatestChangeEvent[]>([]);
+  const [fileSyncEvents, setFileSyncEvents] = useState<FileSyncEvent[]>([]);
   const streamControllers = useRef(new Map<string, AbortController>());
   const syncInFlightRef = useRef(false);
   const pendingSyncSnapshotRef = useRef<RepoSyncSnapshot | null>(null);
   const [syncState, setSyncState] = useState<SyncState>({
     watching: false,
+    syncing: false,
     activeEnvironmentKey: localStorage.getItem(ACTIVE_ENV_STORAGE_KEY) ?? "",
     errors: []
   });
@@ -86,7 +85,7 @@ export default function App() {
     void electronBridge?.stopWatchingRepo();
     localStorage.removeItem(AUTH_STORAGE_KEY);
     setSession(null);
-    setSyncState((current) => ({ ...current, watching: false }));
+    setSyncState((current) => ({ ...current, watching: false, syncing: false }));
   }, [electronBridge]);
 
   const refreshEnvironments = useCallback(async () => {
@@ -359,7 +358,7 @@ export default function App() {
       }
       localStorage.setItem(REPO_STORAGE_KEY, selectedPath);
       setRepoPath(selectedPath);
-      setSyncState((current) => ({ ...current, watching: false }));
+      setSyncState((current) => ({ ...current, watching: false, syncing: false }));
     } catch (error) {
       setRepoError(toErrorMessage(error));
     }
@@ -416,7 +415,6 @@ export default function App() {
         };
 
         const localChanges = await electronBridge.readChangedFiles(repoPath);
-        recordLatestChanges(localChanges);
         localChanges.filter((file) => file.warning).forEach((file) => pushSyncError(`${file.path}: ${file.warning}`));
         changedFiles = localChanges
           .filter((file) => !file.warning)
@@ -452,7 +450,6 @@ export default function App() {
       setEnvironments((current) => [readyEnvironment, ...current.filter((item) => item.key !== readyEnvironment.key)]);
       setDetailsEnvironment(readyEnvironment);
       setActivePage("environments");
-      setActiveEnvironment(readyEnvironment.key);
       await refreshEnvironments();
     } catch (error) {
       setCreateError(toErrorMessage(error));
@@ -501,9 +498,6 @@ export default function App() {
       }
 
       updatedEnvironment = await runLifecycleAction(key, action);
-      if (action === "start" || action === "restart" || action === "resume") {
-        setActiveEnvironment(key);
-      }
       if ((action === "stop" || action === "delete") && syncState.activeEnvironmentKey === key) {
         await stopSync();
       }
@@ -788,15 +782,13 @@ export default function App() {
     }
   }
 
-  function setActiveEnvironment(key: string): void {
-    void electronBridge?.stopWatchingRepo();
+  function persistActiveEnvironmentKey(key: string): void {
     activeEnvironmentKeyRef.current = key;
     if (key) {
       localStorage.setItem(ACTIVE_ENV_STORAGE_KEY, key);
     } else {
       localStorage.removeItem(ACTIVE_ENV_STORAGE_KEY);
     }
-    setSyncState((current) => ({ ...current, activeEnvironmentKey: key, watching: false }));
   }
 
   async function startSync(overrideKey?: string): Promise<void> {
@@ -809,23 +801,24 @@ export default function App() {
       if (!electronBridge) {
         throw new Error("Electron preload bridge is unavailable.");
       }
-      activeEnvironmentKeyRef.current = key;
-      setSyncState((current) => ({ ...current, watching: true, activeEnvironmentKey: key }));
+      persistActiveEnvironmentKey(key);
+      setFileSyncEvents((current) => current.filter((event) => event.environmentKey !== key));
+      setSyncState((current) => ({ ...current, watching: true, syncing: false, activeEnvironmentKey: key }));
       await electronBridge.startWatchingRepo(repoPath);
     } catch (error) {
-      setSyncState((current) => ({ ...current, watching: false }));
+      setSyncState((current) => ({ ...current, watching: false, syncing: false }));
       pushSyncError(toErrorMessage(error));
     }
   }
 
   async function stopSync(): Promise<void> {
     await electronBridge?.stopWatchingRepo();
-    setSyncState((current) => ({ ...current, watching: false }));
+    pendingSyncSnapshotRef.current = null;
+    setSyncState((current) => ({ ...current, watching: false, syncing: false }));
   }
 
   async function handleRepoSyncSnapshot(snapshot: RepoSyncSnapshot): Promise<void> {
     setGitState(snapshot.gitState);
-    recordLatestChanges(snapshot.files);
     pendingSyncSnapshotRef.current = snapshot;
 
     if (syncInFlightRef.current) {
@@ -841,6 +834,7 @@ export default function App() {
     }
 
     syncInFlightRef.current = true;
+    setSyncState((current) => ({ ...current, syncing: true }));
     try {
       while (pendingSyncSnapshotRef.current) {
         const snapshot = pendingSyncSnapshotRef.current;
@@ -849,6 +843,7 @@ export default function App() {
       }
     } finally {
       syncInFlightRef.current = false;
+      setSyncState((current) => ({ ...current, syncing: false }));
     }
   }
 
@@ -858,51 +853,95 @@ export default function App() {
       return;
     }
 
+    const currentSnapshot = await refreshSyncSnapshot(snapshot);
+    let pendingFiles: ChangedFilePayload[] = [];
     try {
-      const syncableFiles = snapshot.files.filter((file) => !file.warning);
-      snapshot.files.filter((file) => file.warning).forEach((file) => pushSyncError(`${file.path}: ${file.warning}`));
+      const syncableFiles = currentSnapshot.files.filter((file) => !file.warning);
+      pendingFiles = syncableFiles;
+      const skippedFiles = currentSnapshot.files.filter((file) => file.warning);
+      skippedFiles.forEach((file) => pushSyncError(`${file.path}: ${file.warning}`));
+      if (skippedFiles.length > 0) {
+        recordFileSyncEvents(activeEnvironmentKey, currentSnapshot.gitState, skippedFiles, "skipped");
+      }
       const chunks = syncableFiles.length > 0 ? chunkChangedFiles(syncableFiles) : [[]];
 
       for (const files of chunks) {
         await api.syncFiles(activeEnvironmentKey, {
-          branch: snapshot.gitState.branch,
-          commit: snapshot.gitState.commit,
+          branch: currentSnapshot.gitState.branch,
+          commit: currentSnapshot.gitState.commit,
           files
         });
+        recordFileSyncEvents(activeEnvironmentKey, currentSnapshot.gitState, files, "sent");
+        const sentPaths = new Set(files.map((file) => file.path));
+        pendingFiles = pendingFiles.filter((file) => !sentPaths.has(file.path));
       }
 
       setSyncState((current) => ({
         ...current,
         lastSyncedFile: syncableFiles.at(-1)?.path ?? "Git state",
         lastSyncTime: new Date().toLocaleString(),
-        errors: snapshot.files.filter((file) => file.warning).map((file) => `${file.path}: ${file.warning}`)
+        errors: currentSnapshot.files.filter((file) => file.warning).map((file) => `${file.path}: ${file.warning}`)
       }));
     } catch (error) {
-      pushSyncError(toErrorMessage(error));
+      const message = toErrorMessage(error);
+      recordFileSyncEvents(activeEnvironmentKey, currentSnapshot.gitState, pendingFiles, "failed", message);
+      pushSyncError(message);
       if (isUnauthorized(error)) {
         logout();
       }
     }
   }
 
+  async function refreshSyncSnapshot(snapshot: RepoSyncSnapshot): Promise<RepoSyncSnapshot> {
+    if (!electronBridge || !repoPath) {
+      return snapshot;
+    }
+
+    const [gitState, files] = await Promise.all([
+      electronBridge.getGitState(repoPath),
+      electronBridge.readChangedFiles(repoPath)
+    ]);
+    setGitState(gitState);
+    return { gitState, files };
+  }
+
   function pushSyncError(message: string): void {
     setSyncState((current) => ({ ...current, errors: [...current.errors.slice(-4), message] }));
   }
 
-  function recordLatestChanges(files: ChangedFilePayload[]): void {
-    if (files.length === 0) {
-      return;
-    }
-
+  function recordFileSyncEvents(
+    environmentKey: string,
+    gitState: GitState,
+    files: ChangedFilePayload[],
+    result: FileSyncEvent["result"],
+    error?: string
+  ): void {
     const at = new Date().toISOString();
-    const events = files.map((file, index) => ({
-      id: `${at}-${index}-${file.path}`,
-      path: file.path,
-      status: file.warning ? "skipped" : file.status,
-      at,
-      warning: file.warning
-    }));
-    setLatestChanges((current) => [...events, ...current].slice(0, 12));
+    const events: FileSyncEvent[] = files.length > 0
+      ? files.map((file, index) => ({
+        id: `${at}-${index}-${environmentKey}-${file.path}`,
+        environmentKey,
+        path: file.path,
+        status: file.status,
+        result,
+        branch: gitState.branch,
+        commit: gitState.commit,
+        at,
+        warning: file.warning,
+        error
+      }))
+      : [{
+        id: `${at}-${environmentKey}-git-state`,
+        environmentKey,
+        path: "Git state",
+        status: "metadata",
+        result,
+        branch: gitState.branch,
+        commit: gitState.commit,
+        at,
+        error
+      }];
+    setFileSyncEvents((current) => [...events, ...current]);
   }
 
   if (authLoading) {
@@ -943,16 +982,7 @@ export default function App() {
       sidebar={
         <Stack spacing={2}>
           <RepoPicker repoPath={repoPath} error={repoError} onChooseRepo={chooseRepo} />
-          <ActiveEnvironmentCard
-            environments={environments}
-            activeEnvironmentKey={syncState.activeEnvironmentKey}
-            repoPath={repoPath}
-            syncState={syncState}
-            onStartSync={() => startSync()}
-            onStopSync={stopSync}
-          />
           <GitStatusCard gitState={gitState} loading={gitLoading} error={gitError} />
-          <LatestChangesCard events={latestChanges} />
         </Stack>
       }
     >
@@ -967,13 +997,11 @@ export default function App() {
             {!repoPath ? <Alert severity="info">Choose a local repository before creating environments.</Alert> : null}
             <EnvironmentsPage
               environments={environments}
-              activeEnvironmentKey={syncState.activeEnvironmentKey}
               metrics={systemMetrics}
               currentUser={session.user}
               repoPath={repoPath}
               onCreate={() => void openCreateDialog()}
               onDetails={setDetailsEnvironment}
-              onSelectActive={setActiveEnvironment}
               onAction={runEnvironmentAction}
               onOpenExternalUrl={(url) => void externalLinkBridge.openUrl(url)}
             />
@@ -997,6 +1025,12 @@ export default function App() {
             actionRefreshToken={detailsLogRefreshToken}
             focusAction={focusedLifecycleAction?.environmentKey === detailsEnvironment.key ? focusedLifecycleAction : undefined}
             liveLogSessions={liveLogSessions.filter((session) => session.environmentKey === detailsEnvironment.key)}
+            repoPath={repoPath}
+            gitState={gitState}
+            syncState={syncState}
+            fileSyncEvents={fileSyncEvents.filter((event) => event.environmentKey === detailsEnvironment.key)}
+            onStartSync={(key) => startSync(key)}
+            onStopSync={stopSync}
             onStartComposeLogStream={startComposeLogStream}
             onStartContainerLogStream={startContainerLogStream}
             onStopLiveLogSession={stopLiveLogSession}
@@ -1013,11 +1047,8 @@ export default function App() {
               metrics={systemMetrics}
               loading={environmentsLoading}
               error={environmentsError}
-              activeEnvironmentKey={syncState.activeEnvironmentKey}
               onRefresh={refreshEnvironments}
-              onSelectActive={setActiveEnvironment}
               onDetails={setDetailsEnvironment}
-              onAction={runEnvironmentAction}
               onLoadMoreLogs={loadMoreDashboardLogs}
             />
           </>

@@ -101,8 +101,8 @@ function registerIpcHandlers(): void {
     return getGitState(validateRepoPathInput(repoPath));
   });
 
-  registerIpcHandler("repo:read-changed-files", async (_event, repoPath: unknown) => {
-    return readChangedFiles(validateRepoPathInput(repoPath));
+  registerIpcHandler("repo:read-changed-files", async (_event, repoPath: unknown, specificPaths: unknown) => {
+    return readChangedFiles(validateRepoPathInput(repoPath), validateSpecificPathsInput(specificPaths));
   });
 
   registerIpcHandler("repo:read-env-example", async (_event, repoPath: unknown) => {
@@ -135,6 +135,18 @@ function validateRepoPathInput(repoPath: unknown): string {
     throw new Error("Repository path must be a string.");
   }
   return assertRepoPath(repoPath);
+}
+
+function validateSpecificPathsInput(value: unknown): string[] | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  if (!Array.isArray(value) || !value.every((item) => typeof item === "string")) {
+    throw new Error("Specific paths must be a string array.");
+  }
+
+  return value;
 }
 
 function validateExternalUrlInput(url: unknown): string {

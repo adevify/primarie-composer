@@ -146,6 +146,40 @@ patch_repo_proxy_dockerfile() {
   done
 
   perl -0pi -e 's/(set )\$/\1\\\$/g; s/(proxy_pass http:\/\/)\$/\1\\\$/g' "$dockerfile"
+  patch_repo_proxy_websocket_headers "$dockerfile"
+}
+
+patch_repo_proxy_websocket_headers() {
+  local dockerfile="$1"
+  local tmp_file
+
+  tmp_file="$(mktemp)"
+  awk '
+    function websocket_header(line) {
+      return line ~ /^[[:space:]]*proxy_http_version[[:space:]]+1\.1;\\[[:space:]]*$/ \
+        || line ~ /^[[:space:]]*proxy_set_header[[:space:]]+Upgrade[[:space:]]+\\\$http_upgrade;\\[[:space:]]*$/ \
+        || (line ~ /^[[:space:]]*proxy_set_header[[:space:]]+Connection[[:space:]]+/ && line ~ /upgrade/ && line ~ /;\\[[:space:]]*$/)
+    }
+    function proxy_target(line) {
+      return line ~ /^[[:space:]]*proxy_pass[[:space:]]+http:\/\/[^;]+;\\[[:space:]]*$/
+    }
+    function emit_websocket_headers(indent) {
+      print indent "proxy_http_version 1.1;\\"
+      print indent "proxy_set_header Upgrade \\$http_upgrade;\\"
+      print indent "proxy_set_header Connection '\''upgrade'\'';\\"
+    }
+    {
+      if (websocket_header($0)) {
+        next
+      }
+
+      print
+      if (proxy_target($0)) {
+        match($0, /^[[:space:]]*/)
+        emit_websocket_headers(substr($0, RSTART, RLENGTH))
+      }
+    }
+  ' "$dockerfile" > "$tmp_file" && mv "$tmp_file" "$dockerfile"
 }
 
 patch_repo_storybook_compose_volume() {

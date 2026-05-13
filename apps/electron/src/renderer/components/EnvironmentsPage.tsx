@@ -16,7 +16,6 @@ import {
   Typography
 } from "@mui/material";
 import AddBoxIcon from "@mui/icons-material/AddBox";
-import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import PauseIcon from "@mui/icons-material/Pause";
@@ -28,13 +27,11 @@ import type { EnvironmentOwner, EnvironmentRecord, SystemMetrics } from "../type
 
 type EnvironmentsPageProps = {
   environments: EnvironmentRecord[];
-  activeEnvironmentKey: string;
   metrics?: SystemMetrics;
   currentUser?: EnvironmentOwner;
   repoPath: string;
   onCreate: () => void;
   onDetails: (environment: EnvironmentRecord) => void;
-  onSelectActive: (key: string) => void;
   onAction: (key: string, action: "start" | "stop" | "restart" | "resume" | "delete") => Promise<void>;
   onOpenExternalUrl: (url: string) => void;
 };
@@ -43,13 +40,11 @@ type Filter = "all" | "mine" | "production" | "prs";
 
 export function EnvironmentsPage({
   environments,
-  activeEnvironmentKey,
   metrics,
   currentUser,
   repoPath,
   onCreate,
   onDetails,
-  onSelectActive,
   onAction,
   onOpenExternalUrl
 }: EnvironmentsPageProps) {
@@ -178,7 +173,6 @@ export function EnvironmentsPage({
                 </TableCell>
                 <TableCell align="right">
                   <IconButton aria-label="View environment" onClick={() => onDetails(environment)}><VisibilityIcon /></IconButton>
-                  <IconButton aria-label="Set active sync target" disabled={activeEnvironmentKey === environment.key} onClick={() => onSelectActive(environment.key)}><ContentCopyIcon /></IconButton>
                   {environment.status === "running" ? (
                     <IconButton aria-label="Stop environment" onClick={() => void onAction(environment.key, "stop")}><PauseIcon /></IconButton>
                   ) : (
