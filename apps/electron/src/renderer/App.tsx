@@ -856,8 +856,9 @@ export default function App() {
     const currentSnapshot = await refreshSyncSnapshot(snapshot);
     let pendingFiles: ChangedFilePayload[] = [];
     try {
+      const warningFiles = currentSnapshot.files.filter((file) => file.warning);
       const unconfirmedDeleteFiles = currentSnapshot.files
-        .filter((file) => file.status === "deleted" && !file.deleteConfirmed)
+        .filter((file) => !file.warning && file.status === "deleted" && !file.deleteConfirmed)
         .map((file) => ({
           ...file,
           warning: "Skipped unconfirmed delete. Restart Electron and sync again if this file was really removed."
@@ -865,7 +866,7 @@ export default function App() {
       const syncableFiles = currentSnapshot.files.filter((file) => !file.warning && (file.status !== "deleted" || file.deleteConfirmed));
       pendingFiles = syncableFiles;
       const skippedFiles = [
-        ...currentSnapshot.files.filter((file) => file.warning),
+        ...warningFiles,
         ...unconfirmedDeleteFiles
       ];
       skippedFiles.forEach((file) => pushSyncError(`${file.path}: ${file.warning}`));
