@@ -59,13 +59,18 @@ apply_changed_files() {
 
   echo "[composer-progress] applying_changes"
   for ((index = 0; index < count; index += 1)); do
-    local file_path status target content_base64
+    local file_path status target content_base64 delete_confirmed
     file_path="$(jq -r ".changedFiles[$index].path" "$PAYLOAD_FILE")"
     status="$(jq -r ".changedFiles[$index].status" "$PAYLOAD_FILE")"
+    delete_confirmed="$(jq -r ".changedFiles[$index].deleteConfirmed // false" "$PAYLOAD_FILE")"
     assert_safe_relative_path "$file_path"
     target="$RUNTIME_PATH/$file_path"
 
     if [[ "$status" == "deleted" ]]; then
+      if [[ "$delete_confirmed" != "true" ]]; then
+        echo "Skipped unconfirmed delete for $file_path"
+        continue
+      fi
       rm -f "$target"
       continue
     fi

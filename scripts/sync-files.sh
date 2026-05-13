@@ -23,10 +23,15 @@ count="$(jq '.files | length' "$PAYLOAD_FILE")"
 for ((index = 0; index < count; index += 1)); do
   file_path="$(jq -r ".files[$index].path" "$PAYLOAD_FILE")"
   status="$(jq -r ".files[$index].status" "$PAYLOAD_FILE")"
+  delete_confirmed="$(jq -r ".files[$index].deleteConfirmed // false" "$PAYLOAD_FILE")"
   assert_safe_relative_path "$file_path"
   target="$RUNTIME_PATH/$file_path"
 
   if [[ "$status" == "deleted" ]]; then
+    if [[ "$delete_confirmed" != "true" ]]; then
+      echo "Skipped unconfirmed delete for $file_path"
+      continue
+    fi
     rm -f "$target"
     continue
   fi
