@@ -890,6 +890,7 @@ export class EnvironmentsService {
           branch: input.branch,
           commit: input.commit
         },
+        resetBeforeApply: input.resetBeforeApply ?? true,
         files: input.files
       });
 

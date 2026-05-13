@@ -15,7 +15,7 @@ import type { AuthSession, ChangedFilePayload, EnvExampleEntry, EnvironmentActio
 const AUTH_STORAGE_KEY = "primarie-composer.auth";
 const REPO_STORAGE_KEY = "primarie-composer.repoPath";
 const ACTIVE_ENV_STORAGE_KEY = "primarie-composer.activeEnvironmentKey";
-const MAX_SYNC_CHUNK_CONTENT_LENGTH = 750 * 1024;
+const MAX_SYNC_CHUNK_CONTENT_LENGTH = 20 * 1024 * 1024;
 const DASHBOARD_LOGS_PER_PAGE = 50;
 
 export default function App() {
@@ -416,13 +416,7 @@ export default function App() {
 
         const localChanges = await electronBridge.readChangedFiles(repoPath);
         localChanges.filter((file) => file.warning).forEach((file) => pushSyncError(`${file.path}: ${file.warning}`));
-        changedFiles = localChanges
-          .filter((file) => !file.warning)
-          .map((file) => ({
-            path: file.path,
-            status: file.status,
-            contentBase64: file.contentBase64
-          }));
+        changedFiles = localChanges.filter((file) => !file.warning);
       }
 
       if (!source) {
@@ -856,14 +850,34 @@ export default function App() {
     const currentSnapshot = await refreshSyncSnapshot(snapshot);
     let pendingFiles: ChangedFilePayload[] = [];
     try {
-      const warningFiles = currentSnapshot.files.filter((file) => file.warning);
+      const payloadPaths = new Set(currentSnapshot.files.map((file) => file.path));
+      const unreadableChangedFiles: ChangedFilePayload[] = currentSnapshot.gitState.changedFiles
+        .filter((filePath) => !payloadPaths.has(filePath))
+        .map((filePath) => ({
+          path: filePath,
+          status: "modified",
+          warning: "Git reports this file as changed, but Electron could not build a sync payload for it."
+        }));
+      const contentlessFiles = currentSnapshot.files
+        .filter((file) => !file.warning && file.status !== "deleted" && !hasFileContent(file))
+        .map((file) => ({
+          ...file,
+          warning: "Skipped changed file without file content."
+        }));
+      const warningFiles = [
+        ...currentSnapshot.files.filter((file) => file.warning),
+        ...unreadableChangedFiles,
+        ...contentlessFiles
+      ];
       const unconfirmedDeleteFiles = currentSnapshot.files
         .filter((file) => !file.warning && file.status === "deleted" && !file.deleteConfirmed)
         .map((file) => ({
           ...file,
           warning: "Skipped unconfirmed delete. Restart Electron and sync again if this file was really removed."
         }));
-      const syncableFiles = currentSnapshot.files.filter((file) => !file.warning && (file.status !== "deleted" || file.deleteConfirmed));
+      const syncableFiles = currentSnapshot.files.filter((file) => !file.warning && (
+        file.status === "deleted" ? file.deleteConfirmed : hasFileContent(file)
+      ));
       pendingFiles = syncableFiles;
       const skippedFiles = [
         ...warningFiles,
@@ -883,11 +897,12 @@ export default function App() {
 
       const chunks = chunkChangedFiles(syncableFiles);
 
-      for (const files of chunks) {
+      for (const [index, files] of chunks.entries()) {
         await api.syncFiles(activeEnvironmentKey, {
           branch: currentSnapshot.gitState.branch,
           commit: currentSnapshot.gitState.commit,
-          files
+          files,
+          resetBeforeApply: index === 0
         });
         recordFileSyncEvents(activeEnvironmentKey, currentSnapshot.gitState, files, "sent");
         const sentPaths = new Set(files.map((file) => file.path));
@@ -1170,4 +1185,8 @@ function chunkChangedFiles(files: ChangedFilePayload[]): ChangedFilePayload[][] 
   }
 
   return chunks;
+}
+
+function hasFileContent(file: ChangedFilePayload): boolean {
+  return Object.prototype.hasOwnProperty.call(file, "contentBase64");
 }

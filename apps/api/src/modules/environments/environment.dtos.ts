@@ -39,7 +39,8 @@ export type EnvironmentSource = z.infer<typeof sourceSchema>;
 export const syncFilesSchema = z.object({
   branch: z.string().min(1),
   commit: z.string().min(7),
-  files: z.array(changedFileSchema)
+  files: z.array(changedFileSchema).min(1),
+  resetBeforeApply: z.boolean().optional()
 });
 
 export type SyncFilesPayload = z.infer<typeof syncFilesSchema>;

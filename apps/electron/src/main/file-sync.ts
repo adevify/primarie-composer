@@ -1,4 +1,5 @@
 import chokidar, { type FSWatcher } from "chokidar";
+import { promises as fs } from "node:fs";
 import path from "node:path";
 import { BrowserWindow } from "electron";
 import { assertRepoPath, getGitState, isIgnoredRelativePath, readChangedFiles, type ChangedFilePayload, type GitState } from "./git.js";
@@ -108,27 +109,61 @@ async function emitRepoSyncSnapshot(force: boolean): Promise<void> {
 
   try {
     const gitState = await getGitState(watchedRepoPath);
-    const signature = toGitSignature(gitState);
+    const signature = await toGitSignature(watchedRepoPath, gitState);
     if (!force && signature === lastGitSignature) {
       return;
     }
 
-    lastGitSignature = signature;
     const files = await readChangedFiles(watchedRepoPath);
     const snapshot: RepoSyncSnapshot = { gitState, files };
     emitToRenderers("repo-sync-snapshot", snapshot);
     emitToRenderers("repo-file-changed", files);
+    lastGitSignature = signature;
   } catch (error) {
     emitToRenderers("repo-watch-error", error instanceof Error ? error.message : String(error));
   }
 }
 
-function toGitSignature(gitState: GitState): string {
+async function toGitSignature(repoPath: string, gitState: GitState): Promise<string> {
+  const changedFiles = await Promise.all(
+    [...gitState.changedFiles].sort().map(async (relativePath) => ({
+      path: relativePath,
+      stat: await readChangedFileStat(repoPath, relativePath)
+    }))
+  );
+
   return JSON.stringify({
     branch: gitState.branch,
     commit: gitState.commit,
-    changedFiles: [...gitState.changedFiles].sort()
+    changedFiles
   });
+}
+
+async function readChangedFileStat(repoPath: string, relativePath: string): Promise<{ exists: boolean; size?: number; mtimeMs?: number; ctimeMs?: number }> {
+  const resolvedPath = path.resolve(repoPath, relativePath);
+  const relativeToRepo = path.relative(repoPath, resolvedPath);
+  if (relativeToRepo.startsWith("..") || path.isAbsolute(relativeToRepo)) {
+    return { exists: false };
+  }
+
+  try {
+    const stat = await fs.stat(resolvedPath);
+    return {
+      exists: true,
+      size: stat.size,
+      mtimeMs: stat.mtimeMs,
+      ctimeMs: stat.ctimeMs
+    };
+  } catch (error) {
+    if (isNodeError(error) && error.code === "ENOENT") {
+      return { exists: false };
+    }
+    throw error;
+  }
+}
+
+function isNodeError(error: unknown): error is NodeJS.ErrnoException {
+  return error instanceof Error && "code" in error;
 }
 
 function emitToRenderers(channel: string, payload: unknown): void {

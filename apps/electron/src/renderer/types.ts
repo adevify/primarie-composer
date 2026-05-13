@@ -250,6 +250,7 @@ export type SyncFilesInput = {
   branch: string;
   commit: string;
   files: ChangedFilePayload[];
+  resetBeforeApply?: boolean;
 };
 
 export type FileSyncEvent = {

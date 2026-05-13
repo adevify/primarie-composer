@@ -11,13 +11,16 @@ validate_env "$ENV_NAME"
 RUNTIME_PATH="$(jq -r '.runtimePath' "$PAYLOAD_FILE")"
 BRANCH="$(jq -r '.source.branch' "$PAYLOAD_FILE")"
 COMMIT="$(jq -r '.source.commit' "$PAYLOAD_FILE")"
+RESET_BEFORE_APPLY="$(jq -r '.resetBeforeApply // true' "$PAYLOAD_FILE")"
 
 cd "$RUNTIME_PATH"
-git fetch --all --prune
-git reset --hard
-git clean -fd
-git checkout -f "origin/$BRANCH"
-git reset --hard "$COMMIT"
+if [[ "$RESET_BEFORE_APPLY" == "true" ]]; then
+  git fetch --all --prune
+  git reset --hard
+  git clean -fd
+  git checkout -f "origin/$BRANCH"
+  git reset --hard "$COMMIT"
+fi
 
 count="$(jq '.files | length' "$PAYLOAD_FILE")"
 for ((index = 0; index < count; index += 1)); do
@@ -36,10 +39,10 @@ for ((index = 0; index < count; index += 1)); do
     continue
   fi
 
-  content_base64="$(jq -r ".files[$index].contentBase64 // empty" "$PAYLOAD_FILE")"
-  if [[ -z "$content_base64" ]]; then
+  if ! jq -e ".files[$index] | has(\"contentBase64\")" "$PAYLOAD_FILE" >/dev/null; then
     continue
   fi
+  content_base64="$(jq -r ".files[$index].contentBase64" "$PAYLOAD_FILE")"
 
   mkdir -p "$(dirname "$target")"
   printf "%s" "$content_base64" | base64 --decode > "$target"

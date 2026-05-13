@@ -75,10 +75,10 @@ apply_changed_files() {
       continue
     fi
 
-    content_base64="$(jq -r ".changedFiles[$index].contentBase64 // empty" "$PAYLOAD_FILE")"
-    if [[ -z "$content_base64" ]]; then
+    if ! jq -e ".changedFiles[$index] | has(\"contentBase64\")" "$PAYLOAD_FILE" >/dev/null; then
       continue
     fi
+    content_base64="$(jq -r ".changedFiles[$index].contentBase64" "$PAYLOAD_FILE")"
 
     mkdir -p "$(dirname "$target")"
     printf "%s" "$content_base64" | base64 --decode > "$target"

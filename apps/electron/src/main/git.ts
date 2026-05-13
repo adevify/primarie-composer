@@ -4,7 +4,7 @@ import path from "node:path";
 import { promisify } from "node:util";
 
 const execFileAsync = promisify(execFile);
-const MAX_FILE_SIZE_BYTES = 1024 * 1024;
+const MAX_FILE_SIZE_BYTES = 15 * 1024 * 1024;
 // Editors can save through unlink + replace; confirm before syncing a delete.
 const DELETE_CONFIRMATION_DELAY_MS = 1500;
 const IGNORED_SEGMENTS = new Set([".git", "node_modules", "dist", "build", ".next", "coverage"]);
@@ -73,7 +73,7 @@ export function ensureInsideRepo(repoPath: string, candidatePath: string): strin
 async function git(repoPath: string, args: string[]): Promise<string> {
   const cwd = assertRepoPath(repoPath);
   const { stdout } = await execFileAsync("git", args, { cwd });
-  return stdout.trim();
+  return stdout.replace(/\r?\n$/, "");
 }
 
 export async function getGitState(repoPath: string): Promise<GitState> {
@@ -180,14 +180,6 @@ async function readChangedFile(repoPath: string, entry: PorcelainEntry): Promise
   }
 
   const buffer = await fs.readFile(absolutePath);
-  if (isProbablyBinary(buffer)) {
-    return {
-      path: relativePath,
-      status,
-      warning: "Skipped binary file."
-    };
-  }
-
   return {
     path: relativePath,
     status,
@@ -236,16 +228,6 @@ function toChangedFileStatus(code: string): ChangedFileStatus {
 
 function normalizeRelativePath(filePath: string): string {
   return filePath.replace(/^"|"$/g, "").split(path.sep).join("/");
-}
-
-function isProbablyBinary(buffer: Buffer): boolean {
-  const length = Math.min(buffer.length, 8000);
-  for (let index = 0; index < length; index += 1) {
-    if (buffer[index] === 0) {
-      return true;
-    }
-  }
-  return false;
 }
 
 function unquoteEnvValue(value: string): string {
