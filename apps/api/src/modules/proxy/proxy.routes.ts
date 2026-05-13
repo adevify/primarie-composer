@@ -51,7 +51,11 @@ export function createProxyRouter(): Router {
       }
 
       const upstreamHost = await resolveProxyUpstreamHost(env.PROXY_UPSTREAM_HOST);
-      const serviceHost = `${parsed.subdomain}.${env.ROOT_DOMAIN}`;
+      const serviceHost = parsed.subdomain === "primarie"
+        ? `${env.ROOT_DOMAIN}`
+        : parsed.subdomain === "adevify"
+          ? `${env.ROOT_DOMAIN_ALT}`
+          : `${parsed.subdomain}.${env.ROOT_DOMAIN}`;
       logProxyDecision("info", requestId, "allow", {
         host,
         parsed,

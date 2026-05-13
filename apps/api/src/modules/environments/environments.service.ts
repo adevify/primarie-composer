@@ -355,7 +355,7 @@ export class EnvironmentsService {
       changedFiles,
       environmentVariables: {
         ...environmentVariables,
-        COMPANY_HOST: "advf.md",
+        COMPANY_HOST: env.ROOT_DOMAIN_ALT,
         PLATFORM_HOST: env.ROOT_DOMAIN,
         NETWORK_NAME: `primarie-${key}-net`,
         ENV_KEY: key,
