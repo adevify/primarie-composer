@@ -208,7 +208,7 @@ Safety checks:
 Risk areas:
 
 - Arbitrary command execution inside containers.
-- Removal script deletes runtime environment directories.
+- Removal script deletes runtime environment directories and prunes Docker resources for the environment Compose project.
 - Repo patch scripts mutate cloned source files.
 - Some action types are not environment-locked.
 - Host bus accepts any JSON line written to the FIFO.

@@ -81,12 +81,6 @@ export const SystemLogCollection = (() => {
           .toArray()
       };
     }),
-    deleteByEnvironment: async (environmentKey: string) => withCol(col => col.deleteMany({
-      $or: [
-        { environmentKey },
-        { "target.environmentKey": environmentKey }
-      ]
-    })),
     actionIdsByEnvironment: async (environmentKey: string) => withCol(async col => {
       const actionIds = await col.distinct("actionId", {
         $or: [

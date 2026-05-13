@@ -232,7 +232,10 @@ Flow:
 
 `scripts/remove-env.sh`:
 
-- Runs `docker compose down --remove-orphans` if the runtime directory exists.
+- Collects Docker image IDs associated with the environment Compose project.
+- Runs `docker compose down --remove-orphans --volumes --rmi all` if the runtime directory exists.
+- Removes leftover containers, networks, volumes, and project-labelled images associated with the environment Compose project.
+- Prunes Docker build cache whose parent image IDs match the collected project images.
 - Deletes the runtime directory.
 - Retries with relaxed permissions.
 - Uses passwordless `sudo rm -rf` only if normal deletion still fails and `sudo -n true` succeeds.

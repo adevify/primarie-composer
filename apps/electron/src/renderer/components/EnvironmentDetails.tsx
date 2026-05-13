@@ -711,10 +711,10 @@ export function EnvironmentDetails({
         </Stack>
       </Box>
 
-      <Box sx={{ flex: 1, minHeight: 0, overflow: "auto", p: { xs: 2, lg: 3 } }}>
+      <Box sx={{ flex: 1, minHeight: 0, overflow: utilityTab === "actions" ? "hidden" : "auto", p: { xs: 2, lg: 3 }, display: "flex", flexDirection: "column" }}>
         {toolError ? <Alert severity="warning">{toolError}</Alert> : null}
 
-        <Box sx={{ mt: toolError ? 2 : 0, display: "grid", gridTemplateColumns: { xs: "1fr", lg: "280px minmax(0, 1fr)" }, gap: 3, height: { lg: "calc(100vh - 218px)" }, minHeight: 560 }}>
+        <Box sx={{ mt: toolError ? 2 : 0, display: "grid", gridTemplateColumns: { xs: "1fr", lg: "280px minmax(0, 1fr)" }, gap: 3, flex: utilityTab === "actions" ? 1 : undefined, height: utilityTab === "actions" ? undefined : { lg: "calc(100vh - 218px)" }, minHeight: utilityTab === "actions" ? 0 : 560 }}>
           <Box component="aside" sx={{ minHeight: 0, overflow: "auto" }}>
             <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ px: 0.5, mb: 1.5 }}>
               <Typography variant="caption" color="text.secondary" sx={{ fontFamily: monoFont, fontWeight: 900, textTransform: "uppercase" }}>
@@ -857,7 +857,7 @@ export function EnvironmentDetails({
               </Stack>
             </Box>
 
-            <Box sx={{ flex: 1, minHeight: 0, overflow: "auto", bgcolor: utilityTab === "logs" || utilityTab === "exec" ? "#080f10" : "#192122" }}>
+            <Box sx={{ flex: 1, minHeight: 0, overflow: utilityTab === "actions" ? "hidden" : "auto", bgcolor: utilityTab === "logs" || utilityTab === "exec" ? "#080f10" : "#192122" }}>
               {utilityTab === "logs" ? (
                 <LogTerminal
                   logs={displayedPrimaryLogs}
@@ -906,7 +906,16 @@ export function EnvironmentDetails({
               ) : null}
 
               {utilityTab === "actions" ? (
-                <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", lg: "260px 1fr" }, minHeight: "100%" }}>
+                <Box
+                  sx={{
+                    display: "grid",
+                    gridTemplateColumns: { xs: "1fr", lg: "260px minmax(0, 1fr)" },
+                    gridTemplateRows: { xs: "minmax(180px, 34%) minmax(0, 1fr)", lg: "minmax(0, 1fr)" },
+                    height: "100%",
+                    minHeight: 0,
+                    overflow: "hidden"
+                  }}
+                >
                   <ActionHistory
                     actions={actions}
                     selectedActionId={selectedActionId}
@@ -916,7 +925,7 @@ export function EnvironmentDetails({
                     hasMore={Boolean(actionsPage && actionsPage.page + 1 < actionsPage.pages)}
                     onLoadMore={() => void loadMoreActions()}
                   />
-                  <Box sx={{ minWidth: 0 }}>
+                  <Box sx={{ minWidth: 0, minHeight: 0, overflow: "hidden", display: "flex", flexDirection: "column" }}>
                     <Box sx={{ px: 2, py: 1.2, borderBottom: "1px solid #3b494b", bgcolor: "#151d1e", display: "flex", justifyContent: "space-between", gap: 2, alignItems: "center" }}>
                       <Typography variant="caption" color="text.secondary" sx={{ fontFamily: monoFont }} noWrap>
                         {selectedAction ? `${selectedAction.action.toUpperCase()} / ${selectedAction.id}` : "NO REGISTERED ACTION"}
@@ -925,14 +934,17 @@ export function EnvironmentDetails({
                         {actionLogsPage ? `${actionLogs.length}${actionLogsPage.hasMore ? "+" : ""}` : "0"}
                       </Typography>
                     </Box>
-                    <LogTerminal
-                      logs={displayedActionLogs}
-                      emptyText={selectedAction ? "Waiting for registered action log output." : "No actions registered for this environment yet."}
-                      compact
-                      hasOlder={Boolean(actionLogsPage?.hasMore)}
-                      loadingOlder={loadingActionLogs}
-                      onReachTop={() => void loadOlderActionLogs()}
-                    />
+                    <Box sx={{ flex: 1, minHeight: 0, overflow: "hidden" }}>
+                      <LogTerminal
+                        logs={displayedActionLogs}
+                        emptyText={selectedAction ? "Waiting for registered action log output." : "No actions registered for this environment yet."}
+                        compact
+                        fill
+                        hasOlder={Boolean(actionLogsPage?.hasMore)}
+                        loadingOlder={loadingActionLogs}
+                        onReachTop={() => void loadOlderActionLogs()}
+                      />
+                    </Box>
                     {actionLogsPage?.hasMore ? (
                       <Box sx={{ px: 2, py: 1.5, borderTop: "1px solid #3b494b", bgcolor: "#151d1e" }}>
                         <Button size="small" variant="outlined" disabled={loadingActionLogs} onClick={() => void loadOlderActionLogs()} sx={smallButtonSx}>
@@ -1010,60 +1022,62 @@ function ActionHistory({
   onLoadMore: () => void;
 }) {
   return (
-    <Stack sx={{ bgcolor: "#151d1e", borderRight: { lg: "1px solid #3b494b" }, borderBottom: { xs: "1px solid #3b494b", lg: "none" }, maxHeight: { lg: 620 }, overflow: "auto" }}>
+    <Stack sx={{ bgcolor: "#151d1e", borderRight: { lg: "1px solid #3b494b" }, borderBottom: { xs: "1px solid #3b494b", lg: "none" }, height: "100%", minHeight: 0, overflow: "hidden" }}>
       <Box sx={{ px: 1.5, py: 1.2, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 1 }}>
         <Typography variant="caption" color="text.secondary" sx={{ fontFamily: monoFont, fontWeight: 900 }}>
           REGISTERED ACTIONS
         </Typography>
         {loading ? <CircularProgress size={14} /> : <Typography variant="caption" color="text.secondary" sx={{ fontFamily: monoFont }}>{total}</Typography>}
       </Box>
-      {actions.length === 0 ? (
-        <Box sx={{ px: 1.5, py: 2, color: "text.secondary", fontFamily: monoFont, fontSize: 13 }}>
-          No actions yet.
-        </Box>
-      ) : actions.map((action) => {
-        const selected = action.id === selectedActionId;
-        return (
-          <Button
-            key={action.id}
-            onClick={() => onSelect(action.id)}
-            sx={{
-              justifyContent: "flex-start",
-              alignItems: "stretch",
-              textAlign: "left",
-              borderRadius: 0,
-              px: 1.5,
-              py: 1.25,
-              borderTop: "1px solid #3b494b",
-              bgcolor: selected ? "rgba(0, 240, 255, 0.08)" : "transparent",
-              color: "text.primary",
-              "&:hover": { bgcolor: "rgba(0, 240, 255, 0.11)" }
-            }}
-          >
-            <Stack spacing={0.55} sx={{ width: "100%", minWidth: 0 }}>
-              <Stack direction="row" spacing={1} alignItems="center" justifyContent="space-between">
-                <Typography sx={{ fontFamily: monoFont, fontWeight: 900, color: "#00f0ff" }}>
-                  {action.action.toUpperCase()}
+      <Stack sx={{ flex: 1, minHeight: 0, overflow: "auto" }}>
+        {actions.length === 0 ? (
+          <Box sx={{ px: 1.5, py: 2, color: "text.secondary", fontFamily: monoFont, fontSize: 13 }}>
+            No actions yet.
+          </Box>
+        ) : actions.map((action) => {
+          const selected = action.id === selectedActionId;
+          return (
+            <Button
+              key={action.id}
+              onClick={() => onSelect(action.id)}
+              sx={{
+                justifyContent: "flex-start",
+                alignItems: "stretch",
+                textAlign: "left",
+                borderRadius: 0,
+                px: 1.5,
+                py: 1.25,
+                borderTop: "1px solid #3b494b",
+                bgcolor: selected ? "rgba(0, 240, 255, 0.08)" : "transparent",
+                color: "text.primary",
+                "&:hover": { bgcolor: "rgba(0, 240, 255, 0.11)" }
+              }}
+            >
+              <Stack spacing={0.55} sx={{ width: "100%", minWidth: 0 }}>
+                <Stack direction="row" spacing={1} alignItems="center" justifyContent="space-between">
+                  <Typography sx={{ fontFamily: monoFont, fontWeight: 900, color: "#00f0ff" }}>
+                    {action.action.toUpperCase()}
+                  </Typography>
+                  <Box sx={{ width: 9, height: 9, borderRadius: "50%", bgcolor: statusColor(action.status), boxShadow: action.status === "running" ? "0 0 10px rgba(78, 222, 163, 0.55)" : "none" }} />
+                </Stack>
+                <Typography variant="caption" color="text.secondary" sx={{ fontFamily: monoFont }} noWrap>
+                  {shortId(action.id)} / {action.status}
                 </Typography>
-                <Box sx={{ width: 9, height: 9, borderRadius: "50%", bgcolor: statusColor(action.status), boxShadow: action.status === "running" ? "0 0 10px rgba(78, 222, 163, 0.55)" : "none" }} />
+                <Typography variant="caption" color="text.secondary" sx={{ fontFamily: monoFont }}>
+                  {formatTimestamp(action.createdAt)}
+                </Typography>
               </Stack>
-              <Typography variant="caption" color="text.secondary" sx={{ fontFamily: monoFont }} noWrap>
-                {shortId(action.id)} / {action.status}
-              </Typography>
-              <Typography variant="caption" color="text.secondary" sx={{ fontFamily: monoFont }}>
-                {formatTimestamp(action.createdAt)}
-              </Typography>
-            </Stack>
-          </Button>
-        );
-      })}
-      {hasMore ? (
-        <Box sx={{ p: 1.25, borderTop: "1px solid #3b494b" }}>
-          <Button size="small" variant="outlined" disabled={loading} onClick={onLoadMore} sx={{ ...smallButtonSx, width: "100%" }}>
-            More
-          </Button>
-        </Box>
-      ) : null}
+            </Button>
+          );
+        })}
+        {hasMore ? (
+          <Box sx={{ p: 1.25, borderTop: "1px solid #3b494b" }}>
+            <Button size="small" variant="outlined" disabled={loading} onClick={onLoadMore} sx={{ ...smallButtonSx, width: "100%" }}>
+              More
+            </Button>
+          </Box>
+        ) : null}
+      </Stack>
     </Stack>
   );
 }
@@ -1181,6 +1195,7 @@ function LogTerminal({
   logs,
   emptyText = "Waiting for Docker Compose log output.",
   compact = false,
+  fill = false,
   hasOlder = false,
   loadingOlder = false,
   onReachTop
@@ -1188,6 +1203,7 @@ function LogTerminal({
   logs: Array<{ at: string; message: string; level: "info" | "error"; system: boolean }>;
   emptyText?: string;
   compact?: boolean;
+  fill?: boolean;
   hasOlder?: boolean;
   loadingOlder?: boolean;
   onReachTop?: () => void;
@@ -1212,7 +1228,7 @@ function LogTerminal({
   }
 
   return (
-    <Box ref={containerRef} onScroll={handleScroll} sx={{ minHeight: compact ? "100%" : 460, maxHeight: compact ? "none" : 560, overflow: "auto", bgcolor: "#080f10", p: 2, fontFamily: monoFont, fontSize: 13, lineHeight: 1.5 }}>
+    <Box ref={containerRef} onScroll={handleScroll} sx={{ height: fill ? "100%" : undefined, minHeight: fill ? 0 : compact ? "100%" : 460, maxHeight: fill || compact ? "none" : 560, overflow: "auto", bgcolor: "#080f10", p: 2, fontFamily: monoFont, fontSize: 13, lineHeight: 1.5 }}>
       {loadingOlder ? (
         <Typography color="text.secondary" sx={{ fontFamily: monoFont, mb: 1 }}>
           Loading older output

@@ -1159,7 +1159,7 @@ export class EnvironmentsService {
       .map((actionId) => this.deleteLogPath(this.actionLogPath(actionId)))
     );
     await EnvironmentActionCollection.deleteByEnvironment(key, options.preserveActionId);
-    await SystemLogCollection.deleteByEnvironment(key);
+    // Keep Mongo-backed system logs as the persisted audit trail for removed environments.
     await EnvironmentCollection.delete(key);
     logEnvironment("info", "cleanup_completed", {
       key,
