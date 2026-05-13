@@ -1,6 +1,8 @@
 [
   {
-    "_id": "67b2d066e9f22a09437971be",
+    "_id": {
+      "$oid": "67b2d066e9f22a09437971be"
+    },
     "key": "avansat",
     "name": "Avansat",
     "description": "Crearea pagină web + acces la pagina de administrare.<br/>Publicare de conținut: Noutăți, Evenimente, etc...<br/>Pagini personalizate.<br/>Asistent la traduceri RO/RU/EN.<br/>Actele Locale GOV + Achiziții Publice.<br/>Migrarea informațiilor din surse oficiale pentru un „start rapid și eficient”<br/><br/>Pe panelul administrativ- gestionarea dumneavoastră",

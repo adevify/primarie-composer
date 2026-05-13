@@ -1,6 +1,8 @@
 [
   {
-    "_id": "66f67f06c92499e52b02def7",
+    "_id": {
+      "$oid": "66f67f06c92499e52b02def7"
+    },
     "tennant": "filipeni",
     "slug": "/news/",
     "common": {
@@ -38,7 +40,9 @@
     }
   },
   {
-    "_id": "66f553e4f3df5554c7136af8",
+    "_id": {
+      "$oid": "66f553e4f3df5554c7136af8"
+    },
     "tennant": "filipeni",
     "slug": "/documents/",
     "common": {
@@ -76,7 +80,9 @@
     }
   },
   {
-    "_id": "66fa00414ce72d3f9ba8396c",
+    "_id": {
+      "$oid": "66fa00414ce72d3f9ba8396c"
+    },
     "tennant": "filipeni",
     "entitySlug": "dezbateri-publice-asupra-listelor-de-inventariere-a-bunurilor",
     "slug": "/events/:id/",
@@ -180,7 +186,9 @@
     }
   },
   {
-    "_id": "66fa09ed4ce72d3f9ba83972",
+    "_id": {
+      "$oid": "66fa09ed4ce72d3f9ba83972"
+    },
     "tennant": "filipeni",
     "entitySlug": "primaria-filipeni-a-beneficiat-de-instruire-individualizata-cu-privire-rolul-apl",
     "slug": "/news/:id/",
@@ -269,7 +277,9 @@
     }
   },
   {
-    "_id": "66f6b6b8f08d9c050f9d7a39",
+    "_id": {
+      "$oid": "66f6b6b8f08d9c050f9d7a39"
+    },
     "tennant": "filipeni",
     "slug": "/alerts/",
     "common": {
@@ -308,7 +318,9 @@
     }
   },
   {
-    "_id": "66f67b1780be47d069922133",
+    "_id": {
+      "$oid": "66f67b1780be47d069922133"
+    },
     "tennant": "filipeni",
     "slug": "/events/",
     "common": {
@@ -351,7 +363,9 @@
     }
   },
   {
-    "_id": "66f553e2f3df5554c7136af7",
+    "_id": {
+      "$oid": "66f553e2f3df5554c7136af7"
+    },
     "tennant": "filipeni",
     "slug": "/galleries/",
     "common": {
@@ -384,7 +398,9 @@
     }
   },
   {
-    "_id": "66f6a342f08d9c050f9d7a1d",
+    "_id": {
+      "$oid": "66f6a342f08d9c050f9d7a1d"
+    },
     "tennant": "filipeni",
     "entitySlug": "ecaterina-vilcu",
     "slug": "/employees/:id/",
@@ -472,7 +488,9 @@
     }
   },
   {
-    "_id": "66f553e6f3df5554c7136af9",
+    "_id": {
+      "$oid": "66f553e6f3df5554c7136af9"
+    },
     "tennant": "filipeni",
     "slug": "/edificies/",
     "common": {
@@ -515,7 +533,9 @@
     }
   },
   {
-    "_id": "66f6a5e8f08d9c050f9d7a1f",
+    "_id": {
+      "$oid": "66f6a5e8f08d9c050f9d7a1f"
+    },
     "tennant": "filipeni",
     "entitySlug": "vasile-cara",
     "slug": "/employees/:id/",
@@ -603,7 +623,9 @@
     }
   },
   {
-    "_id": "66f66bce3ccf61b8ed2f48e4",
+    "_id": {
+      "$oid": "66f66bce3ccf61b8ed2f48e4"
+    },
     "tennant": "filipeni",
     "entitySlug": "tudor-camerzan",
     "slug": "/employees/:id/",
@@ -691,7 +713,9 @@
     }
   },
   {
-    "_id": "66f540f0f3df5554c7136af3",
+    "_id": {
+      "$oid": "66f540f0f3df5554c7136af3"
+    },
     "tennant": "filipeni",
     "slug": "/layout/footer/",
     "common": {},
@@ -746,7 +770,9 @@
     }
   },
   {
-    "_id": "66f6ae9ff08d9c050f9d7a27",
+    "_id": {
+      "$oid": "66f6ae9ff08d9c050f9d7a27"
+    },
     "tennant": "filipeni",
     "entitySlug": "renata-camerzan",
     "slug": "/employees/:id/",
@@ -834,7 +860,9 @@
     }
   },
   {
-    "_id": "66fa03c24ce72d3f9ba83970",
+    "_id": {
+      "$oid": "66fa03c24ce72d3f9ba83970"
+    },
     "tennant": "filipeni",
     "entitySlug": "primaria-filipeni",
     "slug": "/edificies/:id/",
@@ -922,7 +950,9 @@
     }
   },
   {
-    "_id": "66f6d466f08d9c050f9d7a41",
+    "_id": {
+      "$oid": "66f6d466f08d9c050f9d7a41"
+    },
     "tennant": "filipeni",
     "slug": "/categories/",
     "common": {
@@ -973,7 +1003,9 @@
     "pressville": {}
   },
   {
-    "_id": "66f6ade3f08d9c050f9d7a25",
+    "_id": {
+      "$oid": "66f6ade3f08d9c050f9d7a25"
+    },
     "tennant": "filipeni",
     "entitySlug": "lidia-cara",
     "slug": "/employees/:id/",
@@ -1061,7 +1093,9 @@
     }
   },
   {
-    "_id": "66ffb0d7fa2ce50501d2cca8",
+    "_id": {
+      "$oid": "66ffb0d7fa2ce50501d2cca8"
+    },
     "tennant": "filipeni",
     "entitySlug": "satul-filipeni-marcheaza-ziua-satului",
     "slug": "/events/:id/",
@@ -1165,7 +1199,9 @@
     }
   },
   {
-    "_id": "66f553e7f3df5554c7136afa",
+    "_id": {
+      "$oid": "66f553e7f3df5554c7136afa"
+    },
     "tennant": "filipeni",
     "slug": "/employees/",
     "common": {
@@ -1223,7 +1259,9 @@
     }
   },
   {
-    "_id": "66f6abfcf08d9c050f9d7a21",
+    "_id": {
+      "$oid": "66f6abfcf08d9c050f9d7a21"
+    },
     "tennant": "filipeni",
     "entitySlug": "svetlana-boistean",
     "slug": "/employees/:id/",
@@ -1311,7 +1349,9 @@
     }
   },
   {
-    "_id": "6705c3618221e9146ea19c53",
+    "_id": {
+      "$oid": "6705c3618221e9146ea19c53"
+    },
     "tennant": "filipeni",
     "entitySlug": "iet-andries",
     "slug": "/edificies/:id/",
@@ -1399,7 +1439,9 @@
     }
   },
   {
-    "_id": "66f543d0f3df5554c7136af6",
+    "_id": {
+      "$oid": "66f543d0f3df5554c7136af6"
+    },
     "tennant": "filipeni",
     "slug": "/faq/",
     "common": {
@@ -1578,7 +1620,9 @@
     "pressville": {}
   },
   {
-    "_id": "66f543cbf3df5554c7136af4",
+    "_id": {
+      "$oid": "66f543cbf3df5554c7136af4"
+    },
     "tennant": "filipeni",
     "slug": "/contact/",
     "common": {
@@ -1701,7 +1745,9 @@
     "pressville": {}
   },
   {
-    "_id": "6705c40b8221e9146ea19c55",
+    "_id": {
+      "$oid": "6705c40b8221e9146ea19c55"
+    },
     "tennant": "filipeni",
     "entitySlug": "gimnaziul-filipeni",
     "slug": "/edificies/:id/",
@@ -1789,7 +1835,9 @@
     }
   },
   {
-    "_id": "66f6b11ff08d9c050f9d7a2b",
+    "_id": {
+      "$oid": "66f6b11ff08d9c050f9d7a2b"
+    },
     "tennant": "filipeni",
     "entitySlug": "rodica-munteanu",
     "slug": "/employees/:id/",
@@ -1877,7 +1925,9 @@
     }
   },
   {
-    "_id": "66ff99cafa2ce50501d2cca1",
+    "_id": {
+      "$oid": "66ff99cafa2ce50501d2cca1"
+    },
     "tennant": "filipeni",
     "entitySlug": "tudor-camerzan-cel-mai-tanar-primar-din-tara",
     "slug": "/news/:id/",
@@ -1966,7 +2016,9 @@
     }
   },
   {
-    "_id": "6707283e6a2aac0fdd9ebbff",
+    "_id": {
+      "$oid": "6707283e6a2aac0fdd9ebbff"
+    },
     "tennant": "filipeni",
     "entitySlug": "centrul-de-sanatate-filipeni",
     "slug": "/edificies/:id/",
@@ -2054,7 +2106,9 @@
     }
   },
   {
-    "_id": "6705c9988221e9146ea19c66",
+    "_id": {
+      "$oid": "6705c9988221e9146ea19c66"
+    },
     "tennant": "filipeni",
     "entitySlug": "iet-fluturas",
     "slug": "/edificies/:id/",
@@ -2142,7 +2196,9 @@
     }
   },
   {
-    "_id": "6705c8df8221e9146ea19c63",
+    "_id": {
+      "$oid": "6705c8df8221e9146ea19c63"
+    },
     "tennant": "filipeni",
     "entitySlug": "monumentul-eroilor-cazuti-in-razboiul-din-afganistan",
     "slug": "/galleries/:id/",
@@ -2245,7 +2301,9 @@
     }
   },
   {
-    "_id": "66f543ccf3df5554c7136af5",
+    "_id": {
+      "$oid": "66f543ccf3df5554c7136af5"
+    },
     "tennant": "filipeni",
     "slug": "/about-us/",
     "common": {
@@ -2386,7 +2444,9 @@
     }
   },
   {
-    "_id": "66fac39c8391d2494c621284",
+    "_id": {
+      "$oid": "66fac39c8391d2494c621284"
+    },
     "tennant": "filipeni",
     "entitySlug": "lista-consilierilor-locali-(2023-2027)",
     "slug": "/custom/:id/",
@@ -2558,7 +2618,9 @@
     }
   },
   {
-    "_id": "66fc1b2d7848231e12d52a13",
+    "_id": {
+      "$oid": "66fc1b2d7848231e12d52a13"
+    },
     "tennant": "filipeni",
     "entitySlug": "comisiile-consultative-de-specialitate",
     "slug": "/custom/:id/",
@@ -2804,7 +2866,9 @@
     }
   },
   {
-    "_id": "6705c9bd8221e9146ea19c68",
+    "_id": {
+      "$oid": "6705c9bd8221e9146ea19c68"
+    },
     "tennant": "filipeni",
     "entitySlug": "biserica-sfintii-imparati-constantin-si-elena",
     "slug": "/galleries/:id/",
@@ -2907,7 +2971,9 @@
     }
   },
   {
-    "_id": "66fdac0790be41e5ec0412d5",
+    "_id": {
+      "$oid": "66fdac0790be41e5ec0412d5"
+    },
     "tennant": "filipeni",
     "entitySlug": "statutul",
     "slug": "/custom/:id/",
@@ -3061,7 +3127,9 @@
     }
   },
   {
-    "_id": "6705c7ab8221e9146ea19c60",
+    "_id": {
+      "$oid": "6705c7ab8221e9146ea19c60"
+    },
     "tennant": "filipeni",
     "entitySlug": "podul-turcesc",
     "slug": "/galleries/:id/",
@@ -3164,7 +3232,9 @@
     }
   },
   {
-    "_id": "67234765870b84dbb34681dc",
+    "_id": {
+      "$oid": "67234765870b84dbb34681dc"
+    },
     "tennant": "filipeni",
     "entitySlug": "monumentul-eroilor-romani",
     "slug": "/galleries/:id/",
@@ -3267,7 +3337,9 @@
     }
   },
   {
-    "_id": "66ff92aefa2ce50501d2cc9f",
+    "_id": {
+      "$oid": "66ff92aefa2ce50501d2cc9f"
+    },
     "tennant": "filipeni",
     "entitySlug": "dezbateri-publice",
     "slug": "/custom/:id/",
@@ -3453,7 +3525,9 @@
     }
   },
   {
-    "_id": "67234af7870b84dbb34681e1",
+    "_id": {
+      "$oid": "67234af7870b84dbb34681e1"
+    },
     "tennant": "filipeni",
     "entitySlug": "casa-de-cultura",
     "slug": "/edificies/:id/",
@@ -3540,7 +3614,9 @@
     }
   },
   {
-    "_id": "66fd68bb90be41e5ec0412d2",
+    "_id": {
+      "$oid": "66fd68bb90be41e5ec0412d2"
+    },
     "tennant": "filipeni",
     "entitySlug": "dispozitiile-primarului",
     "slug": "/custom/:id/",
@@ -3833,7 +3909,9 @@
     }
   },
   {
-    "_id": "6763c4c3f43d50518228682f",
+    "_id": {
+      "$oid": "6763c4c3f43d50518228682f"
+    },
     "tennant": "filipeni",
     "slug": "/public-acqs/",
     "common": {
@@ -3856,7 +3934,9 @@
     "pressville": {}
   },
   {
-    "_id": "66fd9e1790be41e5ec0412d3",
+    "_id": {
+      "$oid": "66fd9e1790be41e5ec0412d3"
+    },
     "tennant": "filipeni",
     "entitySlug": "planul-strategic",
     "slug": "/custom/:id/",
@@ -4029,7 +4109,9 @@
     "id": "66fd9e1790be41e5ec0412d3"
   },
   {
-    "_id": "67234926870b84dbb34681e0",
+    "_id": {
+      "$oid": "67234926870b84dbb34681e0"
+    },
     "tennant": "filipeni",
     "entitySlug": "oficiul-postal",
     "slug": "/edificies/:id/",
@@ -4117,7 +4199,9 @@
     }
   },
   {
-    "_id": "6763c4b7f43d50518228682e",
+    "_id": {
+      "$oid": "6763c4b7f43d50518228682e"
+    },
     "tennant": "filipeni",
     "slug": "/local-docs/",
     "common": {
@@ -4140,7 +4224,9 @@
     "pressville": {}
   },
   {
-    "_id": "6705ba5e8221e9146ea19c43",
+    "_id": {
+      "$oid": "6705ba5e8221e9146ea19c43"
+    },
     "tennant": "filipeni",
     "entitySlug": "amplasarea-geografica",
     "slug": "/custom/:id/",
@@ -4256,7 +4342,9 @@
     }
   },
   {
-    "_id": "66fc3f3d7848231e12d52a14",
+    "_id": {
+      "$oid": "66fc3f3d7848231e12d52a14"
+    },
     "tennant": "filipeni",
     "entitySlug": "consiliul-local",
     "slug": "/custom/:id/",
@@ -4512,7 +4600,9 @@
     "id": "66fc3f3d7848231e12d52a14"
   },
   {
-    "_id": "67875e77626d1e6da41e0816",
+    "_id": {
+      "$oid": "67875e77626d1e6da41e0816"
+    },
     "tennant": "filipeni",
     "entitySlug": "organigrama",
     "slug": "/custom/:id/",
@@ -4643,7 +4733,9 @@
     "id": "67875e77626d1e6da41e0816"
   },
   {
-    "_id": "66fd686190be41e5ec0412d1",
+    "_id": {
+      "$oid": "66fd686190be41e5ec0412d1"
+    },
     "tennant": "filipeni",
     "entitySlug": "deciziile-consiliului-local",
     "slug": "/custom/:id/",
@@ -4961,7 +5053,9 @@
     }
   },
   {
-    "_id": "66fc9ce590be41e5ec0412d0",
+    "_id": {
+      "$oid": "66fc9ce590be41e5ec0412d0"
+    },
     "tennant": "filipeni",
     "entitySlug": "decizii-si-dispozitii",
     "slug": "/custom/:id/",
@@ -5163,7 +5257,9 @@
     }
   },
   {
-    "_id": "67089c94d04e684bae44466a",
+    "_id": {
+      "$oid": "67089c94d04e684bae44466a"
+    },
     "tennant": "filipeni",
     "entitySlug": "monumentul-eroilor-necunoscuti",
     "slug": "/galleries/:id/",
@@ -5266,7 +5362,9 @@
     }
   },
   {
-    "_id": "66fc7e2790be41e5ec0412cc",
+    "_id": {
+      "$oid": "66fc7e2790be41e5ec0412cc"
+    },
     "tennant": "filipeni",
     "entitySlug": "achizitii-publice",
     "slug": "/custom/:id/",
@@ -5510,7 +5608,9 @@
     }
   },
   {
-    "_id": "67235159870b84dbb34681e3",
+    "_id": {
+      "$oid": "67235159870b84dbb34681e3"
+    },
     "tennant": "filipeni",
     "entitySlug": "biblioteca",
     "slug": "/edificies/:id/",
@@ -5597,7 +5697,9 @@
     }
   },
   {
-    "_id": "66f55658f3df5554c7136afb",
+    "_id": {
+      "$oid": "66f55658f3df5554c7136afb"
+    },
     "tennant": "filipeni",
     "slug": "/history/",
     "common": {
@@ -5732,7 +5834,9 @@
     "pressville": {}
   },
   {
-    "_id": "67866bae2d30d8792be80067",
+    "_id": {
+      "$oid": "67866bae2d30d8792be80067"
+    },
     "tennant": "filipeni",
     "entitySlug": "regulamentul-de-functionare",
     "slug": "/custom/:id/",
@@ -5847,7 +5951,9 @@
     "id": "67866bae2d30d8792be80067"
   },
   {
-    "_id": "67877f62626d1e6da41e0820",
+    "_id": {
+      "$oid": "67877f62626d1e6da41e0820"
+    },
     "tennant": "filipeni",
     "entitySlug": "regulamentul-consiliului-local",
     "slug": "/custom/:id/",
@@ -5970,7 +6076,9 @@
     "id": "67877f62626d1e6da41e0820"
   },
   {
-    "_id": "670462bb6b761a1fd2751535",
+    "_id": {
+      "$oid": "670462bb6b761a1fd2751535"
+    },
     "tennant": "filipeni",
     "entitySlug": "controlul-intern-managerial",
     "slug": "/custom/:id/",
@@ -6122,7 +6230,9 @@
     }
   },
   {
-    "_id": "678a10cfbe1eba3c122f11eb",
+    "_id": {
+      "$oid": "678a10cfbe1eba3c122f11eb"
+    },
     "tennant": "filipeni",
     "entitySlug": "patrimoniu-public",
     "slug": "/custom/:id/",
@@ -6265,7 +6375,9 @@
     "id": "678a10cfbe1eba3c122f11eb"
   },
   {
-    "_id": "66fdbbb190be41e5ec0412d7",
+    "_id": {
+      "$oid": "66fdbbb190be41e5ec0412d7"
+    },
     "tennant": "filipeni",
     "entitySlug": "autoevaluare-(focas)",
     "slug": "/custom/:id/",
@@ -6483,7 +6595,9 @@
     }
   },
   {
-    "_id": "66f540f0f3df5554c7136af2",
+    "_id": {
+      "$oid": "66f540f0f3df5554c7136af2"
+    },
     "tennant": "filipeni",
     "slug": "/widgets/",
     "common": {},
@@ -6873,7 +6987,9 @@
     }
   },
   {
-    "_id": "67876d92626d1e6da41e0819",
+    "_id": {
+      "$oid": "67876d92626d1e6da41e0819"
+    },
     "tennant": "filipeni",
     "entitySlug": "bugetul-executat",
     "slug": "/custom/:id/",
@@ -7057,7 +7173,9 @@
     "id": "67876d92626d1e6da41e0819"
   },
   {
-    "_id": "66ff71c590be41e5ec0412db",
+    "_id": {
+      "$oid": "66ff71c590be41e5ec0412db"
+    },
     "tennant": "filipeni",
     "entitySlug": "taxe-si-impozite-locale",
     "slug": "/custom/:id/",
@@ -7328,7 +7446,9 @@
     "id": "66ff71c590be41e5ec0412db"
   },
   {
-    "_id": "678665d62d30d8792be80065",
+    "_id": {
+      "$oid": "678665d62d30d8792be80065"
+    },
     "tennant": "filipeni",
     "entitySlug": "documente-de-politici-publice",
     "slug": "/custom/:id/",
@@ -7528,7 +7648,9 @@
     "id": "678665d62d30d8792be80065"
   },
   {
-    "_id": "66ff8be190be41e5ec0412e2",
+    "_id": {
+      "$oid": "66ff8be190be41e5ec0412e2"
+    },
     "tennant": "filipeni",
     "entitySlug": "consultarile-publice",
     "slug": "/custom/:id/",
@@ -7827,7 +7949,9 @@
     }
   },
   {
-    "_id": "66ff9234fa2ce50501d2cc9d",
+    "_id": {
+      "$oid": "66ff9234fa2ce50501d2cc9d"
+    },
     "tennant": "filipeni",
     "entitySlug": "proiecte-de-decizii",
     "slug": "/custom/:id/",
@@ -8187,7 +8311,9 @@
     }
   },
   {
-    "_id": "67876f38626d1e6da41e081a",
+    "_id": {
+      "$oid": "67876f38626d1e6da41e081a"
+    },
     "tennant": "filipeni",
     "entitySlug": "bugetul-aprobat",
     "slug": "/custom/:id/",
@@ -8354,7 +8480,9 @@
     "id": "67876f38626d1e6da41e081a"
   },
   {
-    "_id": "67878377626d1e6da41e0822",
+    "_id": {
+      "$oid": "67878377626d1e6da41e0822"
+    },
     "tennant": "filipeni",
     "entitySlug": "planul-de-activitate",
     "slug": "/custom/:id/",
@@ -8507,7 +8635,9 @@
     "id": "67878377626d1e6da41e0822"
   },
   {
-    "_id": "66f540f0f3df5554c7136aef",
+    "_id": {
+      "$oid": "66f540f0f3df5554c7136aef"
+    },
     "tennant": "filipeni",
     "slug": "/layout/home/",
     "common": {
@@ -10144,7 +10274,9 @@
     }
   },
   {
-    "_id": "66f540f0f3df5554c7136af0",
+    "_id": {
+      "$oid": "66f540f0f3df5554c7136af0"
+    },
     "tennant": "filipeni",
     "slug": "/layout/header/",
     "common": {},
@@ -11945,7 +12077,9 @@
     "id": "66f540f0f3df5554c7136af0"
   },
   {
-    "_id": "67f6311e25526281a25ddff9",
+    "_id": {
+      "$oid": "67f6311e25526281a25ddff9"
+    },
     "tennant": "filipeni",
     "slug": "/elections/",
     "common": {
@@ -12093,7 +12227,9 @@
     "pressville": {}
   },
   {
-    "_id": "67f77cff0b55ab2ee47aa3fe",
+    "_id": {
+      "$oid": "67f77cff0b55ab2ee47aa3fe"
+    },
     "tennant": "filipeni",
     "slug": "/org-chart/",
     "common": {
@@ -12379,7 +12515,9 @@
     "pressville": {}
   },
   {
-    "_id": "682c397e4bb0765272a65cd0",
+    "_id": {
+      "$oid": "682c397e4bb0765272a65cd0"
+    },
     "tennant": "filipeni",
     "entitySlug": "viitorul-satelor-noastre-depinde-de-alegerile-pe-care-le-vom-face",
     "slug": "/news/:id/",
@@ -12530,7 +12668,9 @@
     }
   },
   {
-    "_id": "682c33d24bb0765272a65c59",
+    "_id": {
+      "$oid": "682c33d24bb0765272a65c59"
+    },
     "tennant": "filipeni",
     "entitySlug": "filipeni-un-model-de-dezvoltare-locala",
     "slug": "/news/:id/",
@@ -12681,7 +12821,9 @@
     }
   },
   {
-    "_id": "682c35d54bb0765272a65c7d",
+    "_id": {
+      "$oid": "682c35d54bb0765272a65c7d"
+    },
     "tennant": "filipeni",
     "entitySlug": "tinerii-lideri-din-republica-moldova-voce-activa-in-cooperarea-regionala",
     "slug": "/events/:id/",
@@ -12940,7 +13082,9 @@
     }
   },
   {
-    "_id": "682c3a614bb0765272a65ce1",
+    "_id": {
+      "$oid": "682c3a614bb0765272a65ce1"
+    },
     "tennant": "filipeni",
     "entitySlug": "doamna-presedinte-a-republicii-moldova-in-vizita-la-filipeni",
     "slug": "/events/:id/",
@@ -13199,7 +13343,9 @@
     }
   },
   {
-    "_id": "682c36f44bb0765272a65c99",
+    "_id": {
+      "$oid": "682c36f44bb0765272a65c99"
+    },
     "tennant": "filipeni",
     "entitySlug": "schimb-de-experienta-moldova-china-bune-practici-pentru-dezvoltare-locala-si-agricultura-moderna",
     "slug": "/news/:id/",
@@ -13350,7 +13496,9 @@
     }
   },
   {
-    "_id": "686cb774c390c183c628009d",
+    "_id": {
+      "$oid": "686cb774c390c183c628009d"
+    },
     "tennant": "filipeni",
     "slug": "/search/",
     "common": {},
@@ -13370,7 +13518,9 @@
     "pressville": {}
   },
   {
-    "_id": "68e9324f40765931b7f1b056",
+    "_id": {
+      "$oid": "68e9324f40765931b7f1b056"
+    },
     "tennant": "filipeni",
     "entitySlug": "invitatie-deschisa-pentru-tineri-primari-si-consilieri-locali",
     "slug": "/news/:id/",
@@ -13521,7 +13671,9 @@
     }
   },
   {
-    "_id": "68e938b4f6c3eab639fcad8a",
+    "_id": {
+      "$oid": "68e938b4f6c3eab639fcad8a"
+    },
     "tennant": "filipeni",
     "entitySlug": "hramul-satului-filipeni-o-zi-de-sarbatoare-si-bucurie-pentru-intreaga-comunitate",
     "slug": "/news/:id/",
@@ -13672,7 +13824,9 @@
     }
   },
   {
-    "_id": "68e930af9d7e27ec28afedfc",
+    "_id": {
+      "$oid": "68e930af9d7e27ec28afedfc"
+    },
     "tennant": "filipeni",
     "entitySlug": "ziua-sportului-la-filipeni-inscrierile-au-inceput",
     "slug": "/news/:id/",
@@ -13823,7 +13977,9 @@
     }
   },
   {
-    "_id": "68e93b91f103906fa8343552",
+    "_id": {
+      "$oid": "68e93b91f103906fa8343552"
+    },
     "tennant": "filipeni",
     "entitySlug": "vizita-de-lucru-in-comuna-puiesti-judetul-vaslui-romania",
     "slug": "/news/:id/",
@@ -13974,7 +14130,9 @@
     }
   },
   {
-    "_id": "68e94932e9e3c8b152168be4",
+    "_id": {
+      "$oid": "68e94932e9e3c8b152168be4"
+    },
     "tennant": "filipeni",
     "entitySlug": "impreuna-pentru-strada-tineretului-un-pas-spre-un-filipeni-mai-modern",
     "slug": "/news/:id/",
@@ -14125,7 +14283,9 @@
     }
   },
   {
-    "_id": "68e93a233015c7841b0a337e",
+    "_id": {
+      "$oid": "68e93a233015c7841b0a337e"
+    },
     "tennant": "filipeni",
     "entitySlug": "vizita-consulului-onorific-al-macedoniei-de-nord-la-filipeni",
     "slug": "/events/:id/",
@@ -14384,7 +14544,9 @@
     }
   },
   {
-    "_id": "68e940b6ffedbd5698bc57a8",
+    "_id": {
+      "$oid": "68e940b6ffedbd5698bc57a8"
+    },
     "tennant": "filipeni",
     "entitySlug": "moldova-poate-filipeni-poate",
     "slug": "/news/:id/",
@@ -14535,7 +14697,9 @@
     }
   },
   {
-    "_id": "68e94d79bb471df705568159",
+    "_id": {
+      "$oid": "68e94d79bb471df705568159"
+    },
     "tennant": "filipeni",
     "entitySlug": "tinerii-alesi-locali-din-republica-moldova-prezenti-la-forumul-economic-de-la-karpacz-polonia",
     "slug": "/news/:id/",
@@ -14686,7 +14850,9 @@
     }
   },
   {
-    "_id": "68e93fec34b4e3e267a66e16",
+    "_id": {
+      "$oid": "68e93fec34b4e3e267a66e16"
+    },
     "tennant": "filipeni",
     "entitySlug": "transformare-pe-strada-stefan-cel-mare",
     "slug": "/news/:id/",
@@ -14837,7 +15003,9 @@
     }
   },
   {
-    "_id": "68e94f5e5275f4ed69bed818",
+    "_id": {
+      "$oid": "68e94f5e5275f4ed69bed818"
+    },
     "tennant": "filipeni",
     "entitySlug": "gimnaziul-filipeni-primeste-grant-tehnic-scolar-prin-proiectul-eqip",
     "slug": "/news/:id/",
@@ -14988,7 +15156,9 @@
     }
   },
   {
-    "_id": "68e9359d6562ac6a5b0450ea",
+    "_id": {
+      "$oid": "68e9359d6562ac6a5b0450ea"
+    },
     "tennant": "filipeni",
     "entitySlug": "eroii-nu-mor-niciodata-ei-traiesc-prin-memoria-noastra",
     "slug": "/events/:id/",
@@ -15247,7 +15417,9 @@
     }
   },
   {
-    "_id": "68e942132aaf8fe70724d689",
+    "_id": {
+      "$oid": "68e942132aaf8fe70724d689"
+    },
     "tennant": "filipeni",
     "entitySlug": "vizita-de-lucru-la-filipeni-ministrul-vladimir-bolea-sprijina-dezvoltarea-locala",
     "slug": "/events/:id/",
@@ -15506,7 +15678,9 @@
     }
   },
   {
-    "_id": "68e946f189206fb95d5bc173",
+    "_id": {
+      "$oid": "68e946f189206fb95d5bc173"
+    },
     "tennant": "filipeni",
     "entitySlug": "zilele-diasporei-la-filipeni-traditie-cultura-si-legaturi-cu-bastina",
     "slug": "/events/:id/",
@@ -15765,7 +15939,9 @@
     }
   },
   {
-    "_id": "68e94a9d208de6cfe25eacba",
+    "_id": {
+      "$oid": "68e94a9d208de6cfe25eacba"
+    },
     "tennant": "filipeni",
     "entitySlug": "vizita-prim-ministrului-dorin-recean-la-filipeni-investitii-record-pentru-dezvoltarea-infrastructurii-locale",
     "slug": "/events/:id/",
@@ -16024,7 +16200,9 @@
     }
   },
   {
-    "_id": "68e9515d4299a22b3d498f3a",
+    "_id": {
+      "$oid": "68e9515d4299a22b3d498f3a"
+    },
     "tennant": "filipeni",
     "entitySlug": "impreuna-pentru-modernizarea-strazii-tineretului",
     "slug": "/news/:id/",
@@ -16175,7 +16353,9 @@
     }
   },
   {
-    "_id": "69297867541fa74be85a1125",
+    "_id": {
+      "$oid": "69297867541fa74be85a1125"
+    },
     "tennant": "filipeni",
     "entitySlug": "cantina-sociala-din-filipeni-proiectul-ajunge-in-etapa-finala",
     "slug": "/news/:id/",
@@ -16277,7 +16457,9 @@
     }
   },
   {
-    "_id": "69297a49541fa74be85a1173",
+    "_id": {
+      "$oid": "69297a49541fa74be85a1173"
+    },
     "tennant": "filipeni",
     "entitySlug": "lucrari-de-reamenajare-a-strazii-tineretului-din-satul-filipeni",
     "slug": "/news/:id/",
@@ -16379,7 +16561,9 @@
     }
   },
   {
-    "_id": "6949086fb3c58b8b26b29497",
+    "_id": {
+      "$oid": "6949086fb3c58b8b26b29497"
+    },
     "tennant": "filipeni",
     "entitySlug": "un-nou-proiect-realizat-prin-programul-dar-1-3-in-satul-filipeni",
     "slug": "/events/:id/",
@@ -16589,7 +16773,9 @@
     }
   },
   {
-    "_id": "6966175e264f3c5cdab8231a",
+    "_id": {
+      "$oid": "6966175e264f3c5cdab8231a"
+    },
     "tennant": "filipeni",
     "entitySlug": "reflectand-asupra-unui-an-de-crestere-si-provocari-in-filipeni",
     "slug": "/news/:id/",
@@ -16691,7 +16877,9 @@
     }
   },
   {
-    "_id": "6989c342ee28ea9f3230b40e",
+    "_id": {
+      "$oid": "6989c342ee28ea9f3230b40e"
+    },
     "tennant": "filipeni",
     "entitySlug": "celebrand-generatiile-intalnirea-absolventilor-pe-7-februarie-2026",
     "slug": "/news/:id/",
@@ -16731,7 +16919,9 @@
     }
   },
   {
-    "_id": "69a6870208b6b6d6d0ae9627",
+    "_id": {
+      "$oid": "69a6870208b6b6d6d0ae9627"
+    },
     "tennant": "filipeni",
     "slug": "/budget/",
     "common": {
@@ -16963,7 +17153,9 @@
     "pressville": {}
   },
   {
-    "_id": "69af0c679e67a73589235b17",
+    "_id": {
+      "$oid": "69af0c679e67a73589235b17"
+    },
     "tennant": "filipeni",
     "entitySlug": "sarbatorirea-zilei-femeii-si-lansarea-proiectului-fitness4life-in-filipeni",
     "slug": "/events/:id/",
@@ -17024,7 +17216,9 @@
     }
   },
   {
-    "_id": "69af0cf19e67a73589235f7d",
+    "_id": {
+      "$oid": "69af0cf19e67a73589235f7d"
+    },
     "tennant": "filipeni",
     "entitySlug": "consultare-publica-privind-fuziunea-voluntara-intre-filipeni-si-hanasenii-noi",
     "slug": "/news/:id/",
@@ -17070,7 +17264,9 @@
     }
   },
   {
-    "_id": "69bbf6d8a351967533453421",
+    "_id": {
+      "$oid": "69bbf6d8a351967533453421"
+    },
     "tennant": "filipeni",
     "entitySlug": "eveniment-comunitar-privind-reducerea-bolilor-netransmisibile-prin-activitate-fizica",
     "slug": "/news/:id/",
@@ -17116,7 +17312,9 @@
     }
   },
   {
-    "_id": "69bbf789a351967533453428",
+    "_id": {
+      "$oid": "69bbf789a351967533453428"
+    },
     "tennant": "filipeni",
     "entitySlug": "imbunatatiri-ale-securitatii-energetice-pentru-institutiile-publice-din-filipeni",
     "slug": "/news/:id/",
@@ -17162,7 +17360,9 @@
     }
   },
   {
-    "_id": "69bbf824a35196753345342c",
+    "_id": {
+      "$oid": "69bbf824a35196753345342c"
+    },
     "tennant": "filipeni",
     "entitySlug": "mesaj-de-apareciere-pentru-ziua-internationala-a-femeii",
     "slug": "/news/:id/",
@@ -17208,7 +17408,9 @@
     }
   },
   {
-    "_id": "69d809457bbdeb2e9c2d450d",
+    "_id": {
+      "$oid": "69d809457bbdeb2e9c2d450d"
+    },
     "tennant": "filipeni",
     "entitySlug": "spiritul-comunitatii-straluceste-in-filipeni-un-efort-colectiv-aduce-bucurie-familiilor",
     "slug": "/news/:id/",
@@ -17303,7 +17505,9 @@
     }
   },
   {
-    "_id": "69f99beb9cddda27b8937549",
+    "_id": {
+      "$oid": "69f99beb9cddda27b8937549"
+    },
     "tennant": "filipeni",
     "entitySlug": "sarbatoriti-ziua-familiei-prin-plantarea-unui-copac-pentru-viitor",
     "slug": "/news/:id/",
@@ -17349,7 +17553,9 @@
     }
   },
   {
-    "_id": "69f99c6e9cddda27b893754e",
+    "_id": {
+      "$oid": "69f99c6e9cddda27b893754e"
+    },
     "tennant": "filipeni",
     "entitySlug": "primaria-filipeni-gazduieste-a-doua-sesiune-a-proiectului-fitness4life",
     "slug": "/events/:id/",
@@ -17410,7 +17616,9 @@
     }
   },
   {
-    "_id": "69f99f259cddda27b893756c",
+    "_id": {
+      "$oid": "69f99f259cddda27b893756c"
+    },
     "tennant": "filipeni",
     "entitySlug": "mesaj-de-paste-un-indemn-la-unitate-si-speranta-pentru-comunitatea-noastra",
     "slug": "/news/:id/",

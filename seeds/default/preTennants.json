@@ -1,6 +1,8 @@
 [
   {
-    "_id": "67697164fc205becbbcccc6a",
+    "_id": {
+      "$oid": "67697164fc205becbbcccc6a"
+    },
     "name": "Crasnoarmeiscoe",
     "storage": {
       "count": 3

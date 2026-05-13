@@ -1,6 +1,8 @@
 [
   {
-    "_id": "672348e8870b84dbb34681de",
+    "_id": {
+      "$oid": "672348e8870b84dbb34681de"
+    },
     "tennant": "filipeni",
     "title": {
       "ro": "Casa de cultură",
@@ -105,7 +107,9 @@
     }
   },
   {
-    "_id": "6705bdce8221e9146ea19c44",
+    "_id": {
+      "$oid": "6705bdce8221e9146ea19c44"
+    },
     "tennant": "filipeni",
     "title": {
       "ro": "ÎET ”Fluturaș\"",
@@ -272,7 +276,9 @@
     }
   },
   {
-    "_id": "6705c40a8221e9146ea19c54",
+    "_id": {
+      "$oid": "6705c40a8221e9146ea19c54"
+    },
     "tennant": "filipeni",
     "title": {
       "ro": "Gimnaziul Filipeni",
@@ -441,7 +447,9 @@
     }
   },
   {
-    "_id": "66fa03c04ce72d3f9ba8396f",
+    "_id": {
+      "$oid": "66fa03c04ce72d3f9ba8396f"
+    },
     "tennant": "filipeni",
     "title": {
       "ro": "Primăria Filipeni",
@@ -556,7 +564,9 @@
     "webSite": "https://filipeni.primarie.md/"
   },
   {
-    "_id": "6723490c870b84dbb34681df",
+    "_id": {
+      "$oid": "6723490c870b84dbb34681df"
+    },
     "tennant": "filipeni",
     "title": {
       "ro": "Biblioteca",
@@ -780,7 +790,9 @@
     }
   },
   {
-    "_id": "6705c1e88221e9146ea19c50",
+    "_id": {
+      "$oid": "6705c1e88221e9146ea19c50"
+    },
     "tennant": "filipeni",
     "title": {
       "ro": "ÎET \"Andrieș\"",
@@ -949,7 +961,9 @@
     }
   },
   {
-    "_id": "672348c4870b84dbb34681dd",
+    "_id": {
+      "$oid": "672348c4870b84dbb34681dd"
+    },
     "tennant": "filipeni",
     "title": {
       "ro": "Oficiul poștal",
@@ -1039,7 +1053,9 @@
     }
   },
   {
-    "_id": "670728066a2aac0fdd9ebbfe",
+    "_id": {
+      "$oid": "670728066a2aac0fdd9ebbfe"
+    },
     "tennant": "filipeni",
     "title": {
       "ro": "Centrul de Sănătate Filipeni",

@@ -1,6 +1,8 @@
 [
   {
-    "_id": "66f9f2744ce72d3f9ba8396a",
+    "_id": {
+      "$oid": "66f9f2744ce72d3f9ba8396a"
+    },
     "tennant": "filipeni",
     "title": {
       "ro": " Loc vacant pentru ocuparea funcției de muncitor (spații verzi)",
@@ -27,7 +29,9 @@
     "createdAt": "2024-09-30T00:36:04.248Z"
   },
   {
-    "_id": "66f6d449f08d9c050f9d7a40",
+    "_id": {
+      "$oid": "66f6d449f08d9c050f9d7a40"
+    },
     "tennant": "filipeni",
     "title": {
       "ro": "Biroul Comun de Informații și Servicii se deplasează în satul Filipeni",
@@ -63,7 +67,9 @@
     "createdAt": "2024-09-27T15:50:33.737Z"
   },
   {
-    "_id": "67878a58626d1e6da41e0825",
+    "_id": {
+      "$oid": "67878a58626d1e6da41e0825"
+    },
     "tennant": "filipeni",
     "title": {
       "ro": "Anunț de licitație publică.",
@@ -90,7 +96,9 @@
     "createdAt": "2025-01-15T10:13:44.280Z"
   },
   {
-    "_id": "682c38584bb0765272a65cc2",
+    "_id": {
+      "$oid": "682c38584bb0765272a65cc2"
+    },
     "tennant": "filipeni",
     "title": {
       "ro": "Continuă lucrările la drumul de acces spre Filipeni.",
@@ -210,7 +218,9 @@
     "createdAt": "2025-05-20T08:07:52.144Z"
   },
   {
-    "_id": "69490aefb3c58b8b26b29563",
+    "_id": {
+      "$oid": "69490aefb3c58b8b26b29563"
+    },
     "tennant": "filipeni",
     "title": {
       "ro": "ANUNȚ",
@@ -288,7 +298,9 @@
     "createdAt": "2025-12-22T09:10:07.201Z"
   },
   {
-    "_id": "69490a37b3c58b8b26b29538",
+    "_id": {
+      "$oid": "69490a37b3c58b8b26b29538"
+    },
     "tennant": "filipeni",
     "title": {
       "ro": "lucrări programate la rețeaua electrică în satul Filipești",
@@ -366,7 +378,9 @@
     "createdAt": "2025-12-22T09:07:03.677Z"
   },
   {
-    "_id": "69490a97b3c58b8b26b2954e",
+    "_id": {
+      "$oid": "69490a97b3c58b8b26b2954e"
+    },
     "tennant": "filipeni",
     "title": {
       "ro": "TOMBOLĂ 2025",
@@ -486,7 +500,9 @@
     "createdAt": "2025-12-22T09:08:39.098Z"
   },
   {
-    "_id": "69af0d989e67a735892364a7",
+    "_id": {
+      "$oid": "69af0d989e67a735892364a7"
+    },
     "tennant": "filipeni",
     "title": {
       "ro": "Consultare comunitară: Priorități de infrastructură",
@@ -584,7 +600,9 @@
     "createdAt": "2026-03-09T18:12:40.484Z"
   },
   {
-    "_id": "69c1919eaa7f79d2e583da3a",
+    "_id": {
+      "$oid": "69c1919eaa7f79d2e583da3a"
+    },
     "tennant": "filipeni",
     "title": {
       "ro": "Elevi locali premiați la Festivalul Internațional de Muzică Franceză",
@@ -682,7 +700,9 @@
     "createdAt": "2026-03-23T19:16:46.258Z"
   },
   {
-    "_id": "69d690ae32d700d7f23db548",
+    "_id": {
+      "$oid": "69d690ae32d700d7f23db548"
+    },
     "tennant": "filipeni",
     "title": {
       "ro": "Activitate comunitară a elevilor liceului Filipeni în memoria profesorilor răposați",
@@ -820,7 +840,9 @@
     "createdAt": "2026-04-08T17:30:22.015Z"
   },
   {
-    "_id": "69d807df7bbdeb2e9c2d4504",
+    "_id": {
+      "$oid": "69d807df7bbdeb2e9c2d4504"
+    },
     "tennant": "filipeni",
     "title": {
       "ro": "Progresul construcției pe Strada Independenței îmbunătățește infrastructura locală",
@@ -918,7 +940,9 @@
     "createdAt": "2026-04-09T20:11:11.898Z"
   },
   {
-    "_id": "69f99f5d9cddda27b8937572",
+    "_id": {
+      "$oid": "69f99f5d9cddda27b8937572"
+    },
     "tennant": "filipeni",
     "title": {
       "ro": "Progres în Proiectul de Construcție pe Strada Independenței",
@@ -976,7 +1000,9 @@
     "createdAt": "2023-10-05T12:00:00Z"
   },
   {
-    "_id": "69f99f7d9cddda27b8937573",
+    "_id": {
+      "$oid": "69f99f7d9cddda27b8937573"
+    },
     "tennant": "filipeni",
     "title": {
       "ro": "Colaborare comunitară aduce ajutor familiilor din Filipeni",

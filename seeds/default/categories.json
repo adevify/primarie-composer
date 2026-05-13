@@ -1,6 +1,8 @@
 [
   {
-    "_id": "66f6b43ef08d9c050f9d7a32",
+    "_id": {
+      "$oid": "66f6b43ef08d9c050f9d7a32"
+    },
     "tennant": "filipeni",
     "title": {
       "ro": "Achiziții",
@@ -10,7 +12,9 @@
     "key": "purchases"
   },
   {
-    "_id": "66f9f0d84ce72d3f9ba83969",
+    "_id": {
+      "$oid": "66f9f0d84ce72d3f9ba83969"
+    },
     "tennant": "filipeni",
     "title": {
       "ro": "Aviz",
@@ -20,7 +24,9 @@
     "key": "announcement"
   },
   {
-    "_id": "66ffad63fa2ce50501d2cca5",
+    "_id": {
+      "$oid": "66ffad63fa2ce50501d2cca5"
+    },
     "tennant": "filipeni",
     "title": {
       "ro": "Alegeri",
@@ -30,7 +36,9 @@
     "key": "elections"
   },
   {
-    "_id": "66f6b479f08d9c050f9d7a33",
+    "_id": {
+      "$oid": "66f6b479f08d9c050f9d7a33"
+    },
     "tennant": "filipeni",
     "title": {
       "ro": "Dezbateri",
@@ -40,7 +48,9 @@
     "key": "discussions"
   },
   {
-    "_id": "66f6b3b0f08d9c050f9d7a31",
+    "_id": {
+      "$oid": "66f6b3b0f08d9c050f9d7a31"
+    },
     "tennant": "filipeni",
     "title": {
       "ro": "Proiecte",
@@ -50,7 +60,9 @@
     "key": "projects"
   },
   {
-    "_id": "66f6b386f08d9c050f9d7a30",
+    "_id": {
+      "$oid": "66f6b386f08d9c050f9d7a30"
+    },
     "tennant": "filipeni",
     "title": {
       "ro": "Divertisment",
@@ -60,7 +72,9 @@
     "key": "entertainment"
   },
   {
-    "_id": "66f6b364f08d9c050f9d7a2f",
+    "_id": {
+      "$oid": "66f6b364f08d9c050f9d7a2f"
+    },
     "tennant": "filipeni",
     "title": {
       "ro": "Educație",
@@ -70,7 +84,9 @@
     "key": "education"
   },
   {
-    "_id": "66f6b316f08d9c050f9d7a2e",
+    "_id": {
+      "$oid": "66f6b316f08d9c050f9d7a2e"
+    },
     "tennant": "filipeni",
     "title": {
       "ro": "Tradiție",
@@ -80,7 +96,9 @@
     "key": "tradition"
   },
   {
-    "_id": "66f6ad29f08d9c050f9d7a23",
+    "_id": {
+      "$oid": "66f6ad29f08d9c050f9d7a23"
+    },
     "tennant": "filipeni",
     "title": {
       "ro": "Cultură",

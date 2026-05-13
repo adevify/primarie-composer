@@ -1,6 +1,8 @@
 [
   {
-    "_id": "69fb64de2b7a8ad5b3d6b150",
+    "_id": {
+      "$oid": "69fb64de2b7a8ad5b3d6b150"
+    },
     "tennant": "filipeni",
     "name": "test",
     "email": "aaw2012sirbu.andrei@gmail.com",
@@ -14,7 +16,9 @@
     "loggedAt": "2026-05-06T16:15:38.569Z"
   },
   {
-    "_id": "69fb698ff3267d1a0f75593f",
+    "_id": {
+      "$oid": "69fb698ff3267d1a0f75593f"
+    },
     "tennant": "filipeni",
     "name": "test2",
     "email": "sirbusiandrei@gmail.com",

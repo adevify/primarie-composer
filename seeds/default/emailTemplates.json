@@ -1,6 +1,8 @@
 [
   {
-    "_id": "67e122fd6f3ec05da7cc2b6d",
+    "_id": {
+      "$oid": "67e122fd6f3ec05da7cc2b6d"
+    },
     "tennant": "no-tennant",
     "subject": "Transmitere Contract Semnat Electronic",
     "contentMedia": "<html><head></head><body><p><strong>Stimate Domnule Primar,</strong></p><p>Vă mulțumim pentru colaborarea promptă. În urma discuțiilor noastre și a primirii informațiilor solicitate, vă transmitem contractul semnat electronic, atașat la acest email.</p><p>Vă rugăm să ne confirmați primirea acestuia și să ne transmiteți o copie semnată de către Primăria Carbuna, pentru a finaliza procesul.</p><p>Suntem convinși că această colaborare va fi una de succes.</p><p>Vă stăm la dispoziție pentru orice alte informații necesare.</p><p><br></p></body></html>"

@@ -1,6 +1,8 @@
 [
   {
-    "_id": "67b2dd85e9f22a09437971c4",
+    "_id": {
+      "$oid": "67b2dd85e9f22a09437971c4"
+    },
     "key": "dataModeration",
     "name": "Moderarea Datelor",
     "description": "Prestatorul va oferi suport în moderarea datelor pe platformă, iar beneficiarul va trimite informațiile prin diverse surse de informare, pentru a fi procesate și actualizate pe platformă.",

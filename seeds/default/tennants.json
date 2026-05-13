@@ -1,6 +1,8 @@
 [
   {
-    "_id": "66f540dd8078273fc85e739c",
+    "_id": {
+      "$oid": "66f540dd8078273fc85e739c"
+    },
     "hostname": "filipeni.prmr.md",
     "key": "filipeni",
     "template": "thegov",

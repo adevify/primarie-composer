@@ -1,6 +1,8 @@
 [
   {
-    "_id": "68c2c4dfdb85e3b8e1e4a5a6",
+    "_id": {
+      "$oid": "68c2c4dfdb85e3b8e1e4a5a6"
+    },
     "tennant": "filipeni",
     "key": "mv_localitate.3125",
     "type": "mv_localitate",
@@ -963,7 +965,9 @@
     ]
   },
   {
-    "_id": "68c2c4dfdb85e3b8e1e4a5a4",
+    "_id": {
+      "$oid": "68c2c4dfdb85e3b8e1e4a5a4"
+    },
     "tennant": "filipeni",
     "key": "mv_uat3.2605",
     "type": "mv_uat3",
@@ -3294,7 +3298,9 @@
     ]
   },
   {
-    "_id": "68c2c4dfdb85e3b8e1e4a5a5",
+    "_id": {
+      "$oid": "68c2c4dfdb85e3b8e1e4a5a5"
+    },
     "tennant": "filipeni",
     "key": "mv_uat1.2020",
     "type": "mv_uat1",
@@ -11201,7 +11207,9 @@
     ]
   },
   {
-    "_id": "68c2c4dfdb85e3b8e1e4a5a3",
+    "_id": {
+      "$oid": "68c2c4dfdb85e3b8e1e4a5a3"
+    },
     "tennant": "filipeni",
     "key": "mv_stat.2001",
     "type": "mv_stat",

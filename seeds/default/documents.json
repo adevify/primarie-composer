@@ -1,6 +1,8 @@
 [
   {
-    "_id": "670359c67115508784dd62ae",
+    "_id": {
+      "$oid": "670359c67115508784dd62ae"
+    },
     "tennant": "filipeni",
     "name": {
       "ro": "proiect-de-decizie-5.11",
@@ -14,7 +16,9 @@
     "date": "2024-10-07T03:47:18.251Z"
   },
   {
-    "_id": "6703576d7115508784dd62a0",
+    "_id": {
+      "$oid": "6703576d7115508784dd62a0"
+    },
     "tennant": "filipeni",
     "name": {
       "ro": "Consultări publice",
@@ -27,7 +31,9 @@
     "date": "2024-10-07T03:37:17.868Z"
   },
   {
-    "_id": "670358e27115508784dd62a6",
+    "_id": {
+      "$oid": "670358e27115508784dd62a6"
+    },
     "tennant": "filipeni",
     "name": {
       "ro": "proiect-de-decizie-5.3",
@@ -41,7 +47,9 @@
     "date": "2024-10-07T03:43:30.249Z"
   },
   {
-    "_id": "67035ab27115508784dd62b5",
+    "_id": {
+      "$oid": "67035ab27115508784dd62b5"
+    },
     "tennant": "filipeni",
     "name": {
       "ro": "proiect-de-decizi-4.5.1",
@@ -55,7 +63,9 @@
     "date": "2024-10-07T03:51:14.083Z"
   },
   {
-    "_id": "67035a837115508784dd62b3",
+    "_id": {
+      "$oid": "67035a837115508784dd62b3"
+    },
     "tennant": "filipeni",
     "name": {
       "ro": "proiect-de-decizi-4.4",
@@ -69,7 +79,9 @@
     "date": "2024-10-07T03:50:27.262Z"
   },
   {
-    "_id": "670359037115508784dd62a7",
+    "_id": {
+      "$oid": "670359037115508784dd62a7"
+    },
     "tennant": "filipeni",
     "name": {
       "ro": "proiect-de-decizie-5.4",
@@ -83,7 +95,9 @@
     "date": "2024-10-07T03:44:03.216Z"
   },
   {
-    "_id": "67035fab7115508784dd62c5",
+    "_id": {
+      "$oid": "67035fab7115508784dd62c5"
+    },
     "tennant": "filipeni",
     "name": {
       "ro": "Dezbateri Publice",
@@ -96,7 +110,9 @@
     "date": "2024-10-07T04:12:27.912Z"
   },
   {
-    "_id": "6703596e7115508784dd62ab",
+    "_id": {
+      "$oid": "6703596e7115508784dd62ab"
+    },
     "tennant": "filipeni",
     "name": {
       "ro": "proiect-de-decizie-5.8",
@@ -110,7 +126,9 @@
     "date": "2024-10-07T03:45:50.619Z"
   },
   {
-    "_id": "6703591d7115508784dd62a8",
+    "_id": {
+      "$oid": "6703591d7115508784dd62a8"
+    },
     "tennant": "filipeni",
     "name": {
       "ro": "proiect-de-decizie-5.5",
@@ -124,7 +142,9 @@
     "date": "2024-10-07T03:44:29.332Z"
   },
   {
-    "_id": "67035cb47115508784dd62c1",
+    "_id": {
+      "$oid": "67035cb47115508784dd62c1"
+    },
     "tennant": "filipeni",
     "name": {
       "ro": "Privind proiectul Satul European 2 (2)",
@@ -138,7 +158,9 @@
     "date": "2024-10-07T03:59:48.117Z"
   },
   {
-    "_id": "67035a137115508784dd62af",
+    "_id": {
+      "$oid": "67035a137115508784dd62af"
+    },
     "tennant": "filipeni",
     "name": {
       "ro": "proiect-de-decizie-5.12",
@@ -152,7 +174,9 @@
     "date": "2024-10-07T03:48:35.435Z"
   },
   {
-    "_id": "67035ac87115508784dd62b6",
+    "_id": {
+      "$oid": "67035ac87115508784dd62b6"
+    },
     "tennant": "filipeni",
     "name": {
       "ro": "proiect-de-decizi-4.6",
@@ -166,7 +190,9 @@
     "date": "2024-10-07T03:51:36.497Z"
   },
   {
-    "_id": "6703589d7115508784dd62a3",
+    "_id": {
+      "$oid": "6703589d7115508784dd62a3"
+    },
     "tennant": "filipeni",
     "name": {
       "ro": "proiect-de-decizie-5.1",
@@ -180,7 +206,9 @@
     "date": "2024-10-07T03:42:21.656Z"
   },
   {
-    "_id": "67035a6a7115508784dd62b2",
+    "_id": {
+      "$oid": "67035a6a7115508784dd62b2"
+    },
     "tennant": "filipeni",
     "name": {
       "ro": "proiect-de-decizi-4.3",
@@ -194,7 +222,9 @@
     "date": "2024-10-07T03:50:02.943Z"
   },
   {
-    "_id": "670357857115508784dd62a1",
+    "_id": {
+      "$oid": "670357857115508784dd62a1"
+    },
     "tennant": "filipeni",
     "name": {
       "ro": "Proiecte de decizii",
@@ -207,7 +237,9 @@
     "date": "2024-10-07T03:37:41.401Z"
   },
   {
-    "_id": "670359aa7115508784dd62ad",
+    "_id": {
+      "$oid": "670359aa7115508784dd62ad"
+    },
     "tennant": "filipeni",
     "name": {
       "ro": "proiect-de-decizie-5.10",
@@ -221,7 +253,9 @@
     "date": "2024-10-07T03:46:50.030Z"
   },
   {
-    "_id": "670359897115508784dd62ac",
+    "_id": {
+      "$oid": "670359897115508784dd62ac"
+    },
     "tennant": "filipeni",
     "name": {
       "ro": "proiect-de-decizie-5.9",
@@ -235,7 +269,9 @@
     "date": "2024-10-07T03:46:17.173Z"
   },
   {
-    "_id": "67035c0f7115508784dd62be",
+    "_id": {
+      "$oid": "67035c0f7115508784dd62be"
+    },
     "tennant": "filipeni",
     "name": {
       "ro": "Prezentarea proiectului bugetului pentru anul 2024 al satului Filipeni",
@@ -249,7 +285,9 @@
     "date": "2024-10-07T03:57:03.128Z"
   },
   {
-    "_id": "670366247115508784dd62d3",
+    "_id": {
+      "$oid": "670366247115508784dd62d3"
+    },
     "tennant": "filipeni",
     "name": {
       "ro": "Statutul",
@@ -263,7 +301,9 @@
     "date": "2024-10-07T04:40:04.986Z"
   },
   {
-    "_id": "67035a9d7115508784dd62b4",
+    "_id": {
+      "$oid": "67035a9d7115508784dd62b4"
+    },
     "tennant": "filipeni",
     "name": {
       "ro": "proiect-de-decizi-4.5",
@@ -277,7 +317,9 @@
     "date": "2024-10-07T03:50:53.942Z"
   },
   {
-    "_id": "670364817115508784dd62cb",
+    "_id": {
+      "$oid": "670364817115508784dd62cb"
+    },
     "tennant": "filipeni",
     "name": {
       "ro": "decizia-4.2",
@@ -291,7 +333,9 @@
     "date": "2024-10-07T04:33:05.424Z"
   },
   {
-    "_id": "670359397115508784dd62a9",
+    "_id": {
+      "$oid": "670359397115508784dd62a9"
+    },
     "tennant": "filipeni",
     "name": {
       "ro": "proiect-de-decizie-5.6",
@@ -305,7 +349,9 @@
     "date": "2024-10-07T03:44:57.907Z"
   },
   {
-    "_id": "670358c27115508784dd62a4",
+    "_id": {
+      "$oid": "670358c27115508784dd62a4"
+    },
     "tennant": "filipeni",
     "name": {
       "ro": "proiect-de-decizie-5.2",
@@ -319,7 +365,9 @@
     "date": "2024-10-07T03:42:58.619Z"
   },
   {
-    "_id": "670364987115508784dd62cc",
+    "_id": {
+      "$oid": "670364987115508784dd62cc"
+    },
     "tennant": "filipeni",
     "name": {
       "ro": "decizia-4.3-1",
@@ -333,7 +381,9 @@
     "date": "2024-10-07T04:33:28.344Z"
   },
   {
-    "_id": "67035c5a7115508784dd62bf",
+    "_id": {
+      "$oid": "67035c5a7115508784dd62bf"
+    },
     "tennant": "filipeni",
     "name": {
       "ro": "Strategiei de dezvoltare socio economicii a satului Filipeni pe anii 2024-2029",
@@ -347,7 +397,9 @@
     "date": "2024-10-07T03:58:18.330Z"
   },
   {
-    "_id": "6703655f7115508784dd62ce",
+    "_id": {
+      "$oid": "6703655f7115508784dd62ce"
+    },
     "tennant": "filipeni",
     "name": {
       "ro": "GHIDUL UTILIZATORULUI (FOCAS)",
@@ -361,7 +413,9 @@
     "date": "2024-10-07T04:36:47.246Z"
   },
   {
-    "_id": "670365fb7115508784dd62d2",
+    "_id": {
+      "$oid": "670365fb7115508784dd62d2"
+    },
     "tennant": "filipeni",
     "name": {
       "ro": "Regulamentul intern",
@@ -375,7 +429,9 @@
     "date": "2024-10-07T04:39:23.087Z"
   },
   {
-    "_id": "6703666f7115508784dd62d4",
+    "_id": {
+      "$oid": "6703666f7115508784dd62d4"
+    },
     "tennant": "filipeni",
     "name": {
       "ro": "Planul Strategic 2024 – 2029",
@@ -389,7 +445,9 @@
     "date": "2024-10-07T04:41:19.729Z"
   },
   {
-    "_id": "670359557115508784dd62aa",
+    "_id": {
+      "$oid": "670359557115508784dd62aa"
+    },
     "tennant": "filipeni",
     "name": {
       "ro": "proiect-de-decizie-5.7",
@@ -403,7 +461,9 @@
     "date": "2024-10-07T03:45:25.278Z"
   },
   {
-    "_id": "670360397115508784dd62c7",
+    "_id": {
+      "$oid": "670360397115508784dd62c7"
+    },
     "tennant": "filipeni",
     "name": {
       "ro": "Proces-verbal nr.02",
@@ -417,7 +477,9 @@
     "date": "2024-10-07T04:14:49.268Z"
   },
   {
-    "_id": "67035c8b7115508784dd62c0",
+    "_id": {
+      "$oid": "67035c8b7115508784dd62c0"
+    },
     "tennant": "filipeni",
     "name": {
       "ro": "Privind proiectul Satul European 2",
@@ -431,7 +493,9 @@
     "date": "2024-10-07T03:59:07.991Z"
   },
   {
-    "_id": "670364e87115508784dd62cd",
+    "_id": {
+      "$oid": "670364e87115508784dd62cd"
+    },
     "tennant": "filipeni",
     "name": {
       "ro": "Autoevaluare (FOCAS)",
@@ -444,7 +508,9 @@
     "date": "2024-10-07T04:34:48.182Z"
   },
   {
-    "_id": "670365a27115508784dd62d0",
+    "_id": {
+      "$oid": "670365a27115508784dd62d0"
+    },
     "tennant": "filipeni",
     "name": {
       "ro": "Planul de Acțiuni FOCAS pentru anii 2023-2024",
@@ -458,7 +524,9 @@
     "date": "2024-10-07T04:37:54.991Z"
   },
   {
-    "_id": "670360507115508784dd62c8",
+    "_id": {
+      "$oid": "670360507115508784dd62c8"
+    },
     "tennant": "filipeni",
     "name": {
       "ro": "Proces-verbal nr.03",
@@ -472,7 +540,9 @@
     "date": "2024-10-07T04:15:12.710Z"
   },
   {
-    "_id": "670360177115508784dd62c6",
+    "_id": {
+      "$oid": "670360177115508784dd62c6"
+    },
     "tennant": "filipeni",
     "name": {
       "ro": "Proces-verbal nr.01",
@@ -486,7 +556,9 @@
     "date": "2024-10-07T04:14:15.497Z"
   },
   {
-    "_id": "670365857115508784dd62cf",
+    "_id": {
+      "$oid": "670365857115508784dd62cf"
+    },
     "tennant": "filipeni",
     "name": {
       "ro": "Tabel de evaluare FOCAS pentru anul 2023",
@@ -500,7 +572,9 @@
     "date": "2024-10-07T04:37:25.391Z"
   },
   {
-    "_id": "670365d77115508784dd62d1",
+    "_id": {
+      "$oid": "670365d77115508784dd62d1"
+    },
     "tennant": "filipeni",
     "name": {
       "ro": "Control intern managerial",
@@ -514,7 +588,9 @@
     "date": "2024-10-07T04:38:47.237Z"
   },
   {
-    "_id": "670364297115508784dd62c9",
+    "_id": {
+      "$oid": "670364297115508784dd62c9"
+    },
     "tennant": "filipeni",
     "name": {
       "ro": "Taxe și impozite locale",
@@ -527,7 +603,9 @@
     "date": "2024-10-07T04:31:37.112Z"
   },
   {
-    "_id": "67035a4c7115508784dd62b1",
+    "_id": {
+      "$oid": "67035a4c7115508784dd62b1"
+    },
     "tennant": "filipeni",
     "name": {
       "ro": "proiect-de-decizi-4.2",
@@ -541,7 +619,9 @@
     "date": "2024-10-07T03:49:32.967Z"
   },
   {
-    "_id": "67035ae37115508784dd62b7",
+    "_id": {
+      "$oid": "67035ae37115508784dd62b7"
+    },
     "tennant": "filipeni",
     "name": {
       "ro": "proiect-de-decizi-4.7",
@@ -555,7 +635,9 @@
     "date": "2024-10-07T03:52:03.363Z"
   },
   {
-    "_id": "67035b887115508784dd62bc",
+    "_id": {
+      "$oid": "67035b887115508784dd62bc"
+    },
     "tennant": "filipeni",
     "name": {
       "ro": "Audieri publice",
@@ -568,7 +650,9 @@
     "date": "2024-10-07T03:54:48.627Z"
   },
   {
-    "_id": "67035a387115508784dd62b0",
+    "_id": {
+      "$oid": "67035a387115508784dd62b0"
+    },
     "tennant": "filipeni",
     "name": {
       "ro": "proiect-de-decizi-4.1",
@@ -582,7 +666,9 @@
     "date": "2024-10-07T03:49:12.531Z"
   },
   {
-    "_id": "670364697115508784dd62ca",
+    "_id": {
+      "$oid": "670364697115508784dd62ca"
+    },
     "tennant": "filipeni",
     "name": {
       "ro": "decizia-4.1",

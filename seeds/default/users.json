@@ -1,6 +1,8 @@
 [
   {
-    "_id": "6784d8fd2d30d8792be80048",
+    "_id": {
+      "$oid": "6784d8fd2d30d8792be80048"
+    },
     "tennant": "filipeni",
     "name": "Tudor Camerzan",
     "email": "tudor.camerzan@filipeni.primarie.md",
@@ -66,9 +68,11 @@
     ],
     "roles": []
   },
-   {
-    "_id": "66f18cc30677ec7faa528aec",
-    "tennant": "filipeni",
+  {
+    "_id": {
+      "$oid": "66f18cc30677ec7faa528aec"
+    },
+    "tennant": "no-tennant",
     "name": "Sîrbu Andrei",
     "email": "sirbu.andrei@primarie.md",
     "password": "$2a$10$hPXcOA7S1qe6n/ua0Ft4aeYqMzwTNmfhYUp6FQxQ6JB.DiL7nbI2m",
@@ -135,7 +139,9 @@
     "isFirstTimeLogged": false
   },
   {
-    "_id": "66f142eb0677ec7faa528ae1",
+    "_id": {
+      "$oid": "66f142eb0677ec7faa528ae1"
+    },
     "tennant": "no-tennant",
     "name": "Arsenii Dumitru",
     "email": "arsenii.dumitru@primarie.md",
@@ -202,8 +208,10 @@
     "roles": [],
     "isFirstTimeLogged": false
   },
-   {
-    "_id": "66eabb721d44f9197254571a",
+  {
+    "_id": {
+      "$oid": "66eabb721d44f9197254571a"
+    },
     "tennant": "no-tennant",
     "name": "Iulian Arseni",
     "email": "iulian.arseni@primarie.md",

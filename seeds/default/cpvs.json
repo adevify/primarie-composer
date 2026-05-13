@@ -1,6 +1,8 @@
 [
   {
-    "_id": "69d4d49ab3e6c2d2740809fd",
+    "_id": {
+      "$oid": "69d4d49ab3e6c2d2740809fd"
+    },
     "code": "03000000-1",
     "name": {
       "ro": "Produse agricole, de fermă, de pescuit, de silvicultură şi produse conexe",

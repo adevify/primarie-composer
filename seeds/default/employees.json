@@ -1,6 +1,8 @@
 [
   {
-    "_id": "66f6a5e4f08d9c050f9d7a1e",
+    "_id": {
+      "$oid": "66f6a5e4f08d9c050f9d7a1e"
+    },
     "cover": "66f66be63ccf61b8ed2f48e5",
     "signature": "67249b9b3d5dc5b7fa6e24a5",
     "tennant": "filipeni",
@@ -329,7 +331,9 @@
     "order": 5
   },
   {
-    "_id": "66f6ae9df08d9c050f9d7a26",
+    "_id": {
+      "$oid": "66f6ae9df08d9c050f9d7a26"
+    },
     "cover": "67220709870b84dbb34681d2",
     "signature": "67249b7f3d5dc5b7fa6e24a3",
     "tennant": "filipeni",
@@ -706,7 +710,9 @@
     "order": 2
   },
   {
-    "_id": "66f6ade2f08d9c050f9d7a24",
+    "_id": {
+      "$oid": "66f6ade2f08d9c050f9d7a24"
+    },
     "cover": "6722076a870b84dbb34681d3",
     "signature": "67249b9b3d5dc5b7fa6e24a5",
     "tennant": "filipeni",
@@ -1083,7 +1089,9 @@
     "order": 4
   },
   {
-    "_id": "66f66bcd3ccf61b8ed2f48e3",
+    "_id": {
+      "$oid": "66f66bcd3ccf61b8ed2f48e3"
+    },
     "cover": "672202b2870b84dbb34681cf",
     "signature": "67249b7f3d5dc5b7fa6e24a3",
     "tennant": "filipeni",
@@ -1218,7 +1226,9 @@
     ]
   },
   {
-    "_id": "66f6abf8f08d9c050f9d7a20",
+    "_id": {
+      "$oid": "66f6abf8f08d9c050f9d7a20"
+    },
     "cover": "672206a4870b84dbb34681d1",
     "signature": "67249bac3d5dc5b7fa6e24a6",
     "tennant": "filipeni",
@@ -1558,7 +1568,9 @@
     "order": 3
   },
   {
-    "_id": "66f6a340f08d9c050f9d7a1c",
+    "_id": {
+      "$oid": "66f6a340f08d9c050f9d7a1c"
+    },
     "cover": "6722064c870b84dbb34681d0",
     "signature": "67249b8d3d5dc5b7fa6e24a4",
     "tennant": "filipeni",
@@ -1934,7 +1946,9 @@
     "order": 1
   },
   {
-    "_id": "66f6b11df08d9c050f9d7a2a",
+    "_id": {
+      "$oid": "66f6b11df08d9c050f9d7a2a"
+    },
     "cover": "672207ce870b84dbb34681d4",
     "signature": "67249bcd3d5dc5b7fa6e24a7",
     "tennant": "filipeni",

@@ -1,6 +1,8 @@
 [
   {
-    "_id": "6995a200f4ec6496d9bba1a5",
+    "_id": {
+      "$oid": "6995a200f4ec6496d9bba1a5"
+    },
     "tennant": "filipeni",
     "iban": "MD60TRPDBA222999A10894AC",
     "amount": 1,
@@ -15,7 +17,9 @@
     ]
   },
   {
-    "_id": "6995a200f4ec6496d9bba1a7",
+    "_id": {
+      "$oid": "6995a200f4ec6496d9bba1a7"
+    },
     "tennant": "filipeni",
     "iban": "MD60TRPDBA222999A10894AC",
     "amount": 1,
@@ -30,7 +34,9 @@
     ]
   },
   {
-    "_id": "6995a218f4ec6496d9bba1bf",
+    "_id": {
+      "$oid": "6995a218f4ec6496d9bba1bf"
+    },
     "tennant": "filipeni",
     "iban": "MD60TRPDBA222999A10894AC",
     "amount": 1,
@@ -45,7 +51,9 @@
     ]
   },
   {
-    "_id": "6995a225f4ec6496d9bba213",
+    "_id": {
+      "$oid": "6995a225f4ec6496d9bba213"
+    },
     "tennant": "filipeni",
     "iban": "MD60TRPDBA222999A10894AC",
     "amount": 1,
@@ -60,7 +68,9 @@
     ]
   },
   {
-    "_id": "6995a22bf4ec6496d9bba226",
+    "_id": {
+      "$oid": "6995a22bf4ec6496d9bba226"
+    },
     "tennant": "filipeni",
     "iban": "MD60TRPDBA222999A10894AC",
     "amount": 1,
@@ -75,7 +85,9 @@
     ]
   },
   {
-    "_id": "6995a23af4ec6496d9bba2ae",
+    "_id": {
+      "$oid": "6995a23af4ec6496d9bba2ae"
+    },
     "tennant": "filipeni",
     "iban": "MD60TRPDBA222999A10894AC",
     "amount": 1,
@@ -90,7 +102,9 @@
     ]
   },
   {
-    "_id": "6995a258f4ec6496d9bba3aa",
+    "_id": {
+      "$oid": "6995a258f4ec6496d9bba3aa"
+    },
     "tennant": "filipeni",
     "iban": "MD60TRPDBA222999A10894AC",
     "amount": 1,
@@ -105,7 +119,9 @@
     ]
   },
   {
-    "_id": "6995a268f4ec6496d9bba44a",
+    "_id": {
+      "$oid": "6995a268f4ec6496d9bba44a"
+    },
     "tennant": "filipeni",
     "iban": "MD60TRPDBA222999A10894AC",
     "amount": 1,
@@ -120,7 +136,9 @@
     ]
   },
   {
-    "_id": "6995a268f4ec6496d9bba45c",
+    "_id": {
+      "$oid": "6995a268f4ec6496d9bba45c"
+    },
     "tennant": "filipeni",
     "iban": "MD60TRPDBA222999A10894AC",
     "amount": 1,
@@ -135,7 +153,9 @@
     ]
   },
   {
-    "_id": "6995a281f4ec6496d9bba54a",
+    "_id": {
+      "$oid": "6995a281f4ec6496d9bba54a"
+    },
     "tennant": "filipeni",
     "iban": "MD60TRPDBA222999A10894AC",
     "amount": 1,
@@ -150,7 +170,9 @@
     ]
   },
   {
-    "_id": "69b41b7f21fccf4fad5582ee",
+    "_id": {
+      "$oid": "69b41b7f21fccf4fad5582ee"
+    },
     "tennant": "filipeni",
     "iban": "MD65AG000000022516345184",
     "amount": 1,
@@ -165,7 +187,9 @@
     ]
   },
   {
-    "_id": "69cfbce31920fc9354d360da",
+    "_id": {
+      "$oid": "69cfbce31920fc9354d360da"
+    },
     "tennant": "filipeni",
     "iban": "MD65AG000000022516345184",
     "amount": 1,
@@ -180,7 +204,9 @@
     ]
   },
   {
-    "_id": "69fdc68449ae43f194e25d9b",
+    "_id": {
+      "$oid": "69fdc68449ae43f194e25d9b"
+    },
     "tennant": "filipeni",
     "iban": "MD65AG000000022516345184",
     "amount": 1,

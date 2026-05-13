@@ -1,6 +1,8 @@
 [
   {
-    "_id": "69f1f9afacd75ae4dc2ba1ab",
+    "_id": {
+      "$oid": "69f1f9afacd75ae4dc2ba1ab"
+    },
     "tennant": "filipeni",
     "to": {
       "name": "Andrei Sirbu",
@@ -29,7 +31,9 @@
     "subject": "Parola a fost modificată"
   },
   {
-    "_id": "69fb2fdf29fcbf22c5118280",
+    "_id": {
+      "$oid": "69fb2fdf29fcbf22c5118280"
+    },
     "tennant": "filipeni",
     "to": {
       "name": "test",
@@ -58,7 +62,9 @@
     "subject": "Cererea de inregistrare a fost aprobata"
   },
   {
-    "_id": "69fb30d029fcbf22c5118285",
+    "_id": {
+      "$oid": "69fb30d029fcbf22c5118285"
+    },
     "tennant": "filipeni",
     "to": {
       "name": "test",
@@ -87,7 +93,9 @@
     "subject": "Cererea de inregistrare a fost respinsa"
   },
   {
-    "_id": "69fb338229fcbf22c5118287",
+    "_id": {
+      "$oid": "69fb338229fcbf22c5118287"
+    },
     "tennant": "filipeni",
     "to": {
       "name": "test",
@@ -116,7 +124,9 @@
     "subject": "Cererea de inregistrare a fost aprobata"
   },
   {
-    "_id": "69fb4534e80d46339791de12",
+    "_id": {
+      "$oid": "69fb4534e80d46339791de12"
+    },
     "tennant": "filipeni",
     "to": {
       "name": "test",
@@ -145,7 +155,9 @@
     "subject": "Cererea de inregistrare a fost primita"
   },
   {
-    "_id": "69fb4653e80d46339791de14",
+    "_id": {
+      "$oid": "69fb4653e80d46339791de14"
+    },
     "tennant": "filipeni",
     "to": {
       "name": "test",
@@ -174,7 +186,9 @@
     "subject": "Cererea de inregistrare a fost aprobata"
   },
   {
-    "_id": "69fb4723e80d46339791de17",
+    "_id": {
+      "$oid": "69fb4723e80d46339791de17"
+    },
     "tennant": "filipeni",
     "to": {
       "name": "test",
@@ -203,7 +217,9 @@
     "subject": "Parola a fost modificata"
   },
   {
-    "_id": "69fb478ee80d46339791de19",
+    "_id": {
+      "$oid": "69fb478ee80d46339791de19"
+    },
     "tennant": "filipeni",
     "to": {
       "name": "test",
@@ -232,7 +248,9 @@
     "subject": "Parola a fost modificata"
   },
   {
-    "_id": "69fb4830e80d46339791de1b",
+    "_id": {
+      "$oid": "69fb4830e80d46339791de1b"
+    },
     "tennant": "filipeni",
     "to": {
       "name": "test",
@@ -261,7 +279,9 @@
     "subject": "Parola a fost modificata"
   },
   {
-    "_id": "69fb64e62b7a8ad5b3d6b152",
+    "_id": {
+      "$oid": "69fb64e62b7a8ad5b3d6b152"
+    },
     "tennant": "filipeni",
     "to": {
       "name": "test",
@@ -290,7 +310,9 @@
     "subject": "Cererea de inregistrare a fost primita"
   },
   {
-    "_id": "69fb68c3f3267d1a0f75593a",
+    "_id": {
+      "$oid": "69fb68c3f3267d1a0f75593a"
+    },
     "tennant": "filipeni",
     "to": {
       "name": "test",
@@ -319,7 +341,9 @@
     "subject": "Cererea de inregistrare a fost aprobata"
   },
   {
-    "_id": "69fb68f2f3267d1a0f75593c",
+    "_id": {
+      "$oid": "69fb68f2f3267d1a0f75593c"
+    },
     "tennant": "filipeni",
     "to": {
       "name": "test",
@@ -348,7 +372,9 @@
     "subject": "Parola a fost modificata"
   },
   {
-    "_id": "69fb6925f3267d1a0f75593e",
+    "_id": {
+      "$oid": "69fb6925f3267d1a0f75593e"
+    },
     "tennant": "filipeni",
     "to": {
       "name": "test",
@@ -377,7 +403,9 @@
     "subject": "Parola a fost modificata"
   },
   {
-    "_id": "69fb6990f3267d1a0f755941",
+    "_id": {
+      "$oid": "69fb6990f3267d1a0f755941"
+    },
     "tennant": "filipeni",
     "to": {
       "name": "test2",
@@ -406,7 +434,9 @@
     "subject": "Cererea de inregistrare a fost primita"
   },
   {
-    "_id": "69fb69bbf3267d1a0f755943",
+    "_id": {
+      "$oid": "69fb69bbf3267d1a0f755943"
+    },
     "tennant": "filipeni",
     "to": {
       "name": "test2",

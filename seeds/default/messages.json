@@ -1,6 +1,8 @@
 [
   {
-    "_id": "69a6bf0308b6b6d6d0ae98fb",
+    "_id": {
+      "$oid": "69a6bf0308b6b6d6d0ae98fb"
+    },
     "tennant": "demo",
     "name": "TEsssst",
     "email": "aaw2012sirbu.andrei@gmail.com",

@@ -1,6 +1,8 @@
 [
   {
-    "_id": "6763e16d2d30d8792be7f5e0",
+    "_id": {
+      "$oid": "6763e16d2d30d8792be7f5e0"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/tender/21057699/",
     "title": "Construcția unei porțiuni de drum din beton în s. Filipeni (repetat)",
@@ -10,7 +12,9 @@
     "domain": "tender"
   },
   {
-    "_id": "6763e16c2d30d8792be7f5da",
+    "_id": {
+      "$oid": "6763e16c2d30d8792be7f5da"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/tender/21029033/",
     "title": "Crearea plantațiilor forestiere de protecție în s. Filipeni",
@@ -20,7 +24,9 @@
     "domain": "tender"
   },
   {
-    "_id": "6763e16d2d30d8792be7f5ee",
+    "_id": {
+      "$oid": "6763e16d2d30d8792be7f5ee"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/tender/21093838/",
     "title": "Construcția centralei fotovoltaice pe primăria Filipeni ",
@@ -30,7 +36,9 @@
     "domain": "tender"
   },
   {
-    "_id": "6763e16d2d30d8792be7f5e6",
+    "_id": {
+      "$oid": "6763e16d2d30d8792be7f5e6"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/tender/21234648/",
     "title": "Produse alimentare sem II 2024",
@@ -40,7 +48,9 @@
     "domain": "tender"
   },
   {
-    "_id": "6763e16d2d30d8792be7f5e5",
+    "_id": {
+      "$oid": "6763e16d2d30d8792be7f5e5"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/tender/21130601/",
     "title": "Produse alimentare sem I 2024",
@@ -50,7 +60,9 @@
     "domain": "tender"
   },
   {
-    "_id": "6763e16d2d30d8792be7f5e1",
+    "_id": {
+      "$oid": "6763e16d2d30d8792be7f5e1"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/tender/21056811/",
     "title": "Construcția unei porțiuni de drum din beton în satul Filipeni ",
@@ -60,7 +72,9 @@
     "domain": "tender"
   },
   {
-    "_id": "6763e16d2d30d8792be7f5ed",
+    "_id": {
+      "$oid": "6763e16d2d30d8792be7f5ed"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/tender/21092872/",
     "title": "Construcția rigolei de scurgere în s. Filipeni",
@@ -70,7 +84,9 @@
     "domain": "tender"
   },
   {
-    "_id": "6763e16d2d30d8792be7f5fa",
+    "_id": {
+      "$oid": "6763e16d2d30d8792be7f5fa"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/eplan/21324384/",
     "title": "Produse alimentare sem I 2025",
@@ -80,7 +96,9 @@
     "domain": "eplan"
   },
   {
-    "_id": "676d001a2d30d8792be7fd6e",
+    "_id": {
+      "$oid": "676d001a2d30d8792be7fd6e"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/tender/21298897/",
     "title": "Reparația acoperișului la Casa de Cultură Filipeni",
@@ -90,7 +108,9 @@
     "domain": "tender"
   },
   {
-    "_id": "6763e16d2d30d8792be7f5e2",
+    "_id": {
+      "$oid": "6763e16d2d30d8792be7f5e2"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/tender/21061987/",
     "title": "Instrumente didactice digitale în IP Gimnaziul Filipeni ",
@@ -100,7 +120,9 @@
     "domain": "tender"
   },
   {
-    "_id": "6763e16d2d30d8792be7f5ea",
+    "_id": {
+      "$oid": "6763e16d2d30d8792be7f5ea"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/tender/21040998/",
     "title": "Reabilitarea iluminatului stradal în satul Filipeni ",
@@ -110,7 +132,9 @@
     "domain": "tender"
   },
   {
-    "_id": "6763e16d2d30d8792be7f5f9",
+    "_id": {
+      "$oid": "6763e16d2d30d8792be7f5f9"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/eplan/21028123/",
     "title": "Procurarea tractor",
@@ -120,7 +144,9 @@
     "domain": "eplan"
   },
   {
-    "_id": "6763e16c2d30d8792be7f5db",
+    "_id": {
+      "$oid": "6763e16c2d30d8792be7f5db"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/tender/21042466/",
     "title": "Reabilitarea iluminatului stradal în s. Filipeni ",
@@ -130,7 +156,9 @@
     "domain": "tender"
   },
   {
-    "_id": "6763e16d2d30d8792be7f5f8",
+    "_id": {
+      "$oid": "6763e16d2d30d8792be7f5f8"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/eplan/21028623/",
     "title": "Înființarea plantațiilor forestiere ",
@@ -140,7 +168,9 @@
     "domain": "eplan"
   },
   {
-    "_id": "6763e16c2d30d8792be7f5dd",
+    "_id": {
+      "$oid": "6763e16c2d30d8792be7f5dd"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/tender/21045256/",
     "title": "Construcția unei porțiuni de drum în satul Filipeni, raionul Leova ",
@@ -150,7 +180,9 @@
     "domain": "tender"
   },
   {
-    "_id": "6763e16c2d30d8792be7f5d6",
+    "_id": {
+      "$oid": "6763e16c2d30d8792be7f5d6"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/tender/21061813/",
     "title": "Produse alimentare pentru IET sem II",
@@ -160,7 +192,9 @@
     "domain": "tender"
   },
   {
-    "_id": "6763e16d2d30d8792be7f5eb",
+    "_id": {
+      "$oid": "6763e16d2d30d8792be7f5eb"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/tender/21087474/",
     "title": "Produse alimentare pentru IET Filipeni",
@@ -170,7 +204,9 @@
     "domain": "tender"
   },
   {
-    "_id": "6763e16c2d30d8792be7f5df",
+    "_id": {
+      "$oid": "6763e16c2d30d8792be7f5df"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/tender/21055770/",
     "title": "Construcția unei porțiuni de drum din beton în satul Filipeni ",
@@ -180,7 +216,9 @@
     "domain": "tender"
   },
   {
-    "_id": "6763e16d2d30d8792be7f5f7",
+    "_id": {
+      "$oid": "6763e16d2d30d8792be7f5f7"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/eplan/21044877/",
     "title": "Construcția unei porțiuni de drum în satul Filipeni, raionul Leova ",
@@ -190,7 +228,9 @@
     "domain": "eplan"
   },
   {
-    "_id": "6763e16c2d30d8792be7f5dc",
+    "_id": {
+      "$oid": "6763e16c2d30d8792be7f5dc"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/tender/21042424/",
     "title": "Reabilitarea iluminatului stradal în s. Filipeni (Repetat)",
@@ -200,7 +240,9 @@
     "domain": "tender"
   },
   {
-    "_id": "6763e16d2d30d8792be7f5ec",
+    "_id": {
+      "$oid": "6763e16d2d30d8792be7f5ec"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/tender/21090577/",
     "title": "Construcția centralei fotovoltaice pe pirmăria Filipeni ",
@@ -210,7 +252,9 @@
     "domain": "tender"
   },
   {
-    "_id": "6763e16d2d30d8792be7f5e7",
+    "_id": {
+      "$oid": "6763e16d2d30d8792be7f5e7"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/tender/21203073/",
     "title": "Construcția străzii Independenței etapa I cu lungimea de 500 m",
@@ -220,7 +264,9 @@
     "domain": "tender"
   },
   {
-    "_id": "676e97f62d30d8792be7fe1e",
+    "_id": {
+      "$oid": "676e97f62d30d8792be7fe1e"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/tender/21325000/",
     "title": "Produse alimentare sem I 2025",
@@ -230,7 +276,9 @@
     "domain": "tender"
   },
   {
-    "_id": "6763e16c2d30d8792be7f5d7",
+    "_id": {
+      "$oid": "6763e16c2d30d8792be7f5d7"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/tender/21028661/",
     "title": "Crearea plantațiilor forestiere de protecție",
@@ -240,7 +288,9 @@
     "domain": "tender"
   },
   {
-    "_id": "6763e16d2d30d8792be7f5fb",
+    "_id": {
+      "$oid": "6763e16d2d30d8792be7f5fb"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/eplan/21086848/",
     "title": "Echipament de sonorizare ",
@@ -250,7 +300,9 @@
     "domain": "eplan"
   },
   {
-    "_id": "6763e16c2d30d8792be7f5d9",
+    "_id": {
+      "$oid": "6763e16c2d30d8792be7f5d9"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/tender/21028761/",
     "title": "Achiziționarea unui tractor multifuncțional cu 2 utilaje",
@@ -260,7 +312,9 @@
     "domain": "tender"
   },
   {
-    "_id": "6763e16d2d30d8792be7f5e3",
+    "_id": {
+      "$oid": "6763e16d2d30d8792be7f5e3"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/tender/21065072/",
     "title": "Instrumente didactice digitale în IP Gimnaziul Filipeni (repetat)",
@@ -270,7 +324,9 @@
     "domain": "tender"
   },
   {
-    "_id": "6763e16d2d30d8792be7f5f5",
+    "_id": {
+      "$oid": "6763e16d2d30d8792be7f5f5"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/eplan/21093836/",
     "title": "Construcția centralei fotovoltaice pe primăria Filipeni ",
@@ -280,7 +336,9 @@
     "domain": "eplan"
   },
   {
-    "_id": "6799d544e461ce403ac46d9d",
+    "_id": {
+      "$oid": "6799d544e461ce403ac46d9d"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/tender/21353470/",
     "title": "Reparația acoperișului la casa de cultură Filipeni",
@@ -290,7 +348,9 @@
     "domain": "tender"
   },
   {
-    "_id": "6763e16d2d30d8792be7f5f2",
+    "_id": {
+      "$oid": "6763e16d2d30d8792be7f5f2"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/tender/21082069/",
     "title": "Reparația din piatră spartă a unei porțiuni de drum din s. Filipeni ",
@@ -300,7 +360,9 @@
     "domain": "tender"
   },
   {
-    "_id": "6763e16d2d30d8792be7f5f4",
+    "_id": {
+      "$oid": "6763e16d2d30d8792be7f5f4"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/eplan/21068488/",
     "title": "Produse alimentare pentru IET din s. Filipeni sem. I 2023",
@@ -310,7 +372,9 @@
     "domain": "eplan"
   },
   {
-    "_id": "6763e16d2d30d8792be7f5f6",
+    "_id": {
+      "$oid": "6763e16d2d30d8792be7f5f6"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/eplan/21055769/",
     "title": "Construcția unei porțiuni de drum din beton  în satul Filipeni ",
@@ -320,7 +384,9 @@
     "domain": "eplan"
   },
   {
-    "_id": "6763e16d2d30d8792be7f5e8",
+    "_id": {
+      "$oid": "6763e16d2d30d8792be7f5e8"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/tender/21217442/",
     "title": "Construcția străzii Independenței etapa I cu lungimea de 500 m",
@@ -330,7 +396,9 @@
     "domain": "tender"
   },
   {
-    "_id": "6763e16c2d30d8792be7f5de",
+    "_id": {
+      "$oid": "6763e16c2d30d8792be7f5de"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/tender/21050198/",
     "title": "Produse alimentare pentru instituțiile de educație timpurie din s. Filipeni, sem. I",
@@ -340,7 +408,9 @@
     "domain": "tender"
   },
   {
-    "_id": "6763e16d2d30d8792be7f5f1",
+    "_id": {
+      "$oid": "6763e16d2d30d8792be7f5f1"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/tender/21034842/",
     "title": "Crearea plantațiilor forestiere de protecție în satul Filipeni",
@@ -350,7 +420,9 @@
     "domain": "tender"
   },
   {
-    "_id": "6763e16d2d30d8792be7f5f3",
+    "_id": {
+      "$oid": "6763e16d2d30d8792be7f5f3"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/eplan/21130582/",
     "title": "Produse alimentare sem I 2024",
@@ -360,7 +432,9 @@
     "domain": "eplan"
   },
   {
-    "_id": "6763e16d2d30d8792be7f5e4",
+    "_id": {
+      "$oid": "6763e16d2d30d8792be7f5e4"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/tender/21070145/",
     "title": "Produse alimentare pentru IET din s. Filipeni sem. I 2023",
@@ -370,7 +444,9 @@
     "domain": "tender"
   },
   {
-    "_id": "6763e16c2d30d8792be7f5d8",
+    "_id": {
+      "$oid": "6763e16c2d30d8792be7f5d8"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/tender/21029378/",
     "title": "Achiziționarea unui tractor multifuncțional cu 2 utilaje ",
@@ -380,7 +456,9 @@
     "domain": "tender"
   },
   {
-    "_id": "679248351ad493d0d6cf979c",
+    "_id": {
+      "$oid": "679248351ad493d0d6cf979c"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/tender/21353435/",
     "title": "Reparația acoperișului la casa de cultură Filipeni ",
@@ -390,7 +468,9 @@
     "domain": "tender"
   },
   {
-    "_id": "6763e16d2d30d8792be7f5e9",
+    "_id": {
+      "$oid": "6763e16d2d30d8792be7f5e9"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/tender/21093407/",
     "title": "Construcția rigolei de scurgere ",
@@ -400,7 +480,9 @@
     "domain": "tender"
   },
   {
-    "_id": "67bc23a6e39f95e5e14c2a17",
+    "_id": {
+      "$oid": "67bc23a6e39f95e5e14c2a17"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/tender/21370218/",
     "title": "Reparatia acoperisului la casa de cultura s.Filipeni",
@@ -410,7 +492,9 @@
     "domain": "tender"
   },
   {
-    "_id": "67bc6a02e39f95e5e14c2a1d",
+    "_id": {
+      "$oid": "67bc6a02e39f95e5e14c2a1d"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/eplan/21370562/",
     "title": "Reparația unor străzi din s. Filipeni ",
@@ -420,7 +504,9 @@
     "domain": "eplan"
   },
   {
-    "_id": "67e2de27a4522c526046d36d",
+    "_id": {
+      "$oid": "67e2de27a4522c526046d36d"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/tender/21386692/",
     "title": "Reparația unor străzi din s. Filipeni",
@@ -430,7 +516,9 @@
     "domain": "tender"
   },
   {
-    "_id": "67d7ce59803423b87cd175f1",
+    "_id": {
+      "$oid": "67d7ce59803423b87cd175f1"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/tender/21370562/",
     "title": "Reparația unor străzi din s. Filipeni ",
@@ -440,7 +528,9 @@
     "domain": "tender"
   },
   {
-    "_id": "6815cd42e2b9d72f15d47d8c",
+    "_id": {
+      "$oid": "6815cd42e2b9d72f15d47d8c"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/tender/21414193/",
     "title": "Reparația unor străzi din satul Filipeni",
@@ -450,7 +540,9 @@
     "domain": "tender"
   },
   {
-    "_id": "687618a581c0b3d3ff1c8a81",
+    "_id": {
+      "$oid": "687618a581c0b3d3ff1c8a81"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/eplan/21453752/",
     "title": "Produse alimentare sem.II 2025",
@@ -460,7 +552,9 @@
     "domain": "eplan"
   },
   {
-    "_id": "687a0de9c5aa0c007c3632ab",
+    "_id": {
+      "$oid": "687a0de9c5aa0c007c3632ab"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/eplan/21456123/",
     "title": "Construcția Străzii Indepenenței etapa II",
@@ -470,7 +564,9 @@
     "domain": "eplan"
   },
   {
-    "_id": "68986caae0a63f35c4a625d6",
+    "_id": {
+      "$oid": "68986caae0a63f35c4a625d6"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/eplan/21464207/",
     "title": "Reparația străzii Tineretului",
@@ -480,7 +576,9 @@
     "domain": "eplan"
   },
   {
-    "_id": "68acbc2db7753eb231f78fde",
+    "_id": {
+      "$oid": "68acbc2db7753eb231f78fde"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/tender/21456503/",
     "title": "Construcția străzii Independenței etapa II",
@@ -490,7 +588,9 @@
     "domain": "tender"
   },
   {
-    "_id": "68acbc2db7753eb231f78fdf",
+    "_id": {
+      "$oid": "68acbc2db7753eb231f78fdf"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/tender/21464911/",
     "title": "Reparația străzii Tineretului",
@@ -500,7 +600,9 @@
     "domain": "tender"
   },
   {
-    "_id": "68b22f54ad7abc3b036e0fed",
+    "_id": {
+      "$oid": "68b22f54ad7abc3b036e0fed"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/tender/21453752/",
     "title": "Produse alimentare sem.II 2025",
@@ -510,7 +612,9 @@
     "domain": "tender"
   },
   {
-    "_id": "693cfefb5a0d0197c30e17d9",
+    "_id": {
+      "$oid": "693cfefb5a0d0197c30e17d9"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/eplan/21521468/",
     "title": "Produse alimentare semestru I 2026",
@@ -520,7 +624,9 @@
     "domain": "eplan"
   },
   {
-    "_id": "697367adf13b0b7adbf88757",
+    "_id": {
+      "$oid": "697367adf13b0b7adbf88757"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/eplan/21553318/",
     "title": "Elaborarea Planului Urbanistic în s. Filipeni ",
@@ -530,7 +636,9 @@
     "domain": "eplan"
   },
   {
-    "_id": "698126e4370d240dd14e5eb9",
+    "_id": {
+      "$oid": "698126e4370d240dd14e5eb9"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/eplan/21556465/",
     "title": "Procurare gaze naturale",
@@ -540,7 +648,9 @@
     "domain": "eplan"
   },
   {
-    "_id": "698126e4370d240dd14e5eb8",
+    "_id": {
+      "$oid": "698126e4370d240dd14e5eb8"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/eplan/21556475/",
     "title": "Gaze naturale",
@@ -550,7 +660,9 @@
     "domain": "eplan"
   },
   {
-    "_id": "69815f2d370d240dd14e60a7",
+    "_id": {
+      "$oid": "69815f2d370d240dd14e60a7"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/contract/21556494",
     "title": "\nGaze naturale \n",
@@ -560,7 +672,9 @@
     "domain": "contract"
   },
   {
-    "_id": "69815f2d370d240dd14e60a5",
+    "_id": {
+      "$oid": "69815f2d370d240dd14e60a5"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/contract/21556563",
     "title": "\nServicii de evaluare bunuri imobile \n",
@@ -570,7 +684,9 @@
     "domain": "contract"
   },
   {
-    "_id": "69815f2d370d240dd14e60a6",
+    "_id": {
+      "$oid": "69815f2d370d240dd14e60a6"
+    },
     "tennant": "filipeni",
     "url": "https://achizitii.md//ro/public/contract/21556522",
     "title": "\nEnergie electrică \n",

@@ -1,6 +1,8 @@
 [
   {
-    "_id": "69eb2d98ea80919b65d5e146",
+    "_id": {
+      "$oid": "69eb2d98ea80919b65d5e146"
+    },
     "tennant": "glingeni",
     "contractDate": "2026-04-23T21:00:00.000Z",
     "startDate": "2026-04-30T21:00:00.000Z",

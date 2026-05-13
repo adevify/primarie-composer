@@ -1,6 +1,8 @@
 [
   {
-    "_id": "6705c8de8221e9146ea19c62",
+    "_id": {
+      "$oid": "6705c8de8221e9146ea19c62"
+    },
     "tennant": "filipeni",
     "title": {
       "ro": "Monumentul Eroilor Căzuți în Războiul din Afganistan ",
@@ -56,7 +58,9 @@
     }
   },
   {
-    "_id": "6705c7aa8221e9146ea19c5f",
+    "_id": {
+      "$oid": "6705c7aa8221e9146ea19c5f"
+    },
     "tennant": "filipeni",
     "title": {
       "ro": "Podul Turcesc ",
@@ -112,7 +116,9 @@
     }
   },
   {
-    "_id": "67234764870b84dbb34681db",
+    "_id": {
+      "$oid": "67234764870b84dbb34681db"
+    },
     "tennant": "filipeni",
     "title": {
       "ro": "Monumentul eroilor români",
@@ -166,7 +172,9 @@
     }
   },
   {
-    "_id": "67089c92d04e684bae444669",
+    "_id": {
+      "$oid": "67089c92d04e684bae444669"
+    },
     "tennant": "filipeni",
     "title": {
       "ro": "Monumentul Eroilor necunoscuți ",
@@ -220,7 +228,9 @@
     }
   },
   {
-    "_id": "6705c9bc8221e9146ea19c67",
+    "_id": {
+      "$oid": "6705c9bc8221e9146ea19c67"
+    },
     "tennant": "filipeni",
     "title": {
       "ro": "Biserica \"Sfinții Împărați Constantin și Elena\"",

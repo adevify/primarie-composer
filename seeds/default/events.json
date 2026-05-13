@@ -1,6 +1,8 @@
 [
   {
-    "_id": "66fa003f4ce72d3f9ba8396b",
+    "_id": {
+      "$oid": "66fa003f4ce72d3f9ba8396b"
+    },
     "tennant": "filipeni",
     "date": "2024-04-04T11:00:51.719Z",
     "title": {
@@ -73,7 +75,9 @@
     "comments": []
   },
   {
-    "_id": "66ffae2ffa2ce50501d2cca6",
+    "_id": {
+      "$oid": "66ffae2ffa2ce50501d2cca6"
+    },
     "tennant": "filipeni",
     "date": "2020-07-17T07:00:58.121Z",
     "title": {
@@ -152,7 +156,9 @@
     "comments": []
   },
   {
-    "_id": "682c3a604bb0765272a65cdf",
+    "_id": {
+      "$oid": "682c3a604bb0765272a65cdf"
+    },
     "tennant": "filipeni",
     "date": "2025-02-12T13:00:17.376Z",
     "title": {
@@ -445,7 +451,9 @@
     "comments": []
   },
   {
-    "_id": "682c35d44bb0765272a65c7b",
+    "_id": {
+      "$oid": "682c35d44bb0765272a65c7b"
+    },
     "tennant": "filipeni",
     "date": "2025-05-08T12:00:17.376Z",
     "title": {
@@ -817,7 +825,9 @@
     "comments": []
   },
   {
-    "_id": "68e93a223015c7841b0a337c",
+    "_id": {
+      "$oid": "68e93a223015c7841b0a337c"
+    },
     "tennant": "filipeni",
     "date": "2025-06-23T12:00:59.814Z",
     "title": {
@@ -1146,7 +1156,9 @@
     "comments": []
   },
   {
-    "_id": "68e9359b6562ac6a5b0450e8",
+    "_id": {
+      "$oid": "68e9359b6562ac6a5b0450e8"
+    },
     "tennant": "filipeni",
     "date": "2025-05-29T11:20:48.059Z",
     "title": {
@@ -1672,7 +1684,9 @@
     "comments": []
   },
   {
-    "_id": "68e946f089206fb95d5bc171",
+    "_id": {
+      "$oid": "68e946f089206fb95d5bc171"
+    },
     "tennant": "filipeni",
     "date": "2025-08-03T17:00:16.767Z",
     "title": {
@@ -2014,7 +2028,9 @@
     "comments": []
   },
   {
-    "_id": "68e942112aaf8fe70724d684",
+    "_id": {
+      "$oid": "68e942112aaf8fe70724d684"
+    },
     "tennant": "filipeni",
     "date": "2025-07-29T10:00:13.913Z",
     "title": {
@@ -2458,7 +2474,9 @@
     "comments": []
   },
   {
-    "_id": "68e94a9c208de6cfe25eacb8",
+    "_id": {
+      "$oid": "68e94a9c208de6cfe25eacb8"
+    },
     "tennant": "filipeni",
     "date": "2025-08-21T13:00:21.862Z",
     "title": {
@@ -3164,7 +3182,9 @@
     "comments": []
   },
   {
-    "_id": "6949086cb3c58b8b26b29490",
+    "_id": {
+      "$oid": "6949086cb3c58b8b26b29490"
+    },
     "tennant": "filipeni",
     "date": "2025-12-19T13:45:32.638Z",
     "title": {
@@ -3542,7 +3562,9 @@
     "comments": []
   },
   {
-    "_id": "69af0c659e67a73589235b16",
+    "_id": {
+      "$oid": "69af0c659e67a73589235b16"
+    },
     "tennant": "filipeni",
     "date": "2026-03-06T13:00:25.678Z",
     "title": {
@@ -3683,7 +3705,9 @@
     "comments": []
   },
   {
-    "_id": "69f99c6e9cddda27b893754d",
+    "_id": {
+      "$oid": "69f99c6e9cddda27b893754d"
+    },
     "tennant": "filipeni",
     "date": "2026-04-28T10:28:52.214Z",
     "title": {

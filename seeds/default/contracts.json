@@ -1,6 +1,8 @@
 [
   {
-    "_id": "69942b83158c9bc14e5d52aa",
+    "_id": {
+      "$oid": "69942b83158c9bc14e5d52aa"
+    },
     "tennant": "filipeni",
     "contractDate": "2024-10-01T00:00:00.000Z",
     "startDate": "2024-12-01T00:00:00.000Z",

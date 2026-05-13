@@ -1,6 +1,8 @@
 [
   {
-    "_id": "69908c753426720b876096f6",
+    "_id": {
+      "$oid": "69908c753426720b876096f6"
+    },
     "tennant": "mindic",
     "title": "Sincronizare achiziții publice finalizată",
     "message": "Achiziții publice au fost sincronizate [mindic.primarie.md](https://mindic.primarie.md/public-acqs) | 6 achiziții noi găsite in domeniu contract",
