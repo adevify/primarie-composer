@@ -6,6 +6,7 @@ export type ChangedFilePayload = {
   path: string;
   contentBase64?: string;
   status: ChangedFileStatus;
+  deleteConfirmed?: boolean;
   warning?: string;
 };
 

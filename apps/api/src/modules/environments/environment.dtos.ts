@@ -22,7 +22,8 @@ export const keySchema = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
 export const changedFileSchema = z.object({
   path: z.string().min(1),
   status: z.enum(["modified", "added", "deleted"]),
-  contentBase64: z.string().optional()
+  contentBase64: z.string().optional(),
+  deleteConfirmed: z.boolean().optional()
 });
 
 export type ChangedFilePayload = z.infer<typeof changedFileSchema>;

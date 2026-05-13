@@ -856,14 +856,31 @@ export default function App() {
     const currentSnapshot = await refreshSyncSnapshot(snapshot);
     let pendingFiles: ChangedFilePayload[] = [];
     try {
-      const syncableFiles = currentSnapshot.files.filter((file) => !file.warning);
+      const unconfirmedDeleteFiles = currentSnapshot.files
+        .filter((file) => file.status === "deleted" && !file.deleteConfirmed)
+        .map((file) => ({
+          ...file,
+          warning: "Skipped unconfirmed delete. Restart Electron and sync again if this file was really removed."
+        }));
+      const syncableFiles = currentSnapshot.files.filter((file) => !file.warning && (file.status !== "deleted" || file.deleteConfirmed));
       pendingFiles = syncableFiles;
-      const skippedFiles = currentSnapshot.files.filter((file) => file.warning);
+      const skippedFiles = [
+        ...currentSnapshot.files.filter((file) => file.warning),
+        ...unconfirmedDeleteFiles
+      ];
       skippedFiles.forEach((file) => pushSyncError(`${file.path}: ${file.warning}`));
       if (skippedFiles.length > 0) {
         recordFileSyncEvents(activeEnvironmentKey, currentSnapshot.gitState, skippedFiles, "skipped");
       }
-      const chunks = syncableFiles.length > 0 ? chunkChangedFiles(syncableFiles) : [[]];
+      if (syncableFiles.length === 0) {
+        setSyncState((current) => ({
+          ...current,
+          errors: skippedFiles.map((file) => `${file.path}: ${file.warning}`)
+        }));
+        return;
+      }
+
+      const chunks = chunkChangedFiles(syncableFiles);
 
       for (const files of chunks) {
         await api.syncFiles(activeEnvironmentKey, {
