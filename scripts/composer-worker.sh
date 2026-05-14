@@ -221,7 +221,7 @@ run_and_capture() {
   heartbeat_pid="$!"
 
   set +e
-  "$@" 2>&1 | tee -a "$output_file" "$log_file" >/dev/null
+  "$@" </dev/null 2>&1 | tee -a "$output_file" "$log_file" >/dev/null
   local code="${PIPESTATUS[0]}"
   set -e
 

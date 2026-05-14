@@ -16,6 +16,12 @@ SEED_NAME="$(jq -r '.seedName // "default"' "$PAYLOAD_FILE")"
 HOST_SEEDS_DIR="$(jq -r '.hostSeedsDir // empty' "$PAYLOAD_FILE")"
 HOST_SEEDS_DIR="${HOST_SEEDS_DIR:-$(composer_root)/seeds}"
 
+export GIT_TERMINAL_PROMPT="${GIT_TERMINAL_PROMPT:-0}"
+export GIT_ASKPASS="${GIT_ASKPASS:-/bin/false}"
+export SSH_ASKPASS="${SSH_ASKPASS:-/bin/false}"
+export GCM_INTERACTIVE="${GCM_INTERACTIVE:-Never}"
+export GIT_SSH_COMMAND="${GIT_SSH_COMMAND:-ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new}"
+
 copy_seed_data() {
   local seed_name="$1"
   local seeds_dir="$2"

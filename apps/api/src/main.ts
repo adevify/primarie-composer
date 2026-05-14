@@ -7,6 +7,7 @@ import { authenticateJwt } from "./modules/auth/auth.middleware.js";
 import { createProxyRouter } from "./modules/proxy/proxy.routes.js";
 import { connect, disconnect } from "./db/client.js";
 import { EnvironmentActionCollection } from "./db/environment-actions.js";
+import { EnvironmentCollection } from "./db/environments.js";
 import { SystemLogCollection } from "./db/logs.js";
 import { HostActionBusService } from "./services/bus/HostActionBusService.js";
 
@@ -54,6 +55,7 @@ logApi("info", "database_connected", {});
 await EnvironmentActionCollection.ensureIndexes();
 await SystemLogCollection.ensureIndexes();
 logApi("info", "indexes_ready", {});
+await recoverInterruptedCreates();
 
 const server = await app.listen(80);
 logApi("info", "listening", { port: 80 });
@@ -77,4 +79,32 @@ function logApi(level: "info" | "warn" | "error", event: string, details: Record
     event,
     ...details
   }));
+}
+
+async function recoverInterruptedCreates(): Promise<void> {
+  const interrupted = await EnvironmentCollection.failInterruptedCreates();
+  if (interrupted.length === 0) {
+    return;
+  }
+
+  await Promise.all(interrupted.map((record) => SystemLogCollection.add({
+    level: "error",
+    event: "environment.failed",
+    message: "Environment preparation was interrupted before the API could observe completion.",
+    source: "api",
+    target: {
+      type: "environment",
+      environmentKey: record.key
+    },
+    metadata: {
+      previousStatus: record.status,
+      phase: "create",
+      recoveredAtStartup: true
+    }
+  })));
+
+  logApi("warn", "interrupted_creates_marked_failed", {
+    count: interrupted.length,
+    environments: interrupted.map((record) => record.key)
+  });
 }

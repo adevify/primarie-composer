@@ -14,6 +14,8 @@ export type EnvironmentRecord = {
 }
 
 export const EnvironmentCollection = (() => {
+    const interruptedCreateStatuses: EnvironmentStatus[] = ["creating", "cloning"];
+
     const withCol = async <T>(action: (col: Collection<EnvironmentRecord>) => Promise<T>) => {
         const col = await collection<EnvironmentRecord>("environments");
         return action(col);
@@ -34,6 +36,19 @@ export const EnvironmentCollection = (() => {
         getSilent: async (key: string) => withCol(col => col.findOne({ key })),
         list: async () => withCol(col => col.find({}).toArray()),
         create: async (record: Omit<EnvironmentRecord, "createdAt" | "updatedAt">) => withCol(col => col.insertOne({ ...record, createdAt: new Date(), updatedAt: new Date() })),
+        failInterruptedCreates: async () => withCol(async col => {
+            const records = await col.find({ status: { $in: interruptedCreateStatuses } }).toArray();
+            if (records.length === 0) {
+                return records;
+            }
+
+            await col.updateMany(
+                { key: { $in: records.map((record) => record.key) } },
+                { $set: { status: "failed", updatedAt: new Date() } }
+            );
+
+            return records;
+        }),
         update: async (key: string, mutator: (record: EnvironmentRecord) => Partial<EnvironmentRecord>) => {
             const record = await get(key);
 
