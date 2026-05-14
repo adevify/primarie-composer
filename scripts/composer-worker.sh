@@ -13,6 +13,14 @@ MAX_RESULT_OUTPUT_BYTES="${MAX_RESULT_OUTPUT_BYTES:-5242880}"
 ACTION_HEARTBEAT_SECONDS="${ACTION_HEARTBEAT_SECONDS:-30}"
 MAX_PARALLEL_ACTIONS="${MAX_PARALLEL_ACTIONS:-4}"
 
+timestamp() {
+  date -u +%Y-%m-%dT%H:%M:%SZ
+}
+
+worker_log() {
+  printf "[composer-worker] %s %s\n" "$(timestamp)" "$*"
+}
+
 mkdir -p "$RESULTS_DIR" "$LOGS_DIR" "$LOCKS_DIR"
 chmod 777 "$RESULTS_DIR" "$LOGS_DIR" "$LOCKS_DIR" 2>/dev/null || true
 if [[ ! -p "$PIPE" ]]; then
@@ -23,9 +31,10 @@ fi
 
 date -u +%Y-%m-%dT%H:%M:%SZ > "$READY_FILE"
 chmod 666 "$READY_FILE" 2>/dev/null || true
-echo "[composer-worker] ready at $(date -u +%Y-%m-%dT%H:%M:%SZ): pipe=$PIPE results=$RESULTS_DIR logs=$LOGS_DIR"
+worker_log "ready: pid=$$ pipe=$PIPE results=$RESULTS_DIR logs=$LOGS_DIR locks=$LOCKS_DIR ready=$READY_FILE maxParallel=$MAX_PARALLEL_ACTIONS heartbeatSeconds=$ACTION_HEARTBEAT_SECONDS"
 
 cleanup_worker() {
+  worker_log "exiting: removing ready file $READY_FILE"
   rm -f "$READY_FILE"
 }
 
@@ -41,6 +50,7 @@ write_result() {
   local output_file
   output_file="$(mktemp)"
   truncate_output "$output" > "$output_file"
+  worker_log "write_result_start: id=$id status=$status message=$message tmp=$tmp outputBytes=$(wc -c < "$output_file" | tr -d " ")"
 
   jq -n \
     --arg id "$id" \
@@ -56,6 +66,7 @@ write_result() {
     }' > "$tmp"
   rm -f "$output_file"
   mv "$tmp" "$RESULTS_DIR/$id.json"
+  worker_log "write_result_done: id=$id status=$status result=$RESULTS_DIR/$id.json"
 }
 
 truncate_output() {
@@ -78,20 +89,38 @@ run_payload_script() {
   local payload_file
   payload_file="$(mktemp)"
   echo "$line" | jq '.payload' > "$payload_file"
+  {
+    printf "[composer-worker] payload_file at %s: %s\n" "$(timestamp)" "$payload_file"
+    printf "[composer-worker] payload_summary at %s: " "$(timestamp)"
+    jq -c '{
+      environment,
+      environmentPort,
+      runtimeRoot,
+      runtimePath,
+      seedName,
+      hostSeedsDir,
+      proxyUpstreamHost,
+      source,
+      sourceRepoUrl,
+      environmentVariableKeys: ((.environmentVariables // {}) | keys)
+    }' "$payload_file"
+  } >> "$LOGS_DIR/$id.log"
+  worker_log "run_payload_script: id=$id script=$script payloadFile=$payload_file summary=$(jq -c '{environment, environmentPort, runtimeRoot, runtimePath, seedName, source, sourceRepoUrl}' "$payload_file")"
   if output="$(run_and_capture "$LOGS_DIR/$id.log" "$script" "$payload_file")"; then
     rm -f "$payload_file"
     write_result "$id" "success" "Action completed" "$output"
-    echo "[composer-worker] success $id - Action completed at $(date -u +%Y-%m-%dT%H:%M:%SZ) Output: $output"
+    worker_log "success: id=$id message=Action completed outputBytes=$(printf "%s" "$output" | wc -c | tr -d " ")"
   else
     local code=$?
     rm -f "$payload_file"
     write_result "$id" "error" "Action failed with exit code $code" "$output"
-    echo "[composer-worker] error $id - Action failed with exit code $code at $(date -u +%Y-%m-%dT%H:%M:%SZ) Output: $output"
+    worker_log "error: id=$id exitCode=$code outputBytes=$(printf "%s" "$output" | wc -c | tr -d " ")"
   fi
 }
 
 wait_for_parallel_slot() {
   while [[ "$(jobs -rp | wc -l | tr -d " ")" -ge "$MAX_PARALLEL_ACTIONS" ]]; do
+    worker_log "parallel_slots_full: runningJobs=$(jobs -rp | wc -l | tr -d " ") max=$MAX_PARALLEL_ACTIONS"
     wait -n || true
   done
 }
@@ -124,6 +153,7 @@ acquire_environment_lock() {
   local lock_pid
 
   if mkdir "$lock_dir" >/dev/null 2>&1; then
+    worker_log "lock_acquired: id=$id type=$type environment=$environment lock=$lock_dir pid=$BASHPID"
     {
       printf "pid=%s\n" "$BASHPID"
       printf "id=%s\n" "$id"
@@ -136,8 +166,10 @@ acquire_environment_lock() {
 
   lock_pid="$(sed -n 's/^pid=//p' "$lock_dir/info" 2>/dev/null | head -n 1 || true)"
   if [[ -n "$lock_pid" ]] && ! kill -0 "$lock_pid" >/dev/null 2>&1; then
+    worker_log "lock_stale: existingPid=$lock_pid lock=$lock_dir removing=1"
     rm -rf "$lock_dir"
     if mkdir "$lock_dir" >/dev/null 2>&1; then
+      worker_log "lock_acquired_after_stale: id=$id type=$type environment=$environment lock=$lock_dir pid=$BASHPID"
       {
         printf "pid=%s\n" "$BASHPID"
         printf "id=%s\n" "$id"
@@ -156,6 +188,7 @@ release_environment_lock() {
   local lock_dir="$1"
 
   if [[ -n "$lock_dir" ]]; then
+    worker_log "lock_released: lock=$lock_dir"
     rm -rf "$lock_dir"
   fi
 }
@@ -273,6 +306,7 @@ process_action() {
   local line="$1"
 
   if ! echo "$line" | jq -e . >/dev/null 2>&1; then
+    worker_log "ignored_invalid_json: bytes=${#line}"
     return 0
   fi
 
@@ -291,33 +325,40 @@ process_action() {
   proxy_upstream_host="$(echo "$line" | jq -r '.payload.proxyUpstreamHost // empty')"
 
   if [[ -z "$id" ]]; then
+    worker_log "ignored_missing_id: type=$type environment=$environment bytes=${#line}"
     return 0
   fi
 
   local action_log_file="$LOGS_DIR/$id.log"
   if ! ensure_action_log_file "$action_log_file"; then
     write_result "$id" "error" "Action log file is not writable: $action_log_file"
-    echo "[composer-worker] error $id - Action log file is not writable: $action_log_file"
+    worker_log "error: id=$id actionLogNotWritable=$action_log_file"
     return 0
   fi
 
-  printf "[composer-worker] accepted action at %s: %s\n" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$type" >> "$action_log_file"
+  printf "[composer-worker] accepted action at %s: type=%s environment=%s port=%s proxy=%s pid=%s\n" "$(timestamp)" "$type" "$environment" "$environment_port" "$proxy_upstream_host" "$BASHPID" >> "$action_log_file"
+  worker_log "accepted: id=$id type=$type environment=$environment port=$environment_port proxy=$proxy_upstream_host actionLog=$action_log_file pid=$BASHPID"
 
   if requires_environment_lock "$type"; then
     if [[ -z "$environment" ]]; then
       write_result "$id" "error" "Environment is required for locked action: $type"
+      worker_log "error: id=$id type=$type missingEnvironment=1"
       return 0
     fi
 
     action_lock_dir="$(environment_lock_path "$environment")"
+    worker_log "lock_attempt: id=$id type=$type environment=$environment lock=$action_lock_dir"
     if ! acquire_environment_lock "$action_lock_dir" "$id" "$type" "$environment"; then
       printf "[composer-worker] lock conflict at %s: %s for %s\n" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$type" "$environment" >> "$action_log_file"
       write_lock_conflict_result "$id" "$type" "$environment"
-      echo "[composer-worker] locked $id - $type for $environment already has an active action; returning no-op result"
+      worker_log "locked: id=$id type=$type environment=$environment alreadyActive=1"
       return 0
     fi
     trap 'release_environment_lock "$action_lock_dir"' RETURN
   fi
+
+  printf "[composer-worker] dispatch at %s: type=%s scriptDir=%s\n" "$(timestamp)" "$type" "$SCRIPT_DIR" >> "$action_log_file"
+  worker_log "dispatch: id=$id type=$type environment=$environment"
 
   case "$type" in
     "environment.prepare")
@@ -377,12 +418,15 @@ process_action() {
       ;;
     *)
       write_result "$id" "error" "Unknown action type: $type"
+      worker_log "unknown_action: id=$id type=$type"
       ;;
   esac
+  worker_log "processed: id=$id type=$type environment=$environment"
 }
 
 while true; do
   while IFS= read -r line; do
+    worker_log "received_line: bytes=${#line}"
     wait_for_parallel_slot
 
     (
