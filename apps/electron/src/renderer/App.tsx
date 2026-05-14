@@ -184,6 +184,25 @@ export default function App() {
     }
   }, [activePage, refreshUsers]);
 
+  useEffect(() => {
+    if (!api || !detailsEnvironment) {
+      return undefined;
+    }
+
+    const interval = setInterval(() => {
+      void api.getEnvironment(detailsEnvironment.key).then((environment) => {
+        setDetailsEnvironment(environment);
+        setEnvironments((current) => current.map((item) => item.key === environment.key ? environment : item));
+      }).catch((error) => {
+        if (isUnauthorized(error)) {
+          logout();
+        }
+      });
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [api, detailsEnvironment?.key, logout]);
+
   const refreshGitState = useCallback(async (): Promise<GitState | undefined> => {
     if (!repoPath) {
       return undefined;

@@ -164,7 +164,8 @@ export function EnvironmentDetails({
   const selectedAction = actions.find((action) => action.id === selectedActionId);
   const selectedContainerRecord = containers.find((container) => containerName(container) === selectedContainer);
   const displayedActionLogs = useMemo(() => {
-    const historical = actionLogs.map((entry) => ({
+    const historicalItems = actionLogs.length > 0 ? actionLogs : actionLogsPage?.items ?? [];
+    const historical = historicalItems.map((entry) => ({
       at: entry.createdAt ?? selectedAction?.createdAt ?? new Date(0).toISOString(),
       message: entry.line ?? entry.log ?? "",
       level: entry.level,
@@ -180,15 +181,20 @@ export function EnvironmentDetails({
     }));
 
     return [...historical, ...liveMapped];
-  }, [actionLogs, selectedAction?.createdAt, liveLogSessions, selectedActionId]);
-  const displayedPrimaryLogs = displayedLiveLogs.length ? displayedLiveLogs : logTailEntries;
+  }, [actionLogs, actionLogsPage?.items, selectedAction?.createdAt, liveLogSessions, selectedActionId]);
+  const showActionLogsInPrimaryTerminal = !selectedContainer && shouldShowLifecycleLogsInPrimaryTerminal(environment?.status);
+  const displayedPrimaryLogs = displayedLiveLogs.length
+    ? displayedLiveLogs
+    : showActionLogsInPrimaryTerminal && displayedActionLogs.length > 0
+      ? displayedActionLogs
+      : logTailEntries;
 
   useEffect(() => {
     if (!open || !environment) {
       return;
     }
 
-    if (environment.status === "running") {
+    if (canInspectContainers(environment.status)) {
       void loadContainers();
       return;
     }
@@ -199,18 +205,30 @@ export function EnvironmentDetails({
   }, [open, environment?.key, environment?.status]);
 
   useEffect(() => {
+    if (!open || !environment || !shouldPollContainers(environment.status)) {
+      return undefined;
+    }
+
+    const interval = setInterval(() => {
+      void loadContainers(false);
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [open, environment?.key, environment?.status]);
+
+  useEffect(() => {
     if (!activeTabs.includes(utilityTab)) {
       setUtilityTab("logs");
     }
   }, [activeTabs, utilityTab]);
 
   useEffect(() => {
-    if (!open || !environment || utilityTab !== "actions") {
+    if (!open || !environment || (utilityTab !== "actions" && !(utilityTab === "logs" && shouldShowLifecycleLogsInPrimaryTerminal(environment.status)))) {
       return;
     }
 
     void loadActions();
-  }, [open, environment?.key, utilityTab, actionRefreshToken]);
+  }, [open, environment?.key, environment?.status, utilityTab, actionRefreshToken]);
 
   useEffect(() => {
     if (!open || !environment || !focusAction || focusAction.action.environmentKey !== environment.key) {
@@ -230,12 +248,12 @@ export function EnvironmentDetails({
   }, [open, environment?.key, focusAction?.action.id, focusAction?.token]);
 
   useEffect(() => {
-    if (!open || !selectedActionId || utilityTab !== "actions") {
+    if (!open || !selectedActionId || (utilityTab !== "actions" && !(utilityTab === "logs" && shouldShowLifecycleLogsInPrimaryTerminal(environment?.status)))) {
       return;
     }
 
     void loadActionLogs(selectedActionId);
-  }, [open, selectedActionId, utilityTab]);
+  }, [open, selectedActionId, utilityTab, environment?.status]);
 
   useEffect(() => {
     if (!open || !environment || environment.status !== "running" || !selectedContainer) {
@@ -255,7 +273,7 @@ export function EnvironmentDetails({
     if (open && environment && utilityTab === "logs") {
       void loadLogTail(0, true);
     }
-  }, [open, environment?.key, selectedContainer]);
+  }, [open, environment?.key, environment?.status, selectedContainer]);
 
   useEffect(() => {
     if (!open || !environment) {
@@ -271,7 +289,7 @@ export function EnvironmentDetails({
     if (utilityTab === "actions" && environmentSelected) {
       void loadActions();
     }
-  }, [open, utilityTab, environmentSelected]);
+  }, [open, utilityTab, environmentSelected, environment?.key, environment?.status]);
 
   useEffect(() => {
     if (!open || !selectedActionId || !selectedAction || (selectedAction.status !== "queued" && selectedAction.status !== "running")) {
@@ -335,16 +353,18 @@ export function EnvironmentDetails({
     return () => controller.abort();
   }, [open, selectedActionId, selectedAction?.status]);
 
-  async function loadContainers(): Promise<void> {
+  async function loadContainers(showSpinner = true): Promise<void> {
     if (!environment) {
       return;
     }
-    if (environment.status !== "running") {
+    if (!canInspectContainers(environment.status)) {
       setContainers([]);
       return;
     }
 
-    setLoadingContainers(true);
+    if (showSpinner) {
+      setLoadingContainers(true);
+    }
     setToolError(undefined);
     try {
       const nextContainers = await onListContainers(environment.key);
@@ -353,7 +373,9 @@ export function EnvironmentDetails({
     } catch (error) {
       setToolError(toErrorMessage(error));
     } finally {
-      setLoadingContainers(false);
+      if (showSpinner) {
+        setLoadingContainers(false);
+      }
     }
   }
 
@@ -666,7 +688,7 @@ export function EnvironmentDetails({
               <Typography variant="caption" color="text.secondary" sx={{ fontFamily: monoFont, fontWeight: 900, textTransform: "uppercase" }}>
                 Environment Scope
               </Typography>
-              <IconButton aria-label="Refresh containers" onClick={() => void loadContainers()} disabled={loadingContainers || environment.status !== "running"} sx={iconButtonSx}>
+              <IconButton aria-label="Refresh containers" onClick={() => void loadContainers()} disabled={loadingContainers || !canInspectContainers(environment.status)} sx={iconButtonSx}>
                 {loadingContainers ? <CircularProgress size={18} /> : <RefreshIcon />}
               </IconButton>
             </Stack>
@@ -712,7 +734,7 @@ export function EnvironmentDetails({
               </Typography>
               {containers.length === 0 ? (
                 <Box sx={{ border: "1px solid #3b494b", bgcolor: "#192122", p: 2, color: "text.secondary", fontFamily: monoFont, fontSize: 13 }}>
-                  {environment.status === "running" ? "No containers found." : "Start the environment to inspect containers."}
+                  {canInspectContainers(environment.status) ? "No containers found." : "Start the environment to inspect containers."}
                 </Box>
               ) : containers.map((container, index) => {
                 const name = containerName(container);
@@ -804,11 +826,15 @@ export function EnvironmentDetails({
               {utilityTab === "logs" ? (
                 <LogTerminal
                   logs={displayedPrimaryLogs}
-                  emptyText={environment.status === "running" ? "No log tail loaded yet." : "Start the environment to read logs."}
+                  emptyText={showActionLogsInPrimaryTerminal ? "Waiting for registered action log output." : environment.status === "running" ? "No log tail loaded yet." : "Start the environment to read logs."}
                   compact
-                  hasOlder={logTailHasMore && displayedLiveLogs.length === 0}
+                  hasOlder={!showActionLogsInPrimaryTerminal && logTailHasMore && displayedLiveLogs.length === 0}
                   loadingOlder={loadingLogTail}
-                  onReachTop={() => void loadOlderLogTail()}
+                  onReachTop={() => {
+                    if (!showActionLogsInPrimaryTerminal) {
+                      void loadOlderLogTail();
+                    }
+                  }}
                 />
               ) : null}
 
@@ -883,7 +909,7 @@ export function EnvironmentDetails({
                         {selectedAction ? `${selectedAction.action.toUpperCase()} / ${selectedAction.id}` : "NO REGISTERED ACTION"}
                       </Typography>
                       <Typography variant="caption" color="text.secondary" sx={{ fontFamily: monoFont }}>
-                        {actionLogsPage ? `${actionLogs.length}${actionLogsPage.hasMore ? "+" : ""}` : "0"}
+                        {actionLogsPage ? `${displayedActionLogs.length}${actionLogsPage.hasMore ? "+" : ""}` : "0"}
                       </Typography>
                     </Box>
                     <Box sx={{ flex: 1, minHeight: 0, overflow: "hidden" }}>
@@ -1980,6 +2006,24 @@ function statusColor(status: string): string {
 
 function canEnvironmentSync(status: EnvironmentRecord["status"]): boolean {
   return status === "running" || status === "stopped";
+}
+
+function canInspectContainers(status: EnvironmentRecord["status"]): boolean {
+  return status === "running" || status === "starting" || status === "failed" || status === "stopped";
+}
+
+function shouldPollContainers(status: EnvironmentRecord["status"]): boolean {
+  return status === "starting" || status === "failed" || status === "stopped";
+}
+
+function shouldShowLifecycleLogsInPrimaryTerminal(status?: EnvironmentRecord["status"]): boolean {
+  return status === "creating"
+    || status === "cloning"
+    || status === "checking_out"
+    || status === "applying_changes"
+    || status === "starting"
+    || status === "removing"
+    || status === "failed";
 }
 
 function syncResultColor(result: FileSyncEvent["result"]): string {

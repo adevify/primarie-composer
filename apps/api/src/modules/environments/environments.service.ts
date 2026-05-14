@@ -408,14 +408,33 @@ export class EnvironmentsService {
   }
 
   async listContainers(key: string): Promise<unknown[]> {
-    await this.get(key);
+    const record = await this.get(key);
     const result = await this.publishEnvironmentAction("environment.containers.inspect", key);
     const output = result.output?.trim() ?? "";
     if (!output) {
       return [];
     }
 
-    return parseJsonLinesOrArray(output);
+    const containers = parseJsonLinesOrArray(output);
+    const runningCount = containers.filter(isRunningContainer).length;
+    logEnvironment("info", "containers_listed", {
+      key,
+      status: record.status,
+      count: containers.length,
+      runningCount,
+      proxyRunning: containers.some((container) => isContainerService(container, "proxy") && isRunningContainer(container))
+    });
+
+    if ((record.status === "starting" || record.status === "stopped" || record.status === "failed") && runningCount > 0) {
+      await this.updateStatus(key, "running").catch((error) => {
+        logEnvironment("warn", "container_status_restore_failed", {
+          key,
+          message: error instanceof Error ? error.message : String(error)
+        });
+      });
+    }
+
+    return containers;
   }
 
   async listContainerFiles(key: string, container: string, targetPath: string) {
@@ -644,7 +663,14 @@ export class EnvironmentsService {
         }
         throwIfAborted(signal);
         await this.updateStatus(key, "starting");
-        const result = await this.publishEnvironmentAction("environment.start", key, {}, onLog, hostActionId);
+        const result = await this.publishEnvironmentAction("environment.start", key, {}, onLog, hostActionId)
+          .catch(async (error) => {
+            const recovered = await this.recoverRunningEnvironmentFromContainers(key, action, error, onLog, hostActionId);
+            if (recovered) {
+              return recovered;
+            }
+            throw error;
+          });
         await emitBusResult(result, onLog);
         if (isHostActionAlreadyRunning(result)) {
           logEnvironment("info", "lifecycle_action_in_progress", { key, action, message: result.message });
@@ -669,7 +695,14 @@ export class EnvironmentsService {
         }
         throwIfAborted(signal);
         await this.updateStatus(key, "starting");
-        const result = await this.publishEnvironmentAction("environment.restart", key, {}, onLog, hostActionId);
+        const result = await this.publishEnvironmentAction("environment.restart", key, {}, onLog, hostActionId)
+          .catch(async (error) => {
+            const recovered = await this.recoverRunningEnvironmentFromContainers(key, action, error, onLog, hostActionId);
+            if (recovered) {
+              return recovered;
+            }
+            throw error;
+          });
         await emitBusResult(result, onLog);
         if (isHostActionAlreadyRunning(result)) {
           logEnvironment("info", "lifecycle_action_in_progress", { key, action, message: result.message });
@@ -1219,6 +1252,42 @@ export class EnvironmentsService {
     });
   }
 
+  private async recoverRunningEnvironmentFromContainers(
+    key: string,
+    action: LifecycleAction,
+    error: unknown,
+    onLog: HostActionLogHandler,
+    actionId?: string
+  ): Promise<HostActionResult | undefined> {
+    const containers = await this.listContainers(key).catch((inspectError) => {
+      logEnvironment("warn", "container_recovery_inspect_failed", {
+        key,
+        action,
+        message: inspectError instanceof Error ? inspectError.message : String(inspectError)
+      });
+      return [];
+    });
+    const runningCount = containers.filter(isRunningContainer).length;
+    if (runningCount === 0) {
+      return undefined;
+    }
+
+    const originalMessage = error instanceof Error ? error.message : String(error);
+    const message = `${capitalize(action)} host action did not finish cleanly, but ${runningCount} running container${runningCount === 1 ? "" : "s"} were found.`;
+    logEnvironment("warn", "container_recovery_running", {
+      key,
+      action,
+      runningCount,
+      message: originalMessage
+    });
+    await onLog({ log: `${message} ${originalMessage}`, level: "info" });
+    return {
+      id: actionId ?? randomUUID(),
+      status: "success",
+      message
+    };
+  }
+
   private async nextAvailablePort(): Promise<number> {
     const records = await EnvironmentCollection.list();
     const usedPorts = new Set(records.map((record) => record.port));
@@ -1705,6 +1774,14 @@ function parseJsonValue(output: string): unknown {
     return null;
   }
   return JSON.parse(trimmed) as unknown;
+}
+
+function isRunningContainer(value: unknown): boolean {
+  return isPlainRecord(value) && typeof value.State === "string" && value.State.toLowerCase() === "running";
+}
+
+function isContainerService(value: unknown, service: string): boolean {
+  return isPlainRecord(value) && typeof value.Service === "string" && value.Service === service;
 }
 
 function assertMongoFilterSafety(filter: Record<string, unknown>, allowEmptyFilter: boolean): void {

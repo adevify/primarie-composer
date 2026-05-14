@@ -27,4 +27,6 @@ echo "Compose services after start:"
 compose_cmd -p "$PROJECT_NAME" --env-file "$ENV_DIR/.env" ps
 
 require_compose_service_running "$PROJECT_NAME" "proxy"
-wait_for_proxy_upstream_port "$PROXY_UPSTREAM_HOST" "$PROXY_PORT" "${ENV_START_READY_TIMEOUT_SECONDS:-120}"
+if ! wait_for_proxy_upstream_port "$PROXY_UPSTREAM_HOST" "$PROXY_PORT" "${ENV_START_READY_TIMEOUT_SECONDS:-30}"; then
+  echo "Warning: compose services are running, but Composer proxy readiness check did not pass yet." >&2
+fi
