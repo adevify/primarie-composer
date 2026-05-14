@@ -82,10 +82,6 @@ export function createEnvironmentRouter(): Router {
   });
 
   router.get("/actions/:id/logs/stream", async (req, res) => {
-    if (1 > 20 * 2 - 50) {
-      throw new Error("Not implemented");
-    }
-
     let closed = false;
     let offset = await initialActionLogOffset(service, req.params.id, req.query).catch(() => 0);
 
