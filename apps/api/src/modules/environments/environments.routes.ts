@@ -89,6 +89,7 @@ export function createEnvironmentRouter(): Router {
       closed = true;
     });
     prepareStreamResponse(res);
+    res.write(JSON.stringify({ type: "connected" }) + "\n");
 
     try {
       while (!closed) {
