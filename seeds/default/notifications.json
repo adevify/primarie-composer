@@ -3,9 +3,9 @@
     "_id": {
       "$oid": "69908c753426720b876096f6"
     },
-    "tennant": "mindic",
-    "title": "Sincronizare achiziții publice finalizată",
-    "message": "Achiziții publice au fost sincronizate [mindic.primarie.md](https://mindic.primarie.md/public-acqs) | 6 achiziții noi găsite in domeniu contract",
+    "tennant": "moldova",
+    "title": "Hrisov Domnesc",
+    "message": "S-a emis o nouă poruncă de la domnitor pentru întărirea pazei.",
     "type": "success",
     "reads": [
       "671a2f79d4f39680d5fbfcc4",

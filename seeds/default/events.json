@@ -3,16 +3,16 @@
     "_id": {
       "$oid": "66fa003f4ce72d3f9ba8396b"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "date": "2024-04-04T11:00:51.719Z",
     "title": {
-      "ro": "Dezbateri Publice asupra Listelor de inventariere a bunurilor",
-      "ru": "Общественные дебаты по спискам инвентаризации имущества",
-      "en": "Public Debates on Property Inventory Lists"
+      "ro": "Unirea Principatelor Române",
+      "ru": "Объединение Дунайских княжеств",
+      "en": "Union of the Romanian Principalities"
     },
     "categories": [
       {
-        "tennant": "filipeni",
+        "tennant": "moldova",
         "title": {
           "ro": "Dezbateri",
           "ru": "Дебаты",
@@ -22,28 +22,28 @@
       }
     ],
     "location": {
-      "ro": "Primăria Filipeni, Filipeni, Leova",
-      "ru": "Мэрия Филипени, Филиппины, Леова",
-      "en": "Filipeni Hall, Filipeni, Leova"
+      "ro": "Primăria Moldova, Moldova",
+      "ru": "Мэрия Молдова, Филиппины",
+      "en": "Moldova Hall, Moldova"
     },
-    "contact": "primaria.filipeni@apl.gov.md",
+    "contact": "primaria.moldova@apl.gov.md",
     "slug": "dezbateri-publice-asupra-listelor-de-inventariere-a-bunurilor",
     "cover": "67200b0cee25fe40ed70ffcf",
     "sections": [
       {
         "type": "TITLE",
         "content": {
-          "ro": "Stimați locuitori ai satului Filipeni!",
-          "ru": "Уважаемые жители села Филипень!",
-          "en": "Dear residents of Filipeni village!"
+          "ro": "Stimați locuitori ai satului Moldova!",
+          "ru": "Уважаемые жители села Молдова!",
+          "en": "Dear residents of Moldova village!"
         }
       },
       {
         "type": "PARAGRAPH",
         "content": {
-          "ro": "Vă invităm la data de 04 aprilie 2024, ora 14:00, în incinta primăriei Filipeni, sala de ședințe, unde se vor petrece Dezbateri Publice asupra Listelor de inventariere a bunurilor transmise sau care urmau a fi transmise în contul cotelor-părți valorice din patrimoniul foștelor întreprinderi agricole, care devin proprietatea unității administrativ-teritoriale.",
+          "ro": "Vă invităm la data de 04 aprilie 2024, ora 14:00, în incinta primăriei Moldova, sala de ședințe, unde se vor petrece Dezbateri Publice asupra Listelor de inventariere a bunurilor transmise sau care urmau a fi transmise în contul cotelor-părți valorice din patrimoniul foștelor întreprinderi agricole, care devin proprietatea unității administrativ-teritoriale.",
           "ru": "Приглашаем вас 04 апреля 2024 года в 14:00 в помещение мэрии Филиппин, конференц-зал, где пройдут публичные дебаты по описям товаров, отправленных или подлежащих отправке в связи с паевые и стоимостные части имущества бывших сельскохозяйственных предприятий, переходящие в собственность административно-территориальной единицы.",
-          "en": "We invite you on April 04, 2024, at 2:00 p.m., in the premises of the Filipeni town hall, meeting room, where there will be Public Debates on the Inventory Lists of the goods sent or that were to be sent on account of the shares-value parts of the patrimony former agricultural enterprises, which become the property of the administrative-territorial unit."
+          "en": "We invite you on April 04, 2024, at 2:00 p.m., in the premises of the Moldova town hall, meeting room, where there will be Public Debates on the Inventory Lists of the goods sent or that were to be sent on account of the shares-value parts of the patrimony former agricultural enterprises, which become the property of the administrative-territorial unit."
         }
       },
       {
@@ -78,16 +78,16 @@
     "_id": {
       "$oid": "66ffae2ffa2ce50501d2cca6"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "date": "2020-07-17T07:00:58.121Z",
     "title": {
-      "ro": "Satul Filipeni, marchează Ziua Satului!",
-      "ru": "Село Филипены отмечает День села!",
-      "en": "Village Filipeni, marks the Village Day!"
+      "ro": "Independența Republicii Moldova",
+      "ru": "Независимость Республики Молдова",
+      "en": "Independence of the Republic of Moldova"
     },
     "categories": [
       {
-        "tennant": "filipeni",
+        "tennant": "moldova",
         "title": {
           "ro": "Tradiție",
           "ru": "Традиция",
@@ -97,20 +97,20 @@
       }
     ],
     "location": {
-      "ro": "Filipeni, Leova",
-      "ru": "Филипени, Леова",
-      "en": "Filipeni, Leova"
+      "ro": "Moldova",
+      "ru": "Молдова",
+      "en": "Moldova"
     },
-    "contact": "primaria.filipeni@apl.gov.md",
-    "slug": "satul-filipeni-marcheaza-ziua-satului",
+    "contact": "primaria.moldova@apl.gov.md",
+    "slug": "satul-moldova-marcheaza-ziua-satului",
     "cover": "66ffb0e1fa2ce50501d2cca9",
     "sections": [
       {
         "type": "CAPITALISED_PARAGRAPH",
         "content": {
-          "ro": "Satul Filipeni își are atestarea documentară la data de 17 iulie 1757. Comunitatea religioasă a satului și-a găsit un lăcaș de cult în anul 1907, odată cu sfințirea bisericii cu hramul Sfinților Constantin și Elena. Se spune că, în acele vremuri, când satul număra doar 400 de suflete, locuitorii au depus eforturi susținute pentru ridicarea acestui sfânt lăcaș. Materialele de construcție, cărămida produsă local și piatra extrasă din cariera Lupa, au fost transportate cu mijloace simple, precum carele trase de boi.",
-          "ru": "Село Филипень имеет свое документальное свидетельство 17 июля 1757 года. Религиозная община села нашла место поклонения в 1907 году с освящением церкви, посвященной Святым Константину и Елене. Рассказывают, что в те времена, когда в деревне проживало всего 400 душ, жители прилагали настойчивые усилия по возведению этого святого места. Строительные материалы, кирпич и камень местного производства, добытые в Лупе, перевозились простыми средствами, такими как повозки с волами.",
-          "en": "The village of Filipeni has its documentary attestation on July 17, 1757. The religious community of the village found a place of worship in 1907, with the consecration of the church dedicated to Saints Constantine and Elena. It is said that, in those days, when the village counted only 400 souls, the inhabitants made sustained efforts to erect this holy place. The building materials, locally produced brick and stone quarried at Lupa, were transported by simple means such as ox carts."
+          "ro": "Satul Moldova își are atestarea documentară la data de 17 iulie 1757. Comunitatea religioasă a satului și-a găsit un lăcaș de cult în anul 1907, odată cu sfințirea bisericii cu hramul Sfinților Constantin și Elena. Se spune că, în acele vremuri, când satul număra doar 400 de suflete, locuitorii au depus eforturi susținute pentru ridicarea acestui sfânt lăcaș. Materialele de construcție, cărămida produsă local și piatra extrasă din cariera Lupa, au fost transportate cu mijloace simple, precum carele trase de boi.",
+          "ru": "Село Молдова имеет свое документальное свидетельство 17 июля 1757 года. Религиозная община села нашла место поклонения в 1907 году с освящением церкви, посвященной Святым Константину и Елене. Рассказывают, что в те времена, когда в деревне проживало всего 400 душ, жители прилагали настойчивые усилия по возведению этого святого места. Строительные материалы, кирпич и камень местного производства, добытые в Лупе, перевозились простыми средствами, такими как повозки с волами.",
+          "en": "The village of Moldova has its documentary attestation on July 17, 1757. The religious community of the village found a place of worship in 1907, with the consecration of the church dedicated to Saints Constantine and Elena. It is said that, in those days, when the village counted only 400 souls, the inhabitants made sustained efforts to erect this holy place. The building materials, locally produced brick and stone quarried at Lupa, were transported by simple means such as ox carts."
         }
       },
       {
@@ -138,9 +138,9 @@
       {
         "type": "EMPHASIZED_PARAGRAPH",
         "content": {
-          "ro": "Se spune că pe timpuri , ţara Română era unită cu țara noastră Moldova . Între aceste două ţări era construit un pod peste rîul Prut şi era trecerea liberă . Construcţia acestui pod era prin raionul Leova . Se mai spune că în România trăia un boier cu numele Filip , stăpînul pămîntului pe care este astăzi construit satul Filipeni .\n\nAcest boier aducea în fiecare zi oameni la lucru şi seara trebuea să-i ducă acasă. . Îi venea foarte greu , dar Filip , fiind un om foarte bun şi înţelept , pentru înbunătăţirea situaţiei , a construit pe aceste meleaguri cîteva căsuţe în care să locuiască lucrătorii .Datorită faptului că Filip ţinea la lucrătorii săi , oamenii spuneau cu mîndrie ,, Mă duc la lucru, la Filip „\n\nDupa moartea lui Filip casele s-au înmulţit , iar aşezarea lor s-a numit Filipeni , în memoria bunului și înțeleptului lor Stăpîn.\n\nAstăzi satul se întinde pe o suprafaţă de 4,6km 2 şi are o populaţie de 3270 locuitori . Distanţa directă pînă la or.Leova este de 9km. Se mărgineşte cu satele Romanovca Tigheci . Hănăsenii –Noi",
-          "ru": "Говорят, что в древние времена Румыния была объединена с нашей страной, Молдовой. Через реку Прут был построен мост, который обеспечивал свободный проход между этими двумя странами. Этот мост был построен через район Леова. Также в Румынии жил дворянин по имени Филип, который владел землей, на которой сейчас построена деревня Филипени.\n\nЭтот дворянин каждый день приводил рабочих на работу и должен был вечером отвозить их домой. Ему было очень трудно, но Филип, будучи очень добрым и мудрым человеком, решил улучшить ситуацию, построив несколько небольших домов в этом районе для рабочих. Поскольку Филип заботился о своих рабочих, люди с гордостью говорили: «Я иду на работу к Филипу».\n\nПосле смерти Филипа домов стало больше, и поселение назвали Филипени в память о своем хорошем и мудром хозяине.\n\nСегодня деревня занимает площадь 4,6 км² и имеет население 3270 человек. Прямое расстояние до города Леова составляет 9 км. Она граничит с селами Романовка, Тигеци и Ханэсэнь-Ной.",
-          "en": "It is said that in ancient times, Romania was united with our country, Moldova. A bridge was built over the Prut River, allowing free passage between these two countries. This bridge was constructed through the Leova district. There was also a nobleman named Filip living in Romania, who owned the land where the village of Filipeni is now built.\n\nThis nobleman brought workers to work every day and had to take them home in the evening. It was very difficult for him, but Filip, being a very good and wise man, decided to improve the situation by building several small houses in the area for the workers to live in. Because Filip cared for his workers, people proudly said, \"I’m going to work for Filip.\"\n\nAfter Filip's death, the houses increased in number, and the settlement was named Filipeni in memory of their good and wise master.\n\nToday, the village covers an area of 4.6 km² and has a population of 3,270 inhabitants. The direct distance to the town of Leova is 9 km. It borders the villages of Romanovca, Tigheci, and Hănăsenii-Noi."
+          "ro": "Se spune că pe timpuri , ţara Română era unită cu țara noastră Moldova . Între aceste două ţări era construit un pod peste rîul Prut şi era trecerea liberă . Construcţia acestui pod era prin regiunea . Se mai spune că în România trăia un boier cu numele Filip , stăpînul pămîntului pe care este astăzi construit satul Moldova .\n\nAcest boier aducea în fiecare zi oameni la lucru şi seara trebuea să-i ducă acasă. . Îi venea foarte greu , dar Filip , fiind un om foarte bun şi înţelept , pentru înbunătăţirea situaţiei , a construit pe aceste meleaguri cîteva căsuţe în care să locuiască lucrătorii .Datorită faptului că Filip ţinea la lucrătorii săi , oamenii spuneau cu mîndrie ,, Mă duc la lucru, la Filip „\n\nDupa moartea lui Filip casele s-au înmulţit , iar aşezarea lor s-a numit Moldova , în memoria bunului și înțeleptului lor Stăpîn.\n\nAstăzi satul se întinde pe o suprafaţă de 4,6km 2 şi are o populaţie de 3270 locuitori . Distanţa directă pînă la or.Regiunea este de 9km. Se mărgineşte cu satele Romanovca Tigheci . Hănăsenii –Noi",
+          "ru": "Говорят, что в древние времена Румыния была объединена с нашей страной, Молдовой. Через реку Прут был построен мост, который обеспечивал свободный проход между этими двумя странами. Этот мост был построен через регион. Также в Румынии жил дворянин по имени Филип, который владел землей, на которой сейчас построена деревня Молдова.\n\nЭтот дворянин каждый день приводил рабочих на работу и должен был вечером отвозить их домой. Ему было очень трудно, но Филип, будучи очень добрым и мудрым человеком, решил улучшить ситуацию, построив несколько небольших домов в этом районе для рабочих. Поскольку Филип заботился о своих рабочих, люди с гордостью говорили: «Я иду на работу к Филипу».\n\nПосле смерти Филипа домов стало больше, и поселение назвали Молдова в память о своем хорошем и мудром хозяине.\n\nСегодня деревня занимает площадь 4,6 км² и имеет население 3270 человек. Прямое расстояние до города Леова составляет 9 км. Она граничит с селами Романовка, Тигеци и Ханэсэнь-Ной.",
+          "en": "It is said that in ancient times, Romania was united with our country, Moldova. A bridge was built over the Prut River, allowing free passage between these two countries. This bridge was constructed through the region. There was also a nobleman named Filip living in Romania, who owned the land where the village of Moldova is now built.\n\nThis nobleman brought workers to work every day and had to take them home in the evening. It was very difficult for him, but Filip, being a very good and wise man, decided to improve the situation by building several small houses in the area for the workers to live in. Because Filip cared for his workers, people proudly said, \"I’m going to work for Filip.\"\n\nAfter Filip's death, the houses increased in number, and the settlement was named Moldova in memory of their good and wise master.\n\nToday, the village covers an area of 4.6 km² and has a population of 3,270 inhabitants. The direct distance to the town of Regiunea is 9 km. It borders the villages of Romanovca, Tigheci, and Hănăsenii-Noi."
         }
       },
       {
@@ -159,47 +159,16 @@
     "_id": {
       "$oid": "682c3a604bb0765272a65cdf"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "date": "2025-02-12T13:00:17.376Z",
     "title": {
-      "ro": "Doamna președinte a Republicii Moldova în vizită la Filipeni.",
-      "ru": "Госпожа президент Республики Молдова с визитом в Филипены.",
-      "en": "The President of the Republic of Moldova is visiting Filipeni.",
-      "uk": "",
-      "bg": "",
-      "tr": "",
-      "gag": "",
-      "fr": "",
-      "de": "",
-      "it": "",
-      "es": "",
-      "pt": "",
-      "pl": "",
-      "cs": "",
-      "sk": "",
-      "hu": "",
-      "sr": "",
-      "hr": "",
-      "bs": "",
-      "sl": "",
-      "mk": "",
-      "sq": "",
-      "el": "",
-      "nl": "",
-      "da": "",
-      "sv": "",
-      "no": "",
-      "fi": "",
-      "et": "",
-      "lv": "",
-      "lt": "",
-      "is": "",
-      "mt": "",
-      "ga": ""
+      "ro": "Bătălia de la Războieni",
+      "ru": "Битва при Рэзбоень",
+      "en": "Battle of Războieni"
     },
     "categories": [
       {
-        "tennant": "filipeni",
+        "tennant": "moldova",
         "title": {
           "ro": "Dezbateri",
           "ru": "Дебаты",
@@ -276,15 +245,15 @@
       "ga": ""
     },
     "contact": "defaultContact@example.com",
-    "slug": "doamna-presedinte-a-republicii-moldova-in-vizita-la-filipeni",
+    "slug": "doamna-presedinte-a-republicii-moldova-in-vizita-la-moldova",
     "cover": "682c3aac4bb0765272a65ced",
     "sections": [
       {
         "type": "PARAGRAPH",
         "content": {
-          "ro": "Ieri, doamna Maia Sandu, președintele Republicii Moldova, a efectuat o vizită în satul Filipeni, unde a avut o întâlnire directă cu cetățenii. În cadrul acestei vizite, președintele a discutat despre problemele cu care se confruntă locuitorii din această comunitate, precum dezvoltarea infrastructurii, accesul la servicii publice și nevoile educaționale.",
+          "ro": "Ieri, doamna Maia Sandu, președintele Republicii Moldova, a efectuat o vizită în satul Moldova, unde a avut o întâlnire directă cu cetățenii. În cadrul acestei vizite, președintele a discutat despre problemele cu care se confruntă locuitorii din această comunitate, precum dezvoltarea infrastructurii, accesul la servicii publice și nevoile educaționale.",
           "ru": "Вчера госпожа Майя Санду, президент Республики Молдова, посетила село Филипены, где провела прямую встречу с гражданами. В рамках этого визита президент обсудила проблемы, с которыми сталкиваются жители этого сообщества, такие как развитие инфраструктуры, доступ к общественным услугам и образовательные потребности.",
-          "en": "Yesterday, Mrs. Maia Sandu, the President of the Republic of Moldova, made a visit to the village of Filipeni, where she had a direct meeting with the citizens. During this visit, the President discussed the issues faced by the residents of this community, such as infrastructure development, access to public services, and educational needs.",
+          "en": "Yesterday, Mrs. Maia Sandu, the President of the Republic of Moldova, made a visit to the village of Moldova, where she had a direct meeting with the citizens. During this visit, the President discussed the issues faced by the residents of this community, such as infrastructure development, access to public services, and educational needs.",
           "uk": "",
           "bg": "",
           "tr": "",
@@ -360,9 +329,9 @@
       {
         "type": "PARAGRAPH",
         "content": {
-          "ro": "Totodată, am discutat despre faptul că Uniunea Europeană este unica cale spre dezvoltarea Republicii Moldova și spre bunăstarea tuturor cetățenilor. Iar împreună cu domnul deputat în Parlamentul Republicii Moldova, dl. Oleg Canatui, cu președintele raionului, dl. Nicolae Popa, cu reprezentantul Guvernului, dl. Baba Dimitri, cu consilierii locali și raionali, vom face tot posibilul pentru a aduce Europa acasă, nu doar în Filipeni, ci și în toate satele din raionul Leova.",
-          "ru": "Также мы обсудили тот факт, что Европейский союз является единственным путем к развитию Республики Молдова и к благосостоянию всех граждан. Вместе с господином депутатом парламента Республики Молдова Олегом Канатуй, председателем района Николае Попа, представителем правительства Бабой Димитрием, а также местными и районными советниками мы сделаем всё возможное, чтобы приблизить Европу к нам домой — не только в Филипены, но и во все сёла района Леова.",
-          "en": "At the same time, we discussed the fact that the European Union is the only path toward the development of the Republic of Moldova and toward the well-being of all its citizens. Together with the Member of the Parliament of the Republic of Moldova, Mr. Oleg Canatui, the district president, Mr. Nicolae Popa, the government representative, Mr. Baba Dimitri, as well as with local and district councilors, we will do everything possible to bring Europe home — not only to Filipeni, but also to all the villages in Leova district.",
+          "ro": "Totodată, am discutat despre faptul că Uniunea Europeană este unica cale spre dezvoltarea Republicii Moldova și spre bunăstarea tuturor cetățenilor. Iar împreună cu domnul deputat în Parlamentul Republicii Moldova, dl. Oleg Canatui, cu președintele raionului, dl. Nicolae Popa, cu reprezentantul Guvernului, dl. Baba Dimitri, cu consilierii locali și raionali, vom face tot posibilul pentru a aduce Europa acasă, nu doar în Moldova, ci și în toate satele din regiunea.",
+          "ru": "Также мы обсудили тот факт, что Европейский союз является единственным путем к развитию Республики Молдова и к благосостоянию всех граждан. Вместе с господином депутатом парламента Республики Молдова Олегом Канатуй, председателем района Николае Попа, представителем правительства Бабой Димитрием, а также местными и районными советниками мы сделаем всё возможное, чтобы приблизить Европу к нам домой — не только в Филипены, но и во все сёла региона.",
+          "en": "At the same time, we discussed the fact that the European Union is the only path toward the development of the Republic of Moldova and toward the well-being of all its citizens. Together with the Member of the Parliament of the Republic of Moldova, Mr. Oleg Canatui, the district president, Mr. Nicolae Popa, the government representative, Mr. Baba Dimitri, as well as with local and district councilors, we will do everything possible to bring Europe home — not only to Moldova, but also to all the villages in region.",
           "uk": "",
           "bg": "",
           "tr": "",
@@ -454,47 +423,16 @@
     "_id": {
       "$oid": "682c35d44bb0765272a65c7b"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "date": "2025-05-08T12:00:17.376Z",
     "title": {
-      "ro": "Tinerii lideri din Republica Moldova – voce activă în cooperarea regională",
-      "ru": "Молодые лидеры из Республики Молдовы – активный голос в региональном сотрудничестве",
-      "en": "Young leaders from the Republic of Moldova – an active voice in regional cooperation",
-      "uk": "",
-      "bg": "",
-      "tr": "",
-      "gag": "",
-      "fr": "",
-      "de": "",
-      "it": "",
-      "es": "",
-      "pt": "",
-      "pl": "",
-      "cs": "",
-      "sk": "",
-      "hu": "",
-      "sr": "",
-      "hr": "",
-      "bs": "",
-      "sl": "",
-      "mk": "",
-      "sq": "",
-      "el": "",
-      "nl": "",
-      "da": "",
-      "sv": "",
-      "no": "",
-      "fi": "",
-      "et": "",
-      "lv": "",
-      "lt": "",
-      "is": "",
-      "mt": "",
-      "ga": ""
+      "ro": "Adoptarea Constituției",
+      "ru": "Принятие Конституции",
+      "en": "Adoption of the Constitution"
     },
     "categories": [
       {
-        "tennant": "filipeni",
+        "tennant": "moldova",
         "title": {
           "ro": "Proiecte",
           "ru": "Проекты",
@@ -616,9 +554,9 @@
       {
         "type": "PARAGRAPH",
         "content": {
-          "ro": "În perioada 4–8 mai, primarul comunei Filipeni, Tudor Comerzan, a participat la o vizită de lucru în Armenia, în calitate de reprezentant al Platformei Tinerilor Primari și Consilieri Locali. Vizita a fost organizată în cadrul proiectului regional „Consolidarea societății civile în Parteneriatul Estic“ – EU4Youth: Implicarea și împuternicirea tinerilor, finanțat de Uniunea Europeană și Ministerul Federal German pentru Cooperare Economică și Dezvoltare, și implementat de GIZ Moldova.",
+          "ro": "În perioada 4–8 mai, primarul comunei Moldova, Tudor Comerzan, a participat la o vizită de lucru în Armenia, în calitate de reprezentant al Platformei Tinerilor Primari și Consilieri Locali. Vizita a fost organizată în cadrul proiectului regional „Consolidarea societății civile în Parteneriatul Estic“ – EU4Youth: Implicarea și împuternicirea tinerilor, finanțat de Uniunea Europeană și Ministerul Federal German pentru Cooperare Economică și Dezvoltare, și implementat de GIZ Moldova.",
           "ru": "В период с 4 по 8 мая мэр коммуны Филепень, Тудор Комерзан, принял участие в рабочем визите в Армению в качестве представителя Платформы молодых мэров и местных советников. Визит был организован в рамках регионального проекта «Укрепление гражданского общества в Восточном партнёрстве» – EU4Youth: Вовлечение и расширение прав и возможностей молодёжи, финансируемого Европейским Союзом и Федеральным министерством экономического сотрудничества и развития Германии и реализуемого GIZ Молдова.",
-          "en": "Between May 4–8, the mayor of Filipeni commune, Tudor Comerzan, took part in a working visit to Armenia as a representative of the Platform of Young Mayors and Local Councilors. The visit was organized within the framework of the regional project “Strengthening Civil Society in the Eastern Partnership” – EU4Youth: Youth Engagement and Empowerment, funded by the European Union and the German Federal Ministry for Economic Cooperation and Development, and implemented by GIZ Moldova.",
+          "en": "Between May 4–8, the mayor of Moldova commune, Tudor Comerzan, took part in a working visit to Armenia as a representative of the Platform of Young Mayors and Local Councilors. The visit was organized within the framework of the regional project “Strengthening Civil Society in the Eastern Partnership” – EU4Youth: Youth Engagement and Empowerment, funded by the European Union and the German Federal Ministry for Economic Cooperation and Development, and implemented by GIZ Moldova.",
           "uk": "",
           "bg": "",
           "tr": "",
@@ -733,9 +671,9 @@
       {
         "type": "EMPHASIZED_PARAGRAPH",
         "content": {
-          "ro": "„Această experiență a întărit convingerea că tinerii pot fi o forță transformatoare, iar dialogul și cooperarea regională sunt esențiale pentru dezvoltarea democratică și incluzivă a societăților noastre”, a declarat Tudor Comerzan, primarul comunei Filipeni.",
+          "ro": "„Această experiență a întărit convingerea că tinerii pot fi o forță transformatoare, iar dialogul și cooperarea regională sunt esențiale pentru dezvoltarea democratică și incluzivă a societăților noastre”, a declarat Tudor Comerzan, primarul comunei Moldova.",
           "ru": "«Этот опыт укрепил убеждение, что молодежь может быть преобразующей силой, а диалог и региональное сотрудничество являются важными для демократического и инклюзивного развития наших обществ», — заявил Тудор Комерзан, примар коммуны Филипены.",
-          "en": "“This experience strengthened the belief that young people can be a transformative force, and that regional dialogue and cooperation are essential for the democratic and inclusive development of our societies,” said Tudor Comerzan, the mayor of the commune of Filipeni.",
+          "en": "“This experience strengthened the belief that young people can be a transformative force, and that regional dialogue and cooperation are essential for the democratic and inclusive development of our societies,” said Tudor Comerzan, the mayor of the commune of Moldova.",
           "uk": "",
           "bg": "",
           "tr": "",
@@ -828,47 +766,16 @@
     "_id": {
       "$oid": "68e93a223015c7841b0a337c"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "date": "2025-06-23T12:00:59.814Z",
     "title": {
-      "ro": "Vizita Consulului Onorific al Macedoniei de Nord la Filipeni",
-      "ru": "Визит Почётного консула Северной Македонии в Филипены",
-      "en": "Visit of the Honorary Consul of North Macedonia to Filipeni",
-      "uk": "",
-      "bg": "",
-      "tr": "",
-      "gag": "",
-      "fr": "",
-      "de": "",
-      "it": "",
-      "es": "",
-      "pt": "",
-      "pl": "",
-      "cs": "",
-      "sk": "",
-      "hu": "",
-      "sr": "",
-      "hr": "",
-      "bs": "",
-      "sl": "",
-      "mk": "",
-      "sq": "",
-      "el": "",
-      "nl": "",
-      "da": "",
-      "sv": "",
-      "no": "",
-      "fi": "",
-      "et": "",
-      "lv": "",
-      "lt": "",
-      "is": "",
-      "mt": "",
-      "ga": ""
+      "ro": "Pacea de la București",
+      "ru": "Бухарестский мирный договор",
+      "en": "Treaty of Bucharest"
     },
     "categories": [
       {
-        "tennant": "filipeni",
+        "tennant": "moldova",
         "title": {
           "ro": "Proiecte",
           "ru": "Проекты",
@@ -909,9 +816,9 @@
       }
     ],
     "location": {
-      "ro": "Primăria Filipeni",
+      "ro": "Primăria Moldova",
       "ru": "Мэрия Филипены",
-      "en": "Filipeni City Hall",
+      "en": "Moldova City Hall",
       "uk": "",
       "bg": "",
       "tr": "",
@@ -945,15 +852,15 @@
       "ga": ""
     },
     "contact": "defaultContact@example.com",
-    "slug": "vizita-consulului-onorific-al-macedoniei-de-nord-la-filipeni",
+    "slug": "vizita-consulului-onorific-al-macedoniei-de-nord-la-moldova",
     "cover": "68e93a33f103906fa83434dd",
     "sections": [
       {
         "type": "PARAGRAPH",
         "content": {
-          "ro": "Astăzi, comuna Filipeni a avut deosebita onoare de a-l primi pe domnul Eugen Hristev, Consul Onorific al Macedoniei de Nord în Republica Moldova, într-o vizită oficială menită să consolideze relațiile de prietenie și cooperare între cele două țări.",
-          "ru": "Сегодня коммуна Филипень имела особую честь принять господина Эуджена Христева, Почетного консула Северной Македонии в Республике Молдова, с официальным визитом, направленным на укрепление дружественных и партнерских отношений между двумя странами.",
-          "en": "Today, the commune of Filipeni had the distinct honor of welcoming Mr. Eugen Hristev, Honorary Consul of North Macedonia in the Republic of Moldova, on an official visit aimed at strengthening the friendship and cooperation between the two countries.",
+          "ro": "Astăzi, comuna Moldova a avut deosebita onoare de a-l primi pe domnul Eugen Hristev, Consul Onorific al Macedoniei de Nord în Republica Moldova, într-o vizită oficială menită să consolideze relațiile de prietenie și cooperare între cele două țări.",
+          "ru": "Сегодня коммуна Молдова имела особую честь принять господина Эуджена Христева, Почетного консула Северной Македонии в Республике Молдова, с официальным визитом, направленным на укрепление дружественных и партнерских отношений между двумя странами.",
+          "en": "Today, the commune of Moldova had the distinct honor of welcoming Mr. Eugen Hristev, Honorary Consul of North Macedonia in the Republic of Moldova, on an official visit aimed at strengthening the friendship and cooperation between the two countries.",
           "uk": "",
           "bg": "",
           "tr": "",
@@ -1068,9 +975,9 @@
       {
         "type": "PARAGRAPH",
         "content": {
-          "ro": "Primăria comunei Filipeni își exprimă recunoștința față de domnul Consul Eugen Hristev pentru deschiderea, disponibilitatea și interesul manifestat față de dezvoltarea comunității noastre.",
+          "ro": "Primăria comunei Moldova își exprimă recunoștința față de domnul Consul Eugen Hristev pentru deschiderea, disponibilitatea și interesul manifestat față de dezvoltarea comunității noastre.",
           "ru": "Мэрия коммуны Филепены выражает благодарность господину консулу Эуджену Христьеву за открытость, готовность и проявленный интерес к развитию нашего сообщества.",
-          "en": "The City Hall of Filipeni commune expresses its gratitude to Mr. Consul Eugen Hristev for his openness, availability, and interest shown in the development of our community.",
+          "en": "The City Hall of Moldova commune expresses its gratitude to Mr. Consul Eugen Hristev for his openness, availability, and interest shown in the development of our community.",
           "uk": "",
           "bg": "",
           "tr": "",
@@ -1107,9 +1014,9 @@
       {
         "type": "PARAGRAPH",
         "content": {
-          "ro": "Acest prim pas de colaborare marchează începutul unei noi etape în care Filipeni își propune să devină un exemplu de deschidere și cooperare internațională.",
-          "ru": "Этот первый шаг сотрудничества ознаменовывает начало нового этапа, на котором Филипень стремится стать примером открытости и международного сотрудничества.",
-          "en": "This first step of collaboration marks the beginning of a new stage in which Filipeni aims to become an example of openness and international cooperation.",
+          "ro": "Acest prim pas de colaborare marchează începutul unei noi etape în care Moldova își propune să devină un exemplu de deschidere și cooperare internațională.",
+          "ru": "Этот первый шаг сотрудничества ознаменовывает начало нового этапа, на котором Молдова стремится стать примером открытости и международного сотрудничества.",
+          "en": "This first step of collaboration marks the beginning of a new stage in which Moldova aims to become an example of openness and international cooperation.",
           "uk": "",
           "bg": "",
           "tr": "",
@@ -1159,47 +1066,16 @@
     "_id": {
       "$oid": "68e9359b6562ac6a5b0450e8"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "date": "2025-05-29T11:20:48.059Z",
     "title": {
-      "ro": "Eroii nu mor niciodată – ei trăiesc prin memoria noastră",
-      "ru": "Герои никогда не умирают – они живут в нашей памяти",
-      "en": "Heroes never die – they live on in our memory",
-      "uk": "",
-      "bg": "",
-      "tr": "",
-      "gag": "",
-      "fr": "",
-      "de": "",
-      "it": "",
-      "es": "",
-      "pt": "",
-      "pl": "",
-      "cs": "",
-      "sk": "",
-      "hu": "",
-      "sr": "",
-      "hr": "",
-      "bs": "",
-      "sl": "",
-      "mk": "",
-      "sq": "",
-      "el": "",
-      "nl": "",
-      "da": "",
-      "sv": "",
-      "no": "",
-      "fi": "",
-      "et": "",
-      "lv": "",
-      "lt": "",
-      "is": "",
-      "mt": "",
-      "ga": ""
+      "ro": "Bătălia de la Vaslui",
+      "ru": "Битва при Васлуе",
+      "en": "Battle of Vaslui"
     },
     "categories": [
       {
-        "tennant": "filipeni",
+        "tennant": "moldova",
         "title": {
           "ro": "Tradiție",
           "ru": "Традиция",
@@ -1240,9 +1116,9 @@
       }
     ],
     "location": {
-      "ro": "Primăria Filipeni",
-      "ru": "Мэрия Филипень",
-      "en": "Filipeni City Hall",
+      "ro": "Primăria Moldova",
+      "ru": "Мэрия Молдова",
+      "en": "Moldova City Hall",
       "uk": "",
       "bg": "",
       "tr": "",
@@ -1282,9 +1158,9 @@
       {
         "type": "PARAGRAPH",
         "content": {
-          "ro": "Astăzi, 29 mai, de Ziua Eroilor, comunitatea din satul Filipeni a trăit un moment de profundă emoție și demnitate: sfințirea Parcelei de Onoare, închinată celor 28 de eroi români care și-au jertfit viața în cel de-al Doilea Război Mondial.",
-          "ru": "Сегодня, 29 мая, в День Героев, община села Филипень пережила момент глубокой эмоциональности и достоинства: освящение Почетного участка, посвященного 28 румынским героям, отдавшим жизнь во Второй мировой войне.",
-          "en": "Today, May 29, on Heroes' Day, the community of Filipeni village experienced a moment of profound emotion and dignity: the consecration of the Honor Parcel, dedicated to the 28 Romanian heroes who sacrificed their lives in the Second World War.",
+          "ro": "Astăzi, 29 mai, de Ziua Eroilor, comunitatea din satul Moldova a trăit un moment de profundă emoție și demnitate: sfințirea Parcelei de Onoare, închinată celor 28 de eroi români care și-au jertfit viața în cel de-al Doilea Război Mondial.",
+          "ru": "Сегодня, 29 мая, в День Героев, община села Молдова пережила момент глубокой эмоциональности и достоинства: освящение Почетного участка, посвященного 28 румынским героям, отдавшим жизнь во Второй мировой войне.",
+          "en": "Today, May 29, on Heroes' Day, the community of Moldova village experienced a moment of profound emotion and dignity: the consecration of the Honor Parcel, dedicated to the 28 Romanian heroes who sacrificed their lives in the Second World War.",
           "uk": "",
           "bg": "",
           "tr": "",
@@ -1321,9 +1197,9 @@
       {
         "type": "PARAGRAPH",
         "content": {
-          "ro": "Prin sprijinul Ambasadei României în Republica Moldova și al Oficiului Național pentru Cultul Eroilor din România, la Filipeni s-a ridicat un monument al recunoștinței – o mărturie durabilă a curajului, devotamentului și jertfei lor pentru libertate și neam.",
-          "ru": "При поддержке Посольства Румынии в Республике Молдова и Национального офиса по увековечению памяти героев из Румынии в Филипень был воздвигнут памятник благодарности – прочное свидетельство их мужества, преданности и жертвы во имя свободы и нации.",
-          "en": "With the support of the Embassy of Romania in the Republic of Moldova and the National Office for the Cult of Heroes from Romania, a monument of gratitude was erected in Filipeni – a lasting testimony of their courage, devotion, and sacrifice for freedom and nation.",
+          "ro": "Prin sprijinul Ambasadei României în Republica Moldova și al Oficiului Național pentru Cultul Eroilor din România, la Moldova s-a ridicat un monument al recunoștinței – o mărturie durabilă a curajului, devotamentului și jertfei lor pentru libertate și neam.",
+          "ru": "При поддержке Посольства Румынии в Республике Молдова и Национального офиса по увековечению памяти героев из Румынии в Молдова был воздвигнут памятник благодарности – прочное свидетельство их мужества, преданности и жертвы во имя свободы и нации.",
+          "en": "With the support of the Embassy of Romania in the Republic of Moldova and the National Office for the Cult of Heroes from Romania, a monument of gratitude was erected in Moldova – a lasting testimony of their courage, devotion, and sacrifice for freedom and nation.",
           "uk": "",
           "bg": "",
           "tr": "",
@@ -1547,9 +1423,9 @@
             "ga": ""
           },
           {
-            "ro": "Nicolae Popa – președintele raionului Leova.",
-            "ru": "Николае Попа – председатель района Леова.",
-            "en": "Nicolae Popa – president of Leova district.",
+            "ro": "Nicolae Popa – președintele regiunii.",
+            "ru": "Николае Попа – председатель региона.",
+            "en": "Nicolae Popa – president of region.",
             "uk": "",
             "bg": "",
             "tr": "",
@@ -1587,9 +1463,9 @@
       {
         "type": "PARAGRAPH",
         "content": {
-          "ro": "Această Parcelă de Onoare nu este doar un loc de odihnă pentru eroii noștri, ci un simbol viu al identității, credinței și apartenenței românești. Cei 28 de eroi de la Filipeni ar putea fi chiar străbunii noștri, iar datoria generației de astăzi este să le păstreze vie amintirea și să ducă mai departe idealurile lor.",
-          "ru": "Этот Участок Чести — не просто место покоя для наших героев, а живой символ румынской идентичности, веры и принадлежности. Те 28 героев из Филипень могут быть нашими предками, и долг нынешнего поколения — сохранить их память живой и продолжить их идеалы.",
-          "en": "This Parcel of Honor is not just a resting place for our heroes, but a living symbol of Romanian identity, faith, and belonging. The 28 heroes from Filipeni could be our very ancestors, and it is the duty of today's generation to keep their memory alive and carry forward their ideals.",
+          "ro": "Această Parcelă de Onoare nu este doar un loc de odihnă pentru eroii noștri, ci un simbol viu al identității, credinței și apartenenței românești. Cei 28 de eroi de la Moldova ar putea fi chiar străbunii noștri, iar datoria generației de astăzi este să le păstreze vie amintirea și să ducă mai departe idealurile lor.",
+          "ru": "Этот Участок Чести — не просто место покоя для наших героев, а живой символ румынской идентичности, веры и принадлежности. Те 28 героев из Молдова могут быть нашими предками, и долг нынешнего поколения — сохранить их память живой и продолжить их идеалы.",
+          "en": "This Parcel of Honor is not just a resting place for our heroes, but a living symbol of Romanian identity, faith, and belonging. The 28 heroes from Moldova could be our very ancestors, and it is the duty of today's generation to keep their memory alive and carry forward their ideals.",
           "uk": "",
           "bg": "",
           "tr": "",
@@ -1687,47 +1563,16 @@
     "_id": {
       "$oid": "68e946f089206fb95d5bc171"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "date": "2025-08-03T17:00:16.767Z",
     "title": {
-      "ro": "Zilele Diasporei la Filipeni: Tradiție, cultură și legături cu baștina",
-      "ru": "Дни Диаспоры в Филипени: традиции, культура и связи с родиной",
-      "en": "Diaspora Days in Filipeni: tradition, culture, and ties to the homeland",
-      "uk": "",
-      "bg": "",
-      "tr": "",
-      "gag": "",
-      "fr": "",
-      "de": "",
-      "it": "",
-      "es": "",
-      "pt": "",
-      "pl": "",
-      "cs": "",
-      "sk": "",
-      "hu": "",
-      "sr": "",
-      "hr": "",
-      "bs": "",
-      "sl": "",
-      "mk": "",
-      "sq": "",
-      "el": "",
-      "nl": "",
-      "da": "",
-      "sv": "",
-      "no": "",
-      "fi": "",
-      "et": "",
-      "lv": "",
-      "lt": "",
-      "is": "",
-      "mt": "",
-      "ga": ""
+      "ro": "Întemeierea Țării Moldovei",
+      "ru": "Основание Молдавского княжества",
+      "en": "Founding of Moldavia"
     },
     "categories": [
       {
-        "tennant": "filipeni",
+        "tennant": "moldova",
         "title": {
           "ro": "Tradiție",
           "ru": "Традиция",
@@ -1768,9 +1613,9 @@
       }
     ],
     "location": {
-      "ro": "Primăria Filipeni",
-      "ru": "Мэрия Филипень",
-      "en": "Filipeni City Hall",
+      "ro": "Primăria Moldova",
+      "ru": "Мэрия Молдова",
+      "en": "Moldova City Hall",
       "uk": "",
       "bg": "",
       "tr": "",
@@ -1804,15 +1649,15 @@
       "ga": ""
     },
     "contact": "defaultContact@example.com",
-    "slug": "zilele-diasporei-la-filipeni-traditie-cultura-si-legaturi-cu-bastina",
+    "slug": "zilele-diasporei-la-moldova-traditie-cultura-si-legaturi-cu-bastina",
     "cover": "68e946fd89206fb95d5bc176",
     "sections": [
       {
         "type": "EMPHASIZED_PARAGRAPH",
         "content": {
-          "ro": "Weekendul acesta, satul Filipeni a fost gazda unor momente deosebite, pline de emoții frumoase și amintiri de neuitat. Timp de două zile, am celebrat legătura profundă cu rădăcinile noastre și spiritul comunitar, combinând armonios promovarea unui stil de viață sănătos cu respectul pentru tradiție.",
+          "ro": "Weekendul acesta, satul Moldova a fost gazda unor momente deosebite, pline de emoții frumoase și amintiri de neuitat. Timp de două zile, am celebrat legătura profundă cu rădăcinile noastre și spiritul comunitar, combinând armonios promovarea unui stil de viață sănătos cu respectul pentru tradiție.",
           "ru": "В эти выходные село Филепень стало местом особых моментов, полных прекрасных эмоций и незабываемых воспоминаний. В течение двух дней мы праздновали глубокую связь с нашими корнями и духом общины, гармонично сочетая продвижение здорового образа жизни с уважением к традициям.",
-          "en": "This weekend, the village of Filipeni hosted special moments full of beautiful emotions and unforgettable memories. For two days, we celebrated the deep connection to our roots and community spirit, harmoniously combining the promotion of a healthy lifestyle with respect for tradition.",
+          "en": "This weekend, the village of Moldova hosted special moments full of beautiful emotions and unforgettable memories. For two days, we celebrated the deep connection to our roots and community spirit, harmoniously combining the promotion of a healthy lifestyle with respect for tradition.",
           "uk": "",
           "bg": "",
           "tr": "",
@@ -1888,9 +1733,9 @@
       {
         "type": "EMPHASIZED_PARAGRAPH",
         "content": {
-          "ro": "Duminică, la Casa de Cultură Filipeni, am fost martorii unui moment cultural dedicat tuturor „celor de-ai noștri”, oriunde s-ar afla în lume. Colectivele Lino Leano și Mugurel, împreună cu Centrul de Creație Lăstărel și doamna Ludmila Bahnari, au prezentat o expoziție cu lucrări manuale, demonstrând că tradiția nu moare niciodată. Seara a fost încununată de prestația formației Trial, care ne-a adus muzică și voie bună, iar minunata noastră consăteană Lilia Chirilă, împreună cu familia sa, ne-a încântat cu talentul și dăruirea de care dau dovadă în răspândirea bucuriei și a spiritului comunitar.",
+          "ro": "Duminică, la Casa de Cultură Moldova, am fost martorii unui moment cultural dedicat tuturor „celor de-ai noștri”, oriunde s-ar afla în lume. Colectivele Lino Leano și Mugurel, împreună cu Centrul de Creație Lăstărel și doamna Ludmila Bahnari, au prezentat o expoziție cu lucrări manuale, demonstrând că tradiția nu moare niciodată. Seara a fost încununată de prestația formației Trial, care ne-a adus muzică și voie bună, iar minunata noastră consăteană Lilia Chirilă, împreună cu familia sa, ne-a încântat cu talentul și dăruirea de care dau dovadă în răspândirea bucuriei și a spiritului comunitar.",
           "ru": "В воскресенье в Доме культуры Филипены мы стали свидетелями культурного события, посвященного всем «нашим», где бы они ни находились в мире. Коллективы Лино Леано и Мугурел, вместе с Центром творчества Лэстэрэл и госпожой Людмилой Бэнарь, представили выставку ручных работ, демонстрируя, что традиции никогда не умирают. Вечер был увенчан выступлением группы Триал, которая принесла нам музыку и хорошее настроение, а наша замечательная землячка Лилия Чирилэ вместе со своей семьёй порадовала нас талантом и преданностью, с которыми они распространяют радость и дух общности.",
-          "en": "On Sunday, at the House of Culture in Filipeni, we witnessed a cultural event dedicated to all 'our own,' wherever they may be in the world. The groups Lino Leano and Mugurel, together with the Lăstărel Creative Center and Mrs. Ludmila Bahnari, presented an exhibition of handmade works, demonstrating that tradition never dies. The evening was crowned by a performance from the band Trial, which brought us music and good cheer, and our wonderful fellow villager Lilia Chirilă, together with her family, delighted us with the talent and dedication they show in spreading joy and community spirit.",
+          "en": "On Sunday, at the House of Culture in Moldova, we witnessed a cultural event dedicated to all 'our own,' wherever they may be in the world. The groups Lino Leano and Mugurel, together with the Lăstărel Creative Center and Mrs. Ludmila Bahnari, presented an exhibition of handmade works, demonstrating that tradition never dies. The evening was crowned by a performance from the band Trial, which brought us music and good cheer, and our wonderful fellow villager Lilia Chirilă, together with her family, delighted us with the talent and dedication they show in spreading joy and community spirit.",
           "uk": "",
           "bg": "",
           "tr": "",
@@ -2031,47 +1876,16 @@
     "_id": {
       "$oid": "68e942112aaf8fe70724d684"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "date": "2025-07-29T10:00:13.913Z",
     "title": {
-      "ro": "Vizită de lucru la Filipeni: Ministrul Vladimir Bolea sprijină dezvoltarea locală",
-      "ru": "Рабочий визит в Филипены: министр Владимир Боля поддерживает местное развитие",
-      "en": "Working visit to Filipeni: Minister Vladimir Bolea supports local development",
-      "uk": "",
-      "bg": "",
-      "tr": "",
-      "gag": "",
-      "fr": "",
-      "de": "",
-      "it": "",
-      "es": "",
-      "pt": "",
-      "pl": "",
-      "cs": "",
-      "sk": "",
-      "hu": "",
-      "sr": "",
-      "hr": "",
-      "bs": "",
-      "sl": "",
-      "mk": "",
-      "sq": "",
-      "el": "",
-      "nl": "",
-      "da": "",
-      "sv": "",
-      "no": "",
-      "fi": "",
-      "et": "",
-      "lv": "",
-      "lt": "",
-      "is": "",
-      "mt": "",
-      "ga": ""
+      "ro": "Bătălia de la Baia",
+      "ru": "Битва при Байе",
+      "en": "Battle of Baia"
     },
     "categories": [
       {
-        "tennant": "filipeni",
+        "tennant": "moldova",
         "title": {
           "ro": "Proiecte",
           "ru": "Проекты",
@@ -2112,9 +1926,9 @@
       }
     ],
     "location": {
-      "ro": "Primăria Filipeni",
-      "ru": "Мэрия Филипень",
-      "en": "Filipeni Town Hall",
+      "ro": "Primăria Moldova",
+      "ru": "Мэрия Молдова",
+      "en": "Moldova Town Hall",
       "uk": "",
       "bg": "",
       "tr": "",
@@ -2148,15 +1962,15 @@
       "ga": ""
     },
     "contact": "defaultContact@example.com",
-    "slug": "vizita-de-lucru-la-filipeni-ministrul-vladimir-bolea-sprijina-dezvoltarea-locala",
+    "slug": "vizita-de-lucru-la-moldova-ministrul-vladimir-bolea-sprijina-dezvoltarea-locala",
     "cover": "68e942222aaf8fe70724d68b",
     "sections": [
       {
         "type": "PARAGRAPH",
         "content": {
-          "ro": "Astăzi, satul Filipeni a avut onoarea de a-l primi în vizită de lucru pe domnul Vladimir Bolea, ministrul Infrastructurii și Dezvoltării Regionale.",
-          "ru": "Сегодня село Филипень имело честь принять с рабочим визитом господина Владимира Болеа, министра инфраструктуры и регионального развития.",
-          "en": "Today, the village of Filipeni had the honor of receiving Mr. Vladimir Bolea, the Minister of Infrastructure and Regional Development, on a working visit.",
+          "ro": "Astăzi, satul Moldova a avut onoarea de a-l primi în vizită de lucru pe domnul Vladimir Bolea, ministrul Infrastructurii și Dezvoltării Regionale.",
+          "ru": "Сегодня село Молдова имело честь принять с рабочим визитом господина Владимира Болеа, министра инфраструктуры и регионального развития.",
+          "en": "Today, the village of Moldova had the honor of receiving Mr. Vladimir Bolea, the Minister of Infrastructure and Regional Development, on a working visit.",
           "uk": "",
           "bg": "",
           "tr": "",
@@ -2272,9 +2086,9 @@
         "type": "LIST",
         "content": [
           {
-            "ro": "Nicolae Popa, președintele raionului Leova, care a vorbit despre sprijinul constant oferit de Consiliul Raional Leova, în special în domeniul infrastructurii rutiere;",
-            "ru": "Николае Попа, председатель района Леова, который рассказал о постоянной поддержке, оказываемой Районным советом Леова, особенно в области дорожной инфраструктуры;",
-            "en": "Nicolae Popa, the president of Leova district, who spoke about the constant support provided by the Leova District Council, especially in the field of road infrastructure;",
+            "ro": "Nicolae Popa, președintele regiunii, care a vorbit despre sprijinul constant oferit de Consiliul Raional Regiunea, în special în domeniul infrastructurii rutiere;",
+            "ru": "Николае Попа, председатель региона, который рассказал о постоянной поддержке, оказываемой Районным советом Леова, особенно в области дорожной инфраструктуры;",
+            "en": "Nicolae Popa, the president of region, who spoke about the constant support provided by the region Council, especially in the field of road infrastructure;",
             "uk": "",
             "bg": "",
             "tr": "",
@@ -2348,9 +2162,9 @@
       {
         "type": "PARAGRAPH",
         "content": {
-          "ro": "Am mulțumit domnului ministru pentru sprijinul substanțial oferit comunității noastre. Doar în acest an, Filipeni beneficiază de investiții extrabugetare de peste 22 milioane de lei, contribuție esențială pentru dezvoltarea durabilă a localității.",
+          "ro": "Am mulțumit domnului ministru pentru sprijinul substanțial oferit comunității noastre. Doar în acest an, Moldova beneficiază de investiții extrabugetare de peste 22 milioane de lei, contribuție esențială pentru dezvoltarea durabilă a localității.",
           "ru": "Я поблагодарил господина министра за существенную поддержку, оказанную нашему сообществу. Только в этом году Филипены получают внебюджетные инвестиции на сумму свыше 22 миллионов леев — важный вклад в устойчивое развитие населённого пункта.",
-          "en": "I thanked the Minister for the substantial support provided to our community. This year alone, Filipeni is benefiting from off-budget investments of over 22 million lei, an essential contribution to the sustainable development of the locality.",
+          "en": "I thanked the Minister for the substantial support provided to our community. This year alone, Moldova is benefiting from off-budget investments of over 22 million lei, an essential contribution to the sustainable development of the locality.",
           "uk": "",
           "bg": "",
           "tr": "",
@@ -2426,9 +2240,9 @@
       {
         "type": "TITLE",
         "content": {
-          "ro": "Mulțumim tuturor celor implicați în dezvoltarea satului Filipeni!",
-          "ru": "Спасибо всем, кто участвовал в развитии села Филипень!",
-          "en": "Thank you to everyone involved in the development of the village of Filipeni!",
+          "ro": "Mulțumim tuturor celor implicați în dezvoltarea satului Moldova!",
+          "ru": "Спасибо всем, кто участвовал в развитии села Молдова!",
+          "en": "Thank you to everyone involved in the development of the village of Moldova!",
           "uk": "",
           "bg": "",
           "tr": "",
@@ -2477,47 +2291,16 @@
     "_id": {
       "$oid": "68e94a9c208de6cfe25eacb8"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "date": "2025-08-21T13:00:21.862Z",
     "title": {
-      "ro": "Vizita Prim-ministrului Dorin Recean la Filipeni: investiții record pentru dezvoltarea infrastructurii locale",
-      "ru": "Визит премьер-министра Дорина Речана в Филипены: рекордные инвестиции в развитие местной инфраструктуры",
-      "en": "Prime Minister Dorin Recean's visit to Filipeni: record investments for the development of local infrastructure",
-      "uk": "",
-      "bg": "",
-      "tr": "",
-      "gag": "",
-      "fr": "",
-      "de": "",
-      "it": "",
-      "es": "",
-      "pt": "",
-      "pl": "",
-      "cs": "",
-      "sk": "",
-      "hu": "",
-      "sr": "",
-      "hr": "",
-      "bs": "",
-      "sl": "",
-      "mk": "",
-      "sq": "",
-      "el": "",
-      "nl": "",
-      "da": "",
-      "sv": "",
-      "no": "",
-      "fi": "",
-      "et": "",
-      "lv": "",
-      "lt": "",
-      "is": "",
-      "mt": "",
-      "ga": ""
+      "ro": "Tratatul de la Luțk",
+      "ru": "Луцкий договор",
+      "en": "Treaty of Lutsk"
     },
     "categories": [
       {
-        "tennant": "filipeni",
+        "tennant": "moldova",
         "title": {
           "ro": "Proiecte",
           "ru": "Проекты",
@@ -2558,9 +2341,9 @@
       }
     ],
     "location": {
-      "ro": "Primăria Filipeni",
+      "ro": "Primăria Moldova",
       "ru": "Мэрия Филипены",
-      "en": "Filipeni City Hall",
+      "en": "Moldova City Hall",
       "uk": "",
       "bg": "",
       "tr": "",
@@ -2594,15 +2377,15 @@
       "ga": ""
     },
     "contact": "defaultContact@example.com",
-    "slug": "vizita-prim-ministrului-dorin-recean-la-filipeni-investitii-record-pentru-dezvoltarea-infrastructurii-locale",
+    "slug": "vizita-prim-ministrului-dorin-recean-la-moldova-investitii-record-pentru-dezvoltarea-infrastructurii-locale",
     "cover": "68e94ababb471df7055680e8",
     "sections": [
       {
         "type": "PARAGRAPH",
         "content": {
-          "ro": "Astăzi, satul Filipeni a avut onoarea de a-l primi în vizită pe domnul Dorin Recean, Prim-ministrul Republicii Moldova. Vizita a avut drept scop darea în exploatare a noilor sectoare de drum modernizate în localitate.",
+          "ro": "Astăzi, satul Moldova a avut onoarea de a-l primi în vizită pe domnul Dorin Recean, Prim-ministrul Republicii Moldova. Vizita a avut drept scop darea în exploatare a noilor sectoare de drum modernizate în localitate.",
           "ru": "Сегодня село Филипены имело честь принять с визитом господина Дорина Речана, Премьер-министра Республики Молдова. Целью визита было введение в эксплуатацию новых модернизированных участков дорог в населенном пункте.",
-          "en": "Today, the village of Filipeni had the honor of receiving a visit from Mr. Dorin Recean, the Prime Minister of the Republic of Moldova. The purpose of the visit was to inaugurate the newly modernized road sections in the locality.",
+          "en": "Today, the village of Moldova had the honor of receiving a visit from Mr. Dorin Recean, the Prime Minister of the Republic of Moldova. The purpose of the visit was to inaugurate the newly modernized road sections in the locality.",
           "uk": "",
           "bg": "",
           "tr": "",
@@ -2676,9 +2459,9 @@
             "ga": ""
           },
           {
-            "ro": "2 km de drum realizați din fondul rutier al Consiliului Raional Leova.",
+            "ro": "2 km de drum realizați din fondul rutier al Consiliului Raional Regiunea.",
             "ru": "2 км дороги построены за счёт дорожного фонда Районного совета Леова.",
-            "en": "2 km of road were built using the road fund of the Leova District Council.",
+            "en": "2 km of road were built using the road fund of the region Council.",
             "uk": "",
             "bg": "",
             "tr": "",
@@ -2716,9 +2499,9 @@
       {
         "type": "PARAGRAPH",
         "content": {
-          "ro": "Cu acest prilej, am adresat sincere mulțumiri domnului Prim-ministru pentru sprijinul constant acordat locuitorilor Republicii Moldova, în special celor din raionul Leova și satul Filipeni.",
-          "ru": "По этому поводу я выразил искреннюю благодарность господину Премьер-министру за постоянную поддержку, оказанную жителям Республики Молдова, особенно жителям района Леова и села Филипены.",
-          "en": "On this occasion, I expressed my sincere thanks to the Prime Minister for the constant support provided to the inhabitants of the Republic of Moldova, especially those from Leova district and Filipeni village.",
+          "ro": "Cu acest prilej, am adresat sincere mulțumiri domnului Prim-ministru pentru sprijinul constant acordat locuitorilor Republicii Moldova, în special celor din regiunea și satul Moldova.",
+          "ru": "По этому поводу я выразил искреннюю благодарность господину Премьер-министру за постоянную поддержку, оказанную жителям Республики Молдова, особенно жителям региона и села Филипены.",
+          "en": "On this occasion, I expressed my sincere thanks to the Prime Minister for the constant support provided to the inhabitants of the Republic of Moldova, especially those from region and Moldova village.",
           "uk": "",
           "bg": "",
           "tr": "",
@@ -2755,9 +2538,9 @@
       {
         "type": "PARAGRAPH",
         "content": {
-          "ro": "În prezent, Filipeni beneficiază de cele mai mari investiții financiare destinate modernizării infrastructurii rutiere, în valoare totală de peste 48 milioane lei, distribuite astfel:",
-          "ru": "В настоящее время Филипень получает наибольшие финансовые инвестиции, предназначенные для модернизации дорожной инфраструктуры, на общую сумму более 48 миллионов леев, распределённые следующим образом:",
-          "en": "Currently, Filipeni is benefiting from the largest financial investments aimed at modernizing road infrastructure, with a total value of over 48 million lei, distributed as follows:",
+          "ro": "În prezent, Moldova beneficiază de cele mai mari investiții financiare destinate modernizării infrastructurii rutiere, în valoare totală de peste 48 milioane lei, distribuite astfel:",
+          "ru": "В настоящее время Молдова получает наибольшие финансовые инвестиции, предназначенные для модернизации дорожной инфраструктуры, на общую сумму более 48 миллионов леев, распределённые следующим образом:",
+          "en": "Currently, Moldova is benefiting from the largest financial investments aimed at modernizing road infrastructure, with a total value of over 48 million lei, distributed as follows:",
           "uk": "",
           "bg": "",
           "tr": "",
@@ -2979,9 +2762,9 @@
       {
         "type": "PARAGRAPH",
         "content": {
-          "ro": "Totodată, prin programele Satul European I și II, Filipeni a beneficiat de:",
+          "ro": "Totodată, prin programele Satul European I și II, Moldova a beneficiat de:",
           "ru": "Кроме того, благодаря программам Европейская деревня I и II, Филипены получили выгоду от:",
-          "en": "At the same time, through the European Village I and II programs, Filipeni benefited from:",
+          "en": "At the same time, through the European Village I and II programs, Moldova benefited from:",
           "uk": "",
           "bg": "",
           "tr": "",
@@ -3134,9 +2917,9 @@
       {
         "type": "PARAGRAPH",
         "content": {
-          "ro": "Uniți, implicați și responsabili, vom continua să construim un Filipeni modern, prosper și pregătit pentru viitor – pentru binele fiecărui locuitor.",
+          "ro": "Uniți, implicați și responsabili, vom continua să construim un Moldova modern, prosper și pregătit pentru viitor – pentru binele fiecărui locuitor.",
           "ru": "Объединённые, вовлечённые и ответственные, мы продолжим строить современные, процветающие и готовые к будущему Филипены – на благо каждого жителя.",
-          "en": "United, involved, and responsible, we will continue to build a modern, prosperous, and future-ready Filipeni – for the good of every resident.",
+          "en": "United, involved, and responsible, we will continue to build a modern, prosperous, and future-ready Moldova – for the good of every resident.",
           "uk": "",
           "bg": "",
           "tr": "",
@@ -3185,47 +2968,16 @@
     "_id": {
       "$oid": "6949086cb3c58b8b26b29490"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "date": "2025-12-19T13:45:32.638Z",
     "title": {
-      "ro": "Un nou proiect realizat prin programul „DAR 1+3” în satul Filipeni.",
-      "ru": "Новый проект, реализованный по программе «Дар 1+3» в селе Филипень.",
-      "en": "A new project implemented through the 'DAR 1+3' program in the village of Filipeni.",
-      "uk": "",
-      "bg": "",
-      "tr": "",
-      "gag": "",
-      "fr": "",
-      "de": "",
-      "it": "",
-      "es": "",
-      "pt": "",
-      "pl": "",
-      "cs": "",
-      "sk": "",
-      "hu": "",
-      "sr": "",
-      "hr": "",
-      "bs": "",
-      "sl": "",
-      "mk": "",
-      "sq": "",
-      "el": "",
-      "nl": "",
-      "da": "",
-      "sv": "",
-      "no": "",
-      "fi": "",
-      "et": "",
-      "lv": "",
-      "lt": "",
-      "is": "",
-      "mt": "",
-      "ga": ""
+      "ro": "Unirea Principatelor Române",
+      "ru": "Объединение Дунайских княжеств",
+      "en": "Union of the Romanian Principalities"
     },
     "categories": [
       {
-        "tennant": "filipeni",
+        "tennant": "moldova",
         "title": {
           "ro": "Proiecte",
           "ru": "Проекты",
@@ -3266,9 +3018,9 @@
       }
     ],
     "location": {
-      "ro": "satul Filipeni, Leova",
-      "ru": "село Филипены, Леова",
-      "en": "village Filipeni, Leova",
+      "ro": "satul Moldova",
+      "ru": "село Филипены",
+      "en": "village Moldova",
       "uk": "",
       "bg": "",
       "tr": "",
@@ -3302,15 +3054,15 @@
       "ga": ""
     },
     "contact": "defaultContact@example.com",
-    "slug": "un-nou-proiect-realizat-prin-programul-dar-1-3-in-satul-filipeni",
+    "slug": "un-nou-proiect-realizat-prin-programul-dar-1-3-in-satul-moldova",
     "cover": "694907c4b3c58b8b26b29472",
     "sections": [
       {
         "type": "PARAGRAPH",
         "content": {
-          "ro": "Astăzi este o zi importantă pentru satul Filipeni. A fost inaugurată oficial strada Tineretului, un proiect mult așteptat, realizat din pavaj, care reprezintă un pas concret în procesul de modernizare a localității.",
-          "ru": "Сегодня важный день для села Филипень. Официально открыта улица Тинеретулуй, долгожданный проект, выполненный из брусчатки, который представляет собой конкретный шаг в процессе модернизации населенного пункта.",
-          "en": "Today is an important day for the village of Filipeni. The Tineretului Street, a long-awaited project made of pavement, was officially inaugurated, marking a tangible step in the modernization process of the locality.",
+          "ro": "Astăzi este o zi importantă pentru satul Moldova. A fost inaugurată oficial strada Tineretului, un proiect mult așteptat, realizat din pavaj, care reprezintă un pas concret în procesul de modernizare a localității.",
+          "ru": "Сегодня важный день для села Молдова. Официально открыта улица Тинеретулуй, долгожданный проект, выполненный из брусчатки, который представляет собой конкретный шаг в процессе модернизации населенного пункта.",
+          "en": "Today is an important day for the village of Moldova. The Tineretului Street, a long-awaited project made of pavement, was officially inaugurated, marking a tangible step in the modernization process of the locality.",
           "uk": "",
           "bg": "",
           "tr": "",
@@ -3464,9 +3216,9 @@
       {
         "type": "PARAGRAPH",
         "content": {
-          "ro": "La eveniment au participat președintele raionului Leova, domnul Nicolae Popa, șeful adjunct al Oficiului Teritorial Hîncești al Cancelariei de Stat, domnul Dumitru Baba, consilieri locali, reprezentanți ai instituțiilor publice, precum și numeroși locuitori ai satului.",
-          "ru": "В мероприятии приняли участие председатель района Леова, господин Николае Попа, заместитель начальника Хынчештского Территориального офиса Государственной канцелярии, господин Думитру Баба, местные советники, представители государственных учреждений, а также многочисленные жители села.",
-          "en": "The event was attended by the president of the Leova district, Mr. Nicolae Popa, the deputy head of the Hîncești Territorial Office of the State Chancellery, Mr. Dumitru Baba, local councilors, representatives of public institutions, and many residents of the village.",
+          "ro": "La eveniment au participat președintele regiunii, domnul Nicolae Popa, șeful adjunct al Oficiului Teritorial Hîncești al Cancelariei de Stat, domnul Dumitru Baba, consilieri locali, reprezentanți ai instituțiilor publice, precum și numeroși locuitori ai satului.",
+          "ru": "В мероприятии приняли участие председатель региона, господин Николае Попа, заместитель начальника Хынчештского Территориального офиса Государственной канцелярии, господин Думитру Баба, местные советники, представители государственных учреждений, а также многочисленные жители села.",
+          "en": "The event was attended by the president of the region, Mr. Nicolae Popa, the deputy head of the Hîncești Territorial Office of the State Chancellery, Mr. Dumitru Baba, local councilors, representatives of public institutions, and many residents of the village.",
           "uk": "",
           "bg": "",
           "tr": "",
@@ -3565,16 +3317,16 @@
     "_id": {
       "$oid": "69af0c659e67a73589235b16"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "date": "2026-03-06T13:00:25.678Z",
     "title": {
-      "ro": "Sărbătorirea Zilei Femeii și Lansarea Proiectului \"Fitness4Life\" în Filipeni",
-      "ru": "Празднование Международного женского дня и запуск проекта \"Fitness4Life\" в Филипени",
-      "en": "Celebrating Women's Day and Launching \"Fitness4Life\" Project in Filipeni"
+      "ro": "Independența Republicii Moldova",
+      "ru": "Независимость Республики Молдова",
+      "en": "Independence of the Republic of Moldova"
     },
     "categories": [
       {
-        "tennant": "filipeni",
+        "tennant": "moldova",
         "title": {
           "ro": "Sănătate",
           "ru": "Здоровье",
@@ -3614,7 +3366,7 @@
         "key": "health"
       },
       {
-        "tennant": "filipeni",
+        "tennant": "moldova",
         "title": {
           "ro": "Comunitate",
           "ru": "Сообщество",
@@ -3655,20 +3407,20 @@
       }
     ],
     "location": {
-      "ro": "Casa de Cultură Filipeni",
-      "ru": "Дом культуры Филипени",
-      "en": "Casa de Cultură Filipeni"
+      "ro": "Casa de Cultură Moldova",
+      "ru": "Дом культуры Молдова",
+      "en": "Casa de Cultură Moldova"
     },
     "contact": "",
-    "slug": "sarbatorirea-zilei-femeii-si-lansarea-proiectului-fitness4life-in-filipeni",
+    "slug": "sarbatorirea-zilei-femeii-si-lansarea-proiectului-fitness4life-in-moldova",
     "cover": "69af0c1a9e67a735892358bd",
     "sections": [
       {
         "type": "PARAGRAPH",
         "content": {
-          "ro": "Locuitorii din Filipeni sunt invitați cu drag să ni se alăture pe 6 martie la Casa de Cultură Filipeni pentru o sărbătoare specială a Zilei Internaționale a Femeii.",
-          "ru": "Жителей Филипени сердечно приглашаем присоединиться к нам 6 марта в Доме культуры Филипени для особого празднования Международного женского дня.",
-          "en": "Residents of Filipeni are warmly invited to join us on March 6th at Casa de Cultură Filipeni for a special celebration of International Women's Day."
+          "ro": "Locuitorii din Moldova sunt invitați cu drag să ni se alăture pe 6 martie la Casa de Cultură Moldova pentru o sărbătoare specială a Zilei Internaționale a Femeii.",
+          "ru": "Жителей Молдова сердечно приглашаем присоединиться к нам 6 марта в Доме культуры Молдова для особого празднования Международного женского дня.",
+          "en": "Residents of Moldova are warmly invited to join us on March 6th at Casa de Cultură Moldova for a special celebration of International Women's Day."
         }
       },
       {
@@ -3708,16 +3460,16 @@
     "_id": {
       "$oid": "69f99c6e9cddda27b893754d"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "date": "2026-04-28T10:28:52.214Z",
     "title": {
-      "ro": "Primăria Filipeni găzduiește a doua sesiune a proiectului „Fitness4Life”",
-      "ru": "Муниципалитет Филипени проводит вторую сессию проекта «Фитнесс для жизни»",
-      "en": "Filipeni Municipality Hosts Second Session of \"Fitness4Life\" Project"
+      "ro": "Bătălia de la Războieni",
+      "ru": "Битва при Рэзбоень",
+      "en": "Battle of Războieni"
     },
     "categories": [
       {
-        "tennant": "filipeni",
+        "tennant": "moldova",
         "title": {
           "ro": "Sănătate",
           "ru": "Здоровье",
@@ -3757,7 +3509,7 @@
         "key": "health"
       },
       {
-        "tennant": "filipeni",
+        "tennant": "moldova",
         "title": {
           "ro": "Comunitate",
           "ru": "Сообщество",
@@ -3798,20 +3550,20 @@
       }
     ],
     "location": {
-      "ro": "Primăria Satului Filipeni",
-      "ru": "Мэрия села Филипени",
-      "en": "Filipeni Town Hall"
+      "ro": "Primăria Satului Moldova",
+      "ru": "Мэрия села Молдова",
+      "en": "Moldova Town Hall"
     },
     "contact": "",
-    "slug": "primaria-filipeni-gazduieste-a-doua-sesiune-a-proiectului-fitness4life",
+    "slug": "primaria-moldova-gazduieste-a-doua-sesiune-a-proiectului-fitness4life",
     "cover": "69f99c319cddda27b893754c",
     "sections": [
       {
         "type": "PARAGRAPH",
         "content": {
-          "ro": "Municipalitatea Filipeni are plăcerea de a invita locuitorii la a doua sesiune de informare a proiectului „Fitness4Life”, care vizează promovarea unui stil de viață sănătos și prevenirea bolilor netransmisibile. Acest eveniment va avea loc mâine la ora 13:00 la Primăria Filipeni.",
-          "ru": "Муниципалитет Филипени с удовольствием приглашает жителей на вторую информационную сессию проекта «Фитнесс для жизни», целью которой является продвижение здорового образа жизни и профилактика неинфекционных заболеваний. Мероприятие состоится завтра в 13:00 в здании мэрии Филипени.",
-          "en": "The Municipality of Filipeni is pleased to invite residents to the second information session of the \"Fitness4Life\" project, aimed at promoting a healthy lifestyle and preventing non-communicable diseases. This event will take place tomorrow at 13:00 at the Filipeni Town Hall."
+          "ro": "Municipalitatea Moldova are plăcerea de a invita locuitorii la a doua sesiune de informare a proiectului „Fitness4Life”, care vizează promovarea unui stil de viață sănătos și prevenirea bolilor netransmisibile. Acest eveniment va avea loc mâine la ora 13:00 la Primăria Moldova.",
+          "ru": "Муниципалитет Молдова с удовольствием приглашает жителей на вторую информационную сессию проекта «Фитнесс для жизни», целью которой является продвижение здорового образа жизни и профилактика неинфекционных заболеваний. Мероприятие состоится завтра в 13:00 в здании мэрии Молдова.",
+          "en": "The Municipality of Moldova is pleased to invite residents to the second information session of the \"Fitness4Life\" project, aimed at promoting a healthy lifestyle and preventing non-communicable diseases. This event will take place tomorrow at 13:00 at the Moldova Town Hall."
         }
       },
       {

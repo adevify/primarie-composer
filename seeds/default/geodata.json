@@ -3,7 +3,7 @@
     "_id": {
       "$oid": "68c2c4dfdb85e3b8e1e4a5a6"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "key": "mv_localitate.3125",
     "type": "mv_localitate",
     "parentKey": "mv_uat3.2605",
@@ -968,7 +968,7 @@
     "_id": {
       "$oid": "68c2c4dfdb85e3b8e1e4a5a4"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "key": "mv_uat3.2605",
     "type": "mv_uat3",
     "parentKey": "mv_uat1.2020",
@@ -3301,7 +3301,7 @@
     "_id": {
       "$oid": "68c2c4dfdb85e3b8e1e4a5a5"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "key": "mv_uat1.2020",
     "type": "mv_uat1",
     "parentKey": "",
@@ -11210,7 +11210,7 @@
     "_id": {
       "$oid": "68c2c4dfdb85e3b8e1e4a5a3"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "key": "mv_stat.2001",
     "type": "mv_stat",
     "parentKey": "",

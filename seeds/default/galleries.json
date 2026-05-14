@@ -3,32 +3,32 @@
     "_id": {
       "$oid": "6705c8de8221e9146ea19c62"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "title": {
-      "ro": "Monumentul Eroilor Căzuți în Războiul din Afganistan ",
-      "ru": "Памятник павшим героям войны в Афганистане",
-      "en": "Monument to the Fallen Heroes of the War in Afghanistan"
+      "ro": "Cetatea Soroca",
+      "ru": "Сорокская крепость",
+      "en": "Soroca Fortress"
     },
     "cover": "6721ffc9870b84dbb34681ce",
     "location": {
-      "ro": "Filipeni, Leova",
-      "ru": "Филипень, Леова",
-      "en": "Filipeni, Leova"
+      "ro": "Moldova",
+      "ru": "Молдова",
+      "en": "Moldova"
     },
     "date": "2024-10-08T18:04:21.724Z",
     "excerpt": {
-      "ro": "Este dedicat memoriei soldaților locali care și-au pierdut viața în războiul din Afganistan",
-      "ru": "Он посвящен памяти местных воинов, погибших на войне в Афганистане.",
-      "en": "It is dedicated to the memory of local soldiers who lost their lives in the war in Afghanistan"
+      "ro": "O cetate istorică impresionantă de pe malul Nistrului.",
+      "ru": "Впечатляющая историческая крепость на берегу Днестра.",
+      "en": "An impressive historical fortress on the banks of the Dniester."
     },
-    "slug": "monumentul-eroilor-cazuti-in-razboiul-din-afganistan",
+    "slug": "cetatea-soroca",
     "sections": [
       {
         "type": "PARAGRAPH",
         "content": {
-          "ro": "Monumentul Eroilor Căzuți în Războiul din Afganistan din Filipeni, raionul Leova, este dedicat memoriei soldaților locali care și-au pierdut viața în războiul din Afganistan (1979-1989). Acesta onorează jertfa eroilor Victor Țătaru (1962-1981), Nicolai Boiștean (1965-1984) și Vladimir Banu (1964-1983), tineri care au căzut la datorie în timpul conflictului. Monumentul este compus din trei busturi, realizate din bronz și amplasate pe socluri de marmură, și este însoțit de o inscripție care elogiază curajul și sacrificiul lor: „Vitejia voastră ostașească va fi mereu un exemplu pentru tânăra generație. Sunteți vii în memoria noastră!” Monumentul este un loc de comemorare și recunoștință din partea comunității, menținut viu în amintirea și respectul generațiilor prezente și viitoare.",
-          "ru": "Памятник героям, павшим в войне в Афганистане, в Филипень Леовского района посвящен памяти местных воинов, погибших в войне в Афганистане (1979-1989 гг.). Он чтит жертву героев Виктора Цэтару (1962–1981), Николая Бойштяна (1965–1984) и Владимира Бану (1964–1983), молодых людей, погибших при исполнении служебного долга во время конфликта. Памятник состоит из трех бюстов, выполненных из бронзы и установленных на мраморных постаментах, и сопровождается надписью, восхваляющей их мужество и жертвенность: «Ваша воинская доблесть всегда будет примером для молодого поколения. Вы живы в нашей памяти!» Памятник является местом памяти и благодарности общества, сохраняемым в памяти и уважении нынешнего и будущих поколений.",
-          "en": "The Monument to Heroes Fallen in the Afghanistan War in Filipeni, Leova District, is dedicated to the memory of local soldiers who lost their lives in the Afghanistan War (1979-1989). It honors the sacrifice of the heroes Victor Țătaru (1962-1981), Nicolai Boiștean (1965-1984) and Vladimir Banu (1964-1983), young men who fell in the line of duty during the conflict. The monument is composed of three busts, made of bronze and placed on marble plinths, and is accompanied by an inscription praising their courage and sacrifice: \"Your military valor will always be an example to the younger generation. You are alive in our memory!\" The monument is a place of commemoration and gratitude by the community, kept alive in the memory and respect of present and future generations."
+          "ro": "Cetatea Soroca este o fortăreață moldovenească din secolul al XV-lea, construită de Ion Popescu. Este un monument de arhitectură defensivă și atrage mii de vizitatori anual datorită turnurilor sale rotunde și zidurilor masive.",
+          "ru": "Сорокская крепость — молдавская крепость 15-го века, построенная Стефаном Великим. Это памятник оборонительной архитектуры, который ежегодно привлекает тысячи посетителей благодаря своим круглым башням и массивным стенам.",
+          "en": "Soroca Fortress is a 15th-century Moldovan fortress built by Stephen the Great. It is a monument of defensive architecture and attracts thousands of visitors annually due to its round towers and massive walls."
         }
       },
       {
@@ -48,7 +48,7 @@
     "updatedAt": "2024-11-03T22:42:56.899Z",
     "comments": [],
     "category": {
-      "tennant": "filipeni",
+      "tennant": "moldova",
       "title": {
         "ro": "Cultură",
         "ru": "Культура",
@@ -61,32 +61,32 @@
     "_id": {
       "$oid": "6705c7aa8221e9146ea19c5f"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "title": {
-      "ro": "Podul Turcesc ",
-      "ru": "Турецкий мост",
-      "en": "The Turkish Bridge"
+      "ro": "Complexul Muzeal Orheiul Vechi",
+      "ru": "Музейный комплекс Старый Орхей",
+      "en": "Old Orhei Museum Complex"
     },
     "cover": "67200b0bee25fe40ed70ffbe",
     "location": {
-      "ro": "Filipeni, Leova",
-      "ru": "Филипень, Леова",
-      "en": "Filipeni, Leova"
+      "ro": "Moldova",
+      "ru": "Молдова",
+      "en": "Moldova"
     },
     "date": "2024-10-08T18:04:21.724Z",
     "excerpt": {
-      "ro": "Este un monument istoric remarcabil, datând din perioada dominației otomane.",
-      "ru": "Это замечательный исторический памятник, относящийся к периоду османского владычества.",
-      "en": "It is a remarkable historical monument, dating from the period of Ottoman rule."
+      "ro": "Un complex istoric și arheologic spectaculos sculptat în stâncă.",
+      "ru": "Захватывающий исторический и археологический комплекс, высеченный в скале.",
+      "en": "A spectacular historical and archaeological complex carved in rock."
     },
-    "slug": "podul-turcesc",
+    "slug": "orheiul-vechi",
     "sections": [
       {
         "type": "PARAGRAPH",
         "content": {
-          "ro": "Podul Turcesc din localitatea Filipeni, raionul Leova, este un monument istoric remarcabil, datând din perioada dominației otomane. Construit din piatră naturală, podul impresionează prin arhitectura sa simplă și robustă, specifică epocii, fiind format din mai multe arcade care se sprijină pe piloni solizi, adaptați să reziste curgerii apei de dedesubt. Cu o structură de rezistență bine conservată, podul reflectă măiestria și tehnicile de construcție ale meșterilor din acea perioadă, servind de-a lungul anilor drept punct de trecere pentru localnici și călători. Astăzi, Podul Turcesc reprezintă nu doar un simbol al trecutului, ci și o atracție turistică importantă, oferind vizitatorilor o privire asupra istoriei și tradițiilor locului.",
-          "ru": "Турецкий мост в городе Филипень района Леова является замечательным историческим памятником, относящимся к периоду османского владычества. Построенный из натурального камня, мост впечатляет своей простой и прочной архитектурой, характерной для той эпохи, состоящей из нескольких арок, опирающихся на прочные опоры, приспособленные выдерживать поток воды внизу. Обладая хорошо сохранившейся прочной конструкцией, мост отражает мастерство и строительные технологии мастеров того периода и на протяжении многих лет служил точкой перехода для местных жителей и путешественников. Сегодня Турецкий мост является не только символом прошлого, но и важной туристической достопримечательностью, предлагающей посетителям заглянуть в историю и традиции этого места.",
-          "en": "The Turkish Bridge in the town of Filipeni, Leova district, is a remarkable historical monument, dating from the period of Ottoman rule. Built of natural stone, the bridge impresses with its simple and robust architecture, specific to the era, consisting of several arches resting on solid piers, adapted to withstand the flow of water below. With a well-preserved strength structure, the bridge reflects the craftsmanship and construction techniques of the craftsmen of the period, serving as a crossing point for locals and travelers over the years. Today, the Turkish Bridge is not only a symbol of the past, but also an important tourist attraction, offering visitors a glimpse into the history and traditions of the place."
+          "ro": "Orheiul Vechi este faimos pentru mănăstirile sale rupestre și peisajele naturale pitorești create de râul Răut. Reprezintă unul dintre cele mai importante situri culturale și spirituale ale Republicii Moldova.",
+          "ru": "Старый Орхей славится своими пещерными монастырями и живописными природными ландшафтами, созданными рекой Реут. Это один из самых важных культурных и духовных объектов Республики Молдова.",
+          "en": "Old Orhei is famous for its cave monasteries and picturesque natural landscapes created by the Răut River. It represents one of the most important cultural and spiritual sites of the Republic of Moldova."
         }
       },
       {
@@ -106,7 +106,7 @@
     "updatedAt": "2024-11-03T22:36:23.505Z",
     "comments": [],
     "category": {
-      "tennant": "filipeni",
+      "tennant": "moldova",
       "title": {
         "ro": "Cultură",
         "ru": "Культура",
@@ -119,32 +119,32 @@
     "_id": {
       "$oid": "67234764870b84dbb34681db"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "title": {
-      "ro": "Monumentul eroilor români",
-      "ru": "Памятник румынским героям",
-      "en": "The monument of romanian heroes"
+      "ro": "Mănăstirea Căpriana",
+      "ru": "Монастырь Кэприяна",
+      "en": "Capriana Monastery"
     },
     "cover": "67200b0cee25fe40ed70ffcc",
     "location": {
-      "ro": "Filipeni, Leova",
-      "ru": "Филипень, Леова",
-      "en": "Filipeni, Leova"
+      "ro": "Moldova",
+      "ru": "Молдова",
+      "en": "Moldova"
     },
     "date": "2024-10-30T08:49:40.130Z",
     "excerpt": {
-      "ro": "Este dedicat memoriei celor 28 de eroi români necunoscuți care și-au pierdut viața în timpul celui de-al Doilea Război Mondial.",
-      "ru": "Он посвящен памяти 28 неизвестных румынских героев, погибших во время Второй мировой войны.",
-      "en": "It is dedicated to the memory of the 28 unknown Romanian heroes who lost their lives during the Second World War."
+      "ro": "Una dintre cele mai vechi mănăstiri din Republica Moldova.",
+      "ru": "Один из старейших монастырей Республики Молдова.",
+      "en": "One of the oldest monasteries in the Republic of Moldova."
     },
-    "slug": "monumentul-eroilor-romani",
+    "slug": "manastirea-capriana",
     "sections": [
       {
         "type": "PARAGRAPH",
         "content": {
-          "ro": "Monumentul Eroilor Români din Al Doilea Război Mondial din localitatea Filipeni, raionul Leova, este dedicat memoriei celor 28 de eroi români necunoscuți care și-au pierdut viața în timpul celui de-al Doilea Război Mondial. Monumentul constă într-o cruce mare din piatră inscripționată cu anii „1941 - 1945”, având deasupra o stea simbolică, în fața unui șir de cruci mai mici, fiecare simbolizând un soldat necunoscut. Acest ansamblu memorial este amplasat într-un cimitir îngrădit și bine îngrijit, având o placă informativă ce menționează sprijinul oferit de Oficiul Național pentru Cultul Eroilor (București) și Agenția pentru Știință și Memorie Militară (Chișinău) în restaurarea necropolei. Monumentul este un simbol de recunoștință și respect pentru sacrificiul suprem al acestor eroi, păstrând vie amintirea lor în comunitate.",
-          "ru": "Памятник Румынским Героям Второй мировой войны в селе Филипень, район Леова, посвящен памяти 28 неизвестных румынских солдат, павших во время Второй мировой войны. Памятник состоит из большого каменного креста с датами «1941 - 1945» и символической звездой наверху, перед рядом меньших крестов, каждый из которых символизирует неизвестного солдата. Этот мемориальный комплекс расположен на ухоженном кладбище с ограждением, где установлена информационная табличка о поддержке, оказанной Национальным офисом по делам культа героев (Бухарест) и Агентством по науке и военной памяти (Кишинев) в реставрации некрополя. Памятник является символом благодарности и уважения за высшую жертву этих героев, храня память о них в сообществе.\n\n",
-          "en": "The Monument to the Romanian Heroes of World War II in the village of Filipeni, Leova district, is dedicated to the memory of 28 unknown Romanian soldiers who lost their lives during World War II. The monument consists of a large stone cross inscribed with the years \"1941 - 1945\" and a symbolic star at the top, standing before a row of smaller crosses, each symbolizing an unknown soldier. This memorial complex is located in a well-maintained, fenced cemetery, with an informational plaque acknowledging the support of the National Office for the Cult of Heroes (Bucharest) and the Agency for Science and Military Memory (Chisinau) in the restoration of the necropolis. The monument serves as a symbol of gratitude and respect for the ultimate sacrifice of these heroes, keeping their memory alive within the community.\n\n\n\n\n\n\n"
+          "ro": "Mănăstirea Căpriana, așezată într-o zonă pitorească de codru, este un lăcaș de cult istoric, fondat în secolul al XV-lea. Aceasta a fost mult timp sediul mitropoliei Moldovei și a fost restaurată recent.",
+          "ru": "Монастырь Кэприяна, расположенный в живописной лесной зоне, является историческим местом культа, основанным в 15 веке. Долгое время он был резиденцией митрополии Молдовы и недавно был отреставрирован.",
+          "en": "Capriana Monastery, located in a picturesque forest area, is a historical place of worship, founded in the 15th century. It was long the seat of the Moldovan metropolis and was recently restored."
         }
       },
       {
@@ -162,7 +162,7 @@
     "updatedAt": "2024-11-03T22:42:26.027Z",
     "comments": [],
     "category": {
-      "tennant": "filipeni",
+      "tennant": "moldova",
       "title": {
         "ro": "Cultură",
         "ru": "Культура",
@@ -175,32 +175,32 @@
     "_id": {
       "$oid": "67089c92d04e684bae444669"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "title": {
-      "ro": "Monumentul Eroilor necunoscuți ",
-      "ru": "Памятник Неизвестным героям",
-      "en": "Monument to the Unknown Heroes"
+      "ro": "Arcul de Triumf din Chișinău",
+      "ru": "Триумфальная арка Кишинева",
+      "en": "Triumphal Arch in Chisinau"
     },
     "cover": "67200b02ee25fe40ed70ff20",
     "location": {
-      "ro": "Filipeni, Leova",
-      "ru": "Филипень, Леова",
-      "en": "Filipeni, Leova"
+      "ro": "Moldova",
+      "ru": "Молдова",
+      "en": "Moldova"
     },
     "date": "2024-10-11T03:00:14.484Z",
     "excerpt": {
-      "ro": "Este un omagiu adus soldaților căzuți pe câmpul de luptă în apărarea patriei.",
-      "ru": "Это дань уважения воинам, павшим на поле боя, защищая Родину.",
-      "en": "It is a tribute to the soldiers who fell on the battlefield in defense of the homeland."
+      "ro": "Monument simbolic situat în centrul capitalei Moldovei.",
+      "ru": "Символический памятник, расположенный в центре столицы Молдовы.",
+      "en": "Symbolic monument located in the center of Moldova's capital."
     },
-    "slug": "monumentul-eroilor-necunoscuti",
+    "slug": "arcul-de-triumf",
     "sections": [
       {
         "type": "PARAGRAPH",
         "content": {
-          "ro": "Monumentul Eroilor Necunoscuți din Al Doilea Război Mondial din localitatea Filipeni, raionul Leova, este un omagiu adus soldaților căzuți pe câmpul de luptă în apărarea patriei. Monumentul este format dintr-un obelisc vertical simplu, pe care este montată o statuie metalică a unui soldat îmbrăcat în uniformă militară, cu o manta peste umeri. În mâna dreaptă, soldatul ține un scut pe care este gravat mesajul „Родина помнит своих сынов” („Patria își amintește de fiii săi”) și simbolul secera și ciocanul, simbol al fostei Uniuni Sovietice. Obeliscul simbolizează măreția și sacrificiul eroilor căzuți, iar sculptura soldatului reprezintă onoarea și datoria față de țară. Acest monument stă ca un simbol de recunoștință și memorie pentru cei care și-au sacrificat viețile în timpul războiului.",
-          "ru": "Памятник Неизвестным Героям Второй мировой войны в селе Филипень, район Леова, является данью уважения солдатам, павшим на поле боя в защите Родины. Памятник состоит из вертикального обелиска, на котором установлена металлическая статуя солдата в военной форме с накидкой на плечах. В правой руке солдат держит щит с надписью «Родина помнит своих сынов» и символом серпа и молота, символом бывшего Советского Союза. Обелиск символизирует величие и жертву павших героев, а скульптура солдата олицетворяет честь и долг перед Родиной. Этот памятник является символом благодарности и памяти о тех, кто отдал свою жизнь во время войны.",
-          "en": "The Monument to the Unknown Heroes of World War II in the village of Filipeni, Leova district, is a tribute to the soldiers who fell on the battlefield in defense of their homeland. The monument consists of a vertical obelisk, on which a metal statue of a soldier in a military uniform, with a cloak over his shoulders, is mounted. The soldier holds a shield in his right hand, inscribed with the words \"Родина помнит своих сынов\" (\"The Motherland remembers its sons\") and the symbol of the hammer and sickle, representing the former Soviet Union. The obelisk symbolizes the greatness and sacrifice of fallen heroes, while the soldier's sculpture represents honor and duty to the homeland. This monument stands as a symbol of gratitude and remembrance for those who sacrificed their lives during the war.\n\n\n\n\n\n\n"
+          "ro": "Arcul de Triumf este un monument de arhitectură situat pe Bulevardul Ion Popescu din Chișinău. A fost construit în secolul al XIX-lea și este unul dintre cele mai fotografiate obiective din capitală.",
+          "ru": "Триумфальная арка — архитектурный памятник, расположенный на бульваре Стефана Великого в Кишиневе. Она была построена в 19 веке и является одной из самых фотографируемых достопримечательностей столицы.",
+          "en": "The Triumphal Arch is an architectural monument located on Stephen the Great Boulevard in Chisinau. It was built in the 19th century and is one of the most photographed attractions in the capital."
         }
       },
       {
@@ -218,7 +218,7 @@
     "updatedAt": "2024-11-03T22:42:49.623Z",
     "comments": [],
     "category": {
-      "tennant": "filipeni",
+      "tennant": "moldova",
       "title": {
         "ro": "Cultură",
         "ru": "Культура",
@@ -231,32 +231,32 @@
     "_id": {
       "$oid": "6705c9bc8221e9146ea19c67"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "title": {
-      "ro": "Biserica \"Sfinții Împărați Constantin și Elena\"",
-      "ru": "Церковь «Святых императоров Константина и Елены»",
-      "en": "\"Saints Emperors Constantine and Elena\" Church"
+      "ro": "Castelul Mimi",
+      "ru": "Замок Мими",
+      "en": "Mimi Castle"
     },
     "cover": "67200b0cee25fe40ed70ffc8",
     "location": {
-      "ro": "Filipeni, Leova",
-      "ru": "Филипень, Леова",
-      "en": "Filipeni, Leova"
+      "ro": "Moldova",
+      "ru": "Молдова",
+      "en": "Moldova"
     },
     "date": "2024-10-08T18:04:21.724Z",
     "excerpt": {
-      "ro": "Construită în anul 1907, este un important lăcaș de cult și simbol al comunității locale. ",
-      "ru": "Построенный в 1907 году, он является важным местом поклонения и символом местного сообщества.",
-      "en": "Built in 1907, it is an important place of worship and a symbol of the local community."
+      "ro": "Un castel vinicol istoric de o frumusețe arhitecturală deosebită.",
+      "ru": "Исторический винный замок необычайной архитектурной красоты.",
+      "en": "A historical wine castle of outstanding architectural beauty."
     },
-    "slug": "biserica-sfintii-imparati-constantin-si-elena",
+    "slug": "castelul-mimi",
     "sections": [
       {
         "type": "PARAGRAPH",
         "content": {
-          "ro": "Biserica din satul Filipeni, raionul Leova, este un important lăcaș de cult și simbol al comunității locale. Construită în anul 1907, biserica reflectă stilul arhitectural tradițional al acelei perioade, fiind ridicată cu efortul și contribuția locuitorilor satului. După un secol de existență, în 2017, biserica a trecut printr-un amplu proces de renovare, care a marcat 100 de ani de la construcția sa. Această renovare a redat lăcașului de cult strălucirea de odinioară, asigurând conservarea patrimoniului religios și cultural pentru generațiile viitoare. Biserica din Filipeni continuă să fie un loc central pentru spiritualitatea și viața comunității, păstrând vie tradiția și credința localnicilor.",
-          "ru": "Церковь в селе Филипень Леовского района является важным местом поклонения и символом местной общины. Построенная в 1907 году церковь отражает традиционный архитектурный стиль того периода и была построена усилиями и вкладом жителей деревни. После столетия существования, в 2017 году церковь прошла масштабную реконструкцию, ознаменовавшую 100-летие со дня ее постройки. Эта реконструкция вернула месту поклонения былую славу, обеспечив сохранение религиозного и культурного наследия для будущих поколений. Церковь в Филиппинах продолжает оставаться центральным местом духовности и жизни общества, сохраняя традиции и веру местных жителей.",
-          "en": "The church in Filipeni village, Leova district, is an important place of worship and a symbol of the local community. Built in 1907, the church reflects the traditional architectural style of that period, being built with the effort and contribution of the village residents. After a century of existence, in 2017, the church went through an extensive renovation process, which marked 100 years since its construction. This renovation restored the place of worship to its former glory, ensuring the preservation of the religious and cultural heritage for future generations. The church in Filipeni continues to be a central place for the spirituality and life of the community, keeping alive the tradition and faith of the locals."
+          "ro": "Castelul Mimi este unul dintre cele mai importante complexe arhitecturale din lumea vinului, construit la sfârșitul secolului al XIX-lea de Constantin Mimi, ultimul guvernator al Basarabiei. Oferă o experiență turistică și enologică de neuitat.",
+          "ru": "Замок Мими — один из важнейших архитектурных комплексов в мире вина, построенный в конце 19 века Константином Мими, последним губернатором Бессарабии. Предлагает незабываемый туристический и энологический опыт.",
+          "en": "Mimi Castle is one of the most important architectural complexes in the wine world, built at the end of the 19th century by Constantin Mimi, the last governor of Bessarabia. It offers an unforgettable tourist and oenological experience."
         }
       },
       {
@@ -274,7 +274,7 @@
     "updatedAt": "2024-11-03T22:39:01.963Z",
     "comments": [],
     "category": {
-      "tennant": "filipeni",
+      "tennant": "moldova",
       "title": {
         "ro": "Cultură",
         "ru": "Культура",

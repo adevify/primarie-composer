@@ -3,11 +3,11 @@
     "_id": {
       "$oid": "670359c67115508784dd62ae"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "name": {
-      "ro": "proiect-de-decizie-5.11",
-      "ru": "проект-решения-5.11",
-      "en": "draft-decision-5.11"
+      "ro": "Declarația de Independență",
+      "ru": "Декларация независимости",
+      "en": "Declaration of Independence"
     },
     "slug": "proiect-de-decizie-5.11",
     "path": "/consultari-publice/proiecte-de-decizii/",
@@ -19,7 +19,7 @@
     "_id": {
       "$oid": "6703576d7115508784dd62a0"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "name": {
       "ro": "Consultări publice",
       "ru": "Общественные консультации",
@@ -34,11 +34,11 @@
     "_id": {
       "$oid": "670358e27115508784dd62a6"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "name": {
-      "ro": "proiect-de-decizie-5.3",
-      "ru": "проект-решения-5.3",
-      "en": "draft-decision-5.3"
+      "ro": "Constituția Republicii Moldova",
+      "ru": "Конституция Республики Молдова",
+      "en": "Constitution of the Republic of Moldova"
     },
     "slug": "proiect-de-decizie-5.3",
     "path": "/consultari-publice/proiecte-de-decizii/",
@@ -50,11 +50,11 @@
     "_id": {
       "$oid": "67035ab27115508784dd62b5"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "name": {
-      "ro": "proiect-de-decizi-4.5.1",
-      "ru": "проект решения-4.5.1",
-      "en": "draft-of-decisions-4.5.1"
+      "ro": "Tratatul de la București",
+      "ru": "Бухарестский мирный договор",
+      "en": "Treaty of Bucharest"
     },
     "slug": "proiect-de-decizi-4.5.1",
     "path": "/consultari-publice/proiecte-de-decizii/",
@@ -66,11 +66,11 @@
     "_id": {
       "$oid": "67035a837115508784dd62b3"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "name": {
-      "ro": "proiect-de-decizi-4.4",
-      "ru": "проект решения-4.4",
-      "en": "draft-of-decisions-4.4"
+      "ro": "Acordul de Asociere",
+      "ru": "Соглашение об ассоциации",
+      "en": "Association Agreement"
     },
     "slug": "proiect-de-decizi-4.4",
     "path": "/consultari-publice/proiecte-de-decizii/",
@@ -82,11 +82,11 @@
     "_id": {
       "$oid": "670359037115508784dd62a7"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "name": {
-      "ro": "proiect-de-decizie-5.4",
-      "ru": "проект-решения-5.4",
-      "en": "draft-decision-5.4"
+      "ro": "Hrisovul Domnesc",
+      "ru": "Княжеская грамота",
+      "en": "Princely Charter"
     },
     "slug": "proiect-de-decizie-5.4",
     "path": "/consultari-publice/proiecte-de-decizii/",
@@ -98,7 +98,7 @@
     "_id": {
       "$oid": "67035fab7115508784dd62c5"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "name": {
       "ro": "Dezbateri Publice",
       "ru": "Публичные дебаты",
@@ -113,11 +113,11 @@
     "_id": {
       "$oid": "6703596e7115508784dd62ab"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "name": {
-      "ro": "proiect-de-decizie-5.8",
-      "ru": "проект-решения-5.8",
-      "en": "draft-decision-5.8"
+      "ro": "Declarația de Independență",
+      "ru": "Декларация независимости",
+      "en": "Declaration of Independence"
     },
     "slug": "proiect-de-decizie-5.8",
     "path": "/consultari-publice/proiecte-de-decizii/",
@@ -129,11 +129,11 @@
     "_id": {
       "$oid": "6703591d7115508784dd62a8"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "name": {
-      "ro": "proiect-de-decizie-5.5",
-      "ru": "проект-решения-5.5",
-      "en": "draft-decision-5.5"
+      "ro": "Constituția Republicii Moldova",
+      "ru": "Конституция Республики Молдова",
+      "en": "Constitution of the Republic of Moldova"
     },
     "slug": "proiect-de-decizie-5.5",
     "path": "/consultari-publice/proiecte-de-decizii/",
@@ -145,11 +145,11 @@
     "_id": {
       "$oid": "67035cb47115508784dd62c1"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "name": {
-      "ro": "Privind proiectul Satul European 2 (2)",
-      "ru": "Глядя на проект «Европейская деревня 2» (2)",
-      "en": "Looking at the European Village 2 project (2)"
+      "ro": "Tratatul de la București",
+      "ru": "Бухарестский мирный договор",
+      "en": "Treaty of Bucharest"
     },
     "slug": "privind-proiectul-satul-european-2-(2)",
     "path": "/consultari-publice/audieri-publice/",
@@ -161,11 +161,11 @@
     "_id": {
       "$oid": "67035a137115508784dd62af"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "name": {
-      "ro": "proiect-de-decizie-5.12",
-      "ru": "проект-решения-5.12",
-      "en": "draft-decision-5.12"
+      "ro": "Acordul de Asociere",
+      "ru": "Соглашение об ассоциации",
+      "en": "Association Agreement"
     },
     "slug": "proiect-de-decizie-5.12",
     "path": "/consultari-publice/proiecte-de-decizii/",
@@ -177,11 +177,11 @@
     "_id": {
       "$oid": "67035ac87115508784dd62b6"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "name": {
-      "ro": "proiect-de-decizi-4.6",
-      "ru": "проекты решений-4.6",
-      "en": "draft-of-decisions-4.6"
+      "ro": "Hrisovul Domnesc",
+      "ru": "Княжеская грамота",
+      "en": "Princely Charter"
     },
     "slug": "proiect-de-decizi-4.6",
     "path": "/consultari-publice/proiecte-de-decizii/",
@@ -193,11 +193,11 @@
     "_id": {
       "$oid": "6703589d7115508784dd62a3"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "name": {
-      "ro": "proiect-de-decizie-5.1",
-      "ru": "draft-decision-5.1",
-      "en": "draft-decision-5.1"
+      "ro": "Declarația de Independență",
+      "ru": "Декларация независимости",
+      "en": "Declaration of Independence"
     },
     "slug": "proiect-de-decizie-5.1",
     "path": "/consultari-publice/proiecte-de-decizii/",
@@ -209,11 +209,11 @@
     "_id": {
       "$oid": "67035a6a7115508784dd62b2"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "name": {
-      "ro": "proiect-de-decizi-4.3",
-      "ru": "проект решения-4.3",
-      "en": "draft-of-decisions-4.3"
+      "ro": "Constituția Republicii Moldova",
+      "ru": "Конституция Республики Молдова",
+      "en": "Constitution of the Republic of Moldova"
     },
     "slug": "proiect-de-decizi-4.3",
     "path": "/consultari-publice/proiecte-de-decizii/",
@@ -225,7 +225,7 @@
     "_id": {
       "$oid": "670357857115508784dd62a1"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "name": {
       "ro": "Proiecte de decizii",
       "ru": "Проекты решений",
@@ -240,11 +240,11 @@
     "_id": {
       "$oid": "670359aa7115508784dd62ad"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "name": {
-      "ro": "proiect-de-decizie-5.10",
-      "ru": "проект-решения-5.10",
-      "en": "draft-decision-5.10"
+      "ro": "Tratatul de la București",
+      "ru": "Бухарестский мирный договор",
+      "en": "Treaty of Bucharest"
     },
     "slug": "proiect-de-decizie-5.10",
     "path": "/consultari-publice/proiecte-de-decizii/",
@@ -256,11 +256,11 @@
     "_id": {
       "$oid": "670359897115508784dd62ac"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "name": {
-      "ro": "proiect-de-decizie-5.9",
-      "ru": "проект-решения-5.9",
-      "en": "draft-decision-5.9"
+      "ro": "Acordul de Asociere",
+      "ru": "Соглашение об ассоциации",
+      "en": "Association Agreement"
     },
     "slug": "proiect-de-decizie-5.9",
     "path": "/consultari-publice/proiecte-de-decizii/",
@@ -272,13 +272,13 @@
     "_id": {
       "$oid": "67035c0f7115508784dd62be"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "name": {
-      "ro": "Prezentarea proiectului bugetului pentru anul 2024 al satului Filipeni",
-      "ru": "Презентация проекта бюджета на 2024 год села Филипень",
-      "en": "Presentation of the budget project for the year 2024 of the village of Filipeni"
+      "ro": "Hrisovul Domnesc",
+      "ru": "Княжеская грамота",
+      "en": "Princely Charter"
     },
-    "slug": "prezentarea-proiectului-bugetului-pentru-anul-2024-al-satului-filipeni",
+    "slug": "prezentarea-proiectului-bugetului-pentru-anul-2024-al-satului-moldova",
     "path": "/consultari-publice/audieri-publice/",
     "url": "67035b6b7115508784dd62b8",
     "type": "file",
@@ -288,11 +288,11 @@
     "_id": {
       "$oid": "670366247115508784dd62d3"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "name": {
-      "ro": "Statutul",
-      "ru": "Статут",
-      "en": "Statute"
+      "ro": "Declarația de Independență",
+      "ru": "Декларация независимости",
+      "en": "Declaration of Independence"
     },
     "slug": "statutul",
     "path": "/",
@@ -304,11 +304,11 @@
     "_id": {
       "$oid": "67035a9d7115508784dd62b4"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "name": {
-      "ro": "proiect-de-decizi-4.5",
-      "ru": "проекты решений-4.5",
-      "en": "draft-of-decisions-4.5"
+      "ro": "Constituția Republicii Moldova",
+      "ru": "Конституция Республики Молдова",
+      "en": "Constitution of the Republic of Moldova"
     },
     "slug": "proiect-de-decizi-4.5",
     "path": "/consultari-publice/proiecte-de-decizii/",
@@ -320,11 +320,11 @@
     "_id": {
       "$oid": "670364817115508784dd62cb"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "name": {
-      "ro": "decizia-4.2",
-      "ru": "решение-4.2",
-      "en": "decision-4.2"
+      "ro": "Tratatul de la București",
+      "ru": "Бухарестский мирный договор",
+      "en": "Treaty of Bucharest"
     },
     "slug": "decizia-4.2",
     "path": "/taxe-si-impozite-locale/",
@@ -336,11 +336,11 @@
     "_id": {
       "$oid": "670359397115508784dd62a9"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "name": {
-      "ro": "proiect-de-decizie-5.6",
-      "ru": "проект-решения-5.6",
-      "en": "draft-decision-5.6"
+      "ro": "Acordul de Asociere",
+      "ru": "Соглашение об ассоциации",
+      "en": "Association Agreement"
     },
     "slug": "proiect-de-decizie-5.6",
     "path": "/consultari-publice/proiecte-de-decizii/",
@@ -352,11 +352,11 @@
     "_id": {
       "$oid": "670358c27115508784dd62a4"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "name": {
-      "ro": "proiect-de-decizie-5.2",
-      "ru": "проект-решения-5.2",
-      "en": "draft-decision-5.2"
+      "ro": "Hrisovul Domnesc",
+      "ru": "Княжеская грамота",
+      "en": "Princely Charter"
     },
     "slug": "proiect-de-decizie-5.2",
     "path": "/consultari-publice/proiecte-de-decizii/",
@@ -368,11 +368,11 @@
     "_id": {
       "$oid": "670364987115508784dd62cc"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "name": {
-      "ro": "decizia-4.3-1",
-      "ru": "решение-4.3-1",
-      "en": "decision-4.3-1"
+      "ro": "Declarația de Independență",
+      "ru": "Декларация независимости",
+      "en": "Declaration of Independence"
     },
     "slug": "decizia-4.3-1",
     "path": "/taxe-si-impozite-locale/",
@@ -384,13 +384,13 @@
     "_id": {
       "$oid": "67035c5a7115508784dd62bf"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "name": {
-      "ro": "Strategiei de dezvoltare socio economicii a satului Filipeni pe anii 2024-2029",
-      "ru": "Стратегия социально-экономического развития села Филипень на 2024-2029 годы",
-      "en": "The socio-economic development strategy of Filipeni village for the years 2024-2029"
+      "ro": "Constituția Republicii Moldova",
+      "ru": "Конституция Республики Молдова",
+      "en": "Constitution of the Republic of Moldova"
     },
-    "slug": "strategiei-de-dezvoltare-socio-economicii-a-satului-filipeni-pe-anii-2024-2029",
+    "slug": "strategiei-de-dezvoltare-socio-economicii-a-satului-moldova-pe-anii-2024-2029",
     "path": "/consultari-publice/audieri-publice/",
     "url": "67035b6f7115508784dd62b9",
     "type": "file",
@@ -400,11 +400,11 @@
     "_id": {
       "$oid": "6703655f7115508784dd62ce"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "name": {
-      "ro": "GHIDUL UTILIZATORULUI (FOCAS)",
-      "ru": "РУКОВОДСТВО ПОЛЬЗОВАТЕЛЯ (ФОКАС)",
-      "en": "USER GUIDE (FOCAS)"
+      "ro": "Tratatul de la București",
+      "ru": "Бухарестский мирный договор",
+      "en": "Treaty of Bucharest"
     },
     "slug": "ghidul-utilizatorului-(focas)",
     "path": "/autoevaluare-(focas)/",
@@ -416,11 +416,11 @@
     "_id": {
       "$oid": "670365fb7115508784dd62d2"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "name": {
-      "ro": "Regulamentul intern",
-      "ru": "Внутреннее регулирование",
-      "en": "Internal regulation"
+      "ro": "Acordul de Asociere",
+      "ru": "Соглашение об ассоциации",
+      "en": "Association Agreement"
     },
     "slug": "regulamentul-intern",
     "path": "/",
@@ -432,11 +432,11 @@
     "_id": {
       "$oid": "6703666f7115508784dd62d4"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "name": {
-      "ro": "Planul Strategic 2024 – 2029",
-      "ru": "Стратегический план на 2024–2029 годы",
-      "en": "Strategic Plan 2024 – 2029"
+      "ro": "Hrisovul Domnesc",
+      "ru": "Княжеская грамота",
+      "en": "Princely Charter"
     },
     "slug": "planul-strategic-2024-2029",
     "path": "/",
@@ -448,11 +448,11 @@
     "_id": {
       "$oid": "670359557115508784dd62aa"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "name": {
-      "ro": "proiect-de-decizie-5.7",
-      "ru": "проект-решения-5.7",
-      "en": "draft-decision-5.7"
+      "ro": "Declarația de Independență",
+      "ru": "Декларация независимости",
+      "en": "Declaration of Independence"
     },
     "slug": "proiect-de-decizie-5.7",
     "path": "/consultari-publice/proiecte-de-decizii/",
@@ -464,11 +464,11 @@
     "_id": {
       "$oid": "670360397115508784dd62c7"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "name": {
-      "ro": "Proces-verbal nr.02",
-      "ru": "Протокол № 02.",
-      "en": "Record no. 02"
+      "ro": "Constituția Republicii Moldova",
+      "ru": "Конституция Республики Молдова",
+      "en": "Constitution of the Republic of Moldova"
     },
     "slug": "proces-verbal-nr.02",
     "path": "/consultari-publice/dezbateri-publice/",
@@ -480,11 +480,11 @@
     "_id": {
       "$oid": "67035c8b7115508784dd62c0"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "name": {
-      "ro": "Privind proiectul Satul European 2",
-      "ru": "Глядя на проект «Европейская деревня 2»",
-      "en": "Looking at the European Village 2 project"
+      "ro": "Tratatul de la București",
+      "ru": "Бухарестский мирный договор",
+      "en": "Treaty of Bucharest"
     },
     "slug": "privind-proiectul-satul-european-2",
     "path": "/consultari-publice/audieri-publice/",
@@ -496,7 +496,7 @@
     "_id": {
       "$oid": "670364e87115508784dd62cd"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "name": {
       "ro": "Autoevaluare (FOCAS)",
       "ru": "Самооценка (FOCAS)",
@@ -511,11 +511,11 @@
     "_id": {
       "$oid": "670365a27115508784dd62d0"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "name": {
-      "ro": "Planul de Acțiuni FOCAS pentru anii 2023-2024",
-      "ru": "План действий FOCAS на 2023-2024 годы",
-      "en": "The FOCAS Action Plan for the years 2023-2024"
+      "ro": "Acordul de Asociere",
+      "ru": "Соглашение об ассоциации",
+      "en": "Association Agreement"
     },
     "slug": "planul-de-actiuni-focas-pentru-anii-2023-2024",
     "path": "/autoevaluare-(focas)/",
@@ -527,11 +527,11 @@
     "_id": {
       "$oid": "670360507115508784dd62c8"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "name": {
-      "ro": "Proces-verbal nr.03",
-      "ru": "Протокол № 03.",
-      "en": "Record No. 03"
+      "ro": "Hrisovul Domnesc",
+      "ru": "Княжеская грамота",
+      "en": "Princely Charter"
     },
     "slug": "proces-verbal-nr.03",
     "path": "/consultari-publice/dezbateri-publice/",
@@ -543,11 +543,11 @@
     "_id": {
       "$oid": "670360177115508784dd62c6"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "name": {
-      "ro": "Proces-verbal nr.01",
-      "ru": "Протокол № 01.",
-      "en": "Record no. 01"
+      "ro": "Declarația de Independență",
+      "ru": "Декларация независимости",
+      "en": "Declaration of Independence"
     },
     "slug": "proces-verbal-nr.01",
     "path": "/consultari-publice/dezbateri-publice/",
@@ -559,11 +559,11 @@
     "_id": {
       "$oid": "670365857115508784dd62cf"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "name": {
-      "ro": "Tabel de evaluare FOCAS pentru anul 2023",
-      "ru": "Оценочная таблица FOCAS на 2023 год",
-      "en": "FOCAS evaluation table for the year 2023"
+      "ro": "Constituția Republicii Moldova",
+      "ru": "Конституция Республики Молдова",
+      "en": "Constitution of the Republic of Moldova"
     },
     "slug": "tabel-de-evaluare-focas-pentru-anul-2023",
     "path": "/autoevaluare-(focas)/",
@@ -575,11 +575,11 @@
     "_id": {
       "$oid": "670365d77115508784dd62d1"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "name": {
-      "ro": "Control intern managerial",
-      "ru": "Внутренний управленческий контроль",
-      "en": "Internal managerial control"
+      "ro": "Tratatul de la București",
+      "ru": "Бухарестский мирный договор",
+      "en": "Treaty of Bucharest"
     },
     "slug": "control-intern-managerial",
     "path": "/",
@@ -591,7 +591,7 @@
     "_id": {
       "$oid": "670364297115508784dd62c9"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "name": {
       "ro": "Taxe și impozite locale",
       "ru": "Местные налоги и сборы",
@@ -606,11 +606,11 @@
     "_id": {
       "$oid": "67035a4c7115508784dd62b1"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "name": {
-      "ro": "proiect-de-decizi-4.2",
-      "ru": "проект решения-4.2",
-      "en": "draft-of-decisions-4.2"
+      "ro": "Acordul de Asociere",
+      "ru": "Соглашение об ассоциации",
+      "en": "Association Agreement"
     },
     "slug": "proiect-de-decizi-4.2",
     "path": "/consultari-publice/proiecte-de-decizii/",
@@ -622,11 +622,11 @@
     "_id": {
       "$oid": "67035ae37115508784dd62b7"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "name": {
-      "ro": "proiect-de-decizi-4.7",
-      "ru": "проекты решений-4.7",
-      "en": "draft-of-decisions-4.7"
+      "ro": "Hrisovul Domnesc",
+      "ru": "Княжеская грамота",
+      "en": "Princely Charter"
     },
     "slug": "proiect-de-decizi-4.7",
     "path": "/consultari-publice/proiecte-de-decizii/",
@@ -638,7 +638,7 @@
     "_id": {
       "$oid": "67035b887115508784dd62bc"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "name": {
       "ro": "Audieri publice",
       "ru": "Общественные слушания",
@@ -653,11 +653,11 @@
     "_id": {
       "$oid": "67035a387115508784dd62b0"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "name": {
-      "ro": "proiect-de-decizi-4.1",
-      "ru": "проект решения-4.1",
-      "en": "draft-of-decisions-4.1"
+      "ro": "Declarația de Independență",
+      "ru": "Декларация независимости",
+      "en": "Declaration of Independence"
     },
     "slug": "proiect-de-decizi-4.1",
     "path": "/consultari-publice/proiecte-de-decizii/",
@@ -669,11 +669,11 @@
     "_id": {
       "$oid": "670364697115508784dd62ca"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "name": {
-      "ro": "decizia-4.1",
-      "ru": "решение-4.1",
-      "en": "decision-4.1"
+      "ro": "Constituția Republicii Moldova",
+      "ru": "Конституция Республики Молдова",
+      "en": "Constitution of the Republic of Moldova"
     },
     "slug": "decizia-4.1",
     "path": "/taxe-si-impozite-locale/",

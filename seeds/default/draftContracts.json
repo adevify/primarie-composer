@@ -3,16 +3,16 @@
     "_id": {
       "$oid": "69eb2d98ea80919b65d5e146"
     },
-    "tennant": "glingeni",
+    "tennant": "moldova",
     "contractDate": "2026-04-23T21:00:00.000Z",
     "startDate": "2026-04-30T21:00:00.000Z",
     "endDate": "2026-12-30T22:00:00.000Z",
-    "idno": 1007601002544,
-    "adress": "MD-5924,s.Glinjeni,rl.Fălești",
-    "beneficiarName": "Primăria Satului Glinjeni",
+    "idno": 1000000000000,
+    "adress": "MD-1234, s. Moldova",
+    "beneficiarName": "Curtea Domnească a Moldovei",
     "representant": {
-      "name": "Zarija Viorel",
-      "phone": "068171410"
+      "name": "Elena Rusu",
+      "phone": "060000000"
     },
     "limits": {
       "storage": 3,

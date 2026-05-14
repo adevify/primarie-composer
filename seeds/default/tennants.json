@@ -3,8 +3,8 @@
     "_id": {
       "$oid": "66f540dd8078273fc85e739c"
     },
-    "hostname": "filipeni.prmr.md",
-    "key": "filipeni",
+    "hostname": "moldova.prmr.md",
+    "key": "moldova",
     "template": "thegov",
     "schedule": {
       "mon": {
@@ -57,14 +57,14 @@
           "ru": "Электронная почта",
           "en": "Email"
         },
-        "value": "primaria.filipeni@apl.gov.md"
+        "value": "primaria.moldova@apl.gov.md"
       }
     ],
     "location": {
       "name": {
-        "ro": "Filipeni, Leova",
-        "ru": "Филипени, Леова",
-        "en": "Filipeni, Leova"
+        "ro": "Moldova",
+        "ru": "Молдова",
+        "en": "Moldova"
       },
       "geo": {
         "lat": 46.439746717672925,

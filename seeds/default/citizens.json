@@ -3,9 +3,9 @@
     "_id": {
       "$oid": "69fb64de2b7a8ad5b3d6b150"
     },
-    "tennant": "filipeni",
-    "name": "test",
-    "email": "aaw2012sirbu.andrei@gmail.com",
+    "tennant": "moldova",
+    "name": "Ștefan cel Mare",
+    "email": "tefancelmare0@istorie.md",
     "language": "ro",
     "accepted": true,
     "isFirstTimeLogged": false,
@@ -19,9 +19,9 @@
     "_id": {
       "$oid": "69fb698ff3267d1a0f75593f"
     },
-    "tennant": "filipeni",
-    "name": "test2",
-    "email": "sirbusiandrei@gmail.com",
+    "tennant": "moldova",
+    "name": "Dimitrie Cantemir",
+    "email": "dimitriecantemir1@istorie.md",
     "language": "ro",
     "accepted": false,
     "isFirstTimeLogged": true,

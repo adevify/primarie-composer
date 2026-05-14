@@ -3,7 +3,7 @@
     "_id": {
       "$oid": "672348e8870b84dbb34681de"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "title": {
       "ro": "Casa de cultură",
       "ru": "Дом культуры",
@@ -33,9 +33,9 @@
       {
         "type": "PARAGRAPH",
         "content": {
-          "ro": "Casa de Cultură din sat Filipeni reprezintă un important centru comunitar, găzduind o sală de festivități și un muzeu etnografic local. Sala este decorată cu picturi murale tradiționale și motive florale, fiind locul unde se desfășoară evenimente culturale, sociale și de divertisment pentru localnici. Muzeul expune o varietate de obiecte tradiționale, de la țesături și broderii lucrate manual până la obiecte casnice și piese ceramice, oferind o imagine autentică a vieții de odinioară din comunitate. Totodată, Casa de Cultură servește ca locație oficială pentru alegerile electorale, fiind un loc de întâlnire esențial pentru activitățile civice ale satului.",
-          "ru": "Дом культуры в селе Филипень является важным общественным центром, в котором находится зал торжеств и местный этнографический музей. Зал украшен традиционными фресками и цветочными мотивами и является местом проведения культурных, социальных и развлекательных мероприятий для местных жителей. В музее представлены разнообразные традиционные предметы, от тканей ручной работы и вышивки до предметов домашнего обихода и керамики, которые дают подлинную картину жизни общины в прошлом. В то же время Дом культуры служит официальным местом проведения избирательных выборов, являясь важным местом встречи гражданской активности села.",
-          "en": "The House of Culture in the village of Filipeni is an important community center, hosting a hall of festivities and a local ethnographic museum. The hall is decorated with traditional murals and floral motifs, being the venue for cultural, social and entertainment events for the locals. The museum exhibits a variety of traditional objects, from hand-made fabrics and embroidery to household items and ceramics, providing an authentic picture of life in the community in the past. At the same time, the House of Culture serves as the official location for the electoral elections, being an essential meeting place for the civic activities of the village."
+          "ro": "Casa de Cultură din sat Moldova reprezintă un important centru comunitar, găzduind o sală de festivități și un muzeu etnografic local. Sala este decorată cu picturi murale tradiționale și motive florale, fiind locul unde se desfășoară evenimente culturale, sociale și de divertisment pentru localnici. Muzeul expune o varietate de obiecte tradiționale, de la țesături și broderii lucrate manual până la obiecte casnice și piese ceramice, oferind o imagine autentică a vieții de odinioară din comunitate. Totodată, Casa de Cultură servește ca locație oficială pentru alegerile electorale, fiind un loc de întâlnire esențial pentru activitățile civice ale satului.",
+          "ru": "Дом культуры в селе Молдова является важным общественным центром, в котором находится зал торжеств и местный этнографический музей. Зал украшен традиционными фресками и цветочными мотивами и является местом проведения культурных, социальных и развлекательных мероприятий для местных жителей. В музее представлены разнообразные традиционные предметы, от тканей ручной работы и вышивки до предметов домашнего обихода и керамики, которые дают подлинную картину жизни общины в прошлом. В то же время Дом культуры служит официальным местом проведения избирательных выборов, являясь важным местом встречи гражданской активности села.",
+          "en": "The House of Culture in the village of Moldova is an important community center, hosting a hall of festivities and a local ethnographic museum. The hall is decorated with traditional murals and floral motifs, being the venue for cultural, social and entertainment events for the locals. The museum exhibits a variety of traditional objects, from hand-made fabrics and embroidery to household items and ceramics, providing an authentic picture of life in the community in the past. At the same time, the House of Culture serves as the official location for the electoral elections, being an essential meeting place for the civic activities of the village."
         }
       },
       {
@@ -52,9 +52,9 @@
     ],
     "cover": "67200b04ee25fe40ed70ff4c",
     "location": {
-      "ro": "L598 Filipeni, Leova",
-      "ru": "L598 Филипень, Леова",
-      "en": "L598 Filipeni, Leova"
+      "ro": "L598 Moldova",
+      "ru": "L598 Молдова",
+      "en": "L598 Moldova"
     },
     "phone": 0,
     "geo": {
@@ -97,7 +97,7 @@
       "sun": {}
     },
     "category": {
-      "tennant": "filipeni",
+      "tennant": "moldova",
       "title": {
         "ro": "Cultură",
         "ru": "Культура",
@@ -110,7 +110,7 @@
     "_id": {
       "$oid": "6705bdce8221e9146ea19c44"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "title": {
       "ro": "ÎET ”Fluturaș\"",
       "ru": "ИЭПП \"Fluturaș\"",
@@ -126,9 +126,9 @@
       {
         "type": "PARAGRAPH",
         "content": {
-          "ro": "Întreprinderea de Educație Timpurie \"Fluturaș\", înființată în anul 1985, este o grădiniță situată în localitatea Filipeni, care oferă educație de calitate pentru copiii cu vârste fragede. Cu o istorie de peste trei decenii, instituția s-a consacrat ca un loc sigur și plin de grijă pentru dezvoltarea și educația copiilor.",
-          "ru": "Компания раннего образования «Флутураш», основанная в 1985 году, представляет собой детский сад, расположенный в городе Филипень, который предлагает качественное образование для детей младшего возраста. Имея более чем трехдесятилетнюю историю, учреждение зарекомендовало себя как безопасное и заботливое место для развития и образования детей.",
-          "en": "The \"Fluturaș\" Early Education Company, established in 1985, is a kindergarten located in the town of Filipeni, which offers quality education for young children. With a history of over three decades, the institution has established itself as a safe and caring place for the development and education of children."
+          "ro": "Întreprinderea de Educație Timpurie \"Fluturaș\", înființată în anul 1985, este o grădiniță situată în localitatea Moldova, care oferă educație de calitate pentru copiii cu vârste fragede. Cu o istorie de peste trei decenii, instituția s-a consacrat ca un loc sigur și plin de grijă pentru dezvoltarea și educația copiilor.",
+          "ru": "Компания раннего образования «Флутураш», основанная в 1985 году, представляет собой детский сад, расположенный в городе Молдова, который предлагает качественное образование для детей младшего возраста. Имея более чем трехдесятилетнюю историю, учреждение зарекомендовало себя как безопасное и заботливое место для развития и образования детей.",
+          "en": "The \"Fluturaș\" Early Education Company, established in 1985, is a kindergarten located in the town of Moldova, which offers quality education for young children. With a history of over three decades, the institution has established itself as a safe and caring place for the development and education of children."
         }
       },
       {
@@ -221,9 +221,9 @@
     ],
     "cover": "67200b09ee25fe40ed70ffa0",
     "location": {
-      "ro": "Filipeni, Leova",
-      "ru": "Филипень, Леова",
-      "en": "Filipeni, Leova"
+      "ro": "Moldova",
+      "ru": "Молдова",
+      "en": "Moldova"
     },
     "phone": 0,
     "geo": {
@@ -266,7 +266,7 @@
       "sun": {}
     },
     "category": {
-      "tennant": "filipeni",
+      "tennant": "moldova",
       "title": {
         "ro": "Educație",
         "ru": "Образование",
@@ -279,25 +279,25 @@
     "_id": {
       "$oid": "6705c40a8221e9146ea19c54"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "title": {
-      "ro": "Gimnaziul Filipeni",
-      "ru": "Гимназии Филипени",
-      "en": "Filipeni Gymnasium"
+      "ro": "Gimnaziul Moldova",
+      "ru": "Гимназии Молдова",
+      "en": "Moldova Gymnasium"
     },
     "excerpt": {
-      "ro": "Gimnaziul Filipeni își propune să ofere o educație de calitate, axată pe dezvoltarea abilităților critice și a cunoștințelor necesare pentru succesul în viitor. Prin angajamentul personalului său și facilitățile moderne, instituția se dedică formării tinerilor, promovând valori precum respectul, responsabilitatea și colaborarea, esențiale în societatea contemporană.",
-      "ru": "Gimnaziul Filipeni стремится предоставить качественное образование, ориентированное на развитие важнейших навыков и знаний, необходимых для будущего успеха. Благодаря преданности своему персоналу и современному оснащению учреждение занимается обучением молодых людей, продвижением таких ценностей, как уважение, ответственность и сотрудничество, которые необходимы в современном обществе.",
-      "en": "Gimnaziul Filipeni aims to provide a quality education, focused on the development of critical skills and knowledge necessary for future success. Through the commitment of its staff and modern facilities, the institution is dedicated to training young people, promoting values ​​such as respect, responsibility and collaboration, which are essential in contemporary society."
+      "ro": "Gimnaziul Moldova își propune să ofere o educație de calitate, axată pe dezvoltarea abilităților critice și a cunoștințelor necesare pentru succesul în viitor. Prin angajamentul personalului său și facilitățile moderne, instituția se dedică formării tinerilor, promovând valori precum respectul, responsabilitatea și colaborarea, esențiale în societatea contemporană.",
+      "ru": "Gimnaziul Moldova стремится предоставить качественное образование, ориентированное на развитие важнейших навыков и знаний, необходимых для будущего успеха. Благодаря преданности своему персоналу и современному оснащению учреждение занимается обучением молодых людей, продвижением таких ценностей, как уважение, ответственность и сотрудничество, которые необходимы в современном обществе.",
+      "en": "Gimnaziul Moldova aims to provide a quality education, focused on the development of critical skills and knowledge necessary for future success. Through the commitment of its staff and modern facilities, the institution is dedicated to training young people, promoting values ​​such as respect, responsibility and collaboration, which are essential in contemporary society."
     },
-    "slug": "gimnaziul-filipeni",
+    "slug": "gimnaziul-moldova",
     "sections": [
       {
         "type": "PARAGRAPH",
         "content": {
-          "ro": "Gimnaziul Filipeni, înființat în anul 1962, este o instituție de învățământ mediu, dedicată educației elevilor din comunitatea Filipeni. Cu o tradiție de peste 60 de ani, gimnaziul a devenit un loc important pentru formarea intelectuală și socială a tinerilor, oferind un mediu educațional stimulant și sigur.\n\n",
+          "ro": "Gimnaziul Moldova, înființat în anul 1962, este o instituție de învățământ mediu, dedicată educației elevilor din comunitatea Moldova. Cu o tradiție de peste 60 de ani, gimnaziul a devenit un loc important pentru formarea intelectuală și socială a tinerilor, oferind un mediu educațional stimulant și sigur.\n\n",
           "ru": "Филипeнская средняя школа, основанная в 1962 году, является средним учебным заведением, предназначенным для обучения учащихся филиппенской общины. Имея более чем 60-летнюю традицию, гимназия стала важным местом интеллектуального и социального формирования молодежи, предлагая стимулирующую и безопасную образовательную среду.",
-          "en": "The Filipeni High School, established in 1962, is a secondary education institution, dedicated to the education of students from the Filipeni community. With a tradition of more than 60 years, the gymnasium has become an important place for the intellectual and social formation of young people, offering a stimulating and safe educational environment."
+          "en": "The Moldova High School, established in 1962, is a secondary education institution, dedicated to the education of students from the Moldova community. With a tradition of more than 60 years, the gymnasium has become an important place for the intellectual and social formation of young people, offering a stimulating and safe educational environment."
         }
       },
       {
@@ -311,9 +311,9 @@
       {
         "type": "PARAGRAPH",
         "content": {
-          "ro": "În cadrul Gimnaziului Filipeni lucrează un colectiv de 46 de angajați, dintre care 28 sunt profesori. Vârsta medie a personalului didactic este de 49 de ani, ceea ce reflectă experiența și expertiza acestora în domeniul educațional. Cadrele didactice sunt dedicate formării elevilor, oferind suport și îndrumare în procesul de învățare.\n\n",
+          "ro": "În cadrul Gimnaziului Moldova lucrează un colectiv de 46 de angajați, dintre care 28 sunt profesori. Vârsta medie a personalului didactic este de 49 de ani, ceea ce reflectă experiența și expertiza acestora în domeniul educațional. Cadrele didactice sunt dedicate formării elevilor, oferind suport și îndrumare în procesul de învățare.\n\n",
           "ru": "В филипеньской средней школе работает коллектив из 46 сотрудников, из которых 28 – учителя. Средний возраст профессорско-преподавательского состава составляет 49 лет, что отражает их опыт и знания в образовательной сфере. Преподаватели занимаются обучением студентов, предлагая поддержку и руководство в процессе обучения.",
-          "en": "A collective of 46 employees work within the Filipeni High School, of which 28 are teachers. The average age of the teaching staff is 49 years, which reflects their experience and expertise in the educational field. The teachers are dedicated to the training of students, offering support and guidance in the learning process."
+          "en": "A collective of 46 employees work within the Moldova High School, of which 28 are teachers. The average age of the teaching staff is 49 years, which reflects their experience and expertise in the educational field. The teachers are dedicated to the training of students, offering support and guidance in the learning process."
         }
       },
       {
@@ -359,9 +359,9 @@
       {
         "type": "PARAGRAPH",
         "content": {
-          "ro": "Gimnaziul Filipeni își propune să ofere o educație de calitate, axată pe dezvoltarea abilităților critice și a cunoștințelor necesare pentru succesul în viitor. Prin angajamentul personalului său și facilitățile moderne, instituția se dedică formării tinerilor, promovând valori precum respectul, responsabilitatea și colaborarea, esențiale în societatea contemporană.\n\n\n\n\n\n\n",
-          "ru": "Gimnaziul Filipeni стремится предоставить качественное образование, ориентированное на развитие важнейших навыков и знаний, необходимых для будущего успеха. Благодаря преданности своему персоналу и современному оснащению учреждение занимается обучением молодых людей, продвижением таких ценностей, как уважение, ответственность и сотрудничество, которые необходимы в современном обществе.",
-          "en": "Gimnaziul Filipeni aims to provide a quality education, focused on the development of critical skills and knowledge necessary for future success. Through the commitment of its staff and modern facilities, the institution is dedicated to training young people, promoting values ​​such as respect, responsibility and collaboration, which are essential in contemporary society."
+          "ro": "Gimnaziul Moldova își propune să ofere o educație de calitate, axată pe dezvoltarea abilităților critice și a cunoștințelor necesare pentru succesul în viitor. Prin angajamentul personalului său și facilitățile moderne, instituția se dedică formării tinerilor, promovând valori precum respectul, responsabilitatea și colaborarea, esențiale în societatea contemporană.\n\n\n\n\n\n\n",
+          "ru": "Gimnaziul Moldova стремится предоставить качественное образование, ориентированное на развитие важнейших навыков и знаний, необходимых для будущего успеха. Благодаря преданности своему персоналу и современному оснащению учреждение занимается обучением молодых людей, продвижением таких ценностей, как уважение, ответственность и сотрудничество, которые необходимы в современном обществе.",
+          "en": "Gimnaziul Moldova aims to provide a quality education, focused on the development of critical skills and knowledge necessary for future success. Through the commitment of its staff and modern facilities, the institution is dedicated to training young people, promoting values ​​such as respect, responsibility and collaboration, which are essential in contemporary society."
         }
       },
       {
@@ -392,9 +392,9 @@
     ],
     "cover": "6705c4f68221e9146ea19c5a",
     "location": {
-      "ro": "str. Ștefan cel Mare, Filipeni, Leova ",
-      "ru": "улица Штефан чел Маре, Филипень, Леова",
-      "en": "Stefan cel Mare Street, Filipeni, Leova"
+      "ro": "str. Ștefan cel Mare, Moldova ",
+      "ru": "улица Штефан чел Маре, Молдова",
+      "en": "Stefan cel Mare Street, Moldova"
     },
     "phone": 0,
     "geo": {
@@ -437,7 +437,7 @@
       "sun": {}
     },
     "category": {
-      "tennant": "filipeni",
+      "tennant": "moldova",
       "title": {
         "ro": "Educație",
         "ru": "Образование",
@@ -450,33 +450,33 @@
     "_id": {
       "$oid": "66fa03c04ce72d3f9ba8396f"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "title": {
-      "ro": "Primăria Filipeni",
+      "ro": "Primăria Moldova",
       "ru": "Мэрия Филиппены",
-      "en": "Filipeni village town hall"
+      "en": "Moldova village town hall"
     },
     "excerpt": {
-      "ro": "Satul Filipeni, parte integrantă a raionului Leova, își desfășoară activitatea sub conducerea primarului Tudor Camerzan. Cu o populație de aproximativ 3024 de locuitori, conform recensământului din 2014, comunitatea Filipeni a cunoscut o evoluție constantă. Situat la doar 9 km de orașul Leova și la 81 km de capitala Chișinău, satul beneficiază de o poziție geografică favorabilă.",
-      "ru": "Деревня Филипень, являющаяся неотъемлемой частью района Леова, действует под руководством мэра Тудора Камерзана. По данным переписи 2014 года, население Филиппин, составляющее около 3024 человек, постоянно развивается. Расположенный всего в 9 км от города Леова и в 81 км от столицы Кишинева, село имеет выгодное географическое положение.",
-      "en": "The village of Filipeni, an integral part of the Leova district, operates under the leadership of mayor Tudor Camerzan. With a population of approximately 3024 inhabitants, according to the 2014 census, the Filipino community has seen a constant evolution. Located only 9 km from the city of Leova and 81 km from the capital Chisinau, the village benefits from a favorable geographical position."
+      "ro": "Satul Moldova, parte integrantă a regiunii, își desfășoară activitatea sub conducerea primarului Tudor Camerzan. Cu o populație de aproximativ 3024 de locuitori, conform recensământului din 2014, comunitatea Moldova a cunoscut o evoluție constantă. Situat la doar 9 km de orașul Regiunea și la 81 km de capitala Chișinău, satul beneficiază de o poziție geografică favorabilă.",
+      "ru": "Деревня Молдова, являющаяся неотъемлемой частью региона, действует под руководством мэра Тудора Камерзана. По данным переписи 2014 года, население Филиппин, составляющее около 3024 человек, постоянно развивается. Расположенный всего в 9 км от города Леова и в 81 км от столицы Кишинева, село имеет выгодное географическое положение.",
+      "en": "The village of Moldova, an integral part of the region, operates under the leadership of mayor Tudor Camerzan. With a population of approximately 3024 inhabitants, according to the 2014 census, the Filipino community has seen a constant evolution. Located only 9 km from the city of Regiunea and 81 km from the capital Chisinau, the village benefits from a favorable geographical position."
     },
-    "slug": "primaria-filipeni",
+    "slug": "primaria-moldova",
     "sections": [
       {
         "type": "TITLE",
         "content": {
-          "ro": "Primăria Filipeni",
+          "ro": "Primăria Moldova",
           "ru": "Мэрия Филипены ",
-          "en": "Filipeni Hall"
+          "en": "Moldova Hall"
         }
       },
       {
         "type": "PARAGRAPH",
         "content": {
-          "ro": "Satul Filipeni, parte integrantă a raionului Leova, își desfășoară activitatea sub conducerea primarului Tudor Camerzan. Cu o populație de aproximativ 3024 de locuitori, conform recensământului din 2014, comunitatea Filipeni a cunoscut o evoluție constantă. Situat la doar 9 km de orașul Leova și la 81 km de capitala Chișinău, satul beneficiază de o poziție geografică favorabilă. În ultimii ani, Primăria Filipeni a implementat mai multe proiecte de dezvoltare, axate pe modernizarea infrastructurii, îmbunătățirea serviciilor publice și creșterea calității vieții cetățenilor.",
-          "ru": "Село Филипень, составная часть Леовского района, действует под руководством примара Тудора Камерзана. По данным переписи 2014 года, население Филиппин, составляющее около 3024 человек, постоянно развивается. Расположенный всего в 9 км от города Леова и в 81 км от столицы Кишинева, село имеет выгодное географическое положение. За последние годы мэрия Филиппин реализовала несколько проектов развития, направленных на модернизацию инфраструктуры, улучшение государственных услуг и повышение качества жизни граждан.",
-          "en": "The village of Filipeni, an integral part of Leova district, operates under the leadership of mayor Tudor Camerzan. With a population of approximately 3024 inhabitants, according to the 2014 census, the Filipino community has seen a constant evolution. Located only 9 km from the city of Leova and 81 km from the capital Chisinau, the village benefits from a favorable geographical position. In recent years, Filipeni City Hall has implemented several development projects, focused on modernizing the infrastructure, improving public services and increasing the quality of life of citizens."
+          "ro": "Satul Moldova, parte integrantă a regiunii, își desfășoară activitatea sub conducerea primarului Tudor Camerzan. Cu o populație de aproximativ 3024 de locuitori, conform recensământului din 2014, comunitatea Moldova a cunoscut o evoluție constantă. Situat la doar 9 km de orașul Regiunea și la 81 km de capitala Chișinău, satul beneficiază de o poziție geografică favorabilă. În ultimii ani, Primăria Moldova a implementat mai multe proiecte de dezvoltare, axate pe modernizarea infrastructurii, îmbunătățirea serviciilor publice și creșterea calității vieții cetățenilor.",
+          "ru": "Село Молдова, составная часть региона, действует под руководством примара Тудора Камерзана. По данным переписи 2014 года, население Филиппин, составляющее около 3024 человек, постоянно развивается. Расположенный всего в 9 км от города Леова и в 81 км от столицы Кишинева, село имеет выгодное географическое положение. За последние годы мэрия Филиппин реализовала несколько проектов развития, направленных на модернизацию инфраструктуры, улучшение государственных услуг и повышение качества жизни граждан.",
+          "en": "The village of Moldova, an integral part of region, operates under the leadership of mayor Tudor Camerzan. With a population of approximately 3024 inhabitants, according to the 2014 census, the Filipino community has seen a constant evolution. Located only 9 km from the city of Regiunea and 81 km from the capital Chisinau, the village benefits from a favorable geographical position. In recent years, Moldova City Hall has implemented several development projects, focused on modernizing the infrastructure, improving public services and increasing the quality of life of citizens."
         }
       },
       {
@@ -502,9 +502,9 @@
     ],
     "cover": "66fa013e4ce72d3f9ba8396d",
     "location": {
-      "ro": "Filipeni, Leova",
-      "ru": "Филипень, Леова",
-      "en": "Filipeni, Leova"
+      "ro": "Moldova",
+      "ru": "Молдова",
+      "en": "Moldova"
     },
     "phone": 26340701,
     "geo": {
@@ -552,7 +552,7 @@
       "sun": {}
     },
     "category": {
-      "tennant": "filipeni",
+      "tennant": "moldova",
       "title": {
         "ro": "Cultură",
         "ru": "Культура",
@@ -560,32 +560,32 @@
       },
       "key": "culture"
     },
-    "email": "primaria.filipeni@apl.gov.md",
-    "webSite": "https://filipeni.primarie.md/"
+    "email": "primaria.moldova@apl.gov.md",
+    "webSite": "https://moldova.primarie.md/"
   },
   {
     "_id": {
       "$oid": "6723490c870b84dbb34681df"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "title": {
       "ro": "Biblioteca",
       "ru": "Библиотека",
       "en": "Library"
     },
     "excerpt": {
-      "ro": "Biblioteca Publică pentru Copii \"Filipeni\": Un Centru de Cultură, Educație și Creativitate",
-      "ru": "Детская публичная библиотека Филипень: центр культуры, образования и творчества",
-      "en": "Filipeni Children's Public Library: A Center for Culture, Education and Creativity"
+      "ro": "Biblioteca Publică pentru Copii \"Moldova\": Un Centru de Cultură, Educație și Creativitate",
+      "ru": "Детская публичная библиотека Молдова: центр культуры, образования и творчества",
+      "en": "Moldova Children's Public Library: A Center for Culture, Education and Creativity"
     },
     "slug": "biblioteca",
     "sections": [
       {
         "type": "PARAGRAPH",
         "content": {
-          "ro": "Misiunea Bibliotecii Biblioteca Publică pentru Copii Filipeni este un spațiu dedicat dezvoltării culturale, educaționale și recreative a comunității. Cu o gamă diversificată de servicii și activități, biblioteca își propune să sprijine copiii și tinerii în explorarea lumii lecturii, să le cultive creativitatea și să le ofere un loc unde pot învăța și socializa într-un mediu plăcut și primitor.",
-          "ru": "Детская публичная библиотека Филипень - это пространство, посвященное культурному, образовательному и развлекательному развитию сообщества. С разнообразными услугами и мероприятиями библиотека стремится поддерживать детей и молодежь в исследовании мира чтения, развивать их творческие способности и предоставлять место, где они могут учиться и общаться в дружественной и приветливой атмосфере.",
-          "en": "The Filipeni Children's Public Library is a space dedicated to the cultural, educational, and recreational development of the community. With a variety of services and activities, the library aims to support children and youth in exploring the world of reading, cultivating their creativity, and providing a place where they can learn and socialize in a friendly and welcoming environment."
+          "ro": "Misiunea Bibliotecii Biblioteca Publică pentru Copii Moldova este un spațiu dedicat dezvoltării culturale, educaționale și recreative a comunității. Cu o gamă diversificată de servicii și activități, biblioteca își propune să sprijine copiii și tinerii în explorarea lumii lecturii, să le cultive creativitatea și să le ofere un loc unde pot învăța și socializa într-un mediu plăcut și primitor.",
+          "ru": "Детская публичная библиотека Молдова - это пространство, посвященное культурному, образовательному и развлекательному развитию сообщества. С разнообразными услугами и мероприятиями библиотека стремится поддерживать детей и молодежь в исследовании мира чтения, развивать их творческие способности и предоставлять место, где они могут учиться и общаться в дружественной и приветливой атмосфере.",
+          "en": "The Moldova Children's Public Library is a space dedicated to the cultural, educational, and recreational development of the community. With a variety of services and activities, the library aims to support children and youth in exploring the world of reading, cultivating their creativity, and providing a place where they can learn and socialize in a friendly and welcoming environment."
         }
       },
       {
@@ -651,9 +651,9 @@
       {
         "type": "PARAGRAPH",
         "content": {
-          "ro": "Realizări și Parteneriate. Biblioteca Filipeni a devenit un loc central al comunității și prin numeroasele colaborări cu instituțiile locale. A organizat numeroase activități culturale, concursuri de creație, expoziții de artizanat și a oferit diverse servicii electronice gratuite (copiere, scanare, digitizare de documente).\n\n",
-          "ru": "Достижения и партнерства. Библиотека Филипень стала центральным местом в сообществе благодаря многочисленным сотрудничествам с местными учреждениями. Она организовала различные культурные мероприятия, конкурсы творчества, выставки ремесел и предоставила бесплатные электронные услуги (копирование, сканирование и оцифровка документов).\n\n",
-          "en": "Achievements and Partnerships. The Filipeni Library has become a central place in the community through numerous collaborations with local institutions. It has organized various cultural activities, creative competitions, craft exhibitions, and has provided free electronic services (copying, scanning, and document digitizing).\n\n"
+          "ro": "Realizări și Parteneriate. Biblioteca Moldova a devenit un loc central al comunității și prin numeroasele colaborări cu instituțiile locale. A organizat numeroase activități culturale, concursuri de creație, expoziții de artizanat și a oferit diverse servicii electronice gratuite (copiere, scanare, digitizare de documente).\n\n",
+          "ru": "Достижения и партнерства. Библиотека Молдова стала центральным местом в сообществе благодаря многочисленным сотрудничествам с местными учреждениями. Она организовала различные культурные мероприятия, конкурсы творчества, выставки ремесел и предоставила бесплатные электронные услуги (копирование, сканирование и оцифровка документов).\n\n",
+          "en": "Achievements and Partnerships. The Moldova Library has become a central place in the community through numerous collaborations with local institutions. It has organized various cultural activities, creative competitions, craft exhibitions, and has provided free electronic services (copying, scanning, and document digitizing).\n\n"
         }
       },
       {
@@ -692,9 +692,9 @@
         "type": "LIST",
         "content": [
           {
-            "ro": "Ziua Limbii Române – Expoziție de lucrări la Leova.",
+            "ro": "Ziua Limbii Române – Expoziție de lucrări la Regiunea.",
             "ru": "День румынского языка – Выставка работ в Леова.",
-            "en": "Romanian Language Day – Exhibition of works in Leova."
+            "en": "Romanian Language Day – Exhibition of works in Regiunea."
           },
           {
             "ro": "Festivalul Sărbătorilor Locale – Expoziții tematice la Hramul Satului și Zilele Diasporei.",
@@ -719,25 +719,25 @@
       {
         "type": "TITLE",
         "content": {
-          "ro": "Biblioteca Filipeni: Un Loc al Comunității",
-          "ru": "Библиотека Филипень: Место для сообщества",
-          "en": "The Filipeni Library: A Community Place"
+          "ro": "Biblioteca Moldova: Un Loc al Comunității",
+          "ru": "Библиотека Молдова: Место для сообщества",
+          "en": "The Moldova Library: A Community Place"
         }
       },
       {
         "type": "EMPHASIZED_PARAGRAPH",
         "content": {
-          "ro": "Biblioteca Publică pentru Copii Filipeni este mai mult decât un spațiu de lectură. Este un loc de întâlnire pentru comunitate, un centru de cultură și tradiție, unde fiecare copil poate descoperi magia cărților și frumusețea creației.",
-          "ru": "Детская публичная библиотека Филипень - это больше, чем просто место для чтения. Это место встречи для сообщества, центр культуры и традиций, где каждый ребенок может открыть для себя магию книг и красоту творчества.",
-          "en": "The Filipeni Children's Public Library is more than a reading space. It is a meeting place for the community, a center of culture and tradition, where every child can discover the magic of books and the beauty of creation."
+          "ro": "Biblioteca Publică pentru Copii Moldova este mai mult decât un spațiu de lectură. Este un loc de întâlnire pentru comunitate, un centru de cultură și tradiție, unde fiecare copil poate descoperi magia cărților și frumusețea creației.",
+          "ru": "Детская публичная библиотека Молдова - это больше, чем просто место для чтения. Это место встречи для сообщества, центр культуры и традиций, где каждый ребенок может открыть для себя магию книг и красоту творчества.",
+          "en": "The Moldova Children's Public Library is more than a reading space. It is a meeting place for the community, a center of culture and tradition, where every child can discover the magic of books and the beauty of creation."
         }
       }
     ],
     "cover": "67200b05ee25fe40ed70ff61",
     "location": {
-      "ro": "L598 Filipeni, Leova",
-      "ru": "L598 Филипень, Леова",
-      "en": "L598 Filipeni, Leova"
+      "ro": "L598 Moldova",
+      "ru": "L598 Молдова",
+      "en": "L598 Moldova"
     },
     "phone": 0,
     "geo": {
@@ -780,7 +780,7 @@
       "sun": {}
     },
     "category": {
-      "tennant": "filipeni",
+      "tennant": "moldova",
       "title": {
         "ro": "Cultură",
         "ru": "Культура",
@@ -793,7 +793,7 @@
     "_id": {
       "$oid": "6705c1e88221e9146ea19c50"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "title": {
       "ro": "ÎET \"Andrieș\"",
       "ru": "ИЭПП «Andries»",
@@ -809,9 +809,9 @@
       {
         "type": "PARAGRAPH",
         "content": {
-          "ro": "Întreprinderea de Educație Timpurie \"Andrieș\", înființată în anul 1967, este o grădiniță cu o tradiție îndelungată, situată în localitatea Filipeni. De-a lungul celor peste 50 de ani de activitate, grădinița a rămas un pilon esențial pentru educația copiilor din comunitate, oferind un mediu sigur și îngrijit pentru dezvoltarea lor timpurie.\n\n",
-          "ru": "Компания дошкольного образования «Андриес», основанная в 1967 году, представляет собой детский сад с давними традициями, расположенный в городе Филипень. На протяжении более чем 50-летней деятельности детский сад оставался важной опорой в образовании детей в обществе, обеспечивая безопасную и заботливую среду для их раннего развития.",
-          "en": "The \"Andries\" Early Childhood Education Company, established in 1967, is a kindergarten with a long tradition, located in the town of Filipeni. Throughout its more than 50 years of activity, the kindergarten has remained an essential pillar for the education of children in the community, providing a safe and caring environment for their early development."
+          "ro": "Întreprinderea de Educație Timpurie \"Andrieș\", înființată în anul 1967, este o grădiniță cu o tradiție îndelungată, situată în localitatea Moldova. De-a lungul celor peste 50 de ani de activitate, grădinița a rămas un pilon esențial pentru educația copiilor din comunitate, oferind un mediu sigur și îngrijit pentru dezvoltarea lor timpurie.\n\n",
+          "ru": "Компания дошкольного образования «Андриес», основанная в 1967 году, представляет собой детский сад с давними традициями, расположенный в городе Молдова. На протяжении более чем 50-летней деятельности детский сад оставался важной опорой в образовании детей в обществе, обеспечивая безопасную и заботливую среду для их раннего развития.",
+          "en": "The \"Andries\" Early Childhood Education Company, established in 1967, is a kindergarten with a long tradition, located in the town of Moldova. Throughout its more than 50 years of activity, the kindergarten has remained an essential pillar for the education of children in the community, providing a safe and caring environment for their early development."
         }
       },
       {
@@ -906,9 +906,9 @@
     ],
     "cover": "67200b0aee25fe40ed70ffb1",
     "location": {
-      "ro": "Filipeni, Leova",
-      "ru": "Филипень, Леова",
-      "en": "Filipeni, Leova"
+      "ro": "Moldova",
+      "ru": "Молдова",
+      "en": "Moldova"
     },
     "phone": 0,
     "geo": {
@@ -951,7 +951,7 @@
       "sun": {}
     },
     "category": {
-      "tennant": "filipeni",
+      "tennant": "moldova",
       "title": {
         "ro": "Educație",
         "ru": "Образование",
@@ -964,25 +964,25 @@
     "_id": {
       "$oid": "672348c4870b84dbb34681dd"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "title": {
       "ro": "Oficiul poștal",
       "ru": "Почтовое отделение",
       "en": "The post office"
     },
     "excerpt": {
-      "ro": "Oficiul Poștal din Filipeni asigură servicii esențiale de corespondență și logistică pentru comunitate, facilitând comunicarea și accesul la servicii poștale și financiare în zonă.",
-      "ru": "Почтовое отделение в Филипень предоставляет важные услуги по корреспонденции и логистике для сообщества, обеспечивая связь и доступ к почтовым и финансовым услугам в этом районе.",
-      "en": "The Post Office in Filipeni provides essential correspondence and logistics services for the community, facilitating communication and access to postal and financial services in the area."
+      "ro": "Oficiul Poștal din Moldova asigură servicii esențiale de corespondență și logistică pentru comunitate, facilitând comunicarea și accesul la servicii poștale și financiare în zonă.",
+      "ru": "Почтовое отделение в Молдова предоставляет важные услуги по корреспонденции и логистике для сообщества, обеспечивая связь и доступ к почтовым и финансовым услугам в этом районе.",
+      "en": "The Post Office in Moldova provides essential correspondence and logistics services for the community, facilitating communication and access to postal and financial services in the area."
     },
     "slug": "oficiul-postal",
     "sections": [
       {
         "type": "PARAGRAPH",
         "content": {
-          "ro": "\nOficiul Poștal din localitatea Filipeni, raionul Leova, reprezintă un punct important de comunicare și servicii pentru locuitorii comunei. Clădirea oficiului poștal îndeplinește funcții esențiale de expediere și primire a corespondenței, procesare a coletelor, servicii financiare și alte facilități utile comunității locale. De-a lungul anilor, oficiul poștal din Filipeni a rămas un simbol de legătură între comunitate și restul țării, adaptându-se noilor tehnologii și cerințe ale serviciilor poștale moderne.",
-          "ru": "Почтовое отделение в городе Филипень района Леова представляет собой важный пункт связи и услуг для жителей коммуны. Здание почтового отделения выполняет важные функции по отправке и получению почты, обработке посылок, оказанию финансовых услуг и другим объектам, полезным для местного сообщества. На протяжении многих лет почтовое отделение на Филиппинах оставалось символом связи между сообществом и остальной частью страны, адаптируясь к новым технологиям и требованиям современных почтовых услуг.",
-          "en": "The Post Office in the town of Filipeni, Leova district, represents an important point of communication and services for the inhabitants of the commune. The post office building performs essential functions of sending and receiving mail, parcel processing, financial services and other facilities useful to the local community. Over the years, the post office in the Philippines has remained a symbol of connection between the community and the rest of the country, adapting to new technologies and requirements of modern postal services."
+          "ro": "\nOficiul Poștal din localitatea Moldova, regiunea, reprezintă un punct important de comunicare și servicii pentru locuitorii comunei. Clădirea oficiului poștal îndeplinește funcții esențiale de expediere și primire a corespondenței, procesare a coletelor, servicii financiare și alte facilități utile comunității locale. De-a lungul anilor, oficiul poștal din Moldova a rămas un simbol de legătură între comunitate și restul țării, adaptându-se noilor tehnologii și cerințe ale serviciilor poștale moderne.",
+          "ru": "Почтовое отделение в городе Молдова региона представляет собой важный пункт связи и услуг для жителей коммуны. Здание почтового отделения выполняет важные функции по отправке и получению почты, обработке посылок, оказанию финансовых услуг и другим объектам, полезным для местного сообщества. На протяжении многих лет почтовое отделение на Филиппинах оставалось символом связи между сообществом и остальной частью страны, адаптируясь к новым технологиям и требованиям современных почтовых услуг.",
+          "en": "The Post Office in the town of Moldova, region, represents an important point of communication and services for the inhabitants of the commune. The post office building performs essential functions of sending and receiving mail, parcel processing, financial services and other facilities useful to the local community. Over the years, the post office in the Philippines has remained a symbol of connection between the community and the rest of the country, adapting to new technologies and requirements of modern postal services."
         }
       },
       {
@@ -998,9 +998,9 @@
     ],
     "cover": "67200b09ee25fe40ed70ff98",
     "location": {
-      "ro": "str. Ștefan cel Mare, Filipeni, Leova",
-      "ru": "улица Штефан чел Маре, Филипень, Леова",
-      "en": "Stefan cel Mare Street, Filipeni, Leova"
+      "ro": "str. Ștefan cel Mare, Moldova",
+      "ru": "улица Штефан чел Маре, Молдова",
+      "en": "Stefan cel Mare Street, Moldova"
     },
     "phone": 0,
     "geo": {
@@ -1043,7 +1043,7 @@
       "sun": {}
     },
     "category": {
-      "tennant": "filipeni",
+      "tennant": "moldova",
       "title": {
         "ro": "Tradiție",
         "ru": "Традиция",
@@ -1056,25 +1056,25 @@
     "_id": {
       "$oid": "670728066a2aac0fdd9ebbfe"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "title": {
-      "ro": "Centrul de Sănătate Filipeni",
-      "ru": "Центр Здравоохранения Филипени",
-      "en": "Filipeni Health Center"
+      "ro": "Centrul de Sănătate Moldova",
+      "ru": "Центр Здравоохранения Молдова",
+      "en": "Moldova Health Center"
     },
     "excerpt": {
-      "ro": "Centrul de Sănătate Filipeni are misiunea de a asigura îngrijirea medicală pentru toți locuitorii, indiferent de vârstă sau stare financiară, și de a promova un stil de viață sănătos în comunitate. Cu toate că se confruntă cu unele limitări în ceea ce privește infrastructura și echipamentele, centrul își propune să ofere servicii de calitate și să îmbunătățească continuu standardele de îngrijire.\n\n\n\n\n\n\n",
-      "ru": "Центр Здравоохранения Филипени ставит перед собой задачу обеспечивать медицинское обслуживание для всех жителей, независимо от возраста или финансового положения, и пропагандировать здоровый образ жизни в сообществе. Несмотря на некоторые ограничения в инфраструктуре и оборудовании, центр стремится предоставлять качественные услуги и постоянно улучшать стандарты медицинского обслуживания.",
-      "en": "The Filipeni Health Center is committed to providing healthcare to all residents, regardless of age or financial status, and promoting a healthy lifestyle in the community. While it faces some limitations in terms of infrastructure and equipment, the center aims to offer quality services and continuously improve healthcare standards."
+      "ro": "Centrul de Sănătate Moldova are misiunea de a asigura îngrijirea medicală pentru toți locuitorii, indiferent de vârstă sau stare financiară, și de a promova un stil de viață sănătos în comunitate. Cu toate că se confruntă cu unele limitări în ceea ce privește infrastructura și echipamentele, centrul își propune să ofere servicii de calitate și să îmbunătățească continuu standardele de îngrijire.\n\n\n\n\n\n\n",
+      "ru": "Центр Здравоохранения Молдова ставит перед собой задачу обеспечивать медицинское обслуживание для всех жителей, независимо от возраста или финансового положения, и пропагандировать здоровый образ жизни в сообществе. Несмотря на некоторые ограничения в инфраструктуре и оборудовании, центр стремится предоставлять качественные услуги и постоянно улучшать стандарты медицинского обслуживания.",
+      "en": "The Moldova Health Center is committed to providing healthcare to all residents, regardless of age or financial status, and promoting a healthy lifestyle in the community. While it faces some limitations in terms of infrastructure and equipment, the center aims to offer quality services and continuously improve healthcare standards."
     },
-    "slug": "centrul-de-sanatate-filipeni",
+    "slug": "centrul-de-sanatate-moldova",
     "sections": [
       {
         "type": "PARAGRAPH",
         "content": {
-          "ro": "În satul Filipeni, asistența medicală este asigurată de Centrul de Sănătate Filipeni, care joacă un rol esențial în menținerea sănătății locuitorilor și oferirea de servicii medicale de bază. Cu o echipă dedicată de personal medical și resurse accesibile, centrul reprezintă un punct central pentru îngrijirea comunității.",
-          "ru": "В селе Филипень медицинскую помощь оказывает Центр здоровья Филипень, который играет важную роль в поддержании здоровья жителей и предоставлении основных медицинских услуг. Благодаря специализированной команде медицинского персонала и доступным ресурсам центр является центром оказания помощи населению.",
-          "en": "In the village of Filipeni, medical assistance is provided by the Filipeni Health Center, which plays an essential role in maintaining the health of the residents and providing basic medical services. With a dedicated team of medical staff and accessible resources, the center is a focal point for community care."
+          "ro": "În satul Moldova, asistența medicală este asigurată de Centrul de Sănătate Moldova, care joacă un rol esențial în menținerea sănătății locuitorilor și oferirea de servicii medicale de bază. Cu o echipă dedicată de personal medical și resurse accesibile, centrul reprezintă un punct central pentru îngrijirea comunității.",
+          "ru": "В селе Молдова медицинскую помощь оказывает Центр здоровья Молдова, который играет важную роль в поддержании здоровья жителей и предоставлении основных медицинских услуг. Благодаря специализированной команде медицинского персонала и доступным ресурсам центр является центром оказания помощи населению.",
+          "en": "In the village of Moldova, medical assistance is provided by the Moldova Health Center, which plays an essential role in maintaining the health of the residents and providing basic medical services. With a dedicated team of medical staff and accessible resources, the center is a focal point for community care."
         }
       },
       {
@@ -1088,9 +1088,9 @@
       {
         "type": "PARAGRAPH",
         "content": {
-          "ro": "Centrul de Sănătate Filipeni dispune de o clădire proprie, aflată într-o stare decentă, oferind condiții corespunzătoare pentru desfășurarea activităților medicale. În pofida stării satisfăcătoare a infrastructurii, există spațiu pentru îmbunătățiri în ceea ce privește modernizarea echipamentelor și facilităților.\n\n",
-          "ru": "Медицинский центр «Филипени» имеет собственное здание, в приличном состоянии, предлагающее соответствующие условия для проведения медицинской деятельности. Несмотря на удовлетворительное состояние инфраструктуры, есть возможности для улучшения в плане модернизации оборудования и сооружений.",
-          "en": "The Filipeni Health Center has its own building, in a decent condition, offering appropriate conditions for carrying out medical activities. Despite the satisfactory state of infrastructure, there is room for improvement in terms of upgrading equipment and facilities."
+          "ro": "Centrul de Sănătate Moldova dispune de o clădire proprie, aflată într-o stare decentă, oferind condiții corespunzătoare pentru desfășurarea activităților medicale. În pofida stării satisfăcătoare a infrastructurii, există spațiu pentru îmbunătățiri în ceea ce privește modernizarea echipamentelor și facilităților.\n\n",
+          "ru": "Медицинский центр «Молдова» имеет собственное здание, в приличном состоянии, предлагающее соответствующие условия для проведения медицинской деятельности. Несмотря на удовлетворительное состояние инфраструктуры, есть возможности для улучшения в плане модернизации оборудования и сооружений.",
+          "en": "The Moldova Health Center has its own building, in a decent condition, offering appropriate conditions for carrying out medical activities. Despite the satisfactory state of infrastructure, there is room for improvement in terms of upgrading equipment and facilities."
         }
       },
       {
@@ -1152,7 +1152,7 @@
       {
         "type": "PARAGRAPH",
         "content": {
-          "ro": "Centrul de Sănătate Filipeni oferă o gamă variată de servicii medicale de bază, precum consultații generale, monitorizarea sănătății copiilor și vârstnicilor, tratamente pentru afecțiuni comune și servicii de vaccinare. Personalul medical este pregătit să asiste în cazuri de urgență până la sosirea ambulanței sau transferul pacienților către spitale mai mari din apropiere.\n\n",
+          "ro": "Centrul de Sănătate Moldova oferă o gamă variată de servicii medicale de bază, precum consultații generale, monitorizarea sănătății copiilor și vârstnicilor, tratamente pentru afecțiuni comune și servicii de vaccinare. Personalul medical este pregătit să asiste în cazuri de urgență până la sosirea ambulanței sau transferul pacienților către spitale mai mari din apropiere.\n\n",
           "ru": "Филиппинский центр здоровья предлагает широкий спектр основных медицинских услуг, таких как общие консультации, наблюдение за здоровьем детей и пожилых людей, лечение распространенных заболеваний и услуги вакцинации. Медицинский персонал готов оказать помощь в экстренных случаях до прибытия машины скорой помощи или перевода пациентов в близлежащие более крупные больницы.",
           "en": "The Philippine Health Center offers a wide range of basic medical services, such as general consultations, health monitoring of children and the elderly, treatments for common ailments and vaccination services. Medical personnel are prepared to assist in emergency cases until the arrival of an ambulance or the transfer of patients to larger hospitals nearby."
         }
@@ -1168,9 +1168,9 @@
       {
         "type": "PARAGRAPH",
         "content": {
-          "ro": "Centrul de Sănătate Filipeni are misiunea de a asigura îngrijirea medicală pentru toți locuitorii, indiferent de vârstă sau stare financiară, și de a promova un stil de viață sănătos în comunitate. Cu toate că se confruntă cu unele limitări în ceea ce privește infrastructura și echipamentele, centrul își propune să ofere servicii de calitate și să îmbunătățească continuu standardele de îngrijire.\n\n\n\n\n\n\n",
+          "ro": "Centrul de Sănătate Moldova are misiunea de a asigura îngrijirea medicală pentru toți locuitorii, indiferent de vârstă sau stare financiară, și de a promova un stil de viață sănătos în comunitate. Cu toate că se confruntă cu unele limitări în ceea ce privește infrastructura și echipamentele, centrul își propune să ofere servicii de calitate și să îmbunătățească continuu standardele de îngrijire.\n\n\n\n\n\n\n",
           "ru": "Миссия Филипeнского центра здоровья — оказание медицинской помощи всем жителям, независимо от возраста и финансового положения, а также пропаганда здорового образа жизни в обществе. Несмотря на некоторые ограничения с точки зрения инфраструктуры и оборудования, центр стремится предоставлять качественные услуги и постоянно улучшать стандарты медицинского обслуживания.",
-          "en": "The Filipeni Health Center is committed to providing healthcare to all residents, regardless of age or financial status, and promoting a healthy lifestyle in the community. While it faces some limitations in terms of infrastructure and equipment, the center aims to offer quality services and continuously improve healthcare standards.\n\n\n\n\n\n\n"
+          "en": "The Moldova Health Center is committed to providing healthcare to all residents, regardless of age or financial status, and promoting a healthy lifestyle in the community. While it faces some limitations in terms of infrastructure and equipment, the center aims to offer quality services and continuously improve healthcare standards.\n\n\n\n\n\n\n"
         }
       },
       {
@@ -1185,9 +1185,9 @@
     ],
     "cover": "67200b08ee25fe40ed70ff94",
     "location": {
-      "ro": "Filipeni, Leova",
-      "ru": "Филипень, Леова",
-      "en": "Filipeni, Leova"
+      "ro": "Moldova",
+      "ru": "Молдова",
+      "en": "Moldova"
     },
     "phone": 0,
     "geo": {
@@ -1230,7 +1230,7 @@
       "sun": {}
     },
     "category": {
-      "tennant": "filipeni",
+      "tennant": "moldova",
       "title": {
         "ro": "Cultură",
         "ru": "Культура",

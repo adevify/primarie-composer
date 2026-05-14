@@ -3,7 +3,7 @@
     "_id": {
       "$oid": "67697164fc205becbbcccc6a"
     },
-    "name": "Crasnoarmeiscoe",
+    "name": "Primăria A",
     "storage": {
       "count": 3
     },
@@ -14,60 +14,60 @@
       "count": 2
     },
     "basePrice": 700,
-    "address": "",
+    "address": "MD-0000, s. Localitate",
     "mayor": {
-      "fullName": " Alexandru Todoseiciuc",
-      "email": "prim259ria@rambler.ru",
-      "phone": "+373 79 481 912"
+      "fullName": "Ion Popescu",
+      "email": "primar@localitate.md",
+      "phone": "+373 60 000 000"
     },
-    "apl": 18518,
+    "apl": 10000,
     "notes": [
       {
-        "text": "GADCHII PRIMAR,am trimis oferta, dar nu sunt sigura ca o va analiza",
+        "text": "Oferta a fost transmisă, se așteaptă răspuns.",
         "date": "2025-03-26T07:46:19.539Z",
         "user": "671a2f79d4f39680d5fbfcc4"
       },
       {
-        "text": "chind va lua o decizie finala, o sa ne sune singur [ nu doreste sa-l deranjam ]",
+        "text": "Contactul a solicitat timp pentru analiză.",
         "date": "2025-01-31T08:46:16.240Z",
         "user": "671a2f79d4f39680d5fbfcc4"
       },
       {
-        "text": "PRIMARII SUNT LA SEMINAR REPUBLICAN",
+        "text": "În curs de negociere.",
         "date": "2025-01-30T07:58:01.133Z",
         "user": "671a2f79d4f39680d5fbfcc4"
       },
       {
-        "text": "chind se va apreciza, singur ne va suna",
+        "text": "Se va reveni cu un răspuns ulterior.",
         "date": "2025-01-10T09:55:08.608Z",
         "user": "671a2f79d4f39680d5fbfcc4"
       },
       {
-        "text": "in proces de convorbire\t",
+        "text": "Discuție în desfășurare.",
         "date": "2024-12-23T14:21:46.155Z",
         "user": "671a2f79d4f39680d5fbfcc4"
       }
     ],
     "contacts": [
       {
-        "fullName": "Alexandru Todoseiciuc",
-        "email": "mobil",
-        "phone": "079 481 912"
+        "fullName": "Ion Popescu",
+        "email": "contact0@localitate.md",
+        "phone": "+373 60 000000"
       },
       {
-        "fullName": "MAI TIRZIU"
+        "fullName": "Maria Ionescu"
       },
       {
-        "fullName": " Alexandru Todoseiciuc",
-        "email": "prim259ria@rambler.ru",
-        "phone": "+373 269-71236"
+        "fullName": "Secretar",
+        "email": "contact2@localitate.md",
+        "phone": "+373 60 000002"
       },
       {
-        "fullName": "SECRETAR",
-        "phone": "0269-71238"
+        "fullName": "Contabil",
+        "phone": "+373 60 000003"
       },
       {
-        "fullName": "s. Crasnoarmeiscoe  ;\ts. Talaiesti"
+        "fullName": "Consultant"
       }
     ],
     "nrPopulation": 2747,

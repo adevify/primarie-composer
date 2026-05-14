@@ -3,7 +3,7 @@
     "_id": {
       "$oid": "66f6b43ef08d9c050f9d7a32"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "title": {
       "ro": "Achiziții",
       "ru": "Приобретения",
@@ -15,7 +15,7 @@
     "_id": {
       "$oid": "66f9f0d84ce72d3f9ba83969"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "title": {
       "ro": "Aviz",
       "ru": "Объявление",
@@ -27,7 +27,7 @@
     "_id": {
       "$oid": "66ffad63fa2ce50501d2cca5"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "title": {
       "ro": "Alegeri",
       "ru": "Выборы",
@@ -39,7 +39,7 @@
     "_id": {
       "$oid": "66f6b479f08d9c050f9d7a33"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "title": {
       "ro": "Dezbateri",
       "ru": "Дебаты",
@@ -51,7 +51,7 @@
     "_id": {
       "$oid": "66f6b3b0f08d9c050f9d7a31"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "title": {
       "ro": "Proiecte",
       "ru": "Проекты",
@@ -63,7 +63,7 @@
     "_id": {
       "$oid": "66f6b386f08d9c050f9d7a30"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "title": {
       "ro": "Divertisment",
       "ru": "Развлечение",
@@ -75,7 +75,7 @@
     "_id": {
       "$oid": "66f6b364f08d9c050f9d7a2f"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "title": {
       "ro": "Educație",
       "ru": "Образование",
@@ -87,7 +87,7 @@
     "_id": {
       "$oid": "66f6b316f08d9c050f9d7a2e"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "title": {
       "ro": "Tradiție",
       "ru": "Традиция",
@@ -99,7 +99,7 @@
     "_id": {
       "$oid": "66f6ad29f08d9c050f9d7a23"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "title": {
       "ro": "Cultură",
       "ru": "Культура",

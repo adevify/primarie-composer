@@ -3,14 +3,14 @@
     "_id": {
       "$oid": "69942b83158c9bc14e5d52aa"
     },
-    "tennant": "filipeni",
+    "tennant": "moldova",
     "contractDate": "2024-10-01T00:00:00.000Z",
     "startDate": "2024-12-01T00:00:00.000Z",
     "endDate": "2027-10-01T00:00:00.000Z",
     "idno": 1007601004146,
-    "adress": "MD-6319, s. Filipeni, rl. Leova",
-    "beneficiarName": "Primăria Satului Filipeni",
-    "beneficiarRepresentant": "Camerzan Tudor",
+    "adress": "MD-6319, s. Moldova",
+    "beneficiarName": "Curtea Domnească a Moldovei",
+    "beneficiarRepresentant": "Petru Rareș",
     "entityLimits": false,
     "limits": {
       "storage": 5,
@@ -76,7 +76,7 @@
     "createdAt": "2026-02-15T12:49:27.165Z",
     "updatedAt": "2026-02-15T12:49:27.165Z",
     "representant": {
-      "name": "Camerzan Tudor",
+      "name": "Alexandru cel Bun",
       "phone": ""
     },
     "contractMedia": ""
