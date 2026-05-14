@@ -1,7 +1,15 @@
 import { Router } from "express";
 import z from "zod";
 import { EnvironmentsService } from "./environments.service.js";
-import { createEnvironmentSchema, syncFilesSchema } from "./environment.dtos.js";
+import {
+  createEnvironmentSchema,
+  mongoCollectionNameSchema,
+  mongoDeleteDocumentsSchema,
+  mongoInsertDocumentsSchema,
+  mongoSearchDocumentsSchema,
+  mongoUpdateDocumentsSchema,
+  syncFilesSchema
+} from "./environment.dtos.js";
 import { EnvironmentSource, PullRequestRef } from "./environment.dtos.js";
 
 const containerNameSchema = z.string().regex(/^[a-zA-Z0-9_.-]+$/);
@@ -160,6 +168,82 @@ export function createEnvironmentRouter(): Router {
   router.get("/:key/mongo", async (req, res, next) => {
     try {
       return res.json(await service.inspectMongo(req.params.key));
+    } catch (error) {
+      return next(error);
+    }
+  });
+
+  router.get("/:key/mongo/collections", async (req, res, next) => {
+    try {
+      return res.json(await service.listMongoCollections(req.params.key));
+    } catch (error) {
+      return next(error);
+    }
+  });
+
+  router.post("/:key/mongo/collections/:collection/documents/search", async (req, res, next) => {
+    try {
+      const collection = mongoCollectionNameSchema.safeParse(req.params.collection);
+      const body = mongoSearchDocumentsSchema.safeParse(req.body);
+      if (!collection.success) {
+        return res.status(400).json({ error: collection.error.flatten() });
+      }
+      if (!body.success) {
+        return res.status(400).json({ error: body.error.flatten() });
+      }
+
+      return res.json(await service.searchMongoDocuments(req.params.key, collection.data, body.data));
+    } catch (error) {
+      return next(error);
+    }
+  });
+
+  router.post("/:key/mongo/collections/:collection/documents", async (req, res, next) => {
+    try {
+      const collection = mongoCollectionNameSchema.safeParse(req.params.collection);
+      const body = mongoInsertDocumentsSchema.safeParse(req.body);
+      if (!collection.success) {
+        return res.status(400).json({ error: collection.error.flatten() });
+      }
+      if (!body.success) {
+        return res.status(400).json({ error: body.error.flatten() });
+      }
+
+      return res.status(201).json(await service.insertMongoDocuments(req.params.key, collection.data, body.data, req.user!));
+    } catch (error) {
+      return next(error);
+    }
+  });
+
+  router.delete("/:key/mongo/collections/:collection/documents", async (req, res, next) => {
+    try {
+      const collection = mongoCollectionNameSchema.safeParse(req.params.collection);
+      const body = mongoDeleteDocumentsSchema.safeParse(req.body);
+      if (!collection.success) {
+        return res.status(400).json({ error: collection.error.flatten() });
+      }
+      if (!body.success) {
+        return res.status(400).json({ error: body.error.flatten() });
+      }
+
+      return res.json(await service.deleteMongoDocuments(req.params.key, collection.data, body.data, req.user!));
+    } catch (error) {
+      return next(error);
+    }
+  });
+
+  router.patch("/:key/mongo/collections/:collection/documents", async (req, res, next) => {
+    try {
+      const collection = mongoCollectionNameSchema.safeParse(req.params.collection);
+      const body = mongoUpdateDocumentsSchema.safeParse(req.body);
+      if (!collection.success) {
+        return res.status(400).json({ error: collection.error.flatten() });
+      }
+      if (!body.success) {
+        return res.status(400).json({ error: body.error.flatten() });
+      }
+
+      return res.json(await service.updateMongoDocuments(req.params.key, collection.data, body.data, req.user!));
     } catch (error) {
       return next(error);
     }

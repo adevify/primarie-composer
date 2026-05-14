@@ -6,6 +6,7 @@ import {
   CircularProgress,
   FormControlLabel,
   IconButton,
+  MenuItem,
   Stack,
   Switch,
   TextField,
@@ -25,7 +26,7 @@ import StopCircleIcon from "@mui/icons-material/StopCircle";
 import SyncIcon from "@mui/icons-material/Sync";
 import TerminalIcon from "@mui/icons-material/Terminal";
 import ViewInArIcon from "@mui/icons-material/ViewInAr";
-import { useEffect, useMemo, useRef, useState, type UIEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode, type UIEvent } from "react";
 import type {
   ComposeLogEntry,
   ContainerFileEntry,
@@ -38,7 +39,12 @@ import type {
   FileSyncEvent,
   GitState,
   LiveLogSession,
-  MongoPreview as MongoPreviewPayload,
+  MongoCollectionSummary,
+  MongoCollectionsResponse,
+  MongoDeleteResult,
+  MongoDocumentsPage,
+  MongoInsertResult,
+  MongoUpdateResult,
   StreamLogEvent,
   SyncState
 } from "../types";
@@ -55,7 +61,11 @@ type EnvironmentDetailsProps = {
   onListContainers: (key: string) => Promise<EnvironmentContainer[]>;
   onListContainerFiles: (key: string, container: string, path: string) => Promise<ContainerFileEntry[]>;
   onListEnvironmentFiles: (key: string, path: string) => Promise<ContainerFileEntry[]>;
-  onInspectMongo: (key: string) => Promise<MongoPreviewPayload>;
+  onListMongoCollections: (key: string) => Promise<MongoCollectionsResponse>;
+  onSearchMongoDocuments: (key: string, collection: string, input: { filter: Record<string, unknown>; page: number; limit: number; sort: Record<string, unknown> }) => Promise<MongoDocumentsPage>;
+  onInsertMongoDocuments: (key: string, collection: string, documents: Record<string, unknown>[]) => Promise<MongoInsertResult>;
+  onDeleteMongoDocuments: (key: string, collection: string, input: { filter: Record<string, unknown>; many: boolean; confirm: true; allowEmptyFilter?: boolean }) => Promise<MongoDeleteResult>;
+  onUpdateMongoDocuments: (key: string, collection: string, input: { filter: Record<string, unknown>; update: Record<string, unknown>; many: boolean; confirm: true; allowEmptyFilter?: boolean }) => Promise<MongoUpdateResult>;
   onListLifecycleActions: (key: string, page?: number, perPage?: number) => Promise<EnvironmentActionsPage>;
   onListComposeLogs: (key: string, page?: number, perPage?: number) => Promise<ComposeLogEntry[]>;
   onListContainerLogs: (key: string, container: string, page?: number, perPage?: number) => Promise<ComposeLogEntry[]>;
@@ -72,6 +82,7 @@ type EnvironmentDetailsProps = {
   fileSyncEvents: FileSyncEvent[];
   onStartSync: (key: string) => Promise<void>;
   onStopSync: () => Promise<void>;
+  onForceSync: (key: string) => Promise<void>;
   onStartComposeLogStream: (key: string) => void;
   onStartContainerLogStream: (key: string, container: string) => void;
   onStopLiveLogSession: (id: string) => void;
@@ -85,7 +96,11 @@ export function EnvironmentDetails({
   onListContainers,
   onListContainerFiles,
   onListEnvironmentFiles,
-  onInspectMongo,
+  onListMongoCollections,
+  onSearchMongoDocuments,
+  onInsertMongoDocuments,
+  onDeleteMongoDocuments,
+  onUpdateMongoDocuments,
   onListLifecycleActions,
   onListComposeLogs,
   onListContainerLogs,
@@ -102,6 +117,7 @@ export function EnvironmentDetails({
   fileSyncEvents,
   onStartSync,
   onStopSync,
+  onForceSync,
   onStartComposeLogStream,
   onStartContainerLogStream,
   onStopLiveLogSession,
@@ -111,10 +127,8 @@ export function EnvironmentDetails({
   const [selectedContainer, setSelectedContainer] = useState("");
   const [containerPath, setContainerPath] = useState("/");
   const [files, setFiles] = useState<ContainerFileEntry[]>([]);
-  const [mongoPreview, setMongoPreview] = useState<MongoPreviewPayload>();
   const [loadingContainers, setLoadingContainers] = useState(false);
   const [loadingFiles, setLoadingFiles] = useState(false);
-  const [loadingMongo, setLoadingMongo] = useState(false);
   const [toolError, setToolError] = useState<string>();
   const [actions, setActions] = useState<EnvironmentActionRecord[]>([]);
   const [actionsPage, setActionsPage] = useState<EnvironmentActionsPage>();
@@ -132,8 +146,6 @@ export function EnvironmentDetails({
   const [execRunning, setExecRunning] = useState(false);
   const [utilityTab, setUtilityTab] = useState<UtilityTab>("logs");
   const fileRequestIdRef = useRef(0);
-  const mongoRequestIdRef = useRef(0);
-  const mongoRequestRef = useRef<{ key: string; id: number; promise: Promise<void> } | null>(null);
 
   const environmentSelected = selectedContainer === "";
   const activeTabs = useMemo<UtilityTab[]>(() => environmentSelected ? ["logs", "files", "sync", "mongo", "actions"] : ["logs", "files", "exec"], [environmentSelected]);
@@ -173,25 +185,17 @@ export function EnvironmentDetails({
 
   useEffect(() => {
     if (!open || !environment) {
-      mongoRequestIdRef.current += 1;
-      mongoRequestRef.current = null;
-      setLoadingMongo(false);
       return;
     }
 
     if (environment.status === "running") {
       void loadContainers();
-      void loadMongo();
       return;
     }
 
     setContainers([]);
     setSelectedContainer("");
     setFiles([]);
-    setMongoPreview(undefined);
-    mongoRequestIdRef.current += 1;
-    mongoRequestRef.current = null;
-    setLoadingMongo(false);
   }, [open, environment?.key, environment?.status]);
 
   useEffect(() => {
@@ -264,9 +268,6 @@ export function EnvironmentDetails({
     if (utilityTab === "files") {
       void loadFiles("/");
     }
-    if (utilityTab === "mongo" && environmentSelected) {
-      void loadMongo();
-    }
     if (utilityTab === "actions" && environmentSelected) {
       void loadActions();
     }
@@ -332,62 +333,6 @@ export function EnvironmentDetails({
 
     return () => controller.abort();
   }, [open, selectedActionId, selectedAction?.status]);
-
-  useEffect(() => {
-    if (!open || !environment || environment.status !== "running") {
-      return undefined;
-    }
-
-    const interval = setInterval(() => {
-      void loadMongo(false);
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [open, environment?.key, environment?.status]);
-
-  async function loadMongo(showSpinner = true): Promise<void> {
-    if (!environment || environment.status !== "running") {
-      return;
-    }
-
-    const environmentKey = environment.key;
-    const activeRequest = mongoRequestRef.current;
-    if (activeRequest?.key === environmentKey) {
-      if (showSpinner) {
-        setLoadingMongo(true);
-      }
-      return activeRequest.promise;
-    }
-
-    const requestId = mongoRequestIdRef.current + 1;
-    mongoRequestIdRef.current = requestId;
-    if (showSpinner) {
-      setLoadingMongo(true);
-    }
-    setToolError(undefined);
-    const request = onInspectMongo(environmentKey)
-      .then((preview) => {
-        if (mongoRequestRef.current?.id === requestId) {
-          setMongoPreview(preview);
-        }
-      })
-      .catch((error) => {
-        if (mongoRequestRef.current?.id === requestId) {
-          setToolError(toErrorMessage(error));
-        }
-      })
-      .finally(() => {
-        if (mongoRequestRef.current?.id !== requestId) {
-          return;
-        }
-
-        mongoRequestRef.current = null;
-        setLoadingMongo(false);
-      });
-
-    mongoRequestRef.current = { key: environmentKey, id: requestId, promise: request };
-    return request;
-  }
 
   async function loadContainers(): Promise<void> {
     if (!environment) {
@@ -826,9 +771,6 @@ export function EnvironmentDetails({
                       if (tab === "files") {
                         void loadFiles("/");
                       }
-                      if (tab === "mongo") {
-                        void loadMongo();
-                      }
                       if (tab === "actions") {
                         void loadActions();
                       }
@@ -890,6 +832,7 @@ export function EnvironmentDetails({
                   events={fileSyncEvents}
                   onStartSync={onStartSync}
                   onStopSync={onStopSync}
+                  onForceSync={onForceSync}
                 />
               ) : null}
 
@@ -902,7 +845,15 @@ export function EnvironmentDetails({
               ) : null}
 
               {utilityTab === "mongo" ? (
-                <MongoPreview preview={mongoPreview} loading={loadingMongo} fill />
+                <MongoInspector
+                  environment={environment}
+                  onListCollections={onListMongoCollections}
+                  onSearchDocuments={onSearchMongoDocuments}
+                  onInsertDocuments={onInsertMongoDocuments}
+                  onDeleteDocuments={onDeleteMongoDocuments}
+                  onUpdateDocuments={onUpdateMongoDocuments}
+                  fill
+                />
               ) : null}
 
               {utilityTab === "actions" ? (
@@ -1254,41 +1205,213 @@ function LogTerminal({
   );
 }
 
-function MongoPreview({ preview, loading = false, fill = false }: { preview?: MongoPreviewPayload; loading?: boolean; fill?: boolean }) {
-  const [selectedCollectionName, setSelectedCollectionName] = useState("");
-  const collections = preview?.collections ?? [];
-  const selected = collections.find((collection) => collection.name === selectedCollectionName) ?? collections[0];
-  const documents = Array.isArray(selected?.sample) ? selected.sample : selected?.sample ? [selected.sample] : [];
+function MongoInspector({
+  environment,
+  onListCollections,
+  onSearchDocuments,
+  onInsertDocuments,
+  onDeleteDocuments,
+  onUpdateDocuments,
+  fill = false
+}: {
+  environment: EnvironmentRecord;
+  onListCollections: (key: string) => Promise<MongoCollectionsResponse>;
+  onSearchDocuments: (key: string, collection: string, input: { filter: Record<string, unknown>; page: number; limit: number; sort: Record<string, unknown> }) => Promise<MongoDocumentsPage>;
+  onInsertDocuments: (key: string, collection: string, documents: Record<string, unknown>[]) => Promise<MongoInsertResult>;
+  onDeleteDocuments: (key: string, collection: string, input: { filter: Record<string, unknown>; many: boolean; confirm: true; allowEmptyFilter?: boolean }) => Promise<MongoDeleteResult>;
+  onUpdateDocuments: (key: string, collection: string, input: { filter: Record<string, unknown>; update: Record<string, unknown>; many: boolean; confirm: true; allowEmptyFilter?: boolean }) => Promise<MongoUpdateResult>;
+  fill?: boolean;
+}) {
+  const [database, setDatabase] = useState("primarie");
+  const [collections, setCollections] = useState<MongoCollectionSummary[]>([]);
+  const [selectedCollection, setSelectedCollection] = useState("");
+  const [documentsPage, setDocumentsPage] = useState<MongoDocumentsPage>();
+  const [filterText, setFilterText] = useState("{\n}");
+  const [sortText, setSortText] = useState("{\n  \"_id\": -1\n}");
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(20);
+  const [loadingCollections, setLoadingCollections] = useState(false);
+  const [loadingDocuments, setLoadingDocuments] = useState(false);
+  const [mongoError, setMongoError] = useState<string>();
+  const [operationResult, setOperationResult] = useState<string>();
+  const [insertText, setInsertText] = useState("{\n  \"name\": \"Test\"\n}");
+  const [deleteFilterText, setDeleteFilterText] = useState("{\n  \"tenant\": \"filipeni\"\n}");
+  const [deleteMany, setDeleteMany] = useState(false);
+  const [updateFilterText, setUpdateFilterText] = useState("{\n  \"tenant\": \"filipeni\"\n}");
+  const [updateText, setUpdateText] = useState("{\n  \"$set\": {\n    \"status\": \"active\"\n  }\n}");
+  const [updateMany, setUpdateMany] = useState(false);
+  const [expandedDocuments, setExpandedDocuments] = useState<Set<number>>(() => new Set());
+  const selectedCollectionRecord = collections.find((collection) => collection.name === selectedCollection);
+  const totalPages = documentsPage ? Math.max(1, Math.ceil(documentsPage.total / documentsPage.limit)) : 1;
 
   useEffect(() => {
-    if (!collections.length) {
-      setSelectedCollectionName("");
+    setCollections([]);
+    setSelectedCollection("");
+    setDocumentsPage(undefined);
+    setMongoError(undefined);
+    setOperationResult(undefined);
+    if (environment.status === "running") {
+      void loadCollections();
+    }
+  }, [environment.key, environment.status]);
+
+  useEffect(() => {
+    if (selectedCollection) {
+      void searchDocuments(1);
+    }
+  }, [selectedCollection, limit]);
+
+  async function loadCollections(): Promise<void> {
+    setLoadingCollections(true);
+    setMongoError(undefined);
+    try {
+      const response = await onListCollections(environment.key);
+      if (response.available === false) {
+        setMongoError(response.reason ?? "MongoDB is not available.");
+        setCollections([]);
+        return;
+      }
+      const nextCollections = response.collections ?? [];
+      setDatabase(response.database ?? "primarie");
+      setCollections(nextCollections);
+      setSelectedCollection((current) => {
+        if (current && nextCollections.some((collection) => collection.name === current)) {
+          return current;
+        }
+        return nextCollections[0]?.name ?? "";
+      });
+    } catch (error) {
+      setMongoError(toErrorMessage(error));
+    } finally {
+      setLoadingCollections(false);
+    }
+  }
+
+  async function searchDocuments(nextPage = page): Promise<void> {
+    if (!selectedCollection) {
       return;
     }
 
-    if (!selectedCollectionName || !collections.some((collection) => collection.name === selectedCollectionName)) {
-      setSelectedCollectionName(collections[0].name);
+    setLoadingDocuments(true);
+    setMongoError(undefined);
+    setOperationResult(undefined);
+    try {
+      const filter = parseJsonObject(filterText, "Filter");
+      const sort = parseJsonObject(sortText, "Sort");
+      const nextDocumentsPage = await onSearchDocuments(environment.key, selectedCollection, { filter, page: nextPage, limit, sort });
+      setPage(nextDocumentsPage.page);
+      setDocumentsPage(nextDocumentsPage);
+      setExpandedDocuments(new Set());
+    } catch (error) {
+      setMongoError(toErrorMessage(error));
+    } finally {
+      setLoadingDocuments(false);
     }
-  }, [collections, selectedCollectionName]);
+  }
+
+  async function insertDocuments(): Promise<void> {
+    if (!selectedCollection) {
+      return;
+    }
+
+    setMongoError(undefined);
+    setOperationResult(undefined);
+    try {
+      const documents = parseMongoDocuments(insertText);
+      const result = await onInsertDocuments(environment.key, selectedCollection, documents);
+      setOperationResult(`Inserted ${result.insertedCount} document${result.insertedCount === 1 ? "" : "s"}.`);
+      await loadCollections();
+      await searchDocuments(1);
+    } catch (error) {
+      setMongoError(toErrorMessage(error));
+    }
+  }
+
+  async function deleteDocuments(): Promise<void> {
+    if (!selectedCollection) {
+      return;
+    }
+
+    setMongoError(undefined);
+    setOperationResult(undefined);
+    try {
+      const filter = parseJsonObject(deleteFilterText, "Delete filter");
+      const confirmed = window.confirm(`Delete ${deleteMany ? "all matching documents" : "one matching document"} from ${selectedCollection}?`);
+      if (!confirmed) {
+        return;
+      }
+      const result = await onDeleteDocuments(environment.key, selectedCollection, { filter, many: deleteMany, confirm: true });
+      setOperationResult(`Matched ${result.matchedCount}; deleted ${result.deletedCount}.`);
+      await loadCollections();
+      await searchDocuments(1);
+    } catch (error) {
+      setMongoError(toErrorMessage(error));
+    }
+  }
+
+  async function updateDocuments(): Promise<void> {
+    if (!selectedCollection) {
+      return;
+    }
+
+    setMongoError(undefined);
+    setOperationResult(undefined);
+    try {
+      const filter = parseJsonObject(updateFilterText, "Update filter");
+      const update = parseJsonObject(updateText, "Update command");
+      const confirmed = window.confirm(`Update ${updateMany ? "all matching documents" : "one matching document"} in ${selectedCollection}?`);
+      if (!confirmed) {
+        return;
+      }
+      const result = await onUpdateDocuments(environment.key, selectedCollection, { filter, update, many: updateMany, confirm: true });
+      setOperationResult(`Matched ${result.matchedCount}; modified ${result.modifiedCount}.`);
+      await loadCollections();
+      await searchDocuments(page);
+    } catch (error) {
+      setMongoError(toErrorMessage(error));
+    }
+  }
+
+  function toggleDocument(index: number): void {
+    setExpandedDocuments((current) => {
+      const next = new Set(current);
+      if (next.has(index)) {
+        next.delete(index);
+      } else {
+        next.add(index);
+      }
+      return next;
+    });
+  }
 
   return (
-    <Box sx={{ display: "grid", gridTemplateColumns: "38% 62%", minHeight: fill ? "100%" : 320 }}>
-      <Stack sx={{ bgcolor: "#151d1e", borderRight: "1px solid #3b494b", maxHeight: fill ? "none" : 420, overflow: "auto" }}>
-        {loading && !preview ? (
-          <Stack direction="row" spacing={1} alignItems="center" sx={{ px: 1.5, py: 1, color: "text.secondary" }}>
-            <CircularProgress size={14} />
-            <Box>Loading MongoDB status</Box>
-          </Stack>
-        ) : !preview ? (
-          <Box sx={{ px: 1.5, py: 1, color: "text.secondary" }}>Loading MongoDB status</Box>
-        ) : !preview.available ? (
-          <Box sx={{ px: 1.5, py: 1, color: "text.secondary" }}>{preview.reason ?? "MongoDB container is not running"}</Box>
-        ) : collections.length === 0 ? (
-          <Box sx={{ px: 1.5, py: 1, color: "text.secondary" }}>No collections</Box>
-        ) : collections.map((collection, index) => (
+    <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", lg: "285px minmax(0, 1fr)" }, minHeight: fill ? "100%" : 520, height: fill ? "100%" : undefined, overflow: "hidden" }}>
+      <Stack sx={{ bgcolor: "#151d1e", borderRight: { lg: "1px solid #3b494b" }, borderBottom: { xs: "1px solid #3b494b", lg: 0 }, minHeight: 0, overflow: "auto" }}>
+        <Box sx={{ px: 1.5, py: 1.2, borderBottom: "1px solid #3b494b" }}>
+          <Typography sx={{ color: "#d7e3ee", fontFamily: monoFont, fontSize: 13, fontWeight: 900 }} noWrap>
+            {environment.key}
+          </Typography>
+          <Typography variant="caption" color="text.secondary" sx={{ fontFamily: monoFont }} noWrap>
+            {database}
+          </Typography>
+        </Box>
+        <Stack direction="row" spacing={1} sx={{ p: 1 }}>
+          <Button size="small" variant="outlined" disabled={loadingCollections} onClick={() => void loadCollections()} sx={smallButtonSx}>
+            Refresh
+          </Button>
+          {loadingCollections ? <CircularProgress size={16} sx={{ alignSelf: "center" }} /> : null}
+        </Stack>
+        {collections.length === 0 ? (
+          <Box sx={{ px: 1.5, py: 1, color: "text.secondary", fontFamily: monoFont, fontSize: 13 }}>
+            {loadingCollections ? "Loading collections" : "No collections"}
+          </Box>
+        ) : collections.map((collection) => (
           <Button
             key={collection.name}
-            onClick={() => setSelectedCollectionName(collection.name)}
+            onClick={() => {
+              setSelectedCollection(collection.name);
+              setPage(1);
+            }}
             sx={{
               justifyContent: "space-between",
               textAlign: "left",
@@ -1296,29 +1419,161 @@ function MongoPreview({ preview, loading = false, fill = false }: { preview?: Mo
               px: 1.5,
               py: 1,
               color: "text.primary",
-              bgcolor: selected?.name === collection.name || (!selectedCollectionName && index === 0) ? "rgba(0, 240, 255, 0.08)" : "transparent",
+              bgcolor: selectedCollection === collection.name ? "rgba(0, 240, 255, 0.08)" : "transparent",
               fontFamily: monoFont,
               textTransform: "none",
               "&:hover": { bgcolor: "rgba(0, 240, 255, 0.11)" }
             }}
           >
-            <Typography sx={{ fontFamily: monoFont, fontSize: 13 }} noWrap>
-              {collection.name}
-            </Typography>
+            <Box sx={{ minWidth: 0 }}>
+              <Typography sx={{ fontFamily: monoFont, fontSize: 13 }} noWrap>
+                {collection.name}
+              </Typography>
+              <Typography variant="caption" color="text.secondary" sx={{ fontFamily: monoFont }} noWrap>
+                {collection.sizeBytes !== undefined ? formatBytes(collection.sizeBytes) : "size n/a"}
+              </Typography>
+            </Box>
             <Typography component="span" variant="caption" color="text.secondary" sx={{ ml: 1, fontFamily: monoFont }}>
               {collection.count}
             </Typography>
           </Button>
         ))}
       </Stack>
-      <Stack sx={{ bgcolor: "#080f10", maxHeight: fill ? "none" : 420, overflow: "auto" }}>
-        <Box sx={{ px: 1.5, py: 1, borderBottom: "1px solid #3b494b", color: "#4edea3", fontFamily: monoFont, fontSize: 12 }}>
-          {selected ? `${preview?.database}.${selected.name} / ${documents.length}/${selected.count} docs` : preview?.available ? `Database: ${preview.database}` : "{}"}
+
+      <Stack sx={{ minWidth: 0, minHeight: 0, overflow: "hidden", bgcolor: "#080f10" }}>
+        <Box sx={{ p: 1.5, borderBottom: "1px solid #3b494b", bgcolor: "#151d1e" }}>
+          <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "minmax(0, 1fr) 120px auto auto" }, gap: 1, alignItems: "end" }}>
+            <TextField
+              label="Filter"
+              multiline
+              minRows={3}
+              value={filterText}
+              onChange={(event) => setFilterText(event.target.value)}
+              sx={compactFieldSx}
+            />
+            <TextField
+              select
+              label="Page size"
+              value={limit}
+              onChange={(event) => {
+                setLimit(Number(event.target.value));
+                setPage(1);
+              }}
+              sx={compactFieldSx}
+            >
+              {[20, 50, 100].map((option) => <MenuItem key={option} value={option}>{option}</MenuItem>)}
+            </TextField>
+            <Button variant="outlined" disabled={!selectedCollection || loadingDocuments} onClick={() => void searchDocuments(1)} sx={smallButtonSx}>
+              Search
+            </Button>
+            <Button variant="outlined" disabled={!selectedCollection || loadingDocuments} onClick={() => void searchDocuments(page)} sx={smallButtonSx}>
+              Reload
+            </Button>
+          </Box>
+          <TextField
+            label="Sort"
+            multiline
+            minRows={2}
+            value={sortText}
+            onChange={(event) => setSortText(event.target.value)}
+            sx={{ ...compactFieldSx, mt: 1 }}
+          />
+          <Box sx={{ display: "flex", gap: 1, alignItems: "center", justifyContent: "space-between", mt: 1, flexWrap: "wrap" }}>
+            <Typography sx={{ color: "#4edea3", fontFamily: monoFont, fontSize: 12 }}>
+              {selectedCollectionRecord ? `${database}.${selectedCollectionRecord.name} / ${documentsPage?.total ?? selectedCollectionRecord.count} docs` : "Select a collection"}
+            </Typography>
+            <Stack direction="row" spacing={1} alignItems="center">
+              <Button size="small" variant="outlined" disabled={!documentsPage || page <= 1 || loadingDocuments} onClick={() => void searchDocuments(page - 1)} sx={smallButtonSx}>
+                Prev
+              </Button>
+              <Typography variant="caption" color="text.secondary" sx={{ fontFamily: monoFont }}>
+                {page}/{totalPages}
+              </Typography>
+              <Button size="small" variant="outlined" disabled={!documentsPage || page >= totalPages || loadingDocuments} onClick={() => void searchDocuments(page + 1)} sx={smallButtonSx}>
+                Next
+              </Button>
+            </Stack>
+          </Box>
+          {mongoError ? <Alert severity="warning" sx={{ mt: 1 }}>{mongoError}</Alert> : null}
+          {operationResult ? <Alert severity="success" sx={{ mt: 1 }}>{operationResult}</Alert> : null}
         </Box>
-        <Box component="pre" sx={{ m: 0, p: 1.5, color: "#d7e3ee", fontFamily: monoFont, fontSize: 12, overflow: "auto" }}>
-          {selected ? JSON.stringify(documents, null, 2) : preview?.available ? "[]" : "{}"}
+
+        <Box sx={{ flex: 1, minHeight: 0, overflow: "auto", p: 1.5 }}>
+          {loadingDocuments ? (
+            <Stack direction="row" spacing={1} alignItems="center" sx={{ color: "text.secondary", fontFamily: monoFont }}>
+              <CircularProgress size={16} />
+              <Box>Loading documents</Box>
+            </Stack>
+          ) : !documentsPage || documentsPage.documents.length === 0 ? (
+            <Box sx={{ color: "text.secondary", fontFamily: monoFont, fontSize: 13 }}>
+              {selectedCollection ? "No documents loaded." : "Select a collection."}
+            </Box>
+          ) : (
+            <Stack spacing={1}>
+              {documentsPage.documents.map((document, index) => (
+                <JsonDocument key={index} value={document} expanded={expandedDocuments.has(index)} onToggle={() => toggleDocument(index)} />
+              ))}
+            </Stack>
+          )}
+        </Box>
+
+        <Box sx={{ borderTop: "1px solid #3b494b", bgcolor: "#151d1e", p: 1.5, maxHeight: "38%", overflow: "auto" }}>
+          <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", xl: "1fr 1fr 1fr" }, gap: 1.25 }}>
+            <MongoActionPanel title="Insert" onRun={() => void insertDocuments()} disabled={!selectedCollection}>
+              <TextField multiline minRows={7} value={insertText} onChange={(event) => setInsertText(event.target.value)} sx={compactFieldSx} />
+            </MongoActionPanel>
+            <MongoActionPanel title="Delete" onRun={() => void deleteDocuments()} disabled={!selectedCollection}>
+              <TextField multiline minRows={7} value={deleteFilterText} onChange={(event) => setDeleteFilterText(event.target.value)} sx={compactFieldSx} />
+              <FormControlLabel control={<Switch checked={deleteMany} onChange={(event) => setDeleteMany(event.target.checked)} />} label={deleteMany ? "Many" : "One"} sx={{ m: 0, color: "text.secondary", "& .MuiFormControlLabel-label": { fontFamily: monoFont, fontSize: 12, textTransform: "uppercase" } }} />
+            </MongoActionPanel>
+            <MongoActionPanel title="Update" onRun={() => void updateDocuments()} disabled={!selectedCollection}>
+              <TextField multiline minRows={4} value={updateFilterText} onChange={(event) => setUpdateFilterText(event.target.value)} sx={compactFieldSx} />
+              <TextField multiline minRows={4} value={updateText} onChange={(event) => setUpdateText(event.target.value)} sx={compactFieldSx} />
+              <FormControlLabel control={<Switch checked={updateMany} onChange={(event) => setUpdateMany(event.target.checked)} />} label={updateMany ? "Many" : "One"} sx={{ m: 0, color: "text.secondary", "& .MuiFormControlLabel-label": { fontFamily: monoFont, fontSize: 12, textTransform: "uppercase" } }} />
+            </MongoActionPanel>
+          </Box>
         </Box>
       </Stack>
+    </Box>
+  );
+}
+
+function MongoActionPanel({ title, children, onRun, disabled }: { title: string; children: ReactNode; onRun: () => void; disabled?: boolean }) {
+  return (
+    <Stack spacing={1}>
+      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1 }}>
+        <Typography variant="caption" color="text.secondary" sx={{ fontFamily: monoFont, fontWeight: 900, textTransform: "uppercase" }}>
+          {title}
+        </Typography>
+        <Button size="small" variant="outlined" disabled={disabled} onClick={onRun} sx={smallButtonSx}>
+          Run
+        </Button>
+      </Box>
+      {children}
+    </Stack>
+  );
+}
+
+function JsonDocument({ value, expanded, onToggle }: { value: unknown; expanded: boolean; onToggle: () => void }) {
+  const json = JSON.stringify(value, null, 2);
+  const large = json.length > 1800;
+  const displayed = large && !expanded ? `${json.slice(0, 1800)}\n...` : json;
+
+  return (
+    <Box sx={{ border: "1px solid #263334", bgcolor: "#111819" }}>
+      <Box sx={{ display: "flex", justifyContent: "space-between", gap: 1, alignItems: "center", px: 1, py: 0.75, borderBottom: "1px solid #263334" }}>
+        <Typography variant="caption" color="text.secondary" sx={{ fontFamily: monoFont }}>
+          {json.length} bytes
+        </Typography>
+        {large ? (
+          <Button size="small" variant="text" onClick={onToggle} sx={{ ...smallButtonSx, minHeight: 26, border: 0 }}>
+            {expanded ? "Collapse" : "Expand"}
+          </Button>
+        ) : null}
+      </Box>
+      <Box component="pre" sx={{ m: 0, p: 1.2, color: "#d7e3ee", fontFamily: monoFont, fontSize: 12, lineHeight: 1.5, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
+        {displayed}
+      </Box>
     </Box>
   );
 }
@@ -1389,7 +1644,8 @@ function FileSyncPanel({
   syncState,
   events,
   onStartSync,
-  onStopSync
+  onStopSync,
+  onForceSync
 }: {
   environment: EnvironmentRecord;
   repoPath: string;
@@ -1398,6 +1654,7 @@ function FileSyncPanel({
   events: FileSyncEvent[];
   onStartSync: (key: string) => Promise<void>;
   onStopSync: () => Promise<void>;
+  onForceSync: (key: string) => Promise<void>;
 }) {
   const syncEnabled = syncState.watching && syncState.activeEnvironmentKey === environment.key;
   const selectedForSync = syncState.activeEnvironmentKey === environment.key;
@@ -1422,7 +1679,7 @@ function FileSyncPanel({
         <Stack direction="row" spacing={1.1} alignItems="center" minWidth={0}>
           <SyncIcon sx={{ color: syncEnabled ? "#4edea3" : "#849495", fontSize: 20 }} />
           <Typography sx={{ color: "#d7e3ee", fontFamily: monoFont, fontWeight: 900 }} noWrap>
-            FILE SYNC
+            PATCH SYNC
           </Typography>
           <Chip
             size="small"
@@ -1449,6 +1706,16 @@ function FileSyncPanel({
           label={syncEnabled ? "Enabled" : "Disabled"}
           sx={{ m: 0, color: "text.secondary", "& .MuiFormControlLabel-label": { fontFamily: monoFont, fontSize: 12, textTransform: "uppercase" } }}
         />
+        <Button
+          size="small"
+          variant="outlined"
+          startIcon={<RefreshIcon />}
+          disabled={!canStartSync || syncState.syncing}
+          onClick={() => void onForceSync(environment.key)}
+          sx={smallButtonSx}
+        >
+          Force sync
+        </Button>
       </Box>
 
       <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1.3fr repeat(4, 1fr)" }, gap: 1.25 }}>
@@ -1472,7 +1739,7 @@ function FileSyncPanel({
       <Box sx={{ border: "1px solid #3b494b", bgcolor: "#151d1e", flex: 1, minHeight: 0, overflow: "hidden", display: "flex", flexDirection: "column" }}>
         <Box sx={{ px: 1.5, py: 1.1, borderBottom: "1px solid #3b494b", display: "flex", justifyContent: "space-between", gap: 2 }}>
           <Typography variant="caption" color="text.secondary" sx={{ fontFamily: monoFont, fontWeight: 900 }}>
-            FILE EVENTS
+            PATCH EVENTS
           </Typography>
           <Typography variant="caption" color="text.secondary" sx={{ fontFamily: monoFont }}>
             {events.length}
@@ -1481,7 +1748,7 @@ function FileSyncPanel({
         <Box sx={{ overflow: "auto", flex: 1 }}>
           {events.length === 0 ? (
             <Box sx={{ px: 1.5, py: 2, color: "text.secondary", fontFamily: monoFont, fontSize: 13 }}>
-              No file sync events yet.
+              No patch sync events yet.
             </Box>
           ) : (
             <Box sx={{ minWidth: 780 }}>
@@ -1604,6 +1871,24 @@ function formatTimestamp(value: string): string {
   return date.toISOString().slice(0, 19).replace("T", " ");
 }
 
+function formatBytes(value: number): string {
+  if (!Number.isFinite(value) || value < 0) {
+    return "n/a";
+  }
+  if (value < 1024) {
+    return `${value} B`;
+  }
+  const units = ["KB", "MB", "GB"];
+  let next = value / 1024;
+  for (const unit of units) {
+    if (next < 1024 || unit === units.at(-1)) {
+      return `${next.toFixed(next < 10 ? 1 : 0)} ${unit}`;
+    }
+    next /= 1024;
+  }
+  return `${value} B`;
+}
+
 function shortId(value: string): string {
   return value.slice(0, 8);
 }
@@ -1704,6 +1989,37 @@ function syncResultColor(result: FileSyncEvent["result"]): string {
 
 function toErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
+}
+
+function parseJsonObject(value: string, label: string): Record<string, unknown> {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(value);
+  } catch (error) {
+    throw new Error(`${label} is not valid JSON: ${toErrorMessage(error)}`);
+  }
+  if (!isRecord(parsed)) {
+    throw new Error(`${label} must be a JSON object.`);
+  }
+  return parsed;
+}
+
+function parseMongoDocuments(value: string): Record<string, unknown>[] {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(value);
+  } catch (error) {
+    throw new Error(`Document input is not valid JSON: ${toErrorMessage(error)}`);
+  }
+  const documents = Array.isArray(parsed) ? parsed : [parsed];
+  if (!documents.length || !documents.every(isRecord)) {
+    throw new Error("Document input must be a JSON object or an array of JSON objects.");
+  }
+  return documents;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 const monoFont = "Space Grotesk, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace";

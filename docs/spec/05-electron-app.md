@@ -66,17 +66,17 @@ The preload exposes `window.primarieElectron` with:
 
 - `selectDirectory()`
 - `getGitState(repoPath)`
-- `readChangedFiles(repoPath)`
+- `readGitPatch(repoPath, mode?)`
+- `commitPatchBaseline(repoPath, expectedSha256)`
 - `readEnvExample(repoPath)`
 - `startWatchingRepo(repoPath)`
 - `stopWatchingRepo()`
-- `onRepoFileChanged(callback)`
 - `onRepoSyncSnapshot(callback)`
 - `onRepoWatchError(callback)`
 
 All repo path inputs are validated in main process and must point to a Git repository.
 
-## Chapter 5.5 Git State And Changed Files
+## Chapter 5.5 Git State, Changed Files, And Patches
 
 Git state fields:
 
@@ -95,24 +95,27 @@ Git commands:
 - `git rev-parse HEAD`
 - `git status --porcelain`
 
-Changed file payload:
+Patch sync payload:
 
 ```ts
 {
-  path: string;
-  status: "modified" | "added" | "deleted";
-  contentBase64?: string;
-  warning?: string;
+  mode: "delta" | "full";
+  data: string;
+  previousSha256: string;
+  currentSha256: string;
+  currentSizeBytes: number;
+  changedFiles: string[];
+  isEmpty: boolean;
 }
 ```
 
-Changed file handling:
+Patch behavior:
 
-- Deleted or missing files become `{ status: "deleted" }`.
-- Non-files are ignored.
-- Files larger than 1 MB are skipped with warning.
-- Files containing a null byte in the first 8000 bytes are treated as binary and skipped with warning.
-- Text files are read and encoded as base64.
+- Electron builds a full working-tree patch with a temporary Git index and `git diff --cached --binary HEAD`.
+- Normal watch snapshots send a unified diff from the last committed patch baseline to the current full patch.
+- After a successful server sync, the renderer commits the patch baseline in the Electron main process.
+- Force sync sends the current full patch and requests a server-side reset before apply.
+- Patches larger than 20 MB are rejected before sending.
 
 Ignored segments:
 
@@ -153,7 +156,7 @@ Additional behavior:
 
 - A debounce of `500ms` is used for file events.
 - Git state is polled every `1000ms`.
-- The renderer receives complete sync snapshots containing Git state and changed file payloads.
+- The renderer receives complete sync snapshots containing Git state and patch payloads.
 - A signature made from branch, commit, and sorted changed file names prevents duplicate emissions.
 
 ## Chapter 5.8 Renderer State

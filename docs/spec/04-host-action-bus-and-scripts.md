@@ -90,6 +90,7 @@ Action type mapping:
 - `environment.container.files`: `scripts/container-files.sh`
 - `environment.container.exec`: `scripts/container-exec.sh`
 - `environment.mongo.inspect`: `scripts/mongo-inspect.sh`
+- `environment.mongo.command`: `scripts/mongo-inspect.sh`
 - `environment.start`: `scripts/start-env.sh`
 - `environment.stop`: `scripts/stop-env.sh`
 - `environment.restart`: `scripts/restart-env.sh`
@@ -106,8 +107,9 @@ The worker locks these action types by environment:
 - `environment.restart`
 - `environment.containers.inspect`
 - `environment.mongo.inspect`
+- `environment.mongo.command`
 
-Lock conflicts return no-op success for most actions. Container inspection returns `[]`; Mongo inspection returns unavailable JSON.
+Lock conflicts return no-op success for most actions. Container inspection returns `[]`; Mongo inspection returns unavailable JSON; Mongo write commands return an error result.
 
 Current unlocked action types include prepare, sync, remove, container logs, container files, and container exec.
 
@@ -183,17 +185,17 @@ These patches are applied during prepare, start, and restart.
 Flow:
 
 1. Validates environment name.
-2. Reads runtime path, branch, commit, and file array.
+2. Reads runtime path, branch, commit, and patch payload.
 3. Runs `git fetch --all --prune`.
 4. Runs `git reset --hard`.
 5. Runs `git clean -fd`.
 6. Checks out `origin/{branch}`.
 7. Resets hard to `{commit}`.
-8. Applies each changed file:
-   - deleted files are removed with `rm -f`.
-   - added/modified files with `contentBase64` are decoded into place.
-   - paths must be safe relative paths.
-9. Prints `Synced {count} files into {environment}`.
+8. Reapplies Composer runtime patches.
+9. Reconstructs the latest full patch from a full payload or stored baseline plus delta.
+10. Verifies SHA-256 patch hashes and runs `git apply --binary --check`.
+11. Applies the patch and stores it as the next sync baseline.
+12. Prints `Synced {mode} patch into {environment}`.
 
 ## Chapter 4.11 Start Environment Script
 
@@ -273,7 +275,11 @@ Flow:
 - Finds service `mongodb`, falling back to `mongo`.
 - Uses database `primarie`.
 - Returns `{ available: false, reason }` when runtime or container is missing.
-- Otherwise returns collections with counts and sample documents up to payload `limit`.
+- Preview mode returns collections with counts and sample documents up to payload `limit`.
+- `collections` mode returns collection counts plus collection size fields when MongoDB exposes them.
+- `search` mode returns filtered, sorted, paginated documents.
+- `insert`, `delete`, and `update` modes perform write operations and return MongoDB write counts/ids.
+- Delete and update modes require confirmation and reject empty filters unless explicitly allowed.
 
 ## Chapter 4.14 Seed Preparation Script
 

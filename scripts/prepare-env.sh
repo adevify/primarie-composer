@@ -50,40 +50,47 @@ copy_seed_data() {
   fi
 }
 
-apply_changed_files() {
-  local count
-  count="$(jq '.changedFiles // [] | length' "$PAYLOAD_FILE")"
-  if (( count == 0 )); then
+hash_file() {
+  sha256sum "$1" | awk '{ print $1 }'
+}
+
+decode_patch_data() {
+  local output_file="$1"
+  jq -r '.patch.data | @base64' "$PAYLOAD_FILE" | base64 --decode > "$output_file"
+}
+
+apply_patch_payload() {
+  local patch_mode
+  patch_mode="$(jq -r '.patch.mode // empty' "$PAYLOAD_FILE")"
+  if [[ -z "$patch_mode" ]]; then
     return
   fi
 
+  if [[ "$patch_mode" != "full" ]]; then
+    echo "Environment creation requires a full patch payload." >&2
+    exit 2
+  fi
+
   echo "[composer-progress] applying_changes"
-  for ((index = 0; index < count; index += 1)); do
-    local file_path status target content_base64 delete_confirmed
-    file_path="$(jq -r ".changedFiles[$index].path" "$PAYLOAD_FILE")"
-    status="$(jq -r ".changedFiles[$index].status" "$PAYLOAD_FILE")"
-    delete_confirmed="$(jq -r ".changedFiles[$index].deleteConfirmed // false" "$PAYLOAD_FILE")"
-    assert_safe_relative_path "$file_path"
-    target="$RUNTIME_PATH/$file_path"
+  local tmp_dir patch_file expected_hash actual_hash changed_count
+  tmp_dir="$(mktemp -d)"
+  patch_file="$tmp_dir/current.patch"
+  expected_hash="$(jq -r '.patch.currentSha256' "$PAYLOAD_FILE")"
+  changed_count="$(jq '.patch.changedFiles | length' "$PAYLOAD_FILE")"
+  decode_patch_data "$patch_file"
 
-    if [[ "$status" == "deleted" ]]; then
-      if [[ "$delete_confirmed" != "true" ]]; then
-        echo "Skipped unconfirmed delete for $file_path"
-        continue
-      fi
-      rm -f "$target"
-      continue
-    fi
+  actual_hash="$(hash_file "$patch_file")"
+  if [[ "$actual_hash" != "$expected_hash" ]]; then
+    echo "Patch hash mismatch: expected $expected_hash but decoded $actual_hash" >&2
+    exit 1
+  fi
 
-    if ! jq -e ".changedFiles[$index] | has(\"contentBase64\")" "$PAYLOAD_FILE" >/dev/null; then
-      continue
-    fi
-    content_base64="$(jq -r ".changedFiles[$index].contentBase64" "$PAYLOAD_FILE")"
-
-    mkdir -p "$(dirname "$target")"
-    printf "%s" "$content_base64" | base64 --decode > "$target"
-  done
-  echo "Applied $count changed files into $ENV_NAME"
+  if [[ -s "$patch_file" ]]; then
+    git apply --binary --check "$patch_file"
+    git apply --binary "$patch_file"
+  fi
+  rm -rf "$tmp_dir"
+  echo "Applied full patch with $changed_count changed files into $ENV_NAME"
 }
 
 echo "[composer-progress] cloning"
@@ -95,7 +102,7 @@ echo "[composer-progress] checking_out"
 git checkout -f "origin/$BRANCH"
 git reset --hard "$COMMIT"
 patch_repo_for_composer "$RUNTIME_PATH"
-apply_changed_files
+apply_patch_payload
 copy_seed_data "$SEED_NAME" "$HOST_SEEDS_DIR"
 
 write_env_file() {

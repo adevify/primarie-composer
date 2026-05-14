@@ -1,6 +1,6 @@
 import { app, BrowserWindow, dialog, ipcMain, shell, type IpcMainInvokeEvent, type OpenDialogOptions } from "electron";
 import path from "node:path";
-import { assertRepoPath, getGitState, readChangedFiles, readEnvExample } from "./git.js";
+import { assertRepoPath, commitGitPatchBaseline, getGitState, readEnvExample, readGitPatch } from "./git.js";
 import { startWatchingRepo, stopWatchingRepo } from "./file-sync.js";
 
 let mainWindow: BrowserWindow | null = null;
@@ -101,8 +101,12 @@ function registerIpcHandlers(): void {
     return getGitState(validateRepoPathInput(repoPath));
   });
 
-  registerIpcHandler("repo:read-changed-files", async (_event, repoPath: unknown, specificPaths: unknown) => {
-    return readChangedFiles(validateRepoPathInput(repoPath), validateSpecificPathsInput(specificPaths));
+  registerIpcHandler("repo:read-git-patch", async (_event, repoPath: unknown, mode: unknown) => {
+    return readGitPatch(validateRepoPathInput(repoPath), validateGitPatchModeInput(mode));
+  });
+
+  registerIpcHandler("repo:commit-patch-baseline", (_event, repoPath: unknown, expectedSha256: unknown) => {
+    commitGitPatchBaseline(validateRepoPathInput(repoPath), validatePatchShaInput(expectedSha256));
   });
 
   registerIpcHandler("repo:read-env-example", async (_event, repoPath: unknown) => {
@@ -137,15 +141,20 @@ function validateRepoPathInput(repoPath: unknown): string {
   return assertRepoPath(repoPath);
 }
 
-function validateSpecificPathsInput(value: unknown): string[] | undefined {
-  if (value === undefined) {
-    return undefined;
+function validateGitPatchModeInput(mode: unknown): "delta" | "full" {
+  if (mode === undefined) {
+    return "delta";
   }
-
-  if (!Array.isArray(value) || !value.every((item) => typeof item === "string")) {
-    throw new Error("Specific paths must be a string array.");
+  if (mode !== "delta" && mode !== "full") {
+    throw new Error("Git patch mode must be delta or full.");
   }
+  return mode;
+}
 
+function validatePatchShaInput(value: unknown): string {
+  if (typeof value !== "string" || !/^[a-f0-9]{64}$/.test(value)) {
+    throw new Error("Patch SHA must be a lowercase SHA-256 hex string.");
+  }
   return value;
 }
 

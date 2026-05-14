@@ -1,16 +1,17 @@
 import { execFile } from "node:child_process";
+import { createHash } from "node:crypto";
 import { existsSync, promises as fs } from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
 
 const execFileAsync = promisify(execFile);
-const MAX_FILE_SIZE_BYTES = 15 * 1024 * 1024;
-// Editors can save through unlink + replace; confirm before syncing a delete.
-const DELETE_CONFIRMATION_DELAY_MS = 1500;
+const MAX_PATCH_SIZE_BYTES = 20 * 1024 * 1024;
+const EMPTY_PATCH_SHA256 = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
 const IGNORED_SEGMENTS = new Set([".git", "node_modules", "dist", "build", ".next", "coverage"]);
 const IGNORED_FILES = new Set([".env"]);
 
-export type ChangedFileStatus = "modified" | "added" | "deleted";
+type ChangedFileStatus = "modified" | "added" | "deleted";
 
 export type GitState = {
   branch: string;
@@ -19,12 +20,16 @@ export type GitState = {
   changedFiles: string[];
 };
 
-export type ChangedFilePayload = {
-  path: string;
-  contentBase64?: string;
-  status: ChangedFileStatus;
-  deleteConfirmed?: boolean;
-  warning?: string;
+export type GitPatchMode = "delta" | "full";
+
+export type GitPatchPayload = {
+  mode: GitPatchMode;
+  data: string;
+  previousSha256: string;
+  currentSha256: string;
+  currentSizeBytes: number;
+  changedFiles: string[];
+  isEmpty: boolean;
 };
 
 export type EnvExampleEntry = {
@@ -36,6 +41,9 @@ type PorcelainEntry = {
   path: string;
   status: ChangedFileStatus;
 };
+
+const committedPatchByRepo = new Map<string, string>();
+const pendingPatchesByRepo = new Map<string, Map<string, string>>();
 
 export function assertRepoPath(repoPath: string): string {
   if (typeof repoPath !== "string" || repoPath.trim().length === 0) {
@@ -58,22 +66,14 @@ export function isIgnoredRelativePath(relativePath: string): boolean {
   return segments.some((segment) => IGNORED_SEGMENTS.has(segment)) || IGNORED_FILES.has(fileName);
 }
 
-export function ensureInsideRepo(repoPath: string, candidatePath: string): string {
-  const resolvedRepo = assertRepoPath(repoPath);
-  const resolvedCandidate = path.resolve(resolvedRepo, candidatePath);
-  const relative = path.relative(resolvedRepo, resolvedCandidate);
-
-  if (relative.startsWith("..") || path.isAbsolute(relative)) {
-    throw new Error("Refusing to read a file outside the selected repository.");
-  }
-
-  return resolvedCandidate;
+async function git(repoPath: string, args: string[], env?: NodeJS.ProcessEnv): Promise<string> {
+  return (await gitRaw(repoPath, args, env)).replace(/\r?\n$/, "");
 }
 
-async function git(repoPath: string, args: string[]): Promise<string> {
+async function gitRaw(repoPath: string, args: string[], env?: NodeJS.ProcessEnv): Promise<string> {
   const cwd = assertRepoPath(repoPath);
-  const { stdout } = await execFileAsync("git", args, { cwd });
-  return stdout.replace(/\r?\n$/, "");
+  const { stdout } = await execFileAsync("git", args, { cwd, env: env ? { ...process.env, ...env } : process.env });
+  return stdout;
 }
 
 export async function getGitState(repoPath: string): Promise<GitState> {
@@ -92,31 +92,91 @@ export async function getGitState(repoPath: string): Promise<GitState> {
   };
 }
 
-export async function readChangedFiles(repoPath: string, specificPaths?: string[]): Promise<ChangedFilePayload[]> {
+export async function readGitPatch(repoPath: string, mode: GitPatchMode = "delta"): Promise<GitPatchPayload> {
   const resolvedRepo = assertRepoPath(repoPath);
-  const porcelainEntries = parsePorcelain(await git(resolvedRepo, ["status", "--porcelain"]));
-  const statusByPath = new Map(porcelainEntries.map((entry) => [entry.path, entry.status]));
-  const entries: PorcelainEntry[] = specificPaths?.length
-    ? specificPaths.flatMap((filePath) => {
-        const normalizedPath = normalizeRelativePath(filePath);
-        const status = statusByPath.get(normalizedPath);
-        return status ? [{ path: normalizedPath, status }] : [];
-      })
-    : porcelainEntries;
+  const [gitState, currentPatch] = await Promise.all([
+    getGitState(resolvedRepo),
+    buildGitDiffPatch(resolvedRepo)
+  ]);
+  const patchChangedFiles = gitState.changedFiles.filter((relativePath) => !isIgnoredRelativePath(relativePath));
+  const currentSizeBytes = Buffer.byteLength(currentPatch, "utf8");
 
-  const uniqueEntries = new Map<string, PorcelainEntry>();
-  for (const entry of entries) {
-    if (!entry.path || isIgnoredRelativePath(entry.path)) {
-      continue;
-    }
-    uniqueEntries.set(entry.path, entry);
+  if (currentSizeBytes > MAX_PATCH_SIZE_BYTES) {
+    throw new Error(`Git patch is larger than ${MAX_PATCH_SIZE_BYTES} bytes.`);
   }
 
-  const payloads = await Promise.all(
-    [...uniqueEntries.values()].map((entry) => readChangedFile(resolvedRepo, entry))
-  );
+  const previousPatch = committedPatchByRepo.get(resolvedRepo) ?? "";
+  const previousSha256 = sha256(previousPatch);
+  const currentSha256 = sha256(currentPatch);
+  storePendingPatch(resolvedRepo, currentSha256, currentPatch);
 
-  return payloads.filter((payload): payload is ChangedFilePayload => Boolean(payload));
+  if (mode === "full") {
+    return {
+      mode,
+      data: currentPatch,
+      previousSha256,
+      currentSha256,
+      currentSizeBytes,
+      changedFiles: patchChangedFiles,
+      isEmpty: currentPatch.length === 0
+    };
+  }
+
+  if (currentPatch === previousPatch) {
+    return {
+      mode,
+      data: "",
+      previousSha256,
+      currentSha256,
+      currentSizeBytes,
+      changedFiles: patchChangedFiles,
+      isEmpty: true
+    };
+  }
+
+  const data = await buildPatchDelta(previousPatch, currentPatch);
+  if (Buffer.byteLength(data, "utf8") > MAX_PATCH_SIZE_BYTES) {
+    throw new Error(`Git patch delta is larger than ${MAX_PATCH_SIZE_BYTES} bytes.`);
+  }
+
+  return {
+    mode,
+    data,
+    previousSha256,
+    currentSha256,
+    currentSizeBytes,
+    changedFiles: patchChangedFiles,
+    isEmpty: data.length === 0
+  };
+}
+
+export function commitGitPatchBaseline(repoPath: string, expectedSha256: string): void {
+  const resolvedRepo = assertRepoPath(repoPath);
+  const pendingPatches = pendingPatchesByRepo.get(resolvedRepo);
+  const pendingPatch = pendingPatches?.get(expectedSha256);
+
+  if (pendingPatch === undefined) {
+    if (expectedSha256 === EMPTY_PATCH_SHA256) {
+      committedPatchByRepo.set(resolvedRepo, "");
+      return;
+    }
+    throw new Error("No pending Git patch baseline is available.");
+  }
+
+  committedPatchByRepo.set(resolvedRepo, pendingPatch);
+  pendingPatchesByRepo.delete(resolvedRepo);
+}
+
+export function resetGitPatchBaseline(repoPath?: string): void {
+  if (!repoPath) {
+    committedPatchByRepo.clear();
+    pendingPatchesByRepo.clear();
+    return;
+  }
+
+  const resolvedRepo = assertRepoPath(repoPath);
+  committedPatchByRepo.delete(resolvedRepo);
+  pendingPatchesByRepo.delete(resolvedRepo);
 }
 
 export async function readEnvExample(repoPath: string): Promise<EnvExampleEntry[]> {
@@ -148,52 +208,74 @@ export async function readEnvExample(repoPath: string): Promise<EnvExampleEntry[
     .filter((entry) => /^[A-Za-z_][A-Za-z0-9_]*$/.test(entry.key));
 }
 
-async function readChangedFile(repoPath: string, entry: PorcelainEntry): Promise<ChangedFilePayload | null> {
-  const relativePath = normalizeRelativePath(entry.path);
-  const absolutePath = ensureInsideRepo(repoPath, relativePath);
+async function buildGitDiffPatch(repoPath: string): Promise<string> {
+  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "primarie-composer-diff-"));
+  const indexPath = path.join(tempDir, "index");
+  const env = { GIT_INDEX_FILE: indexPath };
 
-  if (!existsSync(absolutePath)) {
-    await delay(DELETE_CONFIRMATION_DELAY_MS);
+  try {
+    await git(repoPath, ["read-tree", "HEAD"], env);
+    await git(repoPath, ["add", "-A", "--", ...gitPatchPathspecs()], env);
+    return await gitRaw(repoPath, ["diff", "--cached", "--binary", "HEAD", "--"], env);
+  } finally {
+    await fs.rm(tempDir, { recursive: true, force: true });
   }
+}
 
-  if (!existsSync(absolutePath)) {
-    const recheckedStatus = await readPathStatus(repoPath, relativePath);
-    if (recheckedStatus !== "deleted") {
-      return null;
+async function buildPatchDelta(previousPatch: string, currentPatch: string): Promise<string> {
+  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "primarie-composer-patch-delta-"));
+  const previousPath = path.join(tempDir, "previous.patch");
+  const currentPath = path.join(tempDir, "current.patch");
+
+  try {
+    await Promise.all([
+      fs.writeFile(previousPath, previousPatch, "utf8"),
+      fs.writeFile(currentPath, currentPatch, "utf8")
+    ]);
+
+    try {
+      const { stdout } = await execFileAsync("diff", [
+        "-u",
+        "--label",
+        "previous.patch",
+        previousPath,
+        "--label",
+        "current.patch",
+        currentPath
+      ]);
+      return stdout;
+    } catch (error) {
+      if (isExecError(error) && error.code === 1 && typeof error.stdout === "string") {
+        return error.stdout;
+      }
+      throw error;
     }
-    return { path: relativePath, status: "deleted", deleteConfirmed: true };
+  } finally {
+    await fs.rm(tempDir, { recursive: true, force: true });
   }
-
-  const stat = await fs.stat(absolutePath);
-  if (!stat.isFile()) {
-    return null;
-  }
-
-  const status = entry.status === "deleted" ? "modified" : entry.status;
-
-  if (stat.size > MAX_FILE_SIZE_BYTES) {
-    return {
-      path: relativePath,
-      status,
-      warning: `Skipped file larger than ${MAX_FILE_SIZE_BYTES} bytes.`
-    };
-  }
-
-  const buffer = await fs.readFile(absolutePath);
-  return {
-    path: relativePath,
-    status,
-    contentBase64: buffer.toString("base64")
-  };
 }
 
-async function readPathStatus(repoPath: string, relativePath: string): Promise<ChangedFileStatus | undefined> {
-  const output = await git(repoPath, ["status", "--porcelain", "--", relativePath]);
-  return parsePorcelain(output).find((entry) => entry.path === relativePath)?.status;
+function gitPatchPathspecs(): string[] {
+  const ignoredSegmentPathspecs = [...IGNORED_SEGMENTS]
+    .filter((segment) => segment !== ".git")
+    .flatMap((segment) => [`:(exclude)${segment}/**`, `:(exclude)**/${segment}/**`]);
+  const ignoredFilePathspecs = [...IGNORED_FILES].flatMap((fileName) => [`:(exclude)${fileName}`, `:(exclude)**/${fileName}`]);
+  return [".", ...ignoredSegmentPathspecs, ...ignoredFilePathspecs];
 }
 
-function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+function storePendingPatch(repoPath: string, sha: string, patch: string): void {
+  const patches = pendingPatchesByRepo.get(repoPath) ?? new Map<string, string>();
+  patches.set(sha, patch);
+
+  while (patches.size > 20) {
+    const oldestSha = patches.keys().next().value;
+    if (!oldestSha) {
+      break;
+    }
+    patches.delete(oldestSha);
+  }
+
+  pendingPatchesByRepo.set(repoPath, patches);
 }
 
 function parsePorcelain(output: string): PorcelainEntry[] {
@@ -228,6 +310,14 @@ function toChangedFileStatus(code: string): ChangedFileStatus {
 
 function normalizeRelativePath(filePath: string): string {
   return filePath.replace(/^"|"$/g, "").split(path.sep).join("/");
+}
+
+function sha256(value: string): string {
+  return createHash("sha256").update(value).digest("hex");
+}
+
+function isExecError(error: unknown): error is Error & { code?: string | number; stdout?: string } {
+  return error instanceof Error && "code" in error;
 }
 
 function unquoteEnvValue(value: string): string {

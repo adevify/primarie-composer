@@ -11,7 +11,12 @@ import type {
   EnvironmentLogsPage,
   EnvironmentRecord,
   LifecycleAction,
+  MongoCollectionsResponse,
+  MongoDeleteResult,
+  MongoDocumentsPage,
+  MongoInsertResult,
   MongoPreview,
+  MongoUpdateResult,
   StreamLogEvent,
   SystemMetrics,
   SyncFilesInput,
@@ -175,6 +180,50 @@ export class ComposerApiClient {
 
   inspectMongo(key: string): Promise<MongoPreview> {
     return this.request<MongoPreview>(`/environments/${encodeURIComponent(key)}/mongo`);
+  }
+
+  listMongoCollections(key: string): Promise<MongoCollectionsResponse> {
+    return this.request<MongoCollectionsResponse>(`/environments/${encodeURIComponent(key)}/mongo/collections`);
+  }
+
+  searchMongoDocuments(
+    key: string,
+    collection: string,
+    input: { filter: Record<string, unknown>; page: number; limit: number; sort: Record<string, unknown> }
+  ): Promise<MongoDocumentsPage> {
+    return this.request<MongoDocumentsPage>(
+      `/environments/${encodeURIComponent(key)}/mongo/collections/${encodeURIComponent(collection)}/documents/search`,
+      { method: "POST", body: input }
+    );
+  }
+
+  insertMongoDocuments(key: string, collection: string, documents: Record<string, unknown>[]): Promise<MongoInsertResult> {
+    return this.request<MongoInsertResult>(
+      `/environments/${encodeURIComponent(key)}/mongo/collections/${encodeURIComponent(collection)}/documents`,
+      { method: "POST", body: { documents } }
+    );
+  }
+
+  deleteMongoDocuments(
+    key: string,
+    collection: string,
+    input: { filter: Record<string, unknown>; many: boolean; confirm: true; allowEmptyFilter?: boolean }
+  ): Promise<MongoDeleteResult> {
+    return this.request<MongoDeleteResult>(
+      `/environments/${encodeURIComponent(key)}/mongo/collections/${encodeURIComponent(collection)}/documents`,
+      { method: "DELETE", body: input }
+    );
+  }
+
+  updateMongoDocuments(
+    key: string,
+    collection: string,
+    input: { filter: Record<string, unknown>; update: Record<string, unknown>; many: boolean; confirm: true; allowEmptyFilter?: boolean }
+  ): Promise<MongoUpdateResult> {
+    return this.request<MongoUpdateResult>(
+      `/environments/${encodeURIComponent(key)}/mongo/collections/${encodeURIComponent(collection)}/documents`,
+      { method: "PATCH", body: input }
+    );
   }
 
   composeLogs(key: string, page = 0, perPage = 50): Promise<ComposeLogEntry[]> {

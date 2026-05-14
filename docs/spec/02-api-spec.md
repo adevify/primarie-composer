@@ -192,6 +192,15 @@ Create body:
     repoPath?: string;
   };
   env?: Record<string, string>;
+  patch?: {
+    mode: "full";
+    data: string;
+    previousSha256: string;
+    currentSha256: string;
+    currentSizeBytes: number;
+    changedFiles: string[];
+    isEmpty: boolean;
+  };
 }
 ```
 
@@ -202,16 +211,7 @@ Create validation:
 - `source.branch` is required.
 - `source.commit` must be at least 7 characters.
 - `env` defaults to `{}`.
-
-Changed file payload:
-
-```ts
-{
-  path: string;
-  status: "modified" | "added" | "deleted";
-  contentBase64?: string;
-}
-```
+- Create `patch`, when present, must be a full patch.
 
 Sync body:
 
@@ -219,7 +219,16 @@ Sync body:
 {
   branch: string;
   commit: string;
-  files: ChangedFilePayload[];
+  patch: {
+    mode: "delta" | "full";
+    data: string;
+    previousSha256: string;
+    currentSha256: string;
+    currentSizeBytes: number;
+    changedFiles: string[];
+    isEmpty: boolean;
+  };
+  resetBeforeApply?: boolean;
 }
 ```
 
@@ -357,6 +366,58 @@ The API resolves the path inside `RUNTIME_DIR/{key}` and rejects traversal outsi
 
 Publishes `environment.mongo.inspect` and returns Mongo preview JSON.
 
+### Chapter 2.7.12.1 GET /environments/:key/mongo/collections
+
+Returns Mongo collection summaries:
+
+```ts
+{
+  database?: string;
+  collections: Array<{
+    name: string;
+    count: number;
+    sizeBytes?: number;
+    storageSizeBytes?: number;
+  }>;
+}
+```
+
+### Chapter 2.7.12.2 POST /environments/:key/mongo/collections/:collection/documents/search
+
+Body:
+
+```ts
+{
+  filter?: Record<string, unknown>;
+  page?: number;
+  limit?: 20 | 50 | 100;
+  sort?: Record<string, unknown>;
+}
+```
+
+Returns `{ collection, page, limit, total, documents }`.
+
+### Chapter 2.7.12.3 POST /environments/:key/mongo/collections/:collection/documents
+
+Inserts one or more JSON documents. Body: `{ documents: Record<string, unknown>[] }`.
+
+### Chapter 2.7.12.4 DELETE /environments/:key/mongo/collections/:collection/documents
+
+Deletes one or many documents. Body: `{ filter, many, confirm: true, allowEmptyFilter? }`.
+
+### Chapter 2.7.12.5 PATCH /environments/:key/mongo/collections/:collection/documents
+
+Updates one or many documents. Body: `{ filter, update, many, confirm: true, allowEmptyFilter? }`.
+
+Mongo safety rules:
+
+- Collection names must match `^[A-Za-z0-9_.-]+$`, must not contain `..`, and must not start with `system.`.
+- Document search limits are capped at 100.
+- Delete and update require `confirm: true`.
+- Empty delete/update filters are rejected unless `allowEmptyFilter` is true.
+- Updates must use MongoDB update operators such as `$set`, `$unset`, or `$inc`.
+- Insert, update, and delete operations are logged as system events.
+
 ### Chapter 2.7.13 GET /environments/:key/compose/logs
 
 Publishes `environment.compose.logs` and returns paginated log tail lines as `{ log, level }`.
@@ -458,7 +519,7 @@ Synchronously publishes `environment.restart` and marks status `running`.
 
 ### Chapter 2.7.25 POST /environments/:key/sync-files
 
-Publishes `environment.files.sync` with branch, commit, and changed files.
+Publishes `environment.files.sync` with branch, commit, and either legacy changed files or a Git patch payload. Delta patch payloads update the server's stored patch baseline before the worker checks and applies the resulting Git patch. Full patch payloads may reset the runtime repository before applying.
 
 ### Chapter 2.7.26 POST /environments/:key/sync
 

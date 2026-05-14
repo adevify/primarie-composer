@@ -9,7 +9,7 @@ LOGS_DIR="${LOGS_DIR:-$BUS_ROOT/logs}"
 LOCKS_DIR="${LOCKS_DIR:-$BUS_ROOT/locks}"
 READY_FILE="${READY_FILE:-$BUS_ROOT/worker.ready}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-MAX_RESULT_OUTPUT_BYTES="${MAX_RESULT_OUTPUT_BYTES:-65536}"
+MAX_RESULT_OUTPUT_BYTES="${MAX_RESULT_OUTPUT_BYTES:-5242880}"
 ACTION_HEARTBEAT_SECONDS="${ACTION_HEARTBEAT_SECONDS:-30}"
 MAX_PARALLEL_ACTIONS="${MAX_PARALLEL_ACTIONS:-4}"
 
@@ -95,7 +95,8 @@ requires_environment_lock() {
   [[ "$type" == "environment.start" \
     || "$type" == "environment.stop" \
     || "$type" == "environment.restart" \
-    || "$type" == "environment.mongo.inspect" ]]
+    || "$type" == "environment.mongo.inspect" \
+    || "$type" == "environment.mongo.command" ]]
 }
 
 environment_lock_path() {
@@ -162,6 +163,9 @@ write_lock_conflict_result() {
       ;;
     "environment.mongo.inspect")
       write_result "$id" "success" "$message" "{\"available\":false,\"reason\":\"$message\"}"
+      ;;
+    "environment.mongo.command")
+      write_result "$id" "error" "$message" "{\"error\":\"$message\"}"
       ;;
     *)
       write_result "$id" "success" "$message" ""
@@ -329,6 +333,9 @@ process_action() {
       run_payload_script "$id" "$SCRIPT_DIR/container-exec.sh" "$line"
       ;;
     "environment.mongo.inspect")
+      run_payload_script "$id" "$SCRIPT_DIR/mongo-inspect.sh" "$line"
+      ;;
+    "environment.mongo.command")
       run_payload_script "$id" "$SCRIPT_DIR/mongo-inspect.sh" "$line"
       ;;
     "environment.start")

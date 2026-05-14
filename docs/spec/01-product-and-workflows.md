@@ -111,13 +111,12 @@ Delete:
 1. The operator selects an active environment.
 2. The operator starts sync from the sidebar.
 3. Electron main starts a chokidar watcher and a 1-second Git-state poller.
-4. On file changes or Git-state changes, Electron reads Git status and changed file payloads.
-5. Ignored folders/files are excluded.
-6. Binary files and files larger than 1 MB are skipped with warnings.
-7. The renderer chunks payloads so a chunk does not exceed roughly 750 KB of base64 content.
-8. The renderer posts each chunk to `/environments/:key/sync-files`.
-9. The API publishes `environment.files.sync`.
-10. The worker fetches, resets, checks out branch/commit, cleans untracked files, and applies changed file content/deletions.
+4. On file changes or Git-state changes, Electron reads Git status and builds a binary Git patch.
+5. Ignored folders/files are excluded from the temporary patch index.
+6. Normal sync posts a delta from the last acknowledged patch; force sync posts the full patch.
+7. The renderer posts the patch to `/environments/:key/sync-files`.
+8. The API publishes `environment.files.sync`.
+9. The worker reconstructs the full patch, checks for baseline mismatches, runs `git apply --check`, and applies the patch only if it is clean.
 11. The API writes a system log event such as `environment.files_synced`.
 
 ## Chapter 1.8 Inspection Workflow

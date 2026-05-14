@@ -10,7 +10,19 @@ import { env } from "../../config/env.js";
 import { EnvironmentCollection, EnvironmentRecord } from "../../db/environments.js";
 import { HostActionBusService, type HostActionLogHandler, type HostActionResult } from "../../services/bus/HostActionBusService.js";
 import type { AuthenticatedUser } from "../auth/auth.middleware.js";
-import type { ChangedFilePayload, CreateEnvironmentPayload, EnvironmentOwner, EnvironmentSource, LifecycleAction, PullRequestRef, SyncFilesPayload } from "./environment.dtos.js";
+import type {
+  CreateEnvironmentPayload,
+  EnvironmentOwner,
+  EnvironmentSource,
+  GitPatchPayload,
+  LifecycleAction,
+  MongoDeleteDocumentsPayload,
+  MongoInsertDocumentsPayload,
+  MongoSearchDocumentsPayload,
+  MongoUpdateDocumentsPayload,
+  PullRequestRef,
+  SyncFilesPayload
+} from "./environment.dtos.js";
 import { SystemLogCollection, type SystemLogActor, type SystemLogLevel, type SystemLogSource, type SystemLogTarget } from "../../db/logs.js";
 import { EnvironmentActionCollection, type EnvironmentActionLogFile, type EnvironmentActionRecord } from "../../db/environment-actions.js";
 
@@ -298,7 +310,7 @@ export class EnvironmentsService {
     void this.prepareEnvironment(key, runtimePath, input.seed, input.source, {
       ...input.env,
       PROXY_EXTERNAL_PORT: String(port),
-    }, input.changedFiles).catch(async (error) => {
+    }, input.patch).catch(async (error) => {
       logEnvironment("error", "create_failed", {
         key,
         message: error instanceof Error ? error.message : String(error)
@@ -322,7 +334,7 @@ export class EnvironmentsService {
     seedName: string,
     source: EnvironmentSource,
     environmentVariables: Record<string, string>,
-    changedFiles: ChangedFilePayload[]
+    patch: GitPatchPayload | undefined
   ): Promise<void> {
     logEnvironment("info", "prepare_started", {
       key,
@@ -352,7 +364,7 @@ export class EnvironmentsService {
       hostSeedsDir: env.HOST_SEEDS_DIR,
       source,
       sourceRepoUrl: env.SOURCE_REPO_URL,
-      changedFiles,
+      patch,
       environmentVariables: {
         ...environmentVariables,
         COMPANY_HOST: env.ROOT_DOMAIN_ALT,
@@ -368,7 +380,7 @@ export class EnvironmentsService {
       metadata: {
         branch: source.branch,
         commit: source.commit,
-        changedFiles: changedFiles.length,
+        patchFiles: patch?.changedFiles.length ?? 0,
         outputLength: result.output?.length ?? 0
       }
     });
@@ -762,11 +774,104 @@ export class EnvironmentsService {
   async inspectMongo(key: string) {
     await this.get(key);
     const result = await this.publishEnvironmentAction("environment.mongo.inspect", key, {
+      operation: "preview",
       limit: 20,
       maxBytes: 50_000,
       maxDocBytes: 2_000
     });
     return parseMongoPreviewOutput(result.output ?? "{}");
+  }
+
+  async listMongoCollections(key: string) {
+    await this.get(key);
+    const result = await this.publishEnvironmentAction("environment.mongo.inspect", key, {
+      operation: "collections"
+    });
+    return parseJsonValue(result.output ?? "{}");
+  }
+
+  async searchMongoDocuments(key: string, collection: string, input: MongoSearchDocumentsPayload) {
+    await this.get(key);
+    const result = await this.publishEnvironmentAction("environment.mongo.inspect", key, {
+      operation: "search",
+      collection,
+      filter: input.filter,
+      page: input.page,
+      limit: input.limit,
+      sort: input.sort
+    });
+    return parseJsonValue(result.output ?? "{}");
+  }
+
+  async insertMongoDocuments(key: string, collection: string, input: MongoInsertDocumentsPayload, user: AuthenticatedUser) {
+    await this.get(key);
+    const result = await this.publishEnvironmentAction("environment.mongo.command", key, {
+      operation: "insert",
+      collection,
+      documents: input.documents
+    });
+    const parsed = parseJsonValue(result.output ?? "{}");
+    await this.logSystemEvent(key, "environment.mongo_insert", `Inserted MongoDB documents into ${collection}`, {
+      actor: actorFromUser(user),
+      metadata: {
+        collection,
+        requestedCount: input.documents.length,
+        result: parsed
+      }
+    });
+    return parsed;
+  }
+
+  async deleteMongoDocuments(key: string, collection: string, input: MongoDeleteDocumentsPayload, user: AuthenticatedUser) {
+    await this.get(key);
+    assertMongoFilterSafety(input.filter, input.allowEmptyFilter === true);
+    const result = await this.publishEnvironmentAction("environment.mongo.command", key, {
+      operation: "delete",
+      collection,
+      filter: input.filter,
+      many: input.many,
+      confirm: input.confirm,
+      allowEmptyFilter: input.allowEmptyFilter === true
+    });
+    const parsed = parseJsonValue(result.output ?? "{}");
+    await this.logSystemEvent(key, "environment.mongo_delete", `Deleted MongoDB documents from ${collection}`, {
+      level: "warn",
+      actor: actorFromUser(user),
+      metadata: {
+        collection,
+        many: input.many,
+        filter: input.filter,
+        result: parsed
+      }
+    });
+    return parsed;
+  }
+
+  async updateMongoDocuments(key: string, collection: string, input: MongoUpdateDocumentsPayload, user: AuthenticatedUser) {
+    await this.get(key);
+    assertMongoFilterSafety(input.filter, input.allowEmptyFilter === true);
+    assertMongoUpdateSafety(input.update);
+    const result = await this.publishEnvironmentAction("environment.mongo.command", key, {
+      operation: "update",
+      collection,
+      filter: input.filter,
+      update: input.update,
+      many: input.many,
+      confirm: input.confirm,
+      allowEmptyFilter: input.allowEmptyFilter === true
+    });
+    const parsed = parseJsonValue(result.output ?? "{}");
+    await this.logSystemEvent(key, "environment.mongo_update", `Updated MongoDB documents in ${collection}`, {
+      actor: actorFromUser(user),
+      metadata: {
+        collection,
+        many: input.many,
+        filter: input.filter,
+        update: input.update,
+        result: parsed
+      }
+    });
+    return parsed;
   }
 
   async stop(key: string, user?: AuthenticatedUser): Promise<EnvironmentRecord> {
@@ -871,7 +976,8 @@ export class EnvironmentsService {
       key,
       branch: input.branch,
       commit: input.commit,
-      files: input.files.length
+      files: syncPayloadChangeCount(input),
+      mode: syncPayloadMode(input)
     });
 
     await this.logSystemEvent(key, "environment.files_sync_started", `Preparing environment with ${input.branch}@${input.commit}`, {
@@ -879,7 +985,9 @@ export class EnvironmentsService {
       metadata: {
         branch: input.branch,
         commit: input.commit,
-        files: input.files.length
+        files: syncPayloadChangeCount(input),
+        mode: syncPayloadMode(input),
+        resetBeforeApply: input.resetBeforeApply ?? true
       }
     });
 
@@ -891,7 +999,7 @@ export class EnvironmentsService {
           commit: input.commit
         },
         resetBeforeApply: input.resetBeforeApply ?? true,
-        files: input.files
+        patch: input.patch
       });
 
       await this.logSystemEvent(key, "environment.files_synced", "Environment synced successfully", {
@@ -899,7 +1007,8 @@ export class EnvironmentsService {
         metadata: {
           branch: input.branch,
           commit: input.commit,
-          files: input.files.map((file) => ({ path: file.path, status: file.status }))
+          mode: syncPayloadMode(input),
+          files: input.patch.changedFiles.map((path) => ({ path, status: "patched" }))
         }
       });
 
@@ -913,7 +1022,7 @@ export class EnvironmentsService {
           status: restoreStatus
         };
       });
-      logEnvironment("info", "sync_completed", { key, files: input.files.length, status: updated.status });
+      logEnvironment("info", "sync_completed", { key, files: syncPayloadChangeCount(input), mode: syncPayloadMode(input), status: updated.status });
       return updated;
     } catch (error) {
       const output = typeof error === "object" && error !== null && "output" in error ? String((error as { output?: unknown }).output ?? "") : "";
@@ -933,7 +1042,8 @@ export class EnvironmentsService {
         metadata: {
           branch: input.branch,
           commit: input.commit,
-          files: input.files.map((file) => ({ path: file.path, status: file.status })),
+          mode: syncPayloadMode(input),
+          files: input.patch.changedFiles.map((path) => ({ path, status: "patched" })),
           restoredStatus: restoreStatus,
           outputTail
         }
@@ -1000,7 +1110,7 @@ export class EnvironmentsService {
       source,
       seed: "default",
       env: {},
-      changedFiles: []
+      patch: undefined
     }, pullRequest);
 
     await this.logSystemEvent(record.key, "environment.pr_updated", "Pull request environment updated", {
@@ -1551,6 +1661,28 @@ function parseJsonValue(output: string): unknown {
   return JSON.parse(trimmed) as unknown;
 }
 
+function assertMongoFilterSafety(filter: Record<string, unknown>, allowEmptyFilter: boolean): void {
+  if (!isPlainRecord(filter)) {
+    throw Object.assign(new Error("MongoDB filter must be a JSON object."), { status: 400 });
+  }
+  if (!allowEmptyFilter && Object.keys(filter).length === 0) {
+    throw Object.assign(new Error("Empty MongoDB filters are not allowed for this operation."), { status: 400 });
+  }
+}
+
+function assertMongoUpdateSafety(update: Record<string, unknown>): void {
+  if (!isPlainRecord(update) || Object.keys(update).length === 0) {
+    throw Object.assign(new Error("MongoDB update must be a non-empty JSON object."), { status: 400 });
+  }
+  if (!Object.keys(update).every((key) => key.startsWith("$"))) {
+    throw Object.assign(new Error("MongoDB update must use update operators such as $set, $unset, or $inc."), { status: 400 });
+  }
+}
+
+function isPlainRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
 function parseMongoPreviewOutput(output: string): unknown {
   try {
     return parseJsonValue(output);
@@ -1572,6 +1704,14 @@ function splitLogLines(output: string | undefined): string[] {
     .split(/\r?\n/)
     .map((line) => line.trimEnd())
     .filter(Boolean);
+}
+
+function syncPayloadMode(input: SyncFilesPayload): "patch-delta" | "patch-full" {
+  return input.patch.mode === "full" ? "patch-full" : "patch-delta";
+}
+
+function syncPayloadChangeCount(input: SyncFilesPayload): number {
+  return input.patch.changedFiles.length;
 }
 
 function isReadOnlyHostAction(type: string): boolean {

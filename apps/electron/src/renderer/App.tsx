@@ -10,12 +10,11 @@ import { GitStatusCard } from "./components/GitStatusCard";
 import { LoginView } from "./components/LoginView";
 import { RepoPicker } from "./components/RepoPicker";
 import { UsersPage } from "./components/UsersPage";
-import type { AuthSession, ChangedFilePayload, EnvExampleEntry, EnvironmentActionLogsPage, EnvironmentActionRecord, EnvironmentActionsPage, EnvironmentLog, EnvironmentLogsPage, EnvironmentRecord, EnvironmentStatus, FileSyncEvent, GitState, LifecycleAction, LiveLogSession, RepoSyncSnapshot, StreamLogEvent, SyncState, SystemMetrics, UserDirectoryRecord } from "./types";
+import type { AuthSession, EnvExampleEntry, EnvironmentActionLogsPage, EnvironmentActionRecord, EnvironmentActionsPage, EnvironmentLog, EnvironmentLogsPage, EnvironmentRecord, EnvironmentStatus, FileSyncEvent, GitPatchPayload, GitState, LifecycleAction, LiveLogSession, RepoSyncSnapshot, StreamLogEvent, SyncState, SystemMetrics, UserDirectoryRecord } from "./types";
 
 const AUTH_STORAGE_KEY = "primarie-composer.auth";
 const REPO_STORAGE_KEY = "primarie-composer.repoPath";
 const ACTIVE_ENV_STORAGE_KEY = "primarie-composer.activeEnvironmentKey";
-const MAX_SYNC_CHUNK_CONTENT_LENGTH = 20 * 1024 * 1024;
 const DASHBOARD_LOGS_PER_PAGE = 50;
 
 export default function App() {
@@ -58,6 +57,8 @@ export default function App() {
   const streamControllers = useRef(new Map<string, AbortController>());
   const syncInFlightRef = useRef(false);
   const pendingSyncSnapshotRef = useRef<RepoSyncSnapshot | null>(null);
+  const forceFullPatchRef = useRef(new Set<string>());
+  const lastSyncedBaseRef = useRef(new Map<string, string>());
   const [syncState, setSyncState] = useState<SyncState>({
     watching: false,
     syncing: false,
@@ -399,7 +400,7 @@ export default function App() {
     setCreateError(undefined);
     try {
       let source;
-      let changedFiles: ChangedFilePayload[] = [];
+      let patch: GitPatchPayload | undefined;
       if (input.useCurrentRepoState) {
         const latestGitState = await refreshGitState();
         if (!latestGitState || !repoPath) {
@@ -414,9 +415,7 @@ export default function App() {
           repoPath
         };
 
-        const localChanges = await electronBridge.readChangedFiles(repoPath);
-        localChanges.filter((file) => file.warning).forEach((file) => pushSyncError(`${file.path}: ${file.warning}`));
-        changedFiles = localChanges.filter((file) => !file.warning);
+        patch = await electronBridge.readGitPatch(repoPath, "full");
       }
 
       if (!source) {
@@ -431,7 +430,7 @@ export default function App() {
         seed: input.seed,
         source,
         env: input.env,
-        changedFiles
+        patch
       });
       setEnvironments((current) => [created, ...current.filter((item) => item.key !== created.key)]);
       setMonitoredEnvironment(created);
@@ -703,11 +702,39 @@ export default function App() {
     return api.listEnvironmentFiles(key, path);
   }
 
-  async function inspectMongo(key: string) {
+  async function listMongoCollections(key: string) {
     if (!api) {
       throw new Error("API client is unavailable.");
     }
-    return api.inspectMongo(key);
+    return api.listMongoCollections(key);
+  }
+
+  async function searchMongoDocuments(key: string, collection: string, input: { filter: Record<string, unknown>; page: number; limit: number; sort: Record<string, unknown> }) {
+    if (!api) {
+      throw new Error("API client is unavailable.");
+    }
+    return api.searchMongoDocuments(key, collection, input);
+  }
+
+  async function insertMongoDocuments(key: string, collection: string, documents: Record<string, unknown>[]) {
+    if (!api) {
+      throw new Error("API client is unavailable.");
+    }
+    return api.insertMongoDocuments(key, collection, documents);
+  }
+
+  async function deleteMongoDocuments(key: string, collection: string, input: { filter: Record<string, unknown>; many: boolean; confirm: true; allowEmptyFilter?: boolean }) {
+    if (!api) {
+      throw new Error("API client is unavailable.");
+    }
+    return api.deleteMongoDocuments(key, collection, input);
+  }
+
+  async function updateMongoDocuments(key: string, collection: string, input: { filter: Record<string, unknown>; update: Record<string, unknown>; many: boolean; confirm: true; allowEmptyFilter?: boolean }) {
+    if (!api) {
+      throw new Error("API client is unavailable.");
+    }
+    return api.updateMongoDocuments(key, collection, input);
   }
 
   async function listLifecycleActions(key: string, page = 0, perPage = 20): Promise<EnvironmentActionsPage> {
@@ -796,6 +823,7 @@ export default function App() {
         throw new Error("Electron preload bridge is unavailable.");
       }
       persistActiveEnvironmentKey(key);
+      forceFullPatchRef.current.add(key);
       setFileSyncEvents((current) => current.filter((event) => event.environmentKey !== key));
       setSyncState((current) => ({ ...current, watching: true, syncing: false, activeEnvironmentKey: key }));
       await electronBridge.startWatchingRepo(repoPath);
@@ -848,76 +876,39 @@ export default function App() {
     }
 
     const currentSnapshot = await refreshSyncSnapshot(snapshot);
-    let pendingFiles: ChangedFilePayload[] = [];
+    const baseSignature = gitBaseSignature(currentSnapshot.gitState);
+    const shouldForceFull = forceFullPatchRef.current.has(activeEnvironmentKey);
+    const baseChanged = lastSyncedBaseRef.current.get(activeEnvironmentKey) !== baseSignature;
+    const shouldSendFullPatch = shouldForceFull || baseChanged;
+    const patch = shouldSendFullPatch
+      ? await electronBridge.readGitPatch(repoPath, "full")
+      : currentSnapshot.patch;
+
+    if (!shouldSendFullPatch && patch.isEmpty) {
+      return;
+    }
+
     try {
-      const payloadPaths = new Set(currentSnapshot.files.map((file) => file.path));
-      const unreadableChangedFiles: ChangedFilePayload[] = currentSnapshot.gitState.changedFiles
-        .filter((filePath) => !payloadPaths.has(filePath))
-        .map((filePath) => ({
-          path: filePath,
-          status: "modified",
-          warning: "Git reports this file as changed, but Electron could not build a sync payload for it."
-        }));
-      const contentlessFiles = currentSnapshot.files
-        .filter((file) => !file.warning && file.status !== "deleted" && !hasFileContent(file))
-        .map((file) => ({
-          ...file,
-          warning: "Skipped changed file without file content."
-        }));
-      const warningFiles = [
-        ...currentSnapshot.files.filter((file) => file.warning),
-        ...unreadableChangedFiles,
-        ...contentlessFiles
-      ];
-      const unconfirmedDeleteFiles = currentSnapshot.files
-        .filter((file) => !file.warning && file.status === "deleted" && !file.deleteConfirmed)
-        .map((file) => ({
-          ...file,
-          warning: "Skipped unconfirmed delete. Restart Electron and sync again if this file was really removed."
-        }));
-      const syncableFiles = currentSnapshot.files.filter((file) => !file.warning && (
-        file.status === "deleted" ? file.deleteConfirmed : hasFileContent(file)
-      ));
-      pendingFiles = syncableFiles;
-      const skippedFiles = [
-        ...warningFiles,
-        ...unconfirmedDeleteFiles
-      ];
-      skippedFiles.forEach((file) => pushSyncError(`${file.path}: ${file.warning}`));
-      if (skippedFiles.length > 0) {
-        recordFileSyncEvents(activeEnvironmentKey, currentSnapshot.gitState, skippedFiles, "skipped");
-      }
-      if (syncableFiles.length === 0) {
-        setSyncState((current) => ({
-          ...current,
-          errors: skippedFiles.map((file) => `${file.path}: ${file.warning}`)
-        }));
-        return;
-      }
-
-      const chunks = chunkChangedFiles(syncableFiles);
-
-      for (const [index, files] of chunks.entries()) {
-        await api.syncFiles(activeEnvironmentKey, {
-          branch: currentSnapshot.gitState.branch,
-          commit: currentSnapshot.gitState.commit,
-          files,
-          resetBeforeApply: index === 0
-        });
-        recordFileSyncEvents(activeEnvironmentKey, currentSnapshot.gitState, files, "sent");
-        const sentPaths = new Set(files.map((file) => file.path));
-        pendingFiles = pendingFiles.filter((file) => !sentPaths.has(file.path));
-      }
+      await api.syncFiles(activeEnvironmentKey, {
+        branch: currentSnapshot.gitState.branch,
+        commit: currentSnapshot.gitState.commit,
+        patch,
+        resetBeforeApply: shouldSendFullPatch
+      });
+      await electronBridge.commitPatchBaseline(repoPath, patch.currentSha256);
+      recordPatchSyncEvent(activeEnvironmentKey, currentSnapshot.gitState, patch, "sent", shouldSendFullPatch);
+      forceFullPatchRef.current.delete(activeEnvironmentKey);
+      lastSyncedBaseRef.current.set(activeEnvironmentKey, baseSignature);
 
       setSyncState((current) => ({
         ...current,
-        lastSyncedFile: syncableFiles.at(-1)?.path ?? "Git state",
+        lastSyncedFile: shouldSendFullPatch ? "Full patch" : "Patch delta",
         lastSyncTime: new Date().toLocaleString(),
-        errors: currentSnapshot.files.filter((file) => file.warning).map((file) => `${file.path}: ${file.warning}`)
+        errors: []
       }));
     } catch (error) {
       const message = toErrorMessage(error);
-      recordFileSyncEvents(activeEnvironmentKey, currentSnapshot.gitState, pendingFiles, "failed", message);
+      recordPatchSyncEvent(activeEnvironmentKey, currentSnapshot.gitState, patch, "failed", shouldSendFullPatch, message);
       pushSyncError(message);
       if (isUnauthorized(error)) {
         logout();
@@ -930,51 +921,83 @@ export default function App() {
       return snapshot;
     }
 
-    const [gitState, files] = await Promise.all([
-      electronBridge.getGitState(repoPath),
-      electronBridge.readChangedFiles(repoPath)
-    ]);
+    const gitState = await electronBridge.getGitState(repoPath);
     setGitState(gitState);
-    return { gitState, files };
+    return { gitState, patch: snapshot.patch };
+  }
+
+  async function forceSyncEnvironment(key: string): Promise<void> {
+    if (!api || !repoPath) {
+      return;
+    }
+
+    setSyncState((current) => ({ ...current, syncing: true, activeEnvironmentKey: key }));
+    persistActiveEnvironmentKey(key);
+
+    try {
+      if (!electronBridge) {
+        throw new Error("Electron preload bridge is unavailable.");
+      }
+
+      const [latestGitState, patch] = await Promise.all([
+        electronBridge.getGitState(repoPath),
+        electronBridge.readGitPatch(repoPath, "full")
+      ]);
+      await api.syncFiles(key, {
+        branch: latestGitState.branch,
+        commit: latestGitState.commit,
+        patch,
+        resetBeforeApply: true
+      });
+      await electronBridge.commitPatchBaseline(repoPath, patch.currentSha256);
+      recordPatchSyncEvent(key, latestGitState, patch, "sent", true);
+      forceFullPatchRef.current.delete(key);
+      lastSyncedBaseRef.current.set(key, gitBaseSignature(latestGitState));
+      setGitState(latestGitState);
+      setSyncState((current) => ({
+        ...current,
+        lastSyncedFile: "Full patch",
+        lastSyncTime: new Date().toLocaleString(),
+        errors: []
+      }));
+    } catch (error) {
+      pushSyncError(toErrorMessage(error));
+      if (isUnauthorized(error)) {
+        logout();
+      }
+    } finally {
+      setSyncState((current) => ({ ...current, syncing: false }));
+    }
   }
 
   function pushSyncError(message: string): void {
     setSyncState((current) => ({ ...current, errors: [...current.errors.slice(-4), message] }));
   }
 
-  function recordFileSyncEvents(
+  function recordPatchSyncEvent(
     environmentKey: string,
     gitState: GitState,
-    files: ChangedFilePayload[],
+    patch: GitPatchPayload,
     result: FileSyncEvent["result"],
+    full: boolean,
     error?: string
   ): void {
     const at = new Date().toISOString();
-    const events: FileSyncEvent[] = files.length > 0
-      ? files.map((file, index) => ({
-        id: `${at}-${index}-${environmentKey}-${file.path}`,
-        environmentKey,
-        path: file.path,
-        status: file.status,
-        result,
-        branch: gitState.branch,
-        commit: gitState.commit,
-        at,
-        warning: file.warning,
-        error
-      }))
-      : [{
-        id: `${at}-${environmentKey}-git-state`,
-        environmentKey,
-        path: "Git state",
-        status: "metadata",
-        result,
-        branch: gitState.branch,
-        commit: gitState.commit,
-        at,
-        error
-      }];
-    setFileSyncEvents((current) => [...events, ...current]);
+    const changedCount = patch.changedFiles.length;
+    const path = full
+      ? `Full patch (${changedCount} changed ${changedCount === 1 ? "file" : "files"})`
+      : `Patch delta (${changedCount} changed ${changedCount === 1 ? "file" : "files"})`;
+    setFileSyncEvents((current) => [{
+      id: `${at}-${environmentKey}-${patch.mode}-${patch.currentSha256}`,
+      environmentKey,
+      path,
+      status: "metadata",
+      result,
+      branch: gitState.branch,
+      commit: gitState.commit,
+      at,
+      error
+    }, ...current]);
   }
 
   if (authLoading) {
@@ -1047,7 +1070,11 @@ export default function App() {
             onListContainers={listContainers}
             onListContainerFiles={listContainerFiles}
             onListEnvironmentFiles={listEnvironmentFiles}
-            onInspectMongo={inspectMongo}
+            onListMongoCollections={listMongoCollections}
+            onSearchMongoDocuments={searchMongoDocuments}
+            onInsertMongoDocuments={insertMongoDocuments}
+            onDeleteMongoDocuments={deleteMongoDocuments}
+            onUpdateMongoDocuments={updateMongoDocuments}
             onListLifecycleActions={listLifecycleActions}
             onListComposeLogs={listComposeLogs}
             onListContainerLogs={listContainerLogs}
@@ -1064,6 +1091,7 @@ export default function App() {
             fileSyncEvents={fileSyncEvents.filter((event) => event.environmentKey === detailsEnvironment.key)}
             onStartSync={(key) => startSync(key)}
             onStopSync={stopSync}
+            onForceSync={(key) => forceSyncEnvironment(key)}
             onStartComposeLogStream={startComposeLogStream}
             onStartContainerLogStream={startContainerLogStream}
             onStopLiveLogSession={stopLiveLogSession}
@@ -1163,30 +1191,6 @@ function mergeLogs(primary: EnvironmentLog[], secondary: EnvironmentLog[]): Envi
   return merged;
 }
 
-function chunkChangedFiles(files: ChangedFilePayload[]): ChangedFilePayload[][] {
-  const chunks: ChangedFilePayload[][] = [];
-  let currentChunk: ChangedFilePayload[] = [];
-  let currentLength = 0;
-
-  for (const file of files) {
-    const contentLength = file.contentBase64?.length ?? 0;
-    if (currentChunk.length > 0 && currentLength + contentLength > MAX_SYNC_CHUNK_CONTENT_LENGTH) {
-      chunks.push(currentChunk);
-      currentChunk = [];
-      currentLength = 0;
-    }
-
-    currentChunk.push(file);
-    currentLength += contentLength;
-  }
-
-  if (currentChunk.length > 0) {
-    chunks.push(currentChunk);
-  }
-
-  return chunks;
-}
-
-function hasFileContent(file: ChangedFilePayload): boolean {
-  return Object.prototype.hasOwnProperty.call(file, "contentBase64");
+function gitBaseSignature(gitState: GitState): string {
+  return `${gitState.branch}:${gitState.commit}`;
 }

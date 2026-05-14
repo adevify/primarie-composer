@@ -146,7 +146,7 @@ The create response immediately includes the generated unique environment key an
 
 After login, the app loads all environments and groups them by GitHub PR when `pullRequest` metadata exists, otherwise by creator. Operators can stop environments and reuse environments they own.
 
-Docker, seed setup, server-side Git checkout, changed-file application, and environment lifecycle are API responsibilities only.
+Docker, seed setup, server-side Git checkout, patch application, and environment lifecycle are API responsibilities only.
 
 ## Continuous Sync
 
@@ -157,9 +157,9 @@ The watcher runs in the Electron main process with `chokidar` and a lightweight 
 - current branch
 - current commit
 - `git status --porcelain`
-- changed file payloads for files Git reports as changed
+- a binary Git patch for the current working-tree changes
 
-It then sends only those Git-status changed files:
+Normal sync sends a delta from the last acknowledged patch baseline. Force sync sends the full patch and asks the server worker to reset before applying:
 
 ```http
 POST /environments/:key/sync-files
@@ -171,17 +171,19 @@ Body:
 {
   "branch": "feature/some-branch",
   "commit": "abc123...",
-  "files": [
-    {
-      "path": "apps/web/src/App.tsx",
-      "status": "modified",
-      "contentBase64": "..."
-    }
-  ]
+  "patch": {
+    "mode": "delta",
+    "data": "--- previous.patch\n+++ current.patch\n...",
+    "previousSha256": "...",
+    "currentSha256": "...",
+    "currentSizeBytes": 1234,
+    "changedFiles": ["apps/web/src/App.tsx"],
+    "isEmpty": false
+  }
 }
 ```
 
-The first API implementation records the latest branch, commit, and changed-file payload metadata for the environment. Server-side file application can be expanded behind the same endpoint.
+The app never sends raw file contents for sync. The server reconstructs and checks the patch before applying it.
 
 ## Ignored Folders and Files
 

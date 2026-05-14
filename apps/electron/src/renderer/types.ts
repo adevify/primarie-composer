@@ -1,13 +1,15 @@
 import type { ElectronOpenAPI, PrimarieElectronAPI } from "../main/preload";
 
-export type ChangedFileStatus = "modified" | "added" | "deleted";
+export type GitPatchMode = "delta" | "full";
 
-export type ChangedFilePayload = {
-  path: string;
-  contentBase64?: string;
-  status: ChangedFileStatus;
-  deleteConfirmed?: boolean;
-  warning?: string;
+export type GitPatchPayload = {
+  mode: GitPatchMode;
+  data: string;
+  previousSha256: string;
+  currentSha256: string;
+  currentSizeBytes: number;
+  changedFiles: string[];
+  isEmpty: boolean;
 };
 
 export type GitState = {
@@ -19,7 +21,7 @@ export type GitState = {
 
 export type RepoSyncSnapshot = {
   gitState: GitState;
-  files: ChangedFilePayload[];
+  patch: GitPatchPayload;
 };
 
 export type EnvExampleEntry = {
@@ -162,6 +164,43 @@ export type MongoPreview = {
   }>;
 };
 
+export type MongoCollectionSummary = {
+  name: string;
+  count: number;
+  sizeBytes?: number;
+  storageSizeBytes?: number;
+};
+
+export type MongoCollectionsResponse = {
+  available?: boolean;
+  reason?: string;
+  database?: string;
+  collections: MongoCollectionSummary[];
+};
+
+export type MongoDocumentsPage = {
+  collection: string;
+  page: number;
+  limit: number;
+  total: number;
+  documents: unknown[];
+};
+
+export type MongoInsertResult = {
+  insertedCount: number;
+  insertedIds: unknown[];
+};
+
+export type MongoDeleteResult = {
+  matchedCount: number;
+  deletedCount: number;
+};
+
+export type MongoUpdateResult = {
+  matchedCount: number;
+  modifiedCount: number;
+};
+
 export type ContainerExecResult = {
   command: string;
   exitCode: number;
@@ -243,13 +282,13 @@ export type CreateEnvironmentInput = {
   seed: string;
   source: EnvironmentSource;
   env?: Record<string, string>;
-  changedFiles?: ChangedFilePayload[];
+  patch?: GitPatchPayload;
 };
 
 export type SyncFilesInput = {
   branch: string;
   commit: string;
-  files: ChangedFilePayload[];
+  patch: GitPatchPayload;
   resetBeforeApply?: boolean;
 };
 
@@ -257,7 +296,7 @@ export type FileSyncEvent = {
   id: string;
   environmentKey: string;
   path: string;
-  status: ChangedFileStatus | "metadata";
+  status: "metadata";
   result: "sent" | "skipped" | "failed";
   branch: string;
   commit: string;

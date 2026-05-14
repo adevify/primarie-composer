@@ -2,14 +2,14 @@ import chokidar, { type FSWatcher } from "chokidar";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { BrowserWindow } from "electron";
-import { assertRepoPath, getGitState, isIgnoredRelativePath, readChangedFiles, type ChangedFilePayload, type GitState } from "./git.js";
+import { assertRepoPath, getGitState, isIgnoredRelativePath, readGitPatch, type GitPatchPayload, type GitState } from "./git.js";
 
 const DEBOUNCE_MS = 500;
 const GIT_STATE_POLL_MS = 1000;
 
 export type RepoSyncSnapshot = {
   gitState: GitState;
-  files: ChangedFilePayload[];
+  patch: GitPatchPayload;
 };
 
 let watcher: FSWatcher | null = null;
@@ -114,10 +114,9 @@ async function emitRepoSyncSnapshot(force: boolean): Promise<void> {
       return;
     }
 
-    const files = await readChangedFiles(watchedRepoPath);
-    const snapshot: RepoSyncSnapshot = { gitState, files };
+    const patch = await readGitPatch(watchedRepoPath, "delta");
+    const snapshot: RepoSyncSnapshot = { gitState, patch };
     emitToRenderers("repo-sync-snapshot", snapshot);
-    emitToRenderers("repo-file-changed", files);
     lastGitSignature = signature;
   } catch (error) {
     emitToRenderers("repo-watch-error", error instanceof Error ? error.message : String(error));

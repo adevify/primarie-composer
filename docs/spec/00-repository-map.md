@@ -46,9 +46,9 @@ Lifecycle work is performed through the host action bus and scripts.
 
 Primary Electron files:
 
-- `apps/electron/src/main/main.ts`: Electron window, IPC handlers, repo selection, Git state, changed files, and watcher lifecycle.
+- `apps/electron/src/main/main.ts`: Electron window, IPC handlers, repo selection, Git state, patch sync, and watcher lifecycle.
 - `apps/electron/src/main/preload.ts`: context-isolated bridge exposed as `window.primarieElectron`.
-- `apps/electron/src/main/git.ts`: Git status reading, `.env` parsing, changed file payload generation, binary/large file skips, and repository path safety.
+- `apps/electron/src/main/git.ts`: Git status reading, `.env` parsing, binary patch generation, delta patch generation, and repository path safety.
 - `apps/electron/src/main/file-sync.ts`: chokidar watcher and Git-state polling.
 - `apps/electron/src/renderer/App.tsx`: top-level renderer state machine and workflow orchestration.
 - `apps/electron/src/renderer/api.ts`: typed API client and NDJSON stream client.
@@ -65,7 +65,7 @@ Primary script files:
 - `scripts/debug-composer.sh`: attached debug mode with live worker logs.
 - `scripts/prepare-seeds.sh`: rebuilds prepared MongoDB seed data folders.
 - `scripts/prepare-env.sh`: clones the target source repo, checks out branch/commit, applies repo patches, copies seed data, and writes `.env`.
-- `scripts/sync-files.sh`: fetches/reset/checks out branch/commit and applies changed-file payloads.
+- `scripts/sync-files.sh`: fetches/resets/checks out branch/commit, reconstructs patch payloads, and applies clean Git patches.
 - `scripts/start-env.sh`, `stop-env.sh`, `restart-env.sh`, `remove-env.sh`: runtime Compose lifecycle.
 - `scripts/inspect-containers.sh`, `compose-logs.sh`, `container-logs.sh`, `container-files.sh`, `container-exec.sh`, `mongo-inspect.sh`: inspection and toolbox actions.
 

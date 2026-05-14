@@ -61,15 +61,16 @@ curl -X POST http://localhost:3000/environments \
     "tenants":["bardar"],
     "source":{
       "branch":"feature/some-branch",
-      "commit":"abc1234567890",
-      "dirty":true,
-      "changedFiles":[
-        {
-          "path":"apps/web/src/App.tsx",
-          "status":"modified",
-          "contentBase64":"..."
-        }
-      ]
+      "commit":"abc1234567890"
+    },
+    "patch":{
+      "mode":"full",
+      "data":"diff --git ...",
+      "previousSha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "currentSha256":"...",
+      "currentSizeBytes":1234,
+      "changedFiles":["apps/web/src/App.tsx"],
+      "isEmpty":false
     }
   }'
 ```
