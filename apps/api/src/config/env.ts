@@ -24,6 +24,7 @@ const envSchema = z.object({
   BUS_WORKER_READY_PATH: z.string().default("/bus/worker.ready"),
   BUS_ACTION_TIMEOUT_MS: z.coerce.number().int().positive().default(120_000),
   BUS_LONG_ACTION_TIMEOUT_MS: z.coerce.number().int().positive().default(900_000),
+  BUS_PIPE_WRITE_TIMEOUT_MS: z.coerce.number().int().positive().default(10_000),
   BUS_POLL_INTERVAL_MS: z.coerce.number().int().positive().default(200)
 });
 

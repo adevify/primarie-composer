@@ -14,7 +14,7 @@ export type EnvironmentRecord = {
 }
 
 export const EnvironmentCollection = (() => {
-    const interruptedCreateStatuses: EnvironmentStatus[] = ["creating", "cloning"];
+    const interruptedCreateStatuses: EnvironmentStatus[] = ["creating", "cloning", "checking_out", "applying_changes"];
 
     const withCol = async <T>(action: (col: Collection<EnvironmentRecord>) => Promise<T>) => {
         const col = await collection<EnvironmentRecord>("environments");

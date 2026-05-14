@@ -177,8 +177,25 @@ start_bus() {
     local old_pid
     old_pid="$(cat "$BUS_PID_FILE")"
     if [[ -n "$old_pid" ]] && kill -0 "$old_pid" >/dev/null 2>&1; then
-      log "Bash bus is already running with PID $old_pid."
-      return
+      if bus_restart_required; then
+        log "Bash bus is running with old scripts; restarting PID $old_pid."
+        kill "$old_pid" >/dev/null 2>&1 || true
+        for _ in 1 2 3 4 5; do
+          if ! kill -0 "$old_pid" >/dev/null 2>&1; then
+            break
+          fi
+          sleep 1
+        done
+        if kill -0 "$old_pid" >/dev/null 2>&1; then
+          log "Bash bus PID $old_pid did not stop. Stop it manually or rerun with RESTART_BUS=1 after it exits."
+          exit 1
+        fi
+      else
+        log "Bash bus is already running with PID $old_pid."
+        return
+      fi
+    else
+      rm -f "$BUS_PID_FILE"
     fi
   fi
 
@@ -196,6 +213,25 @@ start_bus() {
   fi
 
   log "Bash bus started with PID $(cat "$BUS_PID_FILE"). Log: $BUS_LOG_FILE"
+}
+
+bus_restart_required() {
+  local script
+
+  if [[ "${RESTART_BUS:-0}" == "1" ]]; then
+    return 0
+  fi
+
+  for script in \
+    "$ROOT_DIR/scripts/composer-worker.sh" \
+    "$ROOT_DIR/scripts/prepare-env.sh" \
+    "$ROOT_DIR/scripts/common.sh"; do
+    if [[ "$script" -nt "$BUS_PID_FILE" ]]; then
+      return 0
+    fi
+  done
+
+  return 1
 }
 
 start_compose() {

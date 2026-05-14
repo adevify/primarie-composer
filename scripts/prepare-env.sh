@@ -20,7 +20,11 @@ export GIT_TERMINAL_PROMPT="${GIT_TERMINAL_PROMPT:-0}"
 export GIT_ASKPASS="${GIT_ASKPASS:-/bin/false}"
 export SSH_ASKPASS="${SSH_ASKPASS:-/bin/false}"
 export GCM_INTERACTIVE="${GCM_INTERACTIVE:-Never}"
-export GIT_SSH_COMMAND="${GIT_SSH_COMMAND:-ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new}"
+GIT_SSH_CONNECT_TIMEOUT_SECONDS="${GIT_SSH_CONNECT_TIMEOUT_SECONDS:-30}"
+GIT_HTTP_LOW_SPEED_LIMIT="${GIT_HTTP_LOW_SPEED_LIMIT:-1000}"
+GIT_HTTP_LOW_SPEED_TIME="${GIT_HTTP_LOW_SPEED_TIME:-30}"
+export GIT_SSH_COMMAND="${GIT_SSH_COMMAND:-ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new -o ConnectTimeout=$GIT_SSH_CONNECT_TIMEOUT_SECONDS}"
+git_network_args=(-c "http.lowSpeedLimit=$GIT_HTTP_LOW_SPEED_LIMIT" -c "http.lowSpeedTime=$GIT_HTTP_LOW_SPEED_TIME")
 
 copy_seed_data() {
   local seed_name="$1"
@@ -58,9 +62,9 @@ copy_seed_data() {
 
 echo "[composer-progress] cloning"
 rm -rf "$RUNTIME_PATH"
-git clone "$SOURCE_REPO_URL" "$RUNTIME_PATH"
+git "${git_network_args[@]}" clone "$SOURCE_REPO_URL" "$RUNTIME_PATH"
 cd "$RUNTIME_PATH"
-git fetch --all --prune
+git "${git_network_args[@]}" fetch --all --prune
 echo "[composer-progress] checking_out"
 git checkout -f "origin/$BRANCH"
 git reset --hard "$COMMIT"

@@ -23,6 +23,13 @@ fi
 
 date -u +%Y-%m-%dT%H:%M:%SZ > "$READY_FILE"
 chmod 666 "$READY_FILE" 2>/dev/null || true
+echo "[composer-worker] ready at $(date -u +%Y-%m-%dT%H:%M:%SZ): pipe=$PIPE results=$RESULTS_DIR logs=$LOGS_DIR"
+
+cleanup_worker() {
+  rm -f "$READY_FILE"
+}
+
+trap cleanup_worker EXIT
 
 write_result() {
   local id="$1"

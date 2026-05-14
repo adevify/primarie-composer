@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { constants as fsConstants } from "node:fs";
 import fs from "node:fs/promises";
 import { env } from "../../config/env.js";
 
@@ -60,7 +61,18 @@ export class HostActionBusService {
       timeoutMs,
       environment: typeof payload.environment === "string" ? payload.environment : undefined
     });
-    await fs.appendFile(env.BUS_PIPE_PATH, `${JSON.stringify(action)}\n`, "utf8");
+    try {
+      await writeActionToPipe(env.BUS_PIPE_PATH, `${JSON.stringify(action)}\n`, env.BUS_PIPE_WRITE_TIMEOUT_MS);
+    } catch (error) {
+      const message = busWriteErrorMessage(error);
+      logBus("error", "publish_failed", {
+        id,
+        type,
+        message
+      });
+      throw Object.assign(new Error(`Host action bus is unavailable: ${message}`), { status: 503 });
+    }
+
     const result = await this.waitForResult(id, timeoutMs, type, onLog);
     if (result.status === "error") {
       logBus("error", "result_error", {
@@ -156,6 +168,54 @@ function parseResult(content: string, actionId: string): HostActionResult {
 
 async function exists(filePath: string): Promise<boolean> {
   return fs.access(filePath).then(() => true, () => false);
+}
+
+async function writeActionToPipe(pipePath: string, value: string, timeoutMs: number): Promise<void> {
+  const deadlineAt = Date.now() + timeoutMs;
+  const buffer = Buffer.from(value, "utf8");
+  let handle: fs.FileHandle | undefined;
+
+  try {
+    handle = await fs.open(pipePath, fsConstants.O_WRONLY | fsConstants.O_NONBLOCK);
+    let offset = 0;
+
+    while (offset < buffer.length) {
+      try {
+        const result = await handle.write(buffer, offset, buffer.length - offset);
+        offset += result.bytesWritten;
+        continue;
+      } catch (error) {
+        if (!isRetryablePipeWriteError(error)) {
+          throw error;
+        }
+      }
+
+      if (Date.now() >= deadlineAt) {
+        throw Object.assign(new Error(`Timed out writing action to host worker FIFO after ${timeoutMs}ms`), { code: "ETIMEDOUT" });
+      }
+
+      await delay(25);
+    }
+  } finally {
+    await handle?.close().catch(() => undefined);
+  }
+}
+
+function busWriteErrorMessage(error: unknown): string {
+  if (isNodeError(error) && error.code === "ENXIO") {
+    return "no active host worker is reading the FIFO";
+  }
+  if (isNodeError(error) && error.code === "EPIPE") {
+    return "host worker disconnected while receiving the action";
+  }
+  if (isNodeError(error) && error.code === "ETIMEDOUT") {
+    return error.message;
+  }
+  return error instanceof Error ? error.message : String(error);
+}
+
+function isRetryablePipeWriteError(error: unknown): boolean {
+  return isNodeError(error) && (error.code === "EAGAIN" || error.code === "EWOULDBLOCK");
 }
 
 function delay(ms: number): Promise<void> {
