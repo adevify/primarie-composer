@@ -240,6 +240,29 @@ export default function App() {
   }, [api, refreshEnvironments]);
 
   useEffect(() => {
+    if (!api || !createDialogOpen || !monitoredEnvironment || (monitoredEnvironment.status !== "failed" && monitoredEnvironment.status !== "removed")) {
+      return undefined;
+    }
+
+    let cancelled = false;
+    void environmentFailureMessage(
+      api,
+      monitoredEnvironment.key,
+      monitoredEnvironment.status,
+      `Environment ${monitoredEnvironment.key} finished in ${monitoredEnvironment.status} state.`
+    ).then((message) => {
+      if (!cancelled) {
+        setCreateError(message);
+        setCreateLoading(false);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [api, createDialogOpen, monitoredEnvironment?.key, monitoredEnvironment?.status]);
+
+  useEffect(() => {
     if (!api || !monitoredEnvironmentKey) {
       return undefined;
     }
