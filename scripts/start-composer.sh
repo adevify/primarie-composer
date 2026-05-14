@@ -185,6 +185,7 @@ stop_bus_workers() {
   pids="$(bus_pids)"
   if [[ -z "$pids" ]]; then
     rm -f "$BUS_PID_FILE"
+    reset_bus_files
     return
   fi
 
@@ -198,6 +199,7 @@ stop_bus_workers() {
   for _ in 1 2 3 4 5 6 7 8 9 10; do
     if [[ -z "$(bus_pids)" ]]; then
       rm -f "$BUS_PID_FILE"
+      reset_bus_files
       return
     fi
     sleep 1
@@ -209,6 +211,14 @@ stop_bus_workers() {
     exit 1
   fi
   rm -f "$BUS_PID_FILE"
+  reset_bus_files
+}
+
+reset_bus_files() {
+  rm -f "$BUS_ROOT/actions.pipe" "$BUS_ROOT/worker.ready"
+  rm -rf "$BUS_ROOT/worker.lock"
+  mkdir -p "$BUS_ROOT/acks" "$BUS_ROOT/results" "$BUS_ROOT/logs" "$BUS_ROOT/locks"
+  chmod -R 777 "$BUS_ROOT" 2>/dev/null || true
 }
 
 start_bus() {
