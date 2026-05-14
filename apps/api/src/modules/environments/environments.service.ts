@@ -461,6 +461,19 @@ export class EnvironmentsService {
   async createLifecycleAction(key: string, action: LifecycleAction, user: AuthenticatedUser) {
     await this.get(key);
 
+    const activeAction = await EnvironmentActionCollection.findActiveByEnvironment(key);
+    if (activeAction) {
+      logEnvironment("info", "lifecycle_action_reused", {
+        key,
+        requestedAction: action,
+        activeAction: activeAction.action,
+        activeActionId: activeAction.id,
+        activeStatus: activeAction.status,
+        activeLogPath: activeAction.logFile.path
+      });
+      return activeAction;
+    }
+
     const id = randomUUID();
     const logFile = await this.reserveActionLogFile(id);
     await EnvironmentActionCollection.create({
@@ -590,10 +603,19 @@ export class EnvironmentsService {
           await onLog({ log: "Environment is already running", level: "info" });
           return record;
         }
+        if (record.status === "starting") {
+          await onLog({ log: "Environment start is already in progress", level: "info" });
+          logEnvironment("info", "lifecycle_action_in_progress", { key, action, status: record.status });
+          return record;
+        }
         throwIfAborted(signal);
         await this.updateStatus(key, "starting");
         const result = await this.publishEnvironmentAction("environment.start", key, {}, onLog, hostActionId);
         await emitBusResult(result, onLog);
+        if (isHostActionAlreadyRunning(result)) {
+          logEnvironment("info", "lifecycle_action_in_progress", { key, action, message: result.message });
+          return this.get(key);
+        }
         await onLog({ log: `Environment ${action === "resume" ? "resumed" : "started"}`, level: "info" });
         const updated = await this.updateStatus(key, "running");
         await this.logSystemEvent(key, action === "resume" ? "environment.resumed" : "environment.started", `Environment ${action === "resume" ? "resumed" : "started"}`, {
@@ -606,10 +628,19 @@ export class EnvironmentsService {
       }
 
       if (action === "restart") {
+        if (record.status === "starting") {
+          await onLog({ log: "Environment start is already in progress", level: "info" });
+          logEnvironment("info", "lifecycle_action_in_progress", { key, action, status: record.status });
+          return record;
+        }
         throwIfAborted(signal);
         await this.updateStatus(key, "starting");
         const result = await this.publishEnvironmentAction("environment.restart", key, {}, onLog, hostActionId);
         await emitBusResult(result, onLog);
+        if (isHostActionAlreadyRunning(result)) {
+          logEnvironment("info", "lifecycle_action_in_progress", { key, action, message: result.message });
+          return this.get(key);
+        }
         await onLog({ log: "Environment restarted", level: "info" });
         const updated = await this.updateStatus(key, "running");
         await this.logSystemEvent(key, "environment.restarted", "Environment restarted", {
@@ -622,6 +653,11 @@ export class EnvironmentsService {
       }
 
       if (action === "delete") {
+        if (record.status === "removing") {
+          await onLog({ log: "Environment removal is already in progress", level: "info" });
+          logEnvironment("info", "lifecycle_action_in_progress", { key, action, status: record.status });
+          return record;
+        }
         throwIfAborted(signal);
         await this.updateStatus(key, "removing");
         await this.logSystemEvent(key, "environment.remove_requested", "Removing environment", {
@@ -632,6 +668,10 @@ export class EnvironmentsService {
         });
         const result = await this.publishEnvironmentAction("environment.remove", key, {}, onLog, hostActionId);
         await emitBusResult(result, onLog);
+        if (isHostActionAlreadyRunning(result)) {
+          logEnvironment("info", "lifecycle_action_in_progress", { key, action, message: result.message });
+          return this.get(key);
+        }
         await onLog({ log: "Environment removed", level: "info" });
         const removed = await this.updateStatus(key, "removed");
         await this.logSystemEvent(key, "environment.removed", "Environment removed", {
@@ -648,6 +688,10 @@ export class EnvironmentsService {
       throwIfAborted(signal);
       const result = await this.publishEnvironmentAction("environment.stop", key, {}, onLog, hostActionId);
       await emitBusResult(result, onLog);
+      if (isHostActionAlreadyRunning(result)) {
+        logEnvironment("info", "lifecycle_action_in_progress", { key, action, message: result.message });
+        return this.get(key);
+      }
       await onLog({ log: "Environment stopped", level: "info" });
       const updated = await this.updateStatus(key, "stopped");
       await this.logSystemEvent(key, "environment.stopped", "Environment stopped", {
@@ -1518,6 +1562,10 @@ async function emitBusResult(
   if (result.output) {
     await onLog({ log: result.output, level: "info" });
   }
+}
+
+function isHostActionAlreadyRunning(result: HostActionResult): boolean {
+  return result.status === "success" && /^Environment action already running\b/.test(result.message);
 }
 
 function throwIfAborted(signal?: AbortSignal): void {

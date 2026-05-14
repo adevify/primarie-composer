@@ -63,6 +63,13 @@ export const EnvironmentActionCollection = (() => {
       };
     }),
     listAllByEnvironment: async (environmentKey: string) => withActionsCol(col => col.find({ environmentKey }).toArray()),
+    findActiveByEnvironment: async (environmentKey: string) => withActionsCol(col => col.findOne(
+      {
+        environmentKey,
+        status: { $in: ["queued", "running"] }
+      },
+      { sort: { createdAt: -1 } }
+    )),
     update: async (id: string, patch: Partial<Omit<EnvironmentActionRecord, "id" | "createdAt">>) => withActionsCol(async col => {
       await col.updateOne({ id }, { $set: { ...patch, updatedAt: new Date() } });
       const record = await col.findOne({ id });
