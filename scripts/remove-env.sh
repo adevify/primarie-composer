@@ -168,13 +168,13 @@ prune_project_build_cache() {
   docker builder prune --force --all --filter "parents=$parent_filter" || true
 }
 
-ENV_NAME="${1:-}"
-validate_env "$ENV_NAME"
+# ENV_NAME="${1:-}"
+# validate_env "$ENV_NAME"
 
-ENV_DIR="$(env_dir "$ENV_NAME")"
-PROJECT_NAME="$(project_name "$ENV_NAME")"
+# ENV_DIR="$(env_dir "$ENV_NAME")"
+# PROJECT_NAME="$(project_name "$ENV_NAME")"
 
-collect_project_image_ids "$PROJECT_NAME" "$ENV_DIR"
+# collect_project_image_ids "$PROJECT_NAME" "$ENV_DIR"
 
 # if [[ -d "$ENV_DIR" ]]; then
 #   cd "$ENV_DIR"
