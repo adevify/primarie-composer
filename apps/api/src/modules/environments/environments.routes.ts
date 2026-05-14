@@ -82,12 +82,15 @@ export function createEnvironmentRouter(): Router {
   });
 
   router.get("/actions/:id/logs/stream", async (req, res) => {
+    throw new Error("Not implemented");
+
     let closed = false;
     let offset = await initialActionLogOffset(service, req.params.id, req.query).catch(() => 0);
 
     req.once("close", () => {
       closed = true;
     });
+
     prepareStreamResponse(res);
     writeStreamEvent(res, {
       type: "connected"
