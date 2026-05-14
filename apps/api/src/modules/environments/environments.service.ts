@@ -435,7 +435,7 @@ export class EnvironmentsService {
       throw error;
     });
 
-    return Promise.all(entries.map(async (entry) => {
+    const files = await Promise.all(entries.map(async (entry) => {
       const entryPath = path.join(absolutePath, entry.name);
       const stats = await fs.stat(entryPath);
       const relativePath = `/${path.relative(rootPath, entryPath).split(path.sep).join("/")}`;
@@ -447,6 +447,14 @@ export class EnvironmentsService {
         modifiedAt: stats.mtime.toISOString()
       };
     }));
+    logEnvironment("info", "environment_files_listed", {
+      key,
+      targetPath,
+      rootPath,
+      absolutePath,
+      count: files.length
+    });
+    return files;
   }
 
   async execInContainer(key: string, container: string, command: string) {
@@ -499,7 +507,20 @@ export class EnvironmentsService {
 
   async getLifecycleActionLogs(id: string, cursor: string | undefined, limit: number) {
     const action = await EnvironmentActionCollection.get(id);
-    return readActionLogPage(id, this.actionLogPath(action.id, action.logFile), cursor, limit);
+    const logPath = this.actionLogPath(action.id, action.logFile);
+    const page = await readActionLogPage(id, logPath, cursor, limit);
+    logEnvironment("info", "action_log_page_read", {
+      actionId: id,
+      environment: action.environmentKey,
+      action: action.action,
+      actionStatus: action.status,
+      logPath,
+      cursor,
+      limit,
+      itemCount: page.items.length,
+      hasMore: page.hasMore
+    });
+    return page;
   }
 
   async getLifecycleActionLogSize(id: string) {
@@ -515,7 +536,20 @@ export class EnvironmentsService {
 
   async getLifecycleActionLogsFrom(id: string, fromOffset: number) {
     const action = await EnvironmentActionCollection.get(id);
-    return readActionLogForward(id, this.actionLogPath(action.id, action.logFile), fromOffset);
+    const logPath = this.actionLogPath(action.id, action.logFile);
+    const page = await readActionLogForward(id, logPath, fromOffset);
+    logEnvironment("info", "action_log_forward_read", {
+      actionId: id,
+      environment: action.environmentKey,
+      action: action.action,
+      actionStatus: action.status,
+      logPath,
+      fromOffset,
+      nextOffset: page.offset,
+      logSize: page.size,
+      itemCount: page.items.length
+    });
+    return page;
   }
 
   private async runLifecycleActionJob(id: string, key: string, action: LifecycleAction, user: AuthenticatedUser): Promise<void> {

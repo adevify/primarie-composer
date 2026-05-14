@@ -327,7 +327,8 @@ export class ComposerApiClient {
       throw new ApiError(`Stream failed with status ${response.status}.`, response.status);
     }
 
-    const reader = response.body.pipeThrough(new TextDecoderStream()).getReader();
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
     let buffer = "";
 
     while (true) {
@@ -336,7 +337,7 @@ export class ComposerApiClient {
         break;
       }
 
-      buffer += value;
+      buffer += decoder.decode(value, { stream: true });
       const lines = buffer.split(/\r?\n/);
       buffer = lines.pop() ?? "";
       for (const line of lines) {
@@ -347,6 +348,7 @@ export class ComposerApiClient {
       }
     }
 
+    buffer += decoder.decode();
     const trimmed = buffer.trim();
     if (trimmed) {
       onEvent(JSON.parse(trimmed) as StreamLogEvent);

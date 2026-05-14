@@ -280,6 +280,7 @@ export function EnvironmentDetails({
 
     const interval = setInterval(() => {
       void loadActions(false, selectedActionId);
+      void loadActionLogs(selectedActionId, undefined, true, false);
     }, 1500);
 
     return () => clearInterval(interval);
@@ -384,7 +385,7 @@ export function EnvironmentDetails({
     if (!environment) {
       return;
     }
-    if (environment.status !== "running") {
+    if (containerOverride && environment.status !== "running") {
       setFiles([]);
       return;
     }
