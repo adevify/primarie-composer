@@ -168,8 +168,10 @@ prune_project_build_cache() {
   docker builder prune --force --all --filter "parents=$parent_filter" || true
 }
 
-# ENV_NAME="${1:-}"
-# validate_env "$ENV_NAME"
+ENV_NAME="${1:-}"
+validate_env "$ENV_NAME"
+
+echo "Removing environment $ENV_NAME"
 
 # ENV_DIR="$(env_dir "$ENV_NAME")"
 # PROJECT_NAME="$(project_name "$ENV_NAME")"
