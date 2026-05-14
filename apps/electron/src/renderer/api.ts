@@ -291,13 +291,21 @@ export class ComposerApiClient {
   }
 
   private async request<T>(path: string, options: RequestOptions = {}): Promise<T> {
-    const response = await fetch(`${this.session.apiBaseUrl}${path}`, {
-      method: options.method ?? "GET",
+    const method = options.method ?? "GET";
+    const url = new URL(`${this.session.apiBaseUrl}${path}`);
+    if (method === "GET") {
+      url.searchParams.set("_", String(Date.now()));
+    }
+
+    const response = await fetch(url.toString(), {
+      method,
       headers: {
         "content-type": "application/json",
-        authorization: `Bearer ${this.session.accessToken}`
+        authorization: `Bearer ${this.session.accessToken}`,
+        "cache-control": "no-cache"
       },
       body: options.body === undefined ? undefined : JSON.stringify(options.body),
+      cache: "no-store",
       credentials: "include"
     });
 
@@ -307,8 +315,10 @@ export class ComposerApiClient {
   private async streamNdjson(path: string, onEvent: (event: StreamLogEvent) => void, signal?: AbortSignal): Promise<void> {
     const response = await fetch(`${this.session.apiBaseUrl}${path}`, {
       headers: {
-        authorization: `Bearer ${this.session.accessToken}`
+        authorization: `Bearer ${this.session.accessToken}`,
+        "cache-control": "no-cache"
       },
+      cache: "no-store",
       signal
     });
 

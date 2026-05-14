@@ -454,18 +454,31 @@ export default function App() {
       throw new Error("API client is unavailable.");
     }
 
+    const syncLatest = (environment: EnvironmentRecord): void => {
+      setMonitoredEnvironment(environment);
+      setEnvironments((current) => [environment, ...current.filter((item) => item.key !== environment.key)]);
+    };
+
     let latest = await api.getEnvironment(key);
+    syncLatest(latest);
     for (let attempt = 0; attempt < 180 && isEnvironmentPreparing(latest.status); attempt += 1) {
       await delay(1000);
       latest = await api.getEnvironment(key);
+      syncLatest(latest);
     }
 
     if (isEnvironmentPreparing(latest.status)) {
-      throw new Error(`Environment ${key} is still preparing after 180 seconds.`);
+      const confirmed = await api.getEnvironment(key);
+      syncLatest(confirmed);
+      if (!isEnvironmentPreparing(confirmed.status)) {
+        latest = confirmed;
+      } else {
+        throw new Error(await environmentFailureMessage(api, key, confirmed.status, `Environment ${key} is still preparing after 180 seconds.`));
+      }
     }
 
     if (latest.status === "failed" || latest.status === "removed") {
-      throw new Error(`Environment ${key} finished in ${latest.status} state.`);
+      throw new Error(await environmentFailureMessage(api, key, latest.status, `Environment ${key} finished in ${latest.status} state.`));
     }
 
     return latest;
@@ -1153,6 +1166,20 @@ function toErrorMessage(error: unknown): string {
 
 function isUnauthorized(error: unknown): boolean {
   return error instanceof ApiError && error.status === 401;
+}
+
+async function environmentFailureMessage(api: ComposerApiClient, key: string, status: EnvironmentStatus, fallback: string): Promise<string> {
+  const logsPage = await api.logs(key).catch(() => undefined);
+  const failureLog = logsPage?.items.find((log) => log.level === "error" || log.event.includes("failed"));
+  const message = failureLog?.message?.trim();
+
+  if (message) {
+    return message;
+  }
+
+  return status === "failed"
+    ? `Environment ${key} failed. Check the environment logs for details.`
+    : fallback;
 }
 
 function capitalize(value: string): string {
