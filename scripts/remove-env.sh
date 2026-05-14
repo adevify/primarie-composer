@@ -181,9 +181,9 @@ if [[ -d "$ENV_DIR" ]]; then
   compose_cmd -p "$PROJECT_NAME" --env-file "$ENV_DIR/.env" down --remove-orphans --volumes --rmi all || true
 fi
 
-remove_project_containers "$PROJECT_NAME"
-remove_project_networks "$PROJECT_NAME"
-remove_project_volumes "$PROJECT_NAME"
-remove_project_images "$PROJECT_NAME"
-prune_project_build_cache
+# remove_project_containers "$PROJECT_NAME"
+# remove_project_networks "$PROJECT_NAME"
+# remove_project_volumes "$PROJECT_NAME"
+# remove_project_images "$PROJECT_NAME"
+# prune_project_build_cache
 remove_runtime_dir "$ENV_DIR"
