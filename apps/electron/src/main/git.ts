@@ -94,11 +94,9 @@ export async function getGitState(repoPath: string): Promise<GitState> {
 
 export async function readGitPatch(repoPath: string, mode: GitPatchMode = "delta"): Promise<GitPatchPayload> {
   const resolvedRepo = assertRepoPath(repoPath);
-  const [gitState, currentPatch] = await Promise.all([
-    getGitState(resolvedRepo),
-    buildGitDiffPatch(resolvedRepo)
-  ]);
+  const gitState = await getGitState(resolvedRepo);
   const patchChangedFiles = gitState.changedFiles.filter((relativePath) => !isIgnoredRelativePath(relativePath));
+  const currentPatch = await buildGitDiffPatch(resolvedRepo, patchChangedFiles);
   const currentSizeBytes = Buffer.byteLength(currentPatch, "utf8");
 
   if (currentSizeBytes > MAX_PATCH_SIZE_BYTES) {
@@ -208,14 +206,18 @@ export async function readEnvExample(repoPath: string): Promise<EnvExampleEntry[
     .filter((entry) => /^[A-Za-z_][A-Za-z0-9_]*$/.test(entry.key));
 }
 
-async function buildGitDiffPatch(repoPath: string): Promise<string> {
+async function buildGitDiffPatch(repoPath: string, relativePaths: string[]): Promise<string> {
   const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "primarie-composer-diff-"));
   const indexPath = path.join(tempDir, "index");
+  const pathspecPath = path.join(tempDir, "pathspecs");
   const env = { GIT_INDEX_FILE: indexPath };
 
   try {
     await git(repoPath, ["read-tree", "HEAD"], env);
-    await git(repoPath, ["add", "-A", "--", ...gitPatchPathspecs()], env);
+    if (relativePaths.length > 0) {
+      await fs.writeFile(pathspecPath, `${relativePaths.join("\0")}\0`, "utf8");
+      await git(repoPath, ["add", "-A", "--pathspec-from-file", pathspecPath, "--pathspec-file-nul"], env);
+    }
     return await gitRaw(repoPath, ["diff", "--cached", "--binary", "HEAD", "--"], env);
   } finally {
     await fs.rm(tempDir, { recursive: true, force: true });
@@ -253,14 +255,6 @@ async function buildPatchDelta(previousPatch: string, currentPatch: string): Pro
   } finally {
     await fs.rm(tempDir, { recursive: true, force: true });
   }
-}
-
-function gitPatchPathspecs(): string[] {
-  const ignoredSegmentPathspecs = [...IGNORED_SEGMENTS]
-    .filter((segment) => segment !== ".git")
-    .flatMap((segment) => [`:(exclude)${segment}/**`, `:(exclude)**/${segment}/**`]);
-  const ignoredFilePathspecs = [...IGNORED_FILES].flatMap((fileName) => [`:(exclude)${fileName}`, `:(exclude)**/${fileName}`]);
-  return [".", ...ignoredSegmentPathspecs, ...ignoredFilePathspecs];
 }
 
 function storePendingPatch(repoPath: string, sha: string, patch: string): void {

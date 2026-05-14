@@ -51,7 +51,6 @@ export type EnvironmentStatus =
 export type EnvironmentSource = {
   branch: string;
   commit: string;
-  repoPath?: string;
 };
 
 export type EnvironmentOwner = {
@@ -282,7 +281,6 @@ export type CreateEnvironmentInput = {
   seed: string;
   source: EnvironmentSource;
   env?: Record<string, string>;
-  patch?: GitPatchPayload;
 };
 
 export type SyncFilesInput = {

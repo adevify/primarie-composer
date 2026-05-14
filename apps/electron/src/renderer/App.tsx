@@ -400,7 +400,6 @@ export default function App() {
     setCreateError(undefined);
     try {
       let source;
-      let patch: GitPatchPayload | undefined;
       if (input.useCurrentRepoState) {
         const latestGitState = await refreshGitState();
         if (!latestGitState || !repoPath) {
@@ -411,11 +410,8 @@ export default function App() {
         }
         source = {
           branch: latestGitState.branch,
-          commit: latestGitState.commit,
-          repoPath
+          commit: latestGitState.commit
         };
-
-        patch = await electronBridge.readGitPatch(repoPath, "full");
       }
 
       if (!source) {
@@ -429,8 +425,7 @@ export default function App() {
       const created = await api.createEnvironment({
         seed: input.seed,
         source,
-        env: input.env,
-        patch
+        env: input.env
       });
       setEnvironments((current) => [created, ...current.filter((item) => item.key !== created.key)]);
       setMonitoredEnvironment(created);

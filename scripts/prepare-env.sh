@@ -50,49 +50,6 @@ copy_seed_data() {
   fi
 }
 
-hash_file() {
-  sha256sum "$1" | awk '{ print $1 }'
-}
-
-decode_patch_data() {
-  local output_file="$1"
-  jq -r '.patch.data | @base64' "$PAYLOAD_FILE" | base64 --decode > "$output_file"
-}
-
-apply_patch_payload() {
-  local patch_mode
-  patch_mode="$(jq -r '.patch.mode // empty' "$PAYLOAD_FILE")"
-  if [[ -z "$patch_mode" ]]; then
-    return
-  fi
-
-  if [[ "$patch_mode" != "full" ]]; then
-    echo "Environment creation requires a full patch payload." >&2
-    exit 2
-  fi
-
-  echo "[composer-progress] applying_changes"
-  local tmp_dir patch_file expected_hash actual_hash changed_count
-  tmp_dir="$(mktemp -d)"
-  patch_file="$tmp_dir/current.patch"
-  expected_hash="$(jq -r '.patch.currentSha256' "$PAYLOAD_FILE")"
-  changed_count="$(jq '.patch.changedFiles | length' "$PAYLOAD_FILE")"
-  decode_patch_data "$patch_file"
-
-  actual_hash="$(hash_file "$patch_file")"
-  if [[ "$actual_hash" != "$expected_hash" ]]; then
-    echo "Patch hash mismatch: expected $expected_hash but decoded $actual_hash" >&2
-    exit 1
-  fi
-
-  if [[ -s "$patch_file" ]]; then
-    git apply --binary --check "$patch_file"
-    git apply --binary "$patch_file"
-  fi
-  rm -rf "$tmp_dir"
-  echo "Applied full patch with $changed_count changed files into $ENV_NAME"
-}
-
 echo "[composer-progress] cloning"
 rm -rf "$RUNTIME_PATH"
 git clone "$SOURCE_REPO_URL" "$RUNTIME_PATH"
@@ -102,7 +59,6 @@ echo "[composer-progress] checking_out"
 git checkout -f "origin/$BRANCH"
 git reset --hard "$COMMIT"
 patch_repo_for_composer "$RUNTIME_PATH"
-apply_patch_payload
 copy_seed_data "$SEED_NAME" "$HOST_SEEDS_DIR"
 
 write_env_file() {

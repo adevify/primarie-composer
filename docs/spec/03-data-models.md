@@ -60,7 +60,6 @@ Environment source:
 {
   branch: string;
   commit: string;
-  repoPath?: string;
 }
 ```
 

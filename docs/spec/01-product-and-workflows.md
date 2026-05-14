@@ -43,7 +43,7 @@ Current implementation flow:
 2. Electron reads `.env` from the selected repo, falling back to `.env.example`.
 3. The create dialog displays editable env variable values.
 4. The renderer refreshes Git state.
-5. The renderer posts `seed`, `source.branch`, `source.commit`, optional `source.repoPath`, and `env` to `POST /environments`.
+5. The renderer posts `seed`, `source.branch`, `source.commit`, and `env` to `POST /environments`.
 6. The API generates a random key from an internal name list.
 7. The API validates that `seeds/{seed}/mongodb` exists.
 8. The API picks the next available local port from `BASE_ENV_PORT`.
@@ -54,7 +54,7 @@ Current implementation flow:
 13. The host worker runs `scripts/prepare-env.sh`.
 14. The worker clones `SOURCE_REPO_URL` into the runtime path, checks out `origin/{branch}`, resets to `{commit}`, patches the repo for Composer compatibility, copies seed data, and writes `.env`.
 15. The API records bus output and marks the environment `stopped` on success.
-16. The renderer polls the environment and system logs filtered by environment key until preparation exits `creating`, `cloning`, `checking_out`, or `applying_changes`.
+16. The renderer polls the environment and system logs filtered by environment key until preparation exits `creating`, `cloning`, or `checking_out`.
 17. The renderer closes the create dialog, opens environment details, and sets the environment as the active sync target.
 
 Important: current creation prepares the environment but does not start it. Start is a separate lifecycle action.

@@ -189,18 +189,8 @@ Create body:
   source: {
     branch: string;
     commit: string;
-    repoPath?: string;
   };
   env?: Record<string, string>;
-  patch?: {
-    mode: "full";
-    data: string;
-    previousSha256: string;
-    currentSha256: string;
-    currentSizeBytes: number;
-    changedFiles: string[];
-    isEmpty: boolean;
-  };
 }
 ```
 
@@ -211,7 +201,7 @@ Create validation:
 - `source.branch` is required.
 - `source.commit` must be at least 7 characters.
 - `env` defaults to `{}`.
-- Create `patch`, when present, must be a full patch.
+- Create prepares exactly `source.branch` at `source.commit`; local repo paths stay in Electron, and local worktree changes are sent later through the sync endpoint as patch data.
 
 Sync body:
 
@@ -519,7 +509,7 @@ Synchronously publishes `environment.restart` and marks status `running`.
 
 ### Chapter 2.7.25 POST /environments/:key/sync-files
 
-Publishes `environment.files.sync` with branch, commit, and either legacy changed files or a Git patch payload. Delta patch payloads update the server's stored patch baseline before the worker checks and applies the resulting Git patch. Full patch payloads may reset the runtime repository before applying.
+Publishes `environment.files.sync` with branch, commit, and a Git patch payload. Delta patch payloads update the server's stored patch baseline before the worker checks and applies the resulting Git patch. Full patch payloads may reset the runtime repository before applying.
 
 ### Chapter 2.7.26 POST /environments/:key/sync
 

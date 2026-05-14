@@ -69,8 +69,7 @@ export type GitPatchPayload = z.infer<typeof gitPatchSchema>;
 
 export const sourceSchema = z.object({
   branch: z.string().min(1),
-  commit: z.string().min(7),
-  repoPath: z.string().min(1).optional()
+  commit: z.string().min(7)
 });
 
 export type EnvironmentSource = z.infer<typeof sourceSchema>;
@@ -94,16 +93,7 @@ export type PullRequestRef = z.infer<typeof pullRequestSchema>;
 export const createEnvironmentSchema = z.object({
   seed: z.string().regex(/^[a-zA-Z0-9_-]+$/).default("default"),
   source: sourceSchema,
-  env: z.record(z.string(), z.string()).default({}),
-  patch: gitPatchSchema.optional()
-}).superRefine((value, context) => {
-  if (value.patch && value.patch.mode !== "full") {
-    context.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ["patch", "mode"],
-      message: "Create environment patches must be full patches."
-    });
-  }
+  env: z.record(z.string(), z.string()).default({})
 });
 
 export type CreateEnvironmentPayload = z.infer<typeof createEnvironmentSchema>;

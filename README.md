@@ -62,15 +62,6 @@ curl -X POST http://localhost:3000/environments \
     "source":{
       "branch":"feature/some-branch",
       "commit":"abc1234567890"
-    },
-    "patch":{
-      "mode":"full",
-      "data":"diff --git ...",
-      "previousSha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "currentSha256":"...",
-      "currentSizeBytes":1234,
-      "changedFiles":["apps/web/src/App.tsx"],
-      "isEmpty":false
     }
   }'
 ```
@@ -84,13 +75,12 @@ The API will:
 3. clone `SOURCE_REPO_URL` into the runtime folder,
 4. checkout `source.branch`,
 5. checkout exact `source.commit`,
-6. apply changed files over the cloned repo when provided by sync flows,
-7. verify that `seeds/{seed}` exists and has prepared MongoDB data,
-8. copy `seeds/{seed}/mongodb` to `runtime/environments/{key}/data/mongodb`,
-9. copy `seeds/{seed}/media` to `runtime/environments/{key}/data/media` when present,
-10. write `.env` and `source.json`,
-11. store metadata in MongoDB,
-12. leave the environment stopped until a lifecycle start/resume action runs.
+6. verify that `seeds/{seed}` exists and has prepared MongoDB data,
+7. copy `seeds/{seed}/mongodb` to `runtime/environments/{key}/data/mongodb`,
+8. copy `seeds/{seed}/media` to `runtime/environments/{key}/data/media` when present,
+9. write `.env` and `source.json`,
+10. store metadata in MongoDB,
+11. leave the environment stopped until a lifecycle start/resume action runs.
 
 The create response includes the generated key and runtime config:
 
@@ -103,7 +93,6 @@ The create response includes the generated key and runtime config:
   "tenants": ["bardar"],
   "branch": "feature/some-branch",
   "commit": "abc1234567890",
-  "dirty": true,
   "domains": [
     "admin_zg22i.prmr.md",
     "api_zg22i.prmr.md",
@@ -125,9 +114,7 @@ The create response includes the generated key and runtime config:
     "mongoDumpPath": "/app/runtime/environments/zg22i/mongo-dump",
     "source": {
       "branch": "feature/some-branch",
-      "commit": "abc1234567890",
-      "dirty": true,
-      "changedFiles": []
+      "commit": "abc1234567890"
     }
   }
 }
@@ -199,11 +186,11 @@ POST   /environments/pr/merged
 
 `POST /environments/:key/reuse` can be used by the owner to start and reuse their own stopped environment.
 
-`POST /environments/:key/sync-files` receives the Electron app's latest branch, commit, and Git-status changed files for the active environment.
+`POST /environments/:key/sync-files` receives the Electron app's latest branch, commit, and Git patch payload for the active environment.
 
 Container toolbox routes allow operators to inspect environment containers, browse files inside a selected container, and execute shell commands through the API. The current implementation executes commands and returns stdout/stderr; a fully interactive TTY can be layered on top later with a streaming terminal transport.
 
-`POST /environments/pr/update` is for GitHub PR automation. It deletes the previous environment for the same PR, then creates a new environment with a fresh generated key and the latest branch, commit, changed files, seed, and tenants.
+`POST /environments/pr/update` is for GitHub PR automation. It deletes the previous environment for the same PR, then creates a new environment with a fresh generated key and the latest branch, commit, seed, and tenants.
 
 `POST /environments/pr/merged` removes environments for a PR after it is merged or closed.
 

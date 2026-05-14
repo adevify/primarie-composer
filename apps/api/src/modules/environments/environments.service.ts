@@ -14,7 +14,6 @@ import type {
   CreateEnvironmentPayload,
   EnvironmentOwner,
   EnvironmentSource,
-  GitPatchPayload,
   LifecycleAction,
   MongoDeleteDocumentsPayload,
   MongoInsertDocumentsPayload,
@@ -310,7 +309,7 @@ export class EnvironmentsService {
     void this.prepareEnvironment(key, runtimePath, input.seed, input.source, {
       ...input.env,
       PROXY_EXTERNAL_PORT: String(port),
-    }, input.patch).catch(async (error) => {
+    }).catch(async (error) => {
       logEnvironment("error", "create_failed", {
         key,
         message: error instanceof Error ? error.message : String(error)
@@ -333,8 +332,7 @@ export class EnvironmentsService {
     runtimePath: string,
     seedName: string,
     source: EnvironmentSource,
-    environmentVariables: Record<string, string>,
-    patch: GitPatchPayload | undefined
+    environmentVariables: Record<string, string>
   ): Promise<void> {
     logEnvironment("info", "prepare_started", {
       key,
@@ -364,7 +362,6 @@ export class EnvironmentsService {
       hostSeedsDir: env.HOST_SEEDS_DIR,
       source,
       sourceRepoUrl: env.SOURCE_REPO_URL,
-      patch,
       environmentVariables: {
         ...environmentVariables,
         COMPANY_HOST: env.ROOT_DOMAIN_ALT,
@@ -380,7 +377,6 @@ export class EnvironmentsService {
       metadata: {
         branch: source.branch,
         commit: source.commit,
-        patchFiles: patch?.changedFiles.length ?? 0,
         outputLength: result.output?.length ?? 0
       }
     });
@@ -1109,8 +1105,7 @@ export class EnvironmentsService {
     const record = await this.create({
       source,
       seed: "default",
-      env: {},
-      patch: undefined
+      env: {}
     }, pullRequest);
 
     await this.logSystemEvent(record.key, "environment.pr_updated", "Pull request environment updated", {
