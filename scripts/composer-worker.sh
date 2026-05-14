@@ -8,11 +8,13 @@ ACKS_DIR="${ACKS_DIR:-$BUS_ROOT/acks}"
 RESULTS_DIR="${RESULTS_DIR:-$BUS_ROOT/results}"
 LOGS_DIR="${LOGS_DIR:-$BUS_ROOT/logs}"
 LOCKS_DIR="${LOCKS_DIR:-$BUS_ROOT/locks}"
+WORKER_LOCK_DIR="${WORKER_LOCK_DIR:-$BUS_ROOT/worker.lock}"
 READY_FILE="${READY_FILE:-$BUS_ROOT/worker.ready}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MAX_RESULT_OUTPUT_BYTES="${MAX_RESULT_OUTPUT_BYTES:-5242880}"
 ACTION_HEARTBEAT_SECONDS="${ACTION_HEARTBEAT_SECONDS:-30}"
 MAX_PARALLEL_ACTIONS="${MAX_PARALLEL_ACTIONS:-4}"
+WORKER_MAIN_BASHPID="$BASHPID"
 
 timestamp() {
   date -u +%Y-%m-%dT%H:%M:%SZ
@@ -21,6 +23,51 @@ timestamp() {
 worker_log() {
   printf "[composer-worker] %s %s\n" "$(timestamp)" "$*"
 }
+
+mkdir -p "$BUS_ROOT"
+
+acquire_worker_lock() {
+  local lock_pid
+
+  if mkdir "$WORKER_LOCK_DIR" >/dev/null 2>&1; then
+    {
+      printf "pid=%s\n" "$$"
+      printf "bashpid=%s\n" "$BASHPID"
+      printf "script=%s\n" "$0"
+      printf "startedAt=%s\n" "$(timestamp)"
+    } > "$WORKER_LOCK_DIR/info"
+    return 0
+  fi
+
+  lock_pid="$(sed -n 's/^pid=//p' "$WORKER_LOCK_DIR/info" 2>/dev/null | head -n 1 || true)"
+  if [[ -n "$lock_pid" ]] && kill -0 "$lock_pid" >/dev/null 2>&1; then
+    worker_log "another worker is already running: pid=$lock_pid lock=$WORKER_LOCK_DIR"
+    exit 1
+  fi
+
+  worker_log "removing stale worker lock: lock=$WORKER_LOCK_DIR pid=${lock_pid:-unknown}"
+  rm -rf "$WORKER_LOCK_DIR"
+  if mkdir "$WORKER_LOCK_DIR" >/dev/null 2>&1; then
+    {
+      printf "pid=%s\n" "$$"
+      printf "bashpid=%s\n" "$BASHPID"
+      printf "script=%s\n" "$0"
+      printf "startedAt=%s\n" "$(timestamp)"
+    } > "$WORKER_LOCK_DIR/info"
+    return 0
+  fi
+
+  worker_log "unable to acquire worker lock: lock=$WORKER_LOCK_DIR"
+  exit 1
+}
+
+release_worker_lock() {
+  if [[ "$BASHPID" == "$WORKER_MAIN_BASHPID" ]]; then
+    rm -rf "$WORKER_LOCK_DIR"
+  fi
+}
+
+acquire_worker_lock
 
 mkdir -p "$ACKS_DIR" "$RESULTS_DIR" "$LOGS_DIR" "$LOCKS_DIR"
 chmod 777 "$ACKS_DIR" "$RESULTS_DIR" "$LOGS_DIR" "$LOCKS_DIR" 2>/dev/null || true
@@ -32,14 +79,18 @@ fi
 
 date -u +%Y-%m-%dT%H:%M:%SZ > "$READY_FILE"
 chmod 666 "$READY_FILE" 2>/dev/null || true
-worker_log "ready: pid=$$ pipe=$PIPE acks=$ACKS_DIR results=$RESULTS_DIR logs=$LOGS_DIR locks=$LOCKS_DIR ready=$READY_FILE maxParallel=$MAX_PARALLEL_ACTIONS heartbeatSeconds=$ACTION_HEARTBEAT_SECONDS"
+worker_log "ready: pid=$$ bashpid=$BASHPID pipe=$PIPE acks=$ACKS_DIR results=$RESULTS_DIR logs=$LOGS_DIR locks=$LOCKS_DIR workerLock=$WORKER_LOCK_DIR ready=$READY_FILE maxParallel=$MAX_PARALLEL_ACTIONS heartbeatSeconds=$ACTION_HEARTBEAT_SECONDS"
 
 cleanup_worker() {
-  worker_log "exiting: removing ready file $READY_FILE"
-  rm -f "$READY_FILE"
+  if [[ "$BASHPID" == "$WORKER_MAIN_BASHPID" ]]; then
+    worker_log "exiting: removing ready file $READY_FILE and worker lock $WORKER_LOCK_DIR"
+    rm -f "$READY_FILE"
+    release_worker_lock
+  fi
 }
 
 trap cleanup_worker EXIT
+trap 'cleanup_worker; exit 0' TERM INT
 
 write_result() {
   local id="$1"

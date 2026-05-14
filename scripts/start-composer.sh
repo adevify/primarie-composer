@@ -172,24 +172,57 @@ ensure_env_file() {
   fi
 }
 
+bus_pids() {
+  if have pgrep; then
+    pgrep -f "$ROOT_DIR/scripts/composer-worker.sh" 2>/dev/null || true
+  fi
+}
+
+stop_bus_workers() {
+  local pids
+  local pid
+
+  pids="$(bus_pids)"
+  if [[ -z "$pids" ]]; then
+    rm -f "$BUS_PID_FILE"
+    return
+  fi
+
+  log "Stopping Bash bus worker PID(s): $(printf "%s" "$pids" | tr '\n' ' ')"
+  while IFS= read -r pid; do
+    if [[ -n "$pid" ]]; then
+      kill "$pid" >/dev/null 2>&1 || true
+    fi
+  done <<< "$pids"
+
+  for _ in 1 2 3 4 5 6 7 8 9 10; do
+    if [[ -z "$(bus_pids)" ]]; then
+      rm -f "$BUS_PID_FILE"
+      return
+    fi
+    sleep 1
+  done
+
+  pids="$(bus_pids)"
+  if [[ -n "$pids" ]]; then
+    log "Bash bus worker PID(s) did not stop: $(printf "%s" "$pids" | tr '\n' ' ')"
+    exit 1
+  fi
+  rm -f "$BUS_PID_FILE"
+}
+
 start_bus() {
+  if [[ "${RESTART_BUS:-0}" == "1" ]]; then
+    stop_bus_workers
+  fi
+
   if [[ -f "$BUS_PID_FILE" ]]; then
     local old_pid
     old_pid="$(cat "$BUS_PID_FILE")"
     if [[ -n "$old_pid" ]] && kill -0 "$old_pid" >/dev/null 2>&1; then
       if bus_restart_required; then
-        log "Bash bus is running with old scripts; restarting PID $old_pid."
-        kill "$old_pid" >/dev/null 2>&1 || true
-        for _ in 1 2 3 4 5; do
-          if ! kill -0 "$old_pid" >/dev/null 2>&1; then
-            break
-          fi
-          sleep 1
-        done
-        if kill -0 "$old_pid" >/dev/null 2>&1; then
-          log "Bash bus PID $old_pid did not stop. Stop it manually or rerun with RESTART_BUS=1 after it exits."
-          exit 1
-        fi
+        log "Bash bus is running with old scripts; restarting workers."
+        stop_bus_workers
       else
         log "Bash bus is already running with PID $old_pid."
         return
@@ -217,10 +250,6 @@ start_bus() {
 
 bus_restart_required() {
   local script
-
-  if [[ "${RESTART_BUS:-0}" == "1" ]]; then
-    return 0
-  fi
 
   for script in \
     "$ROOT_DIR/scripts/composer-worker.sh" \
