@@ -25,7 +25,9 @@ export function createProxyRouter(): Router {
         logProxyDecision("warn", requestId, "deny", {
           host,
           reason: "host_parse_failed",
-          rootDomain: env.ROOT_DOMAIN
+          rootDomain: env.ROOT_DOMAIN,
+          hostLabels: host.split(".").filter(Boolean),
+          subdomainLabels: host.split(".").filter(Boolean).slice(0, -env.ROOT_DOMAIN.toLowerCase().split(".").filter(Boolean).length)
         });
         return res.status(403).json({ allowed: false, reason: "Host is outside configured root domain" });
       }
@@ -146,7 +148,25 @@ function parseEnvironmentHost(host: string): { environmentKey: string; subdomain
     return hyphenSafeHost;
   }
 
+  const dotSafeHost = parseDotSafeEnvironmentHost(subdomainLabels);
+  if (dotSafeHost) {
+    return dotSafeHost;
+  }
+
   return null;
+}
+
+function parseDotSafeEnvironmentHost(subdomainLabels: string[]): { environmentKey: string; subdomain: string } | null {
+  if (subdomainLabels.length !== 2) {
+    return null;
+  }
+
+  const [subdomain, environmentKey] = subdomainLabels;
+  if (!keyPattern.test(environmentKey)) {
+    return null;
+  }
+
+  return { environmentKey, subdomain };
 }
 
 function parseHyphenSafeEnvironmentHost(subdomainLabels: string[]): { environmentKey: string; subdomain: string } | null {

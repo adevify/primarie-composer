@@ -95,6 +95,8 @@ requires_environment_lock() {
   [[ "$type" == "environment.start" \
     || "$type" == "environment.stop" \
     || "$type" == "environment.restart" \
+    || "$type" == "environment.remove" \
+    || "$type" == "environment.prepare" \
     || "$type" == "environment.mongo.inspect" \
     || "$type" == "environment.mongo.command" ]]
 }
