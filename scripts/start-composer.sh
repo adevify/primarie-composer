@@ -141,13 +141,13 @@ ensure_docker_running() {
 
 ensure_bus_root() {
   if [[ -d "$BUS_ROOT" && -w "$BUS_ROOT" ]]; then
-    mkdir -p "$BUS_ROOT/results" "$BUS_ROOT/logs" "$BUS_ROOT/locks"
+    mkdir -p "$BUS_ROOT/acks" "$BUS_ROOT/results" "$BUS_ROOT/logs" "$BUS_ROOT/locks"
     chmod -R 777 "$BUS_ROOT" 2>/dev/null || true
     return
   fi
 
   if prompt_yes_no "$BUS_ROOT needs to be created or made writable. Run sudo setup now?"; then
-    sudo mkdir -p "$BUS_ROOT/results" "$BUS_ROOT/logs" "$BUS_ROOT/locks"
+    sudo mkdir -p "$BUS_ROOT/acks" "$BUS_ROOT/results" "$BUS_ROOT/logs" "$BUS_ROOT/locks"
     sudo chmod -R 777 "$BUS_ROOT"
   fi
 

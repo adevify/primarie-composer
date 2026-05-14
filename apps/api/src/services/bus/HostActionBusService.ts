@@ -13,10 +13,31 @@ export type HostActionResult = {
 
 export type HostActionLogHandler = (entry: { log: string; level: "info" | "error" }) => Promise<void> | void;
 
+type BusHealth = {
+  ready: boolean;
+  pipePath: string;
+  acksDir: string;
+  resultsDir: string;
+  logsDir: string;
+  workerReadyPath: string;
+  reason?: string;
+  workerReadyAt?: string;
+};
+
+type ActionAck = {
+  id: string;
+  type: string;
+  environment?: string;
+  acceptedAt?: string;
+  pid?: number;
+  logFile?: string;
+};
+
 export class HostActionBusService {
-  async health(): Promise<{ ready: boolean; pipePath: string; resultsDir: string; logsDir: string; workerReadyPath: string; reason?: string; workerReadyAt?: string }> {
-    const [pipeExists, resultsDirExists, logsDirExists, workerReadyExists, workerReadyAt] = await Promise.all([
+  async health(): Promise<BusHealth> {
+    const [pipeExists, acksDirExists, resultsDirExists, logsDirExists, workerReadyExists, workerReadyAt] = await Promise.all([
       exists(env.BUS_PIPE_PATH),
+      exists(env.BUS_ACKS_DIR),
       exists(env.BUS_RESULTS_DIR),
       exists(env.BUS_LOGS_DIR),
       exists(env.BUS_WORKER_READY_PATH),
@@ -25,6 +46,9 @@ export class HostActionBusService {
 
     if (!pipeExists) {
       return this.healthResult(false, "FIFO pipe is missing", workerReadyAt);
+    }
+    if (!acksDirExists) {
+      return this.healthResult(false, "Acknowledgement directory is missing", workerReadyAt);
     }
     if (!resultsDirExists) {
       return this.healthResult(false, "Results directory is missing", workerReadyAt);
@@ -81,6 +105,13 @@ export class HostActionBusService {
       throw Object.assign(new Error(`Host action bus is unavailable: ${message}`), { status: 503 });
     }
 
+    const ack = await this.waitForAck(id, type);
+    logBus("info", "accepted", {
+      id,
+      type,
+      ack
+    });
+
     const result = await this.waitForResult(id, timeoutMs, type, onLog);
     if (result.status === "error") {
       logBus("error", "result_error", {
@@ -98,6 +129,64 @@ export class HostActionBusService {
     }
 
     return result;
+  }
+
+  private async waitForAck(actionId: string, type: string): Promise<ActionAck> {
+    const ackPath = `${env.BUS_ACKS_DIR}/${actionId}.json`;
+    const startedAt = Date.now();
+    const deadlineAt = startedAt + env.BUS_ACTION_ACCEPT_TIMEOUT_MS;
+    let nextWaitingLogAt = startedAt + 1000;
+
+    logBus("info", "ack_wait_start", {
+      id: actionId,
+      type,
+      ackPath,
+      timeoutMs: env.BUS_ACTION_ACCEPT_TIMEOUT_MS
+    });
+
+    while (Date.now() < deadlineAt) {
+      const content = await fs.readFile(ackPath, "utf8").catch((error) => {
+        if (isNodeError(error) && error.code === "ENOENT") {
+          return null;
+        }
+        throw error;
+      });
+
+      if (content !== null) {
+        await fs.unlink(ackPath).catch(() => undefined);
+        const ack = parseAck(content, actionId, type);
+        logBus("info", "ack_found", {
+          id: actionId,
+          type,
+          durationMs: Date.now() - startedAt,
+          ack
+        });
+        return ack;
+      }
+
+      if (Date.now() >= nextWaitingLogAt) {
+        logBus("info", "ack_waiting", {
+          id: actionId,
+          type,
+          elapsedMs: Date.now() - startedAt,
+          remainingMs: Math.max(0, deadlineAt - Date.now()),
+          ackPath
+        });
+        nextWaitingLogAt = Date.now() + 1000;
+      }
+
+      await delay(Math.min(env.BUS_POLL_INTERVAL_MS, 200));
+    }
+
+    logBus("error", "ack_timeout", {
+      id: actionId,
+      type,
+      timeoutMs: env.BUS_ACTION_ACCEPT_TIMEOUT_MS,
+      ackPath: `${env.BUS_ACKS_DIR}/${actionId}.json`,
+      pipePath: env.BUS_PIPE_PATH,
+      workerReadyPath: env.BUS_WORKER_READY_PATH
+    });
+    throw Object.assign(new Error(`Host action was not accepted by the worker within ${env.BUS_ACTION_ACCEPT_TIMEOUT_MS}ms: ${actionId}`), { status: 503 });
   }
 
   private async waitForResult(actionId: string, timeoutMs: number, type: string, onLog?: HostActionLogHandler): Promise<HostActionResult> {
@@ -186,12 +275,33 @@ export class HostActionBusService {
     return {
       ready,
       pipePath: env.BUS_PIPE_PATH,
+      acksDir: env.BUS_ACKS_DIR,
       resultsDir: env.BUS_RESULTS_DIR,
       logsDir: env.BUS_LOGS_DIR,
       workerReadyPath: env.BUS_WORKER_READY_PATH,
       workerReadyAt,
       reason
     };
+  }
+}
+
+function parseAck(content: string, actionId: string, type: string): ActionAck {
+  try {
+    const parsed = JSON.parse(content) as Partial<ActionAck>;
+    if (parsed.id !== actionId || parsed.type !== type) {
+      throw new Error("Ack does not match expected action");
+    }
+
+    return {
+      id: parsed.id,
+      type: parsed.type,
+      environment: typeof parsed.environment === "string" ? parsed.environment : undefined,
+      acceptedAt: typeof parsed.acceptedAt === "string" ? parsed.acceptedAt : undefined,
+      pid: typeof parsed.pid === "number" ? parsed.pid : undefined,
+      logFile: typeof parsed.logFile === "string" ? parsed.logFile : undefined
+    };
+  } catch (error) {
+    throw Object.assign(new Error(`Malformed host action ack for ${actionId}: ${error instanceof Error ? error.message : String(error)}`), { status: 502 });
   }
 }
 

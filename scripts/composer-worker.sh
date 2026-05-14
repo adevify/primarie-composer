@@ -4,6 +4,7 @@ umask 000
 
 BUS_ROOT="${BUS_ROOT:-/opt/composer-bus}"
 PIPE="${PIPE:-$BUS_ROOT/actions.pipe}"
+ACKS_DIR="${ACKS_DIR:-$BUS_ROOT/acks}"
 RESULTS_DIR="${RESULTS_DIR:-$BUS_ROOT/results}"
 LOGS_DIR="${LOGS_DIR:-$BUS_ROOT/logs}"
 LOCKS_DIR="${LOCKS_DIR:-$BUS_ROOT/locks}"
@@ -21,8 +22,8 @@ worker_log() {
   printf "[composer-worker] %s %s\n" "$(timestamp)" "$*"
 }
 
-mkdir -p "$RESULTS_DIR" "$LOGS_DIR" "$LOCKS_DIR"
-chmod 777 "$RESULTS_DIR" "$LOGS_DIR" "$LOCKS_DIR" 2>/dev/null || true
+mkdir -p "$ACKS_DIR" "$RESULTS_DIR" "$LOGS_DIR" "$LOCKS_DIR"
+chmod 777 "$ACKS_DIR" "$RESULTS_DIR" "$LOGS_DIR" "$LOCKS_DIR" 2>/dev/null || true
 if [[ ! -p "$PIPE" ]]; then
   rm -f "$PIPE"
   mkfifo "$PIPE"
@@ -31,7 +32,7 @@ fi
 
 date -u +%Y-%m-%dT%H:%M:%SZ > "$READY_FILE"
 chmod 666 "$READY_FILE" 2>/dev/null || true
-worker_log "ready: pid=$$ pipe=$PIPE results=$RESULTS_DIR logs=$LOGS_DIR locks=$LOCKS_DIR ready=$READY_FILE maxParallel=$MAX_PARALLEL_ACTIONS heartbeatSeconds=$ACTION_HEARTBEAT_SECONDS"
+worker_log "ready: pid=$$ pipe=$PIPE acks=$ACKS_DIR results=$RESULTS_DIR logs=$LOGS_DIR locks=$LOCKS_DIR ready=$READY_FILE maxParallel=$MAX_PARALLEL_ACTIONS heartbeatSeconds=$ACTION_HEARTBEAT_SECONDS"
 
 cleanup_worker() {
   worker_log "exiting: removing ready file $READY_FILE"
@@ -67,6 +68,32 @@ write_result() {
   rm -f "$output_file"
   mv "$tmp" "$RESULTS_DIR/$id.json"
   worker_log "write_result_done: id=$id status=$status result=$RESULTS_DIR/$id.json"
+}
+
+write_ack() {
+  local id="$1"
+  local type="$2"
+  local environment="$3"
+  local log_file="$4"
+  local tmp="$ACKS_DIR/$id.json.tmp"
+
+  jq -n \
+    --arg id "$id" \
+    --arg type "$type" \
+    --arg environment "$environment" \
+    --arg acceptedAt "$(timestamp)" \
+    --argjson pid "$BASHPID" \
+    --arg logFile "$log_file" \
+    '{
+      id: $id,
+      type: $type,
+      environment: $environment,
+      acceptedAt: $acceptedAt,
+      pid: $pid,
+      logFile: $logFile
+    }' > "$tmp"
+  mv "$tmp" "$ACKS_DIR/$id.json"
+  worker_log "ack_written: id=$id type=$type environment=$environment ack=$ACKS_DIR/$id.json"
 }
 
 truncate_output() {
@@ -338,6 +365,7 @@ process_action() {
 
   printf "[composer-worker] accepted action at %s: type=%s environment=%s port=%s proxy=%s pid=%s\n" "$(timestamp)" "$type" "$environment" "$environment_port" "$proxy_upstream_host" "$BASHPID" >> "$action_log_file"
   worker_log "accepted: id=$id type=$type environment=$environment port=$environment_port proxy=$proxy_upstream_host actionLog=$action_log_file pid=$BASHPID"
+  write_ack "$id" "$type" "$environment" "$action_log_file"
 
   if requires_environment_lock "$type"; then
     if [[ -z "$environment" ]]; then
