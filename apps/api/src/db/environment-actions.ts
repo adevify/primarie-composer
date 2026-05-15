@@ -56,7 +56,7 @@ export const EnvironmentActionCollection = (() => {
         perPage,
         pages: Math.ceil(total / perPage),
         items: await col.find({ environmentKey })
-          .sort({ createdAt: -1 })
+          .sort({ updatedAt: -1, createdAt: -1 })
           .skip(page * perPage)
           .limit(perPage)
           .toArray()
@@ -68,7 +68,7 @@ export const EnvironmentActionCollection = (() => {
         environmentKey,
         status: { $in: ["queued", "running"] }
       },
-      { sort: { createdAt: -1 } }
+      { sort: { updatedAt: -1, createdAt: -1 } }
     )),
     update: async (id: string, patch: Partial<Omit<EnvironmentActionRecord, "id" | "createdAt">>) => withActionsCol(async col => {
       await col.updateOne({ id }, { $set: { ...patch, updatedAt: new Date() } });
@@ -85,6 +85,7 @@ export const EnvironmentActionCollection = (() => {
     ensureIndexes: async () => {
       await withActionsCol(col => col.createIndex({ id: 1 }, { unique: true }));
       await withActionsCol(col => col.createIndex({ environmentKey: 1, createdAt: -1 }));
+      await withActionsCol(col => col.createIndex({ environmentKey: 1, updatedAt: -1, createdAt: -1 }));
     }
   };
 })();

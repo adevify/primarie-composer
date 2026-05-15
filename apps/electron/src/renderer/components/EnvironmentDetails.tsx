@@ -1600,7 +1600,7 @@ function MongoInspector({
               </Typography>
             </Box>
             <Typography component="span" variant="caption" color="text.secondary" sx={{ ml: 1, fontFamily: monoFont }}>
-              {collection.count}
+              {mongoScalarLabel(collection.count)}
             </Typography>
           </Button>
         ))}
@@ -1988,6 +1988,30 @@ function formatJsonForDisplay(json: string): ReactNode[] {
   }
 
   return nodes;
+}
+
+function mongoScalarLabel(value: unknown): string {
+  if (value === null || value === undefined) {
+    return "0";
+  }
+  if (typeof value === "number" || typeof value === "boolean") {
+    return String(value);
+  }
+  if (typeof value === "string") {
+    return value;
+  }
+  if (typeof value === "object") {
+    const record = value as Record<string, unknown>;
+    if (typeof record.$numberInt === "string") return record.$numberInt;
+    if (typeof record.$numberLong === "string") return record.$numberLong;
+    if (typeof record.$numberDouble === "string") return record.$numberDouble;
+    if (typeof record.$oid === "string") return record.$oid;
+  }
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return String(value);
+  }
 }
 
 function FileExplorer({
