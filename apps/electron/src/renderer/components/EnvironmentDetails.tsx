@@ -164,6 +164,7 @@ export function EnvironmentDetails({
   const [execRunning, setExecRunning] = useState(false);
   const [utilityTab, setUtilityTab] = useState<UtilityTab>("logs");
   const fileRequestIdRef = useRef(0);
+  const focusedActionRef = useRef<EnvironmentActionRecord | undefined>(undefined);
 
   const environmentSelected = selectedContainer === "";
   const activeTabs = useMemo<UtilityTab[]>(() => environmentSelected ? ["logs", "files", "sync", "mongo", "actions"] : ["logs", "files", "exec"], [environmentSelected]);
@@ -182,7 +183,8 @@ export function EnvironmentDetails({
   const selectedAction = actions.find((action) => action.id === selectedActionId);
   const selectedContainerRecord = containers.find((container) => containerName(container) === selectedContainer);
   const displayedActionLogs = useMemo(() => {
-    const historicalItems = actionLogs.length > 0 ? actionLogs : actionLogsPage?.items ?? [];
+    const historicalItems = (actionLogs.length > 0 ? actionLogs : actionLogsPage?.items ?? [])
+      .filter((entry) => entry.actionId === selectedActionId);
     const historical = historicalItems.map((entry) => ({
       at: entry.createdAt ?? selectedAction?.createdAt ?? new Date(0).toISOString(),
       message: entry.line ?? entry.log ?? "",
@@ -255,9 +257,11 @@ export function EnvironmentDetails({
     setToolError(undefined);
     setUtilityTab("actions");
     setSelectedActionId(focusAction.action.id);
+    focusedActionRef.current = focusAction.action;
     setActions((current) => upsertAction(current, focusAction.action));
     setActionLogs([]);
     setActionLogsPage(undefined);
+    void loadActionLogs(focusAction.action.id, undefined, true, false);
   }, [open, environment?.key, focusAction?.action.id, focusAction?.token]);
 
   useEffect(() => {
@@ -311,14 +315,13 @@ export function EnvironmentDetails({
 
     const interval = setInterval(() => {
       void loadActions(false, selectedActionId);
-      void loadActionLogs(selectedActionId, undefined, true, false);
     }, 1500);
 
     return () => clearInterval(interval);
   }, [open, selectedActionId, selectedAction?.status]);
 
   useEffect(() => {
-    if (!open || !selectedActionId || !selectedAction || (selectedAction.status !== "queued" && selectedAction.status !== "running")) {
+    if (!open || !selectedActionId || utilityTab !== "actions") {
       return undefined;
     }
 
@@ -342,6 +345,9 @@ export function EnvironmentDetails({
         }
 
         if (event.type === "action") {
+          if (focusedActionRef.current?.id === event.action.id) {
+            focusedActionRef.current = event.action;
+          }
           setActions((current) => current.map((action) => action.id === event.action.id ? event.action : action));
         }
 
@@ -357,14 +363,18 @@ export function EnvironmentDetails({
         }
       },
       controller.signal
-    ).catch((error) => {
+    ).then(() => {
+      if (!controller.signal.aborted) {
+        void loadActionLogs(selectedActionId, undefined, true, false);
+      }
+    }).catch((error) => {
       if (!controller.signal.aborted) {
         setToolError(toErrorMessage(error));
       }
     });
 
     return () => controller.abort();
-  }, [open, selectedActionId, selectedAction?.status]);
+  }, [open, selectedActionId, utilityTab]);
 
   async function loadContainers(showSpinner = true): Promise<void> {
     if (!environment) {
@@ -525,11 +535,13 @@ export function EnvironmentDetails({
     setToolError(undefined);
     try {
       const page = await onListLifecycleActions(environment.key, 0, 30);
+      const focusedAction = focusedActionRef.current?.environmentKey === environment.key ? focusedActionRef.current : undefined;
+      const mergedActions = focusedAction ? appendUniqueActions(page.items, [focusedAction]) : page.items;
       setActionsPage(page);
-      setActions(page.items);
-      const nextSelectedId = preferredActionId && page.items.some((action) => action.id === preferredActionId)
+      setActions(mergedActions);
+      const nextSelectedId = preferredActionId && mergedActions.some((action) => action.id === preferredActionId)
         ? preferredActionId
-        : page.items[0]?.id ?? "";
+        : mergedActions[0]?.id ?? "";
       setSelectedActionId(nextSelectedId);
       if (!nextSelectedId) {
         setActionLogs([]);
@@ -590,6 +602,17 @@ export function EnvironmentDetails({
     } finally {
       setLoadingActions(false);
     }
+  }
+
+  async function runEnvironmentAction(action: "start" | "stop" | "restart" | "resume" | "delete"): Promise<void> {
+    if (!environment) {
+      return;
+    }
+
+    setSelectedContainer("");
+    setToolError(undefined);
+    setUtilityTab("actions");
+    await onAction(environment.key, action);
   }
 
   if (!open || !environment) {
@@ -667,7 +690,7 @@ export function EnvironmentDetails({
           <Button
             variant="outlined"
             disabled={environment.status === "running" || environment.status === "creating"}
-            onClick={() => void onAction(environment.key, "start")}
+            onClick={() => void runEnvironmentAction("start")}
             startIcon={<PlayArrowIcon />}
             sx={startButtonSx}
           >
@@ -675,10 +698,10 @@ export function EnvironmentDetails({
           </Button>
           {environment.status === "running" ? (
             <>
-              <Button variant="outlined" onClick={() => void onAction(environment.key, "stop")} startIcon={<PauseCircleOutlineIcon />} sx={actionButtonSx}>
+              <Button variant="outlined" onClick={() => void runEnvironmentAction("stop")} startIcon={<PauseCircleOutlineIcon />} sx={actionButtonSx}>
                 Pause
               </Button>
-              <Button variant="outlined" onClick={() => void onAction(environment.key, "stop")} startIcon={<StopCircleIcon />} sx={actionButtonSx}>
+              <Button variant="outlined" onClick={() => void runEnvironmentAction("stop")} startIcon={<StopCircleIcon />} sx={actionButtonSx}>
                 Stop
               </Button>
               <Button variant="outlined" onClick={() => onStartComposeLogStream(environment.key)} startIcon={<TerminalIcon />} sx={logsButtonSx}>
@@ -686,7 +709,7 @@ export function EnvironmentDetails({
               </Button>
             </>
           ) : null}
-          <Button variant="contained" color="error" onClick={() => void onAction(environment.key, "delete")} startIcon={<DeleteOutlineIcon />} sx={deleteButtonSx}>
+          <Button variant="contained" color="error" onClick={() => void runEnvironmentAction("delete")} startIcon={<DeleteOutlineIcon />} sx={deleteButtonSx}>
             Delete
           </Button>
         </Stack>
@@ -919,7 +942,7 @@ export function EnvironmentDetails({
                         {selectedAction ? `${selectedAction.action.toUpperCase()} / ${selectedAction.id}` : "NO REGISTERED ACTION"}
                       </Typography>
                       <Typography variant="caption" color="text.secondary" sx={{ fontFamily: monoFont }}>
-                        {actionLogsPage ? `${displayedActionLogs.length}${actionLogsPage.hasMore ? "+" : ""}` : "0"}
+                        {`${displayedActionLogs.length}${actionLogsPage?.hasMore ? "+" : ""}`}
                       </Typography>
                     </Box>
                     <Box sx={{ flex: 1, minHeight: 0, overflow: "hidden" }}>
