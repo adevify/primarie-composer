@@ -46,8 +46,10 @@ fi
 database="primarie"
 payload_json="$(jq -c . "$PAYLOAD_FILE")"
 payload_literal="$(printf "%s" "$payload_json" | jq -Rs .)"
+mongo_script="$(mktemp)"
+trap 'rm -f "$mongo_script"' EXIT
 
-docker exec -i "$container_id" mongosh "$database" --quiet <<MONGO_JS
+cat > "$mongo_script" <<MONGO_JS
 const payload = EJSON.parse($payload_literal);
 const operation = payload.operation || "preview";
 const defaultLimit = Number($LIMIT);
@@ -219,3 +221,16 @@ if (operation === "preview") {
   fail("Unsupported Mongo operation: " + operation);
 }
 MONGO_JS
+
+docker exec -i "$container_id" sh -c '
+set -eu
+database="$1"
+script_file="$(mktemp)"
+cat > "$script_file"
+set +e
+mongosh --quiet "$database" "$script_file"
+status="$?"
+set -e
+rm -f "$script_file"
+exit "$status"
+' sh "$database" < "$mongo_script"

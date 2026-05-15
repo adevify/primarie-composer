@@ -681,7 +681,7 @@ export class EnvironmentsService {
         activeAction: activeAction.action,
         activeActionId: activeAction.id,
         activeStatus: activeAction.status,
-        activeLogPath: activeAction.logFile.path,
+        activeLogPath: this.actionLogPath(activeAction.id, activeAction.logFile),
       });
       return activeAction;
     }
@@ -1246,7 +1246,7 @@ export class EnvironmentsService {
         operation: "collections",
       },
     );
-    return parseJsonValue(result.output ?? "{}");
+    return parseMongoJsonValue(result.output ?? "{}");
   }
 
   async searchMongoDocuments(
@@ -1267,7 +1267,7 @@ export class EnvironmentsService {
         sort: input.sort,
       },
     );
-    return parseJsonValue(result.output ?? "{}");
+    return parseMongoJsonValue(result.output ?? "{}");
   }
 
   async insertMongoDocuments(
@@ -1286,7 +1286,7 @@ export class EnvironmentsService {
         documents: input.documents,
       },
     );
-    const parsed = parseJsonValue(result.output ?? "{}");
+    const parsed = parseMongoJsonValue(result.output ?? "{}");
     await this.logSystemEvent(
       key,
       "environment.mongo_insert",
@@ -1323,7 +1323,7 @@ export class EnvironmentsService {
         allowEmptyFilter: input.allowEmptyFilter === true,
       },
     );
-    const parsed = parseJsonValue(result.output ?? "{}");
+    const parsed = parseMongoJsonValue(result.output ?? "{}");
     await this.logSystemEvent(
       key,
       "environment.mongo_delete",
@@ -1364,7 +1364,7 @@ export class EnvironmentsService {
         allowEmptyFilter: input.allowEmptyFilter === true,
       },
     );
-    const parsed = parseJsonValue(result.output ?? "{}");
+    const parsed = parseMongoJsonValue(result.output ?? "{}");
     await this.logSystemEvent(
       key,
       "environment.mongo_update",
@@ -1412,7 +1412,7 @@ export class EnvironmentsService {
         signature,
       },
     );
-    const parsed = parseJsonValue(result.output ?? "{}");
+    const parsed = parseMongoJsonValue(result.output ?? "{}");
     await this.logSystemEvent(
       key,
       "environment.mongo_import_prod_tennant",
@@ -2621,6 +2621,63 @@ function parseJsonValue(output: string): unknown {
   return JSON.parse(trimmed) as unknown;
 }
 
+function parseMongoJsonValue(output: string): unknown {
+  const trimmed = output.trim();
+  if (!trimmed) {
+    return null;
+  }
+
+  const candidates = mongoJsonCandidates(trimmed);
+  let lastError: unknown;
+  for (const candidate of candidates) {
+    try {
+      return JSON.parse(candidate) as unknown;
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  const message = lastError instanceof Error ? lastError.message : "Invalid JSON";
+  throw Object.assign(new Error(`Mongo inspect returned invalid JSON: ${message}`), {
+    status: 502,
+    output: tailText(output),
+  });
+}
+
+function mongoJsonCandidates(output: string): string[] {
+  const cleaned = stripMongoShellPrompts(output);
+  const candidates = [output];
+  if (cleaned !== output) {
+    candidates.push(cleaned);
+  }
+
+  const lines = cleaned
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+  for (let index = lines.length - 1; index >= 0; index -= 1) {
+    const line = lines[index];
+    if (line.startsWith("{") || line.startsWith("[")) {
+      candidates.push(line);
+    }
+  }
+
+  return [...new Set(candidates.map((candidate) => candidate.trim()).filter(Boolean))];
+}
+
+function stripMongoShellPrompts(output: string): string {
+  return output
+    .split(/\r?\n/)
+    .map((line) => stripAnsi(line).replace(/^[A-Za-z0-9_.-]+>\s?/, "").trimEnd())
+    .filter(Boolean)
+    .join("\n")
+    .trim();
+}
+
+function stripAnsi(value: string): string {
+  return value.replace(/\u001b\[[0-9;]*m/g, "");
+}
+
 function isRunningContainer(value: unknown): boolean {
   return (
     isPlainRecord(value) &&
@@ -2677,9 +2734,9 @@ function isPlainRecord(value: unknown): value is Record<string, unknown> {
 
 function parseMongoPreviewOutput(output: string): unknown {
   try {
-    return parseJsonValue(output);
+    return parseMongoJsonValue(output);
   } catch (error) {
-    const trimmed = output.trim();
+    const trimmed = stripMongoShellPrompts(output.trim());
     if (trimmed.startsWith("[output truncated")) {
       return {
         available: false,
