@@ -10,13 +10,20 @@ import {
   Stack,
   Switch,
   TextField,
+  ToggleButton,
+  ToggleButtonGroup,
+  Tooltip,
   Typography
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import AutoFixHighIcon from "@mui/icons-material/AutoFixHigh";
+import ClearIcon from "@mui/icons-material/Clear";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import DataObjectIcon from "@mui/icons-material/DataObject";
 import FolderIcon from "@mui/icons-material/Folder";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
+import ManageSearchIcon from "@mui/icons-material/ManageSearch";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import PauseCircleOutlineIcon from "@mui/icons-material/PauseCircleOutline";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
@@ -51,6 +58,8 @@ import type {
 
 type UtilityTab = "logs" | "files" | "sync" | "exec" | "mongo" | "actions";
 type LogScope = "environment" | "container";
+type MongoFindMode = "findOne" | "findMany";
+type MongoUpdateMode = "updateOne" | "updateMany";
 
 const LOG_TAIL_PAGE_SIZE = 100;
 
@@ -1257,19 +1266,23 @@ function MongoInspector({
   const [sortText, setSortText] = useState("{\n  \"_id\": -1\n}");
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(20);
+  const [findMode, setFindMode] = useState<MongoFindMode>("findMany");
   const [loadingCollections, setLoadingCollections] = useState(false);
   const [loadingDocuments, setLoadingDocuments] = useState(false);
   const [mongoError, setMongoError] = useState<string>();
   const [operationResult, setOperationResult] = useState<string>();
   const [insertText, setInsertText] = useState("{\n  \"name\": \"Test\"\n}");
-  const [deleteFilterText, setDeleteFilterText] = useState("{\n  \"tenant\": \"filipeni\"\n}");
+  const [deleteFilterText, setDeleteFilterText] = useState("{\n  \"tenant\": \"moldova\"\n}");
   const [deleteMany, setDeleteMany] = useState(false);
-  const [updateFilterText, setUpdateFilterText] = useState("{\n  \"tenant\": \"filipeni\"\n}");
+  const [updateFilterText, setUpdateFilterText] = useState("{\n  \"tenant\": \"moldova\"\n}");
   const [updateText, setUpdateText] = useState("{\n  \"$set\": {\n    \"status\": \"active\"\n  }\n}");
-  const [updateMany, setUpdateMany] = useState(false);
+  const [updateMode, setUpdateMode] = useState<MongoUpdateMode>("updateOne");
   const [expandedDocuments, setExpandedDocuments] = useState<Set<number>>(() => new Set());
   const selectedCollectionRecord = collections.find((collection) => collection.name === selectedCollection);
   const totalPages = documentsPage ? Math.max(1, Math.ceil(documentsPage.total / documentsPage.limit)) : 1;
+  const filterError = useMemo(() => getJsonObjectError(filterText), [filterText]);
+  const sortError = useMemo(() => getJsonObjectError(sortText), [sortText]);
+  const queryHasError = Boolean(filterError || sortError);
 
   useEffect(() => {
     setCollections([]);
@@ -1286,7 +1299,7 @@ function MongoInspector({
     if (selectedCollection) {
       void searchDocuments(1);
     }
-  }, [selectedCollection, limit]);
+  }, [selectedCollection, limit, findMode]);
 
   async function loadCollections(): Promise<void> {
     setLoadingCollections(true);
@@ -1325,7 +1338,9 @@ function MongoInspector({
     try {
       const filter = parseJsonObject(filterText, "Filter");
       const sort = parseJsonObject(sortText, "Sort");
-      const nextDocumentsPage = await onSearchDocuments(environment.key, selectedCollection, { filter, page: nextPage, limit, sort });
+      const effectiveLimit = findMode === "findOne" ? 1 : limit;
+      const effectivePage = findMode === "findOne" ? 1 : nextPage;
+      const nextDocumentsPage = await onSearchDocuments(environment.key, selectedCollection, { filter, page: effectivePage, limit: effectiveLimit, sort });
       setPage(nextDocumentsPage.page);
       setDocumentsPage(nextDocumentsPage);
       setExpandedDocuments(new Set());
@@ -1386,11 +1401,12 @@ function MongoInspector({
     try {
       const filter = parseJsonObject(updateFilterText, "Update filter");
       const update = parseJsonObject(updateText, "Update command");
-      const confirmed = window.confirm(`Update ${updateMany ? "all matching documents" : "one matching document"} in ${selectedCollection}?`);
+      const many = updateMode === "updateMany";
+      const confirmed = window.confirm(`Update ${many ? "all matching documents" : "one matching document"} in ${selectedCollection}?`);
       if (!confirmed) {
         return;
       }
-      const result = await onUpdateDocuments(environment.key, selectedCollection, { filter, update, many: updateMany, confirm: true });
+      const result = await onUpdateDocuments(environment.key, selectedCollection, { filter, update, many, confirm: true });
       setOperationResult(`Matched ${result.matchedCount}; modified ${result.modifiedCount}.`);
       await loadCollections();
       await searchDocuments(page);
@@ -1409,6 +1425,15 @@ function MongoInspector({
       }
       return next;
     });
+  }
+
+  function formatJsonText(value: string, label: string, setter: (value: string) => void): void {
+    setMongoError(undefined);
+    try {
+      setter(JSON.stringify(parseJsonObject(value, label), null, 2));
+    } catch (error) {
+      setMongoError(toErrorMessage(error));
+    }
   }
 
   return (
@@ -1469,47 +1494,152 @@ function MongoInspector({
 
       <Stack sx={{ minWidth: 0, minHeight: 0, overflow: "hidden", bgcolor: "#080f10" }}>
         <Box sx={{ p: 1.5, borderBottom: "1px solid #3b494b", bgcolor: "#151d1e" }}>
-          <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "minmax(0, 1fr) 120px auto auto" }, gap: 1, alignItems: "end" }}>
-            <TextField
-              label="Filter"
-              multiline
-              minRows={3}
-              value={filterText}
-              onChange={(event) => setFilterText(event.target.value)}
-              sx={compactFieldSx}
-            />
-            <TextField
-              select
-              label="Page size"
-              value={limit}
-              onChange={(event) => {
-                setLimit(Number(event.target.value));
-                setPage(1);
-              }}
-              sx={compactFieldSx}
-            >
-              {[20, 50, 100].map((option) => <MenuItem key={option} value={option}>{option}</MenuItem>)}
-            </TextField>
-            <Button variant="outlined" disabled={!selectedCollection || loadingDocuments} onClick={() => void searchDocuments(1)} sx={smallButtonSx}>
-              Search
-            </Button>
-            <Button variant="outlined" disabled={!selectedCollection || loadingDocuments} onClick={() => void searchDocuments(page)} sx={smallButtonSx}>
-              Reload
-            </Button>
+          <Box sx={{ border: "1px solid #2d3a3c", bgcolor: "#0d1516", borderRadius: 1, overflow: "hidden" }}>
+            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1, px: 1.25, py: 1, borderBottom: "1px solid #263334", flexWrap: "wrap" }}>
+              <Stack direction="row" spacing={1} alignItems="center" sx={{ minWidth: 0 }}>
+                <DataObjectIcon fontSize="small" sx={{ color: "#4edea3" }} />
+                <Box sx={{ minWidth: 0 }}>
+                  <Typography sx={{ color: "#d7e3ee", fontFamily: monoFont, fontSize: 13, fontWeight: 900 }} noWrap>
+                    Query builder
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary" sx={{ fontFamily: monoFont }} noWrap>
+                    {selectedCollectionRecord ? `${database}.${selectedCollectionRecord.name}` : "Select a collection"}
+                  </Typography>
+                </Box>
+              </Stack>
+              <Stack direction="row" spacing={1} alignItems="center" sx={{ flexWrap: "wrap" }}>
+                <ToggleButtonGroup
+                  exclusive
+                  size="small"
+                  value={findMode}
+                  onChange={(_, value: MongoFindMode | null) => {
+                    if (value) {
+                      setFindMode(value);
+                      setPage(1);
+                    }
+                  }}
+                  sx={mongoToggleSx}
+                >
+                  <ToggleButton value="findMany">findMany</ToggleButton>
+                  <ToggleButton value="findOne">findOne</ToggleButton>
+                </ToggleButtonGroup>
+                <ToggleButtonGroup
+                  exclusive
+                  size="small"
+                  value={updateMode}
+                  onChange={(_, value: MongoUpdateMode | null) => {
+                    if (value) {
+                      setUpdateMode(value);
+                    }
+                  }}
+                  sx={mongoToggleSx}
+                >
+                  <ToggleButton value="updateOne">updateOne</ToggleButton>
+                  <ToggleButton value="updateMany">updateMany</ToggleButton>
+                </ToggleButtonGroup>
+              </Stack>
+            </Box>
+
+            <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", xl: "minmax(0, 1.4fr) minmax(260px, 0.7fr)" }, gap: 1, p: 1 }}>
+              <Stack spacing={0.8}>
+                <Box sx={{ display: "flex", gap: 0.75, alignItems: "center", flexWrap: "wrap" }}>
+                  <Typography variant="caption" color="text.secondary" sx={{ fontFamily: monoFont, fontWeight: 900, textTransform: "uppercase" }}>
+                    Filter
+                  </Typography>
+                  {[
+                    { label: "All", value: "{\n}" },
+                    { label: "Has _id", value: "{\n  \"_id\": {\n    \"$exists\": true\n  }\n}" },
+                    { label: "Tenant", value: "{\n  \"tenant\": \"moldova\"\n}" }
+                  ].map((template) => (
+                    <Chip
+                      key={template.label}
+                      size="small"
+                      label={template.label}
+                      onClick={() => setFilterText(template.value)}
+                      sx={mongoTemplateChipSx}
+                    />
+                  ))}
+                  <Tooltip title="Format filter JSON">
+                    <IconButton size="small" onClick={() => formatJsonText(filterText, "Filter", setFilterText)} sx={mongoInlineIconButtonSx}>
+                      <AutoFixHighIcon fontSize="inherit" />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Clear filter">
+                    <IconButton size="small" onClick={() => setFilterText("{\n}")} sx={mongoInlineIconButtonSx}>
+                      <ClearIcon fontSize="inherit" />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
+                <TextField
+                  multiline
+                  minRows={5}
+                  value={filterText}
+                  onChange={(event) => setFilterText(event.target.value)}
+                  error={Boolean(filterError)}
+                  helperText={filterError ?? `${findMode} filter JSON object`}
+                  sx={mongoJsonFieldSx}
+                />
+              </Stack>
+
+              <Stack spacing={0.8}>
+                <Box sx={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) 108px", gap: 1, alignItems: "start" }}>
+                  <Stack spacing={0.8}>
+                    <Box sx={{ display: "flex", gap: 0.75, alignItems: "center", flexWrap: "wrap" }}>
+                      <Typography variant="caption" color="text.secondary" sx={{ fontFamily: monoFont, fontWeight: 900, textTransform: "uppercase" }}>
+                        Sort
+                      </Typography>
+                      <Tooltip title="Format sort JSON">
+                        <IconButton size="small" onClick={() => formatJsonText(sortText, "Sort", setSortText)} sx={mongoInlineIconButtonSx}>
+                          <AutoFixHighIcon fontSize="inherit" />
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
+                    <TextField
+                      multiline
+                      minRows={5}
+                      value={sortText}
+                      onChange={(event) => setSortText(event.target.value)}
+                      error={Boolean(sortError)}
+                      helperText={sortError ?? "MongoDB sort JSON object"}
+                      sx={mongoJsonFieldSx}
+                    />
+                  </Stack>
+                  <Stack spacing={1}>
+                    <TextField
+                      select
+                      label="Limit"
+                      value={limit}
+                      disabled={findMode === "findOne"}
+                      onChange={(event) => {
+                        setLimit(Number(event.target.value));
+                        setPage(1);
+                      }}
+                      sx={compactFieldSx}
+                    >
+                      {[10, 20, 50, 100].map((option) => <MenuItem key={option} value={option}>{option}</MenuItem>)}
+                    </TextField>
+                    <Button
+                      variant="contained"
+                      startIcon={<ManageSearchIcon />}
+                      disabled={!selectedCollection || loadingDocuments || queryHasError}
+                      onClick={() => void searchDocuments(1)}
+                      sx={{ ...smallButtonSx, minHeight: 40, bgcolor: "#167c5d", "&:hover": { bgcolor: "#1d916e" } }}
+                    >
+                      Run
+                    </Button>
+                    <Button variant="outlined" disabled={!selectedCollection || loadingDocuments || queryHasError} onClick={() => void searchDocuments(page)} sx={smallButtonSx}>
+                      Reload
+                    </Button>
+                  </Stack>
+                </Box>
+              </Stack>
+            </Box>
           </Box>
-          <TextField
-            label="Sort"
-            multiline
-            minRows={2}
-            value={sortText}
-            onChange={(event) => setSortText(event.target.value)}
-            sx={{ ...compactFieldSx, mt: 1 }}
-          />
           <Box sx={{ display: "flex", gap: 1, alignItems: "center", justifyContent: "space-between", mt: 1, flexWrap: "wrap" }}>
             <Typography sx={{ color: "#4edea3", fontFamily: monoFont, fontSize: 12 }}>
-              {selectedCollectionRecord ? `${database}.${selectedCollectionRecord.name} / ${documentsPage?.total ?? selectedCollectionRecord.count} docs` : "Select a collection"}
+              {selectedCollectionRecord ? `${database}.${selectedCollectionRecord.name} / ${findMode} / ${documentsPage?.documents.length ?? 0} shown of ${documentsPage?.total ?? selectedCollectionRecord.count}` : "Select a collection"}
             </Typography>
-            <Stack direction="row" spacing={1} alignItems="center">
+            <Stack direction="row" spacing={1} alignItems="center" sx={{ visibility: findMode === "findOne" ? "hidden" : "visible" }}>
               <Button size="small" variant="outlined" disabled={!documentsPage || page <= 1 || loadingDocuments} onClick={() => void searchDocuments(page - 1)} sx={smallButtonSx}>
                 Prev
               </Button>
@@ -1538,7 +1668,14 @@ function MongoInspector({
           ) : (
             <Stack spacing={1}>
               {documentsPage.documents.map((document, index) => (
-                <JsonDocument key={index} value={document} expanded={expandedDocuments.has(index)} onToggle={() => toggleDocument(index)} />
+                <JsonDocument
+                  key={index}
+                  value={document}
+                  index={(documentsPage.page - 1) * documentsPage.limit + index + 1}
+                  collection={selectedCollection}
+                  expanded={expandedDocuments.has(index)}
+                  onToggle={() => toggleDocument(index)}
+                />
               ))}
             </Stack>
           )}
@@ -1554,9 +1691,18 @@ function MongoInspector({
               <FormControlLabel control={<Switch checked={deleteMany} onChange={(event) => setDeleteMany(event.target.checked)} />} label={deleteMany ? "Many" : "One"} sx={{ m: 0, color: "text.secondary", "& .MuiFormControlLabel-label": { fontFamily: monoFont, fontSize: 12, textTransform: "uppercase" } }} />
             </MongoActionPanel>
             <MongoActionPanel title="Update" onRun={() => void updateDocuments()} disabled={!selectedCollection}>
-              <TextField multiline minRows={4} value={updateFilterText} onChange={(event) => setUpdateFilterText(event.target.value)} sx={compactFieldSx} />
-              <TextField multiline minRows={4} value={updateText} onChange={(event) => setUpdateText(event.target.value)} sx={compactFieldSx} />
-              <FormControlLabel control={<Switch checked={updateMany} onChange={(event) => setUpdateMany(event.target.checked)} />} label={updateMany ? "Many" : "One"} sx={{ m: 0, color: "text.secondary", "& .MuiFormControlLabel-label": { fontFamily: monoFont, fontSize: 12, textTransform: "uppercase" } }} />
+              <TextField
+                select
+                label="Operation"
+                value={updateMode}
+                onChange={(event) => setUpdateMode(event.target.value as MongoUpdateMode)}
+                sx={compactFieldSx}
+              >
+                <MenuItem value="updateOne">updateOne</MenuItem>
+                <MenuItem value="updateMany">updateMany</MenuItem>
+              </TextField>
+              <TextField label="Filter JSON" multiline minRows={4} value={updateFilterText} onChange={(event) => setUpdateFilterText(event.target.value)} sx={compactFieldSx} />
+              <TextField label="Update JSON" multiline minRows={4} value={updateText} onChange={(event) => setUpdateText(event.target.value)} sx={compactFieldSx} />
             </MongoActionPanel>
           </Box>
         </Box>
@@ -1581,17 +1727,20 @@ function MongoActionPanel({ title, children, onRun, disabled }: { title: string;
   );
 }
 
-function JsonDocument({ value, expanded, onToggle }: { value: unknown; expanded: boolean; onToggle: () => void }) {
+function JsonDocument({ value, index, collection, expanded, onToggle }: { value: unknown; index: number; collection: string; expanded: boolean; onToggle: () => void }) {
   const json = JSON.stringify(value, null, 2);
   const large = json.length > 1800;
   const displayed = large && !expanded ? `${json.slice(0, 1800)}\n...` : json;
 
   return (
-    <Box sx={{ border: "1px solid #263334", bgcolor: "#111819" }}>
-      <Box sx={{ display: "flex", justifyContent: "space-between", gap: 1, alignItems: "center", px: 1, py: 0.75, borderBottom: "1px solid #263334" }}>
-        <Typography variant="caption" color="text.secondary" sx={{ fontFamily: monoFont }}>
-          {json.length} bytes
-        </Typography>
+    <Box sx={{ border: "1px solid #263334", bgcolor: "#0f1718", borderRadius: 1, overflow: "hidden", boxShadow: "0 10px 30px rgba(0, 0, 0, 0.24)" }}>
+      <Box sx={{ display: "flex", justifyContent: "space-between", gap: 1, alignItems: "center", px: 1, py: 0.75, borderBottom: "1px solid #263334", bgcolor: "#162122" }}>
+        <Stack direction="row" spacing={1} alignItems="center" sx={{ minWidth: 0 }}>
+          <Chip size="small" label={`#${index}`} sx={{ height: 22, borderRadius: 1, bgcolor: "rgba(78, 222, 163, 0.12)", color: "#4edea3", fontFamily: monoFont, fontSize: 11 }} />
+          <Typography variant="caption" color="text.secondary" sx={{ fontFamily: monoFont }} noWrap>
+            {collection} / {json.length} bytes
+          </Typography>
+        </Stack>
         {large ? (
           <Button size="small" variant="text" onClick={onToggle} sx={{ ...smallButtonSx, minHeight: 26, border: 0 }}>
             {expanded ? "Collapse" : "Expand"}
@@ -1599,10 +1748,44 @@ function JsonDocument({ value, expanded, onToggle }: { value: unknown; expanded:
         ) : null}
       </Box>
       <Box component="pre" sx={{ m: 0, p: 1.2, color: "#d7e3ee", fontFamily: monoFont, fontSize: 12, lineHeight: 1.5, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
-        {displayed}
+        {formatJsonForDisplay(displayed)}
       </Box>
     </Box>
   );
+}
+
+function formatJsonForDisplay(json: string): ReactNode[] {
+  const tokenPattern = /("(?:\\u[a-fA-F0-9]{4}|\\[^u]|[^\\"])*"(?=\s*:)|"(?:\\u[a-fA-F0-9]{4}|\\[^u]|[^\\"])*"|true|false|null|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?|\.\.\.)/g;
+  const nodes: ReactNode[] = [];
+  let cursor = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = tokenPattern.exec(json)) !== null) {
+    if (match.index > cursor) {
+      nodes.push(json.slice(cursor, match.index));
+    }
+
+    const token = match[0];
+    const color = token === "..."
+      ? "#7d8d8f"
+      : token.startsWith("\"") && json.slice(match.index + token.length).match(/^\s*:/)
+        ? "#77c7ff"
+        : token.startsWith("\"")
+          ? "#f6c177"
+          : token === "true" || token === "false"
+            ? "#4edea3"
+            : token === "null"
+              ? "#9ca7a9"
+              : "#c4a7ff";
+    nodes.push(<Box key={`${match.index}-${token}`} component="span" sx={{ color }}>{token}</Box>);
+    cursor = match.index + token.length;
+  }
+
+  if (cursor < json.length) {
+    nodes.push(json.slice(cursor));
+  }
+
+  return nodes;
 }
 
 function FileExplorer({
@@ -2049,6 +2232,15 @@ function parseJsonObject(value: string, label: string): Record<string, unknown> 
   return parsed;
 }
 
+function getJsonObjectError(value: string): string | undefined {
+  try {
+    const parsed = JSON.parse(value);
+    return isRecord(parsed) ? undefined : "Must be a JSON object.";
+  } catch (error) {
+    return toErrorMessage(error);
+  }
+}
+
 function parseMongoDocuments(value: string): Record<string, unknown>[] {
   let parsed: unknown;
   try {
@@ -2129,6 +2321,65 @@ const compactFieldSx = {
     bgcolor: "#151d1e",
     fontFamily: monoFont,
     fontSize: 13
+  }
+};
+
+const mongoJsonFieldSx = {
+  ...compactFieldSx,
+  "& .MuiInputBase-root": {
+    borderRadius: "6px",
+    bgcolor: "#10191a",
+    fontFamily: monoFont,
+    fontSize: 13,
+    alignItems: "flex-start"
+  },
+  "& .MuiFormHelperText-root": {
+    mx: 0,
+    fontFamily: monoFont,
+    fontSize: 11
+  }
+};
+
+const mongoToggleSx = {
+  bgcolor: "#10191a",
+  border: "1px solid #2d3a3c",
+  "& .MuiToggleButton-root": {
+    border: 0,
+    borderRadius: 0,
+    color: "text.secondary",
+    fontFamily: monoFont,
+    fontSize: 12,
+    px: 1.5,
+    textTransform: "none"
+  },
+  "& .Mui-selected": {
+    bgcolor: "rgba(78, 222, 163, 0.16) !important",
+    color: "#4edea3"
+  }
+};
+
+const mongoTemplateChipSx = {
+  height: 24,
+  borderRadius: "4px",
+  bgcolor: "rgba(215, 227, 238, 0.08)",
+  color: "#d7e3ee",
+  fontFamily: monoFont,
+  fontSize: 11,
+  "&:hover": {
+    bgcolor: "rgba(78, 222, 163, 0.16)"
+  }
+};
+
+const mongoInlineIconButtonSx = {
+  width: 26,
+  height: 26,
+  borderRadius: "4px",
+  color: "#d7e3ee",
+  border: "1px solid #2d3a3c",
+  "&:hover": {
+    borderColor: "#4edea3",
+    color: "#4edea3",
+    bgcolor: "rgba(78, 222, 163, 0.08)"
   }
 };
 
