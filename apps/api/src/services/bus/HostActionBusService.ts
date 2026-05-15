@@ -1,7 +1,11 @@
 import { randomUUID } from "node:crypto";
+import { execFile } from "node:child_process";
 import { constants as fsConstants } from "node:fs";
 import fs from "node:fs/promises";
+import { promisify } from "node:util";
 import { env } from "../../config/env.js";
+
+const execFileAsync = promisify(execFile);
 
 export type HostActionResult = {
   id: string;
@@ -38,6 +42,18 @@ type ActionAck = {
 
 export class HostActionBusService {
   async health(): Promise<BusHealth> {
+    const healthStartedAt = Date.now();
+    logBus("info", "health_check_start", {
+      pipePath: env.BUS_PIPE_PATH,
+      acksDir: env.BUS_ACKS_DIR,
+      resultsDir: env.BUS_RESULTS_DIR,
+      logsDir: env.BUS_LOGS_DIR,
+      workerReadyPath: env.BUS_WORKER_READY_PATH,
+      acceptTimeoutMs: env.BUS_ACTION_ACCEPT_TIMEOUT_MS,
+      writeTimeoutMs: env.BUS_PIPE_WRITE_TIMEOUT_MS,
+      pollIntervalMs: env.BUS_POLL_INTERVAL_MS,
+    });
+
     const [
       pipeExists,
       acksDirExists,
@@ -58,9 +74,25 @@ export class HostActionBusService {
     ]);
 
     if (!pipeExists) {
+      await this.logHealthFailure("FIFO pipe is missing", workerReadyAt, {
+        pipeExists,
+        acksDirExists,
+        resultsDirExists,
+        logsDirExists,
+        workerReadyExists,
+        durationMs: Date.now() - healthStartedAt,
+      });
       return this.healthResult(false, "FIFO pipe is missing", workerReadyAt);
     }
     if (!acksDirExists) {
+      await this.logHealthFailure("Acknowledgement directory is missing", workerReadyAt, {
+        pipeExists,
+        acksDirExists,
+        resultsDirExists,
+        logsDirExists,
+        workerReadyExists,
+        durationMs: Date.now() - healthStartedAt,
+      });
       return this.healthResult(
         false,
         "Acknowledgement directory is missing",
@@ -68,6 +100,14 @@ export class HostActionBusService {
       );
     }
     if (!resultsDirExists) {
+      await this.logHealthFailure("Results directory is missing", workerReadyAt, {
+        pipeExists,
+        acksDirExists,
+        resultsDirExists,
+        logsDirExists,
+        workerReadyExists,
+        durationMs: Date.now() - healthStartedAt,
+      });
       return this.healthResult(
         false,
         "Results directory is missing",
@@ -75,6 +115,14 @@ export class HostActionBusService {
       );
     }
     if (!logsDirExists) {
+      await this.logHealthFailure("Logs directory is missing", workerReadyAt, {
+        pipeExists,
+        acksDirExists,
+        resultsDirExists,
+        logsDirExists,
+        workerReadyExists,
+        durationMs: Date.now() - healthStartedAt,
+      });
       return this.healthResult(
         false,
         "Logs directory is missing",
@@ -82,6 +130,14 @@ export class HostActionBusService {
       );
     }
     if (!workerReadyExists) {
+      await this.logHealthFailure("Host worker is not ready", workerReadyAt, {
+        pipeExists,
+        acksDirExists,
+        resultsDirExists,
+        logsDirExists,
+        workerReadyExists,
+        durationMs: Date.now() - healthStartedAt,
+      });
       return this.healthResult(
         false,
         "Host worker is not ready",
@@ -90,7 +146,20 @@ export class HostActionBusService {
     }
 
     const workerAlive = await checkFifoHasReader(env.BUS_PIPE_PATH);
-    if (!workerAlive) {
+    if (!workerAlive.alive) {
+      await this.logHealthFailure(
+        "Host worker process is not reading the FIFO (worker may have crashed)",
+        workerReadyAt,
+        {
+          pipeExists,
+          acksDirExists,
+          resultsDirExists,
+          logsDirExists,
+          workerReadyExists,
+          durationMs: Date.now() - healthStartedAt,
+          fifoProbe: workerAlive,
+        },
+      );
       return this.healthResult(
         false,
         "Host worker process is not reading the FIFO (worker may have crashed)",
@@ -98,6 +167,11 @@ export class HostActionBusService {
       );
     }
 
+    logBus("info", "health_check_ready", {
+      durationMs: Date.now() - healthStartedAt,
+      workerReadyAt,
+      pipePath: env.BUS_PIPE_PATH,
+    });
     return this.healthResult(true, undefined, workerReadyAt);
   }
 
@@ -110,7 +184,12 @@ export class HostActionBusService {
   ): Promise<HostActionResult> {
     const health = await this.health();
     if (!health.ready) {
-      logBus("warn", "unavailable", { type, reason: health.reason, ...health });
+      logBus("warn", "unavailable", {
+        type,
+        reason: health.reason,
+        ...health,
+        diagnostics: await collectBusDiagnostics(),
+      });
       throw Object.assign(
         new Error(`Host action bus is unavailable: ${health.reason}`),
         { status: 503 },
@@ -150,6 +229,8 @@ export class HostActionBusService {
         id,
         type,
         message,
+        error: serializeError(error),
+        diagnostics: await collectBusDiagnostics(),
       });
       throw Object.assign(
         new Error(`Host action bus is unavailable: ${message}`),
@@ -364,6 +445,19 @@ export class HostActionBusService {
       reason,
     };
   }
+
+  private async logHealthFailure(
+    reason: string,
+    workerReadyAt: string | undefined,
+    checks: Record<string, unknown>,
+  ): Promise<void> {
+    logBus("warn", "health_check_failed", {
+      reason,
+      workerReadyAt,
+      checks,
+      diagnostics: await collectBusDiagnostics(),
+    });
+  }
 }
 
 function parseAck(content: string, actionId: string, type: string): ActionAck {
@@ -428,20 +522,40 @@ async function exists(filePath: string): Promise<boolean> {
   );
 }
 
-async function checkFifoHasReader(pipePath: string): Promise<boolean> {
+async function checkFifoHasReader(pipePath: string): Promise<Record<string, unknown> & { alive: boolean }> {
+  const startedAt = Date.now();
+  logBus("info", "fifo_reader_probe_start", { pipePath });
   try {
     const handle = await fs.open(
       pipePath,
       fsConstants.O_WRONLY | fsConstants.O_NONBLOCK,
     );
     await handle.close().catch(() => undefined);
-    return true;
+    logBus("info", "fifo_reader_probe_success", {
+      pipePath,
+      durationMs: Date.now() - startedAt,
+    });
+    return { alive: true, durationMs: Date.now() - startedAt };
   } catch (error) {
+    const serializedError = serializeError(error);
+    const result = {
+      alive: false,
+      durationMs: Date.now() - startedAt,
+      error: serializedError,
+      interpretedReason:
+        isNodeError(error) && error.code === "ENXIO"
+          ? "no_fifo_reader"
+          : "fifo_open_failed",
+    };
+    logBus("warn", "fifo_reader_probe_failed", {
+      pipePath,
+      ...result,
+    });
     if (isNodeError(error) && error.code === "ENXIO") {
-      return false; // no process is reading the FIFO
+      return result; // no process is reading the FIFO
     }
     // Any other error (e.g. ENOENT, EACCES) — treat as not alive
-    return false;
+    return result;
   }
 }
 
@@ -461,13 +575,19 @@ async function writeActionToPipe(
       pipePath,
       bytes: buffer.length,
       timeoutMs,
+      deadlineAt: new Date(deadlineAt).toISOString(),
     });
     handle = await fs.open(
       pipePath,
       fsConstants.O_WRONLY | fsConstants.O_NONBLOCK,
     );
-    logBus("info", "pipe_opened", { ...context, pipePath });
+    logBus("info", "pipe_opened", {
+      ...context,
+      pipePath,
+      openDurationMs: Date.now() - (deadlineAt - timeoutMs),
+    });
     let offset = 0;
+    let retryCount = 0;
 
     while (offset < buffer.length) {
       try {
@@ -487,8 +607,25 @@ async function writeActionToPipe(
         continue;
       } catch (error) {
         if (!isRetryablePipeWriteError(error)) {
+          logBus("error", "pipe_write_failed_non_retryable", {
+            ...context,
+            pipePath,
+            offset,
+            totalBytes: buffer.length,
+            error: serializeError(error),
+          });
           throw error;
         }
+        retryCount += 1;
+        logBus("warn", "pipe_write_retryable_error", {
+          ...context,
+          pipePath,
+          retryCount,
+          offset,
+          totalBytes: buffer.length,
+          remainingMs: Math.max(0, deadlineAt - Date.now()),
+          error: serializeError(error),
+        });
       }
 
       if (Date.now() >= deadlineAt) {
@@ -506,6 +643,7 @@ async function writeActionToPipe(
       ...context,
       pipePath,
       totalBytes: buffer.length,
+      durationMs: Date.now() - (deadlineAt - timeoutMs),
     });
   } finally {
     await handle
@@ -534,6 +672,256 @@ function busWriteErrorMessage(error: unknown): string {
     return error.message;
   }
   return error instanceof Error ? error.message : String(error);
+}
+
+async function collectBusDiagnostics(): Promise<Record<string, unknown>> {
+  const busRoot = env.BUS_PIPE_PATH.split("/").slice(0, -1).join("/") || "/";
+  const [
+    pipe,
+    acksDir,
+    resultsDir,
+    logsDir,
+    readyFile,
+    readyContent,
+    workerLock,
+    workerLockInfo,
+    workerPids,
+    fifoOpenProcesses,
+    currentProcess,
+  ] = await Promise.all([
+    describePath(env.BUS_PIPE_PATH),
+    describeDirectory(env.BUS_ACKS_DIR),
+    describeDirectory(env.BUS_RESULTS_DIR),
+    describeDirectory(env.BUS_LOGS_DIR),
+    describePath(env.BUS_WORKER_READY_PATH),
+    readTextPreview(env.BUS_WORKER_READY_PATH),
+    describePath(`${busRoot}/worker.lock`),
+    readTextPreview(`${busRoot}/worker.lock/info`),
+    findWorkerPids(),
+    findOpenFifoProcesses(env.BUS_PIPE_PATH),
+    describeCurrentProcess(),
+  ]);
+
+  const likelyCause = inferBusLikelyCause({
+    pipe,
+    readyFile,
+    workerLock,
+    workerPids,
+  });
+
+  return {
+    busRoot,
+    likelyCause,
+    pipe,
+    acksDir,
+    resultsDir,
+    logsDir,
+    readyFile,
+    readyContent,
+    workerLock,
+    workerLockInfo,
+    workerPids,
+    fifoOpenProcesses,
+    currentProcess,
+    env: {
+      BUS_PIPE_PATH: env.BUS_PIPE_PATH,
+      BUS_ACKS_DIR: env.BUS_ACKS_DIR,
+      BUS_RESULTS_DIR: env.BUS_RESULTS_DIR,
+      BUS_LOGS_DIR: env.BUS_LOGS_DIR,
+      BUS_WORKER_READY_PATH: env.BUS_WORKER_READY_PATH,
+      BUS_ACTION_ACCEPT_TIMEOUT_MS: env.BUS_ACTION_ACCEPT_TIMEOUT_MS,
+      BUS_PIPE_WRITE_TIMEOUT_MS: env.BUS_PIPE_WRITE_TIMEOUT_MS,
+      BUS_POLL_INTERVAL_MS: env.BUS_POLL_INTERVAL_MS,
+    },
+  };
+}
+
+function inferBusLikelyCause(input: {
+  pipe: Record<string, unknown>;
+  readyFile: Record<string, unknown>;
+  workerLock: Record<string, unknown>;
+  workerPids: Record<string, unknown>;
+}): string {
+  if (input.pipe.exists !== true) {
+    return "api_cannot_see_fifo_pipe";
+  }
+  if (input.pipe.isFIFO !== true) {
+    return "bus_path_exists_but_is_not_fifo";
+  }
+  const workerPidLines = Array.isArray(input.workerPids.pids)
+    ? input.workerPids.pids
+    : [];
+  if (workerPidLines.length === 0) {
+    return input.readyFile.exists === true || input.workerLock.exists === true
+      ? "worker_process_missing_with_stale_ready_or_lock"
+      : "worker_process_missing";
+  }
+  if (input.readyFile.exists !== true) {
+    return "worker_process_exists_but_ready_file_missing";
+  }
+  return "worker_process_detected_but_fifo_has_no_reader_check_bus_mount_or_worker_fd";
+}
+
+async function describeCurrentProcess(): Promise<Record<string, unknown>> {
+  return {
+    pid: process.pid,
+    ppid: process.ppid,
+    cwd: process.cwd(),
+    node: process.version,
+    platform: process.platform,
+    uid: typeof process.getuid === "function" ? process.getuid() : undefined,
+    gid: typeof process.getgid === "function" ? process.getgid() : undefined,
+  };
+}
+
+async function describePath(filePath: string): Promise<Record<string, unknown>> {
+  try {
+    const stat = await fs.lstat(filePath);
+    return {
+      path: filePath,
+      exists: true,
+      isFile: stat.isFile(),
+      isDirectory: stat.isDirectory(),
+      isFIFO: stat.isFIFO(),
+      isSocket: stat.isSocket(),
+      mode: `0${(stat.mode & 0o7777).toString(8)}`,
+      uid: stat.uid,
+      gid: stat.gid,
+      size: stat.size,
+      mtime: stat.mtime.toISOString(),
+      ctime: stat.ctime.toISOString(),
+    };
+  } catch (error) {
+    return {
+      path: filePath,
+      exists: false,
+      error: serializeError(error),
+    };
+  }
+}
+
+async function describeDirectory(dirPath: string): Promise<Record<string, unknown>> {
+  const description = await describePath(dirPath);
+  if (description.exists !== true || description.isDirectory !== true) {
+    return description;
+  }
+
+  try {
+    const entries = await fs.readdir(dirPath);
+    return {
+      ...description,
+      entryCount: entries.length,
+      sampleEntries: entries.slice(0, 20).sort(),
+    };
+  } catch (error) {
+    return {
+      ...description,
+      readError: serializeError(error),
+    };
+  }
+}
+
+async function readTextPreview(filePath: string): Promise<Record<string, unknown>> {
+  try {
+    const content = await fs.readFile(filePath, "utf8");
+    return {
+      path: filePath,
+      exists: true,
+      bytes: content.length,
+      preview: content.trim().slice(0, 4000),
+    };
+  } catch (error) {
+    return {
+      path: filePath,
+      exists: false,
+      error: serializeError(error),
+    };
+  }
+}
+
+async function findWorkerPids(): Promise<Record<string, unknown>> {
+  try {
+    const { stdout, stderr } = await execFileAsync("pgrep", [
+      "-af",
+      "composer-worker.sh",
+    ]);
+    return {
+      command: "pgrep -af composer-worker.sh",
+      stdout: stdout.trim(),
+      stderr: stderr.trim(),
+      pids: stdout
+        .trim()
+        .split(/\r?\n/)
+        .filter(Boolean)
+        .map((line) => line.trim()),
+    };
+  } catch (error) {
+    const pgrepError = serializeError(error);
+    try {
+      const { stdout, stderr } = await execFileAsync("ps", ["axo", "pid,ppid,command"]);
+      const lines = stdout
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter((line) => line.includes("composer-worker.sh"));
+      return {
+        command: "ps axo pid,ppid,command",
+        fallbackFrom: "pgrep -af composer-worker.sh",
+        fallbackError: pgrepError,
+        stdout: lines.join("\n"),
+        stderr: stderr.trim(),
+        pids: lines,
+      };
+    } catch (fallbackError) {
+      return {
+        command: "pgrep -af composer-worker.sh",
+        fallbackCommand: "ps axo pid,ppid,command",
+        error: pgrepError,
+        fallbackError: serializeError(fallbackError),
+      };
+    }
+  }
+}
+
+async function findOpenFifoProcesses(pipePath: string): Promise<Record<string, unknown>> {
+  try {
+    const { stdout, stderr } = await execFileAsync("lsof", [pipePath]);
+    return {
+      command: `lsof ${pipePath}`,
+      stdout: stdout.trim(),
+      stderr: stderr.trim(),
+      lines: stdout
+        .trim()
+        .split(/\r?\n/)
+        .filter(Boolean),
+    };
+  } catch (error) {
+    return {
+      command: `lsof ${pipePath}`,
+      error: serializeError(error),
+    };
+  }
+}
+
+function serializeError(error: unknown): Record<string, unknown> {
+  if (isNodeError(error)) {
+    return {
+      name: error.name,
+      message: error.message,
+      code: error.code,
+      errno: error.errno,
+      syscall: error.syscall,
+      path: error.path,
+      stack: error.stack,
+    };
+  }
+  if (error instanceof Error) {
+    return {
+      name: error.name,
+      message: error.message,
+      stack: error.stack,
+    };
+  }
+  return { message: String(error) };
 }
 
 function isRetryablePipeWriteError(error: unknown): boolean {

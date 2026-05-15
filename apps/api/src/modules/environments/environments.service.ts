@@ -225,13 +225,23 @@ export class EnvironmentsService {
   ) { }
 
   async create(input: CreateEnvironmentPayload, createdBy: EnvironmentOwner | PullRequestRef): Promise<EnvironmentRecord> {
+    logEnvironment("info", "create_start", {
+      requestedSeed: input.seed,
+      requestedBranch: input.source.branch,
+      requestedCommit: input.source.commit,
+      inputEnvKeys: Object.keys(input.env ?? {}).sort(),
+      owner: "email" in createdBy ? createdBy.email : createdBy.url
+    });
     const key = await this.generateKey();
+    logEnvironment("info", "create_key_generated", { key });
 
     if (!keyPattern.test(key)) {
       throw Object.assign(new Error("Environment key must be a lowercase slug"), { status: 400 });
     }
 
+    logEnvironment("info", "create_seed_assert_start", { key, seed: input.seed, seedsDir: env.SEEDS_DIR, hostSeedsDir: env.HOST_SEEDS_DIR });
     await this.assertSeedReady(input.seed);
+    logEnvironment("info", "create_seed_assert_done", { key, seed: input.seed });
 
     const existing = await EnvironmentCollection.getSilent(key);
 
@@ -261,8 +271,11 @@ export class EnvironmentsService {
       updatedAt: now,
     };
 
+    logEnvironment("info", "create_db_insert_start", { key, port, runtimePath });
     await EnvironmentCollection.create(record);
+    logEnvironment("info", "create_db_insert_done", { key, status: record.status });
 
+    logEnvironment("info", "create_system_event_start", { key, event: "environment.created" });
     await this.logSystemEvent(key, "environment.created", "Environment created", {
       actor: actorFromOwnerOrPullRequest(createdBy),
       source: "email" in createdBy ? "api" : "github",
@@ -274,14 +287,28 @@ export class EnvironmentsService {
         port
       }
     });
+    logEnvironment("info", "create_system_event_done", { key, event: "environment.created" });
 
+    logEnvironment("info", "create_prepare_background_start", {
+      key,
+      runtimePath,
+      seed: input.seed,
+      branch: input.source.branch,
+      commit: input.source.commit,
+      envKeys: Object.keys(input.env ?? {}).sort()
+    });
     void this.prepareEnvironment(key, runtimePath, input.seed, input.source, {
       ...input.env,
       PROXY_EXTERNAL_PORT: String(port),
     }).catch(async (error) => {
       logEnvironment("error", "create_failed", {
         key,
-        message: error instanceof Error ? error.message : String(error)
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        status: isRecord(error) ? error.status : undefined,
+        hostActionId: isRecord(error) ? error.hostActionId : undefined,
+        outputLength: isRecord(error) && typeof error.output === "string" ? error.output.length : undefined,
+        outputTail: isRecord(error) && typeof error.output === "string" ? tailText(error.output) : undefined
       });
       await this.logSystemEvent(key, "environment.failed", `Environment creation failed: ${error instanceof Error ? error.message : String(error)}`, {
         level: "error",
@@ -291,8 +318,10 @@ export class EnvironmentsService {
         metadata: { phase: "create" }
       });
       await this.updateStatus(key, "failed").catch(() => undefined);
+      logEnvironment("info", "create_failed_status_marked", { key, status: "failed" });
     });
 
+    logEnvironment("info", "create_returning_record", { key, status: record.status, port });
     return record;
   }
 
@@ -319,12 +348,26 @@ export class EnvironmentsService {
 
     await this.updateStatus(key, "cloning");
     const updatePrepareStatusFromLog: HostActionLogHandler = async ({ log }) => {
+      logEnvironment("info", "prepare_worker_log", {
+        key,
+        line: log.length > 3000 ? `${log.slice(0, 3000)}...` : log
+      });
       const nextStatus = prepareStatusFromLog(log);
       if (nextStatus) {
+        logEnvironment("info", "prepare_status_from_worker_log", { key, nextStatus, line: log });
         await this.updateStatus(key, nextStatus).catch(() => undefined);
       }
     };
 
+    logEnvironment("info", "prepare_publish_start", {
+      key,
+      runtimePath,
+      seedName,
+      source,
+      hostSeedsDir: env.HOST_SEEDS_DIR,
+      sourceRepoUrl: redactUrl(env.SOURCE_REPO_URL),
+      environmentVariableKeys: Object.keys(environmentVariables).sort()
+    });
     const result = await this.publishEnvironmentAction("environment.prepare", key, {
       runtimePath,
       seedName,
@@ -341,6 +384,14 @@ export class EnvironmentsService {
         MONGO_DATABASE: "primarie"
       }
     }, updatePrepareStatusFromLog);
+    logEnvironment("info", "prepare_publish_done", {
+      key,
+      hostActionId: result.id,
+      status: result.status,
+      message: result.message,
+      outputLength: result.output?.length ?? 0,
+      outputTail: tailText(result.output)
+    });
 
     await this.logSystemEvent(key, "environment.prepared", result.message || "Repository prepared", {
       metadata: {
@@ -1214,17 +1265,38 @@ export class EnvironmentsService {
   }
 
   private async publishEnvironmentAction(type: string, key: string, payload: Record<string, unknown> = {}, onLog?: HostActionLogHandler, actionId?: string): Promise<HostActionResult> {
-    logEnvironment("info", "bus_action_publish", { key, type });
+    const startedAt = Date.now();
+    logEnvironment("info", "bus_action_publish", {
+      key,
+      type,
+      actionId,
+      timeoutMs: hostActionTimeoutMs(type),
+      payloadKeys: Object.keys(payload).sort()
+    });
     const record = await EnvironmentCollection.get(key);
+    logEnvironment("info", "bus_action_record_loaded", {
+      key,
+      type,
+      recordFound: Boolean(record),
+      recordStatus: record?.status,
+      recordPort: record?.port
+    });
     const proxyUpstreamHost = await resolveHost(env.PROXY_UPSTREAM_HOST);
-    const result = await this.bus.publish(type, {
+    const busPayload = {
       environment: key,
       environmentPort: record?.port,
       proxyUpstreamHost,
       runtimeRoot: env.HOST_RUNTIME_DIR,
       runtimePath: path.join(env.HOST_RUNTIME_DIR, key),
       ...payload
-    }, hostActionTimeoutMs(type), onLog, { id: actionId });
+    };
+    logEnvironment("info", "bus_action_payload_ready", {
+      key,
+      type,
+      proxyUpstreamHost,
+      payload: summarizeEnvironmentBusPayload(busPayload)
+    });
+    const result = await this.bus.publish(type, busPayload, hostActionTimeoutMs(type), onLog, { id: actionId });
 
     if (!isReadOnlyHostAction(type)) {
       await this.logHostActionResult(key, type, result, actionId);
@@ -1234,7 +1306,10 @@ export class EnvironmentsService {
       type,
       status: result.status,
       message: result.message,
-      outputLength: result.output?.length ?? 0
+      outputLength: result.output?.length ?? 0,
+      outputTail: tailText(result.output),
+      durationMs: Date.now() - startedAt,
+      hostActionId: result.id
     });
     return result;
   }
@@ -1704,6 +1779,33 @@ function logEnvironment(level: "info" | "warn" | "error", event: string, details
     event,
     ...details
   }));
+}
+
+function summarizeEnvironmentBusPayload(payload: Record<string, unknown>): Record<string, unknown> {
+  const source = isRecord(payload.source) ? payload.source : undefined;
+  const environmentVariables = isRecord(payload.environmentVariables) ? payload.environmentVariables : undefined;
+
+  return {
+    keys: Object.keys(payload).sort(),
+    environment: payload.environment,
+    environmentPort: payload.environmentPort,
+    proxyUpstreamHost: payload.proxyUpstreamHost,
+    runtimeRoot: payload.runtimeRoot,
+    runtimePath: payload.runtimePath,
+    seedName: payload.seedName,
+    hostSeedsDir: payload.hostSeedsDir,
+    source: source ? { branch: source.branch, commit: source.commit } : undefined,
+    sourceRepoUrl: typeof payload.sourceRepoUrl === "string" ? redactUrl(payload.sourceRepoUrl) : undefined,
+    environmentVariableKeys: environmentVariables ? Object.keys(environmentVariables).sort() : undefined
+  };
+}
+
+function redactUrl(value: string): string {
+  return value.replace(/\/\/([^/@]+)@/, "//***@");
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 function tailText(value: string | undefined, maxLength = 4000): string | undefined {

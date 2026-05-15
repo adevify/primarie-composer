@@ -1,4 +1,7 @@
-import { Box, Button, Stack, Typography } from "@mui/material";
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import LayersIcon from "@mui/icons-material/Layers";
 import SettingsIcon from "@mui/icons-material/Settings";
@@ -54,8 +57,6 @@ export function DashboardLayout({ apiBaseUrl, activePage, sidebar, children, onL
             <NavItem icon={<DashboardIcon />} label="Dashboard" active={activePage === "dashboard"} onClick={() => onNavigate("dashboard")} />
             <NavItem icon={<LayersIcon />} label="Environments" active={activePage === "environments"} onClick={() => onNavigate("environments")} />
             <NavItem icon={<PeopleIcon />} label="Users" active={activePage === "users"} onClick={() => onNavigate("users")} />
-            <NavItem icon={<TerminalIcon />} label="System Logs" />
-            <NavItem icon={<SettingsIcon />} label="Settings" />
           </Stack>
           {sidebar ? (
             <Box sx={{ flex: 1, minHeight: 0, overflow: "auto", p: 3 }}>

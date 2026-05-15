@@ -14,7 +14,11 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MAX_RESULT_OUTPUT_BYTES="${MAX_RESULT_OUTPUT_BYTES:-5242880}"
 ACTION_HEARTBEAT_SECONDS="${ACTION_HEARTBEAT_SECONDS:-30}"
 MAX_PARALLEL_ACTIONS="${MAX_PARALLEL_ACTIONS:-4}"
-WORKER_MAIN_BASHPID="$BASHPID"
+WORKER_MAIN_BASHPID="${BASHPID:-$$}"
+
+current_bash_pid() {
+  printf "%s" "${BASHPID:-$$}"
+}
 
 timestamp() {
   date -u +%Y-%m-%dT%H:%M:%SZ
@@ -24,6 +28,16 @@ worker_log() {
   printf "[composer-worker] %s %s\n" "$(timestamp)" "$*"
 }
 
+on_worker_error() {
+  local code="$?"
+  local line="${BASH_LINENO[0]:-unknown}"
+  worker_log "worker_error: exitCode=$code line=$line command=$BASH_COMMAND pid=$$ bashpid=$(current_bash_pid) pipe=$PIPE busRoot=$BUS_ROOT"
+  worker_log "worker_error_context: pwd=$(pwd) readyExists=$([[ -f "$READY_FILE" ]] && echo yes || echo no) pipeIsFifo=$([[ -p "$PIPE" ]] && echo yes || echo no) runningJobs=$(jobs -rp | wc -l | tr -d " ")"
+  exit "$code"
+}
+
+trap on_worker_error ERR
+
 mkdir -p "$BUS_ROOT"
 
 acquire_worker_lock() {
@@ -32,7 +46,7 @@ acquire_worker_lock() {
   if mkdir "$WORKER_LOCK_DIR" >/dev/null 2>&1; then
     {
       printf "pid=%s\n" "$$"
-      printf "bashpid=%s\n" "$BASHPID"
+      printf "bashpid=%s\n" "$(current_bash_pid)"
       printf "script=%s\n" "$0"
       printf "startedAt=%s\n" "$(timestamp)"
     } > "$WORKER_LOCK_DIR/info"
@@ -50,7 +64,7 @@ acquire_worker_lock() {
   if mkdir "$WORKER_LOCK_DIR" >/dev/null 2>&1; then
     {
       printf "pid=%s\n" "$$"
-      printf "bashpid=%s\n" "$BASHPID"
+      printf "bashpid=%s\n" "$(current_bash_pid)"
       printf "script=%s\n" "$0"
       printf "startedAt=%s\n" "$(timestamp)"
     } > "$WORKER_LOCK_DIR/info"
@@ -62,7 +76,7 @@ acquire_worker_lock() {
 }
 
 release_worker_lock() {
-  if [[ "$BASHPID" == "$WORKER_MAIN_BASHPID" ]]; then
+  if [[ "$(current_bash_pid)" == "$WORKER_MAIN_BASHPID" ]]; then
     rm -rf "$WORKER_LOCK_DIR"
   fi
 }
@@ -72,17 +86,20 @@ acquire_worker_lock
 mkdir -p "$ACKS_DIR" "$RESULTS_DIR" "$LOGS_DIR" "$LOCKS_DIR"
 chmod 777 "$ACKS_DIR" "$RESULTS_DIR" "$LOGS_DIR" "$LOCKS_DIR" 2>/dev/null || true
 if [[ ! -p "$PIPE" ]]; then
+  worker_log "fifo_missing_or_not_pipe: pipe=$PIPE removing_and_recreating=1"
   rm -f "$PIPE"
   mkfifo "$PIPE"
   chmod 666 "$PIPE" 2>/dev/null || true
+else
+  worker_log "fifo_exists: pipe=$PIPE mode=$(stat -c '%a' "$PIPE" 2>/dev/null || stat -f '%Lp' "$PIPE" 2>/dev/null || printf unknown)"
 fi
 
 date -u +%Y-%m-%dT%H:%M:%SZ > "$READY_FILE"
 chmod 666 "$READY_FILE" 2>/dev/null || true
-worker_log "ready: pid=$$ bashpid=$BASHPID pipe=$PIPE acks=$ACKS_DIR results=$RESULTS_DIR logs=$LOGS_DIR locks=$LOCKS_DIR workerLock=$WORKER_LOCK_DIR ready=$READY_FILE maxParallel=$MAX_PARALLEL_ACTIONS heartbeatSeconds=$ACTION_HEARTBEAT_SECONDS"
+worker_log "ready: pid=$$ bashpid=$(current_bash_pid) pipe=$PIPE acks=$ACKS_DIR results=$RESULTS_DIR logs=$LOGS_DIR locks=$LOCKS_DIR workerLock=$WORKER_LOCK_DIR ready=$READY_FILE maxParallel=$MAX_PARALLEL_ACTIONS heartbeatSeconds=$ACTION_HEARTBEAT_SECONDS busRoot=$BUS_ROOT scriptDir=$SCRIPT_DIR"
 
 cleanup_worker() {
-  if [[ "$BASHPID" == "$WORKER_MAIN_BASHPID" ]]; then
+  if [[ "$(current_bash_pid)" == "$WORKER_MAIN_BASHPID" ]]; then
     worker_log "exiting: removing ready file $READY_FILE and worker lock $WORKER_LOCK_DIR"
     rm -f "$READY_FILE"
     release_worker_lock
@@ -133,7 +150,7 @@ write_ack() {
     --arg type "$type" \
     --arg environment "$environment" \
     --arg acceptedAt "$(timestamp)" \
-    --argjson pid "$BASHPID" \
+    --argjson pid "$(current_bash_pid)" \
     --arg logFile "$log_file" \
     '{
       id: $id,
@@ -184,6 +201,7 @@ run_payload_script() {
     }' "$payload_file"
   } >> "$LOGS_DIR/$id.log"
   worker_log "run_payload_script: id=$id script=$script payloadFile=$payload_file summary=$(jq -c '{environment, environmentPort, runtimeRoot, runtimePath, seedName, source, sourceRepoUrl}' "$payload_file")"
+  worker_log "run_payload_script_start: id=$id script=$script log=$LOGS_DIR/$id.log payloadBytes=$(wc -c < "$payload_file" | tr -d " ")"
   if output="$(run_and_capture "$LOGS_DIR/$id.log" "$script" "$payload_file")"; then
     rm -f "$payload_file"
     write_result "$id" "success" "Action completed" "$output"
@@ -231,9 +249,9 @@ acquire_environment_lock() {
   local lock_pid
 
   if mkdir "$lock_dir" >/dev/null 2>&1; then
-    worker_log "lock_acquired: id=$id type=$type environment=$environment lock=$lock_dir pid=$BASHPID"
+    worker_log "lock_acquired: id=$id type=$type environment=$environment lock=$lock_dir pid=$(current_bash_pid)"
     {
-      printf "pid=%s\n" "$BASHPID"
+      printf "pid=%s\n" "$(current_bash_pid)"
       printf "id=%s\n" "$id"
       printf "type=%s\n" "$type"
       printf "environment=%s\n" "$environment"
@@ -247,9 +265,9 @@ acquire_environment_lock() {
     worker_log "lock_stale: existingPid=$lock_pid lock=$lock_dir removing=1"
     rm -rf "$lock_dir"
     if mkdir "$lock_dir" >/dev/null 2>&1; then
-      worker_log "lock_acquired_after_stale: id=$id type=$type environment=$environment lock=$lock_dir pid=$BASHPID"
+      worker_log "lock_acquired_after_stale: id=$id type=$type environment=$environment lock=$lock_dir pid=$(current_bash_pid)"
       {
-        printf "pid=%s\n" "$BASHPID"
+        printf "pid=%s\n" "$(current_bash_pid)"
         printf "id=%s\n" "$id"
         printf "type=%s\n" "$type"
         printf "environment=%s\n" "$environment"
@@ -401,6 +419,7 @@ process_action() {
   environment="$(echo "$line" | jq -r '.payload.environment // empty')"
   environment_port="$(echo "$line" | jq -r '.payload.environmentPort // empty')"
   proxy_upstream_host="$(echo "$line" | jq -r '.payload.proxyUpstreamHost // empty')"
+  worker_log "process_action_parsed: id=${id:-missing} type=${type:-missing} environment=${environment:-missing} port=${environment_port:-missing} proxy=${proxy_upstream_host:-missing} payloadKeys=$(echo "$line" | jq -r '(.payload // {}) | keys | join(",")' 2>/dev/null || true)"
 
   if [[ -z "$id" ]]; then
     worker_log "ignored_missing_id: type=$type environment=$environment bytes=${#line}"
@@ -414,8 +433,8 @@ process_action() {
     return 0
   fi
 
-  printf "[composer-worker] accepted action at %s: type=%s environment=%s port=%s proxy=%s pid=%s\n" "$(timestamp)" "$type" "$environment" "$environment_port" "$proxy_upstream_host" "$BASHPID" >> "$action_log_file"
-  worker_log "accepted: id=$id type=$type environment=$environment port=$environment_port proxy=$proxy_upstream_host actionLog=$action_log_file pid=$BASHPID"
+  printf "[composer-worker] accepted action at %s: type=%s environment=%s port=%s proxy=%s pid=%s\n" "$(timestamp)" "$type" "$environment" "$environment_port" "$proxy_upstream_host" "$(current_bash_pid)" >> "$action_log_file"
+  worker_log "accepted: id=$id type=$type environment=$environment port=$environment_port proxy=$proxy_upstream_host actionLog=$action_log_file pid=$(current_bash_pid)"
   write_ack "$id" "$type" "$environment" "$action_log_file"
 
   if requires_environment_lock "$type"; then
@@ -503,13 +522,27 @@ process_action() {
   worker_log "processed: id=$id type=$type environment=$environment"
 }
 
+worker_log "fifo_open_start: pipe=$PIPE mode=read_write_persistent_fd fd=3"
+exec 3<>"$PIPE"
+worker_log "fifo_open_done: pipe=$PIPE mode=read_write_persistent_fd fd=3 pid=$$ bashpid=$(current_bash_pid)"
+
 while true; do
-  while IFS= read -r line; do
+  worker_log "fifo_read_wait: pipe=$PIPE fd=3 runningJobs=$(jobs -rp | wc -l | tr -d " ")"
+  if IFS= read -r line <&3; then
     worker_log "received_line: bytes=${#line}"
     wait_for_parallel_slot
 
     (
       process_action "$line"
     ) &
-  done < "$PIPE"
+    child_pid="$!"
+    worker_log "spawned_action_worker: childPid=$child_pid bytes=${#line} runningJobs=$(jobs -rp | wc -l | tr -d " ")"
+  else
+    worker_log "fifo_read_eof_or_error: pipe=$PIPE fd=3 status=$? reopening=1"
+    exec 3<&-
+    sleep 1
+    worker_log "fifo_reopen_start: pipe=$PIPE fd=3"
+    exec 3<>"$PIPE"
+    worker_log "fifo_reopen_done: pipe=$PIPE fd=3"
+  fi
 done

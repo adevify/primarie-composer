@@ -140,9 +140,11 @@ ensure_docker_running() {
 }
 
 ensure_bus_root() {
+  log "Bus root check: BUS_ROOT=$BUS_ROOT RUN_DIR=$RUN_DIR BUS_PID_FILE=$BUS_PID_FILE BUS_LOG_FILE=$BUS_LOG_FILE user=$(id -un 2>/dev/null || true) uid=$(id -u 2>/dev/null || true) shell=${SHELL:-unknown}"
   if [[ -d "$BUS_ROOT" && -w "$BUS_ROOT" ]]; then
     mkdir -p "$BUS_ROOT/acks" "$BUS_ROOT/results" "$BUS_ROOT/logs" "$BUS_ROOT/locks"
     chmod -R 777 "$BUS_ROOT" 2>/dev/null || true
+    log "Bus root ready: $(ls -ld "$BUS_ROOT" "$BUS_ROOT/acks" "$BUS_ROOT/results" "$BUS_ROOT/logs" "$BUS_ROOT/locks" 2>&1 | tr '\n' ';')"
     return
   fi
 
@@ -155,6 +157,7 @@ ensure_bus_root() {
     log "$BUS_ROOT must exist and be writable by this user."
     exit 1
   fi
+  log "Bus root created: $(ls -ld "$BUS_ROOT" "$BUS_ROOT/acks" "$BUS_ROOT/results" "$BUS_ROOT/logs" "$BUS_ROOT/locks" 2>&1 | tr '\n' ';')"
 }
 
 ensure_env_file() {
@@ -215,10 +218,12 @@ stop_bus_workers() {
 }
 
 reset_bus_files() {
+  log "Resetting bus files: root=$BUS_ROOT pipe=$BUS_ROOT/actions.pipe ready=$BUS_ROOT/worker.ready lock=$BUS_ROOT/worker.lock"
   rm -f "$BUS_ROOT/actions.pipe" "$BUS_ROOT/worker.ready"
   rm -rf "$BUS_ROOT/worker.lock"
   mkdir -p "$BUS_ROOT/acks" "$BUS_ROOT/results" "$BUS_ROOT/logs" "$BUS_ROOT/locks"
   chmod -R 777 "$BUS_ROOT" 2>/dev/null || true
+  log "Bus files reset done: $(ls -la "$BUS_ROOT" 2>&1 | tr '\n' ';')"
 }
 
 start_bus() {
@@ -243,6 +248,7 @@ start_bus() {
   fi
 
   log "Starting Bash FIFO bus..."
+  log "Bash FIFO bus env: BUS_ROOT=$BUS_ROOT PIPE=$BUS_ROOT/actions.pipe ACKS=$BUS_ROOT/acks RESULTS=$BUS_ROOT/results LOGS=$BUS_ROOT/logs LOCKS=$BUS_ROOT/locks READY=$BUS_ROOT/worker.ready COMPOSER_ROOT=$ROOT_DIR RUNTIME_ROOT=$ROOT_DIR/runtime/environments"
   BUS_ROOT="$BUS_ROOT" \
   COMPOSER_ROOT="$ROOT_DIR" \
   RUNTIME_ROOT="$ROOT_DIR/runtime/environments" \
@@ -252,10 +258,13 @@ start_bus() {
 
   if ! kill -0 "$(cat "$BUS_PID_FILE")" >/dev/null 2>&1; then
     log "Bash bus failed to start. See $BUS_LOG_FILE."
+    log "Bash bus failure log tail: $(tail -n 80 "$BUS_LOG_FILE" 2>&1 | tr '\n' ';')"
     exit 1
   fi
 
   log "Bash bus started with PID $(cat "$BUS_PID_FILE"). Log: $BUS_LOG_FILE"
+  log "Bash bus files after start: $(ls -la "$BUS_ROOT" 2>&1 | tr '\n' ';')"
+  log "Bash bus log tail after start: $(tail -n 40 "$BUS_LOG_FILE" 2>&1 | tr '\n' ';')"
 }
 
 bus_restart_required() {
