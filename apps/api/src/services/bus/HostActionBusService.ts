@@ -73,6 +73,12 @@ export class HostActionBusService {
       ),
     ]);
 
+    const isHeartbeatStale = (timestamp?: string) => {
+      if (!timestamp) return true;
+      const ageMs = Date.now() - new Date(timestamp).getTime();
+      return ageMs > 15000; // 15 seconds stale threshold
+    };
+
     if (!pipeExists) {
       await this.logHealthFailure("FIFO pipe is missing", workerReadyAt, {
         pipeExists,
@@ -83,6 +89,21 @@ export class HostActionBusService {
         durationMs: Date.now() - healthStartedAt,
       });
       return this.healthResult(false, "FIFO pipe is missing", workerReadyAt);
+    }
+
+    if (isHeartbeatStale(workerReadyAt)) {
+      const reason = workerReadyAt
+        ? `Worker heartbeat is stale (last seen: ${workerReadyAt})`
+        : "Worker heartbeat is missing";
+      await this.logHealthFailure(reason, workerReadyAt, {
+        pipeExists,
+        acksDirExists,
+        resultsDirExists,
+        logsDirExists,
+        workerReadyExists,
+        durationMs: Date.now() - healthStartedAt,
+      });
+      return this.healthResult(false, reason, workerReadyAt);
     }
     if (!acksDirExists) {
       await this.logHealthFailure("Acknowledgement directory is missing", workerReadyAt, {

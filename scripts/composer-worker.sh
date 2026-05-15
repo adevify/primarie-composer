@@ -96,18 +96,32 @@ fi
 
 date -u +%Y-%m-%dT%H:%M:%SZ > "$READY_FILE"
 chmod 666 "$READY_FILE" 2>/dev/null || true
-worker_log "ready: pid=$$ bashpid=$(current_bash_pid) pipe=$PIPE acks=$ACKS_DIR results=$RESULTS_DIR logs=$LOGS_DIR locks=$LOCKS_DIR workerLock=$WORKER_LOCK_DIR ready=$READY_FILE maxParallel=$MAX_PARALLEL_ACTIONS heartbeatSeconds=$ACTION_HEARTBEAT_SECONDS busRoot=$BUS_ROOT scriptDir=$SCRIPT_DIR"
 
-cleanup_worker() {
+update_ready_heartbeat() {
+  while true; do
+    date -u +%Y-%m-%dT%H:%M:%SZ > "$READY_FILE"
+    sleep 5
+  done
+}
+
+update_ready_heartbeat &
+HEARTBEAT_PID="$!"
+
+on_worker_exit() {
   if [[ "$(current_bash_pid)" == "$WORKER_MAIN_BASHPID" ]]; then
-    worker_log "exiting: removing ready file $READY_FILE and worker lock $WORKER_LOCK_DIR"
+    worker_log "exiting: pid=$$ bashpid=$(current_bash_pid)"
     rm -f "$READY_FILE"
+    kill "$HEARTBEAT_PID" 2>/dev/null || true
     release_worker_lock
   fi
 }
 
-trap cleanup_worker EXIT
-trap 'cleanup_worker; exit 0' TERM INT
+trap on_worker_exit EXIT
+trap 'on_worker_exit; exit 0' TERM INT
+trap on_worker_error ERR
+
+worker_log "ready: pid=$$ bashpid=$(current_bash_pid) pipe=$PIPE acks=$ACKS_DIR results=$RESULTS_DIR logs=$LOGS_DIR locks=$LOCKS_DIR workerLock=$WORKER_LOCK_DIR ready=$READY_FILE heartbeatPid=$HEARTBEAT_PID maxParallel=$MAX_PARALLEL_ACTIONS heartbeatSeconds=$ACTION_HEARTBEAT_SECONDS busRoot=$BUS_ROOT scriptDir=$SCRIPT_DIR"
+
 
 write_result() {
   local id="$1"

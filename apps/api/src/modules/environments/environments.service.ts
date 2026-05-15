@@ -681,7 +681,10 @@ export class EnvironmentsService {
         activeAction: activeAction.action,
         activeActionId: activeAction.id,
         activeStatus: activeAction.status,
-        activeLogPath: this.actionLogPath(activeAction.id, activeAction.logFile),
+        activeLogPath: this.actionLogPath(
+          activeAction.id,
+          activeAction.logFile,
+        ),
       });
       return activeAction;
     }
@@ -2646,11 +2649,15 @@ function parseMongoJsonValue(output: string): unknown {
     }
   }
 
-  const message = lastError instanceof Error ? lastError.message : "Invalid JSON";
-  throw Object.assign(new Error(`Mongo inspect returned invalid JSON: ${message}`), {
-    status: 502,
-    output: tailText(output),
-  });
+  const message =
+    lastError instanceof Error ? lastError.message : "Invalid JSON";
+  throw Object.assign(
+    new Error(`Mongo inspect returned invalid JSON: ${message}`),
+    {
+      status: 502,
+      output: tailText(output),
+    },
+  );
 }
 
 function mongoJsonCandidates(output: string): string[] {
@@ -2671,13 +2678,19 @@ function mongoJsonCandidates(output: string): string[] {
     }
   }
 
-  return [...new Set(candidates.map((candidate) => candidate.trim()).filter(Boolean))];
+  return [
+    ...new Set(candidates.map((candidate) => candidate.trim()).filter(Boolean)),
+  ];
 }
 
 function stripMongoShellPrompts(output: string): string {
   return output
     .split(/\r?\n/)
-    .map((line) => stripAnsi(line).replace(/^[A-Za-z0-9_.-]+>\s?/, "").trimEnd())
+    .map((line) =>
+      stripAnsi(line)
+        .replace(/^[A-Za-z0-9_.-]+>\s?/, "")
+        .trimEnd(),
+    )
     .filter(Boolean)
     .join("\n")
     .trim();

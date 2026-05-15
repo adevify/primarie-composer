@@ -247,24 +247,28 @@ start_bus() {
     fi
   fi
 
-  log "Starting Bash FIFO bus..."
+  log "Starting Bash FIFO bus supervisor..."
   log "Bash FIFO bus env: BUS_ROOT=$BUS_ROOT PIPE=$BUS_ROOT/actions.pipe ACKS=$BUS_ROOT/acks RESULTS=$BUS_ROOT/results LOGS=$BUS_ROOT/logs LOCKS=$BUS_ROOT/locks READY=$BUS_ROOT/worker.ready COMPOSER_ROOT=$ROOT_DIR RUNTIME_ROOT=$ROOT_DIR/runtime/environments"
-  BUS_ROOT="$BUS_ROOT" \
-  COMPOSER_ROOT="$ROOT_DIR" \
-  RUNTIME_ROOT="$ROOT_DIR/runtime/environments" \
-  nohup "$ROOT_DIR/scripts/composer-worker.sh" > "$BUS_LOG_FILE" 2>&1 &
+  (
+    while true; do
+      log "Starting composer-worker.sh..."
+      BUS_ROOT="$BUS_ROOT" \
+      COMPOSER_ROOT="$ROOT_DIR" \
+      RUNTIME_ROOT="$ROOT_DIR/runtime/environments" \
+      "$ROOT_DIR/scripts/composer-worker.sh" >> "$BUS_LOG_FILE" 2>&1 || true
+      log "composer-worker.sh exited. Restarting in 2 seconds..."
+      sleep 2
+    done
+  ) &
   echo "$!" > "$BUS_PID_FILE"
   sleep 1
 
   if ! kill -0 "$(cat "$BUS_PID_FILE")" >/dev/null 2>&1; then
-    log "Bash bus failed to start. See $BUS_LOG_FILE."
-    log "Bash bus failure log tail: $(tail -n 80 "$BUS_LOG_FILE" 2>&1 | tr '\n' ';')"
+    log "Bash bus supervisor failed to start. See $BUS_LOG_FILE."
     exit 1
   fi
 
-  log "Bash bus started with PID $(cat "$BUS_PID_FILE"). Log: $BUS_LOG_FILE"
-  log "Bash bus files after start: $(ls -la "$BUS_ROOT" 2>&1 | tr '\n' ';')"
-  log "Bash bus log tail after start: $(tail -n 40 "$BUS_LOG_FILE" 2>&1 | tr '\n' ';')"
+  log "Bash bus supervisor started with PID $(cat "$BUS_PID_FILE"). Log: $BUS_LOG_FILE"
 }
 
 bus_restart_required() {
