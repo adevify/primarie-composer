@@ -1312,7 +1312,8 @@ function MongoInspector({
   const [importFinished, setImportFinished] = useState(false);
   const [expandedDocuments, setExpandedDocuments] = useState<Set<number>>(() => new Set());
   const selectedCollectionRecord = collections.find((collection) => collection.name === selectedCollection);
-  const totalPages = documentsPage ? Math.max(1, Math.ceil(documentsPage.total / documentsPage.limit)) : 1;
+  const documentsTotal = mongoScalarNumber(documentsPage?.total);
+  const totalPages = documentsPage ? Math.max(1, Math.ceil(documentsTotal / documentsPage.limit)) : 1;
   const filterError = useMemo(() => getJsonObjectError(filterText), [filterText]);
   const sortError = useMemo(() => getJsonObjectError(sortText), [sortText]);
   const queryHasError = Boolean(filterError || sortError);
@@ -1751,7 +1752,9 @@ function MongoInspector({
           </Box>
           <Box sx={{ display: "flex", gap: 1, alignItems: "center", justifyContent: "space-between", mt: 1, flexWrap: "wrap" }}>
             <Typography sx={{ color: "#4edea3", fontFamily: monoFont, fontSize: 12 }}>
-              {selectedCollectionRecord ? `${database}.${selectedCollectionRecord.name} / ${findMode} / ${documentsPage?.documents.length ?? 0} shown of ${documentsPage?.total ?? selectedCollectionRecord.count}` : "Select a collection"}
+              {selectedCollectionRecord
+                ? `${database}.${selectedCollectionRecord.name} / ${findMode} / ${documentsPage?.documents.length ?? 0} shown of ${mongoScalarLabel(documentsPage?.total ?? selectedCollectionRecord.count)}`
+                : "Select a collection"}
             </Typography>
             <Stack direction="row" spacing={1} alignItems="center" sx={{ visibility: findMode === "findOne" ? "hidden" : "visible" }}>
               <Button size="small" variant="outlined" disabled={!documentsPage || page <= 1 || loadingDocuments} onClick={() => void searchDocuments(page - 1)} sx={smallButtonSx}>
@@ -2012,6 +2015,25 @@ function mongoScalarLabel(value: unknown): string {
   } catch {
     return String(value);
   }
+}
+
+function mongoScalarNumber(value: unknown): number {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+  if (typeof value === "string") {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+  if (typeof value === "object" && value !== null) {
+    const record = value as Record<string, unknown>;
+    const extendedNumeric = record.$numberInt ?? record.$numberLong ?? record.$numberDouble;
+    if (typeof extendedNumeric === "string") {
+      const parsed = Number(extendedNumeric);
+      return Number.isFinite(parsed) ? parsed : 0;
+    }
+  }
+  return 0;
 }
 
 function FileExplorer({

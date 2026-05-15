@@ -399,10 +399,42 @@ function parseJsonBody(text: string): unknown {
   }
 
   try {
-    return JSON.parse(text);
+    return normalizeExtendedJson(JSON.parse(text));
   } catch {
     return text;
   }
+}
+
+function normalizeExtendedJson(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map((entry) => normalizeExtendedJson(entry));
+  }
+  if (!isRecord(value)) {
+    return value;
+  }
+
+  if (typeof value.$numberInt === "string") {
+    const parsed = Number(value.$numberInt);
+    return Number.isFinite(parsed) ? parsed : value.$numberInt;
+  }
+  if (typeof value.$numberLong === "string") {
+    const parsed = Number(value.$numberLong);
+    return Number.isFinite(parsed) ? parsed : value.$numberLong;
+  }
+  if (typeof value.$numberDouble === "string") {
+    const parsed = Number(value.$numberDouble);
+    return Number.isFinite(parsed) ? parsed : value.$numberDouble;
+  }
+  if (typeof value.$date === "string") {
+    return value.$date;
+  }
+  if (typeof value.$oid === "string") {
+    return value.$oid;
+  }
+
+  return Object.fromEntries(
+    Object.entries(value).map(([key, nested]) => [key, normalizeExtendedJson(nested)]),
+  );
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

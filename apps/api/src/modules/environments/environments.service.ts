@@ -674,7 +674,7 @@ export class EnvironmentsService {
 
     const activeAction =
       await EnvironmentActionCollection.findActiveByEnvironment(key);
-    if (activeAction) {
+    if (activeAction && activeAction.action === action) {
       logEnvironment("info", "lifecycle_action_reused", {
         key,
         requestedAction: action,
@@ -684,6 +684,15 @@ export class EnvironmentsService {
         activeLogPath: this.actionLogPath(activeAction.id, activeAction.logFile),
       });
       return activeAction;
+    }
+    if (activeAction && activeAction.action !== action) {
+      logEnvironment("info", "lifecycle_action_conflict", {
+        key,
+        requestedAction: action,
+        activeAction: activeAction.action,
+        activeActionId: activeAction.id,
+        activeStatus: activeAction.status,
+      });
     }
 
     const id = randomUUID();
