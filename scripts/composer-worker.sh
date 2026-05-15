@@ -230,7 +230,8 @@ requires_environment_lock() {
     || "$type" == "environment.remove" \
     || "$type" == "environment.prepare" \
     || "$type" == "environment.mongo.inspect" \
-    || "$type" == "environment.mongo.command" ]]
+    || "$type" == "environment.mongo.command" \
+    || "$type" == "environment.mongo.importProdTennant" ]]
 }
 
 environment_lock_path() {
@@ -302,7 +303,7 @@ write_lock_conflict_result() {
     "environment.mongo.inspect")
       write_result "$id" "success" "$message" "{\"available\":false,\"reason\":\"$message\"}"
       ;;
-    "environment.mongo.command")
+    "environment.mongo.command" | "environment.mongo.importProdTennant")
       write_result "$id" "error" "$message" "{\"error\":\"$message\"}"
       ;;
     *)
@@ -485,6 +486,9 @@ process_action() {
       ;;
     "environment.mongo.command")
       run_payload_script "$id" "$SCRIPT_DIR/mongo-inspect.sh" "$line"
+      ;;
+    "environment.mongo.importProdTennant")
+      run_payload_script "$id" "$SCRIPT_DIR/import-prod-tennant.sh" "$line"
       ;;
     "environment.start")
       if output="$(run_and_capture "$LOGS_DIR/$id.log" "$SCRIPT_DIR/start-env.sh" "$environment" "$environment_port" "$proxy_upstream_host")"; then

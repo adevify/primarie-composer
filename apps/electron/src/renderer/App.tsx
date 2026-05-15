@@ -787,6 +787,13 @@ export default function App() {
     return api.updateMongoDocuments(key, collection, input);
   }
 
+  async function importProdTennant(key: string, input: { tennant: string }) {
+    if (!api) {
+      throw new Error("API client is unavailable.");
+    }
+    return api.importProdTennant(key, input);
+  }
+
   async function listLifecycleActions(key: string, page = 0, perPage = 20): Promise<EnvironmentActionsPage> {
     if (!api) {
       throw new Error("API client is unavailable.");
@@ -1118,6 +1125,7 @@ export default function App() {
             onInsertMongoDocuments={insertMongoDocuments}
             onDeleteMongoDocuments={deleteMongoDocuments}
             onUpdateMongoDocuments={updateMongoDocuments}
+            onImportProdTennant={importProdTennant}
             onListLifecycleActions={listLifecycleActions}
             onListComposeLogs={listComposeLogs}
             onListContainerLogs={listContainerLogs}

@@ -1,22 +1,28 @@
-import {
-  Alert,
-  Box,
-  Button,
-  Chip,
-  CircularProgress,
-  FormControlLabel,
-  IconButton,
-  MenuItem,
-  Stack,
-  Switch,
-  TextField,
-  ToggleButton,
-  ToggleButtonGroup,
-  Tooltip,
-  Typography
-} from "@mui/material";
+import Alert from '@mui/material/Alert';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Chip from '@mui/material/Chip';
+import CircularProgress from '@mui/material/CircularProgress';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import IconButton from '@mui/material/IconButton';
+import MenuItem from '@mui/material/MenuItem';
+import Stack from '@mui/material/Stack';
+import Switch from '@mui/material/Switch';
+import TextField from '@mui/material/TextField';
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import List from '@mui/material/List';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemText from '@mui/material/ListItemText';
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import AutoFixHighIcon from "@mui/icons-material/AutoFixHigh";
+import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
 import ClearIcon from "@mui/icons-material/Clear";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import DataObjectIcon from "@mui/icons-material/DataObject";
@@ -51,6 +57,7 @@ import type {
   MongoDeleteResult,
   MongoDocumentsPage,
   MongoInsertResult,
+  MongoImportProdTennantResult,
   MongoUpdateResult,
   StreamLogEvent,
   SyncState
@@ -75,6 +82,7 @@ type EnvironmentDetailsProps = {
   onInsertMongoDocuments: (key: string, collection: string, documents: Record<string, unknown>[]) => Promise<MongoInsertResult>;
   onDeleteMongoDocuments: (key: string, collection: string, input: { filter: Record<string, unknown>; many: boolean; confirm: true; allowEmptyFilter?: boolean }) => Promise<MongoDeleteResult>;
   onUpdateMongoDocuments: (key: string, collection: string, input: { filter: Record<string, unknown>; update: Record<string, unknown>; many: boolean; confirm: true; allowEmptyFilter?: boolean }) => Promise<MongoUpdateResult>;
+  onImportProdTennant: (key: string, input: { tennant: string }) => Promise<MongoImportProdTennantResult>;
   onListLifecycleActions: (key: string, page?: number, perPage?: number) => Promise<EnvironmentActionsPage>;
   onListComposeLogs: (key: string, page?: number, perPage?: number) => Promise<ComposeLogEntry[]>;
   onListContainerLogs: (key: string, container: string, page?: number, perPage?: number) => Promise<ComposeLogEntry[]>;
@@ -110,6 +118,7 @@ export function EnvironmentDetails({
   onInsertMongoDocuments,
   onDeleteMongoDocuments,
   onUpdateMongoDocuments,
+  onImportProdTennant,
   onListLifecycleActions,
   onListComposeLogs,
   onListContainerLogs,
@@ -161,9 +170,9 @@ export function EnvironmentDetails({
   const environmentLogSessions = useMemo(() => liveLogSessions.filter((session) => session.environmentKey === environment?.key), [liveLogSessions, environment?.key]);
   const selectedLiveSession = selectedContainer
     ? environmentLogSessions.find((session) => session.title === selectedContainer && session.status === "running")
-      ?? environmentLogSessions.find((session) => session.title === selectedContainer)
+    ?? environmentLogSessions.find((session) => session.title === selectedContainer)
     : environmentLogSessions.find((session) => session.subtitle === "Docker Compose logs" && session.status === "running")
-      ?? environmentLogSessions.find((session) => session.subtitle === "Docker Compose logs");
+    ?? environmentLogSessions.find((session) => session.subtitle === "Docker Compose logs");
   const displayedLiveLogs = useMemo(() => (selectedLiveSession?.entries ?? []).map((entry) => ({
     at: entry.at,
     message: entry.log,
@@ -879,6 +888,7 @@ export function EnvironmentDetails({
                   onInsertDocuments={onInsertMongoDocuments}
                   onDeleteDocuments={onDeleteMongoDocuments}
                   onUpdateDocuments={onUpdateMongoDocuments}
+                  onImportProdTennant={onImportProdTennant}
                   fill
                 />
               ) : null}
@@ -1239,6 +1249,7 @@ function MongoInspector({
   onInsertDocuments,
   onDeleteDocuments,
   onUpdateDocuments,
+  onImportProdTennant,
   fill = false
 }: {
   environment: EnvironmentRecord;
@@ -1247,6 +1258,7 @@ function MongoInspector({
   onInsertDocuments: (key: string, collection: string, documents: Record<string, unknown>[]) => Promise<MongoInsertResult>;
   onDeleteDocuments: (key: string, collection: string, input: { filter: Record<string, unknown>; many: boolean; confirm: true; allowEmptyFilter?: boolean }) => Promise<MongoDeleteResult>;
   onUpdateDocuments: (key: string, collection: string, input: { filter: Record<string, unknown>; update: Record<string, unknown>; many: boolean; confirm: true; allowEmptyFilter?: boolean }) => Promise<MongoUpdateResult>;
+  onImportProdTennant: (key: string, input: { tennant: string }) => Promise<MongoImportProdTennantResult>;
   fill?: boolean;
 }) {
   const [database, setDatabase] = useState("primarie");
@@ -1268,6 +1280,13 @@ function MongoInspector({
   const [updateFilterText, setUpdateFilterText] = useState("{\n  \"tenant\": \"moldova\"\n}");
   const [updateText, setUpdateText] = useState("{\n  \"$set\": {\n    \"status\": \"active\"\n  }\n}");
   const [updateMode, setUpdateMode] = useState<MongoUpdateMode>("updateOne");
+  const [importingProdTennant, setImportingProdTennant] = useState(false);
+  const [importModalOpen, setImportModalOpen] = useState(false);
+  const [availableTennants, setAvailableTennants] = useState<Array<{ key: string; name: string }>>([]);
+  const [loadingAvailableTennants, setLoadingAvailableTennants] = useState(false);
+  const [selectedProdTennant, setSelectedProdTennant] = useState("");
+  const [importLogs, setImportLogs] = useState<string[]>([]);
+  const [importFinished, setImportFinished] = useState(false);
   const [expandedDocuments, setExpandedDocuments] = useState<Set<number>>(() => new Set());
   const selectedCollectionRecord = collections.find((collection) => collection.name === selectedCollection);
   const totalPages = documentsPage ? Math.max(1, Math.ceil(documentsPage.total / documentsPage.limit)) : 1;
@@ -1406,6 +1425,65 @@ function MongoInspector({
     }
   }
 
+  async function loadAvailableTennants(): Promise<void> {
+    setLoadingAvailableTennants(true);
+    try {
+      const response = await fetch("https://api.primarie.md/tennants.all");
+      const body = await response.json();
+      const rawData = body.result?.data;
+      const list = Array.isArray(rawData) ? rawData.map((t: any) => ({
+        key: t.key,
+        name: t.location?.name?.ro || t.key
+      })) : [];
+
+      setAvailableTennants(list);
+      if (list.length > 0) {
+        setSelectedProdTennant(list[0].key);
+      }
+    } catch (error) {
+      console.error(error);
+      setMongoError("Failed to load available tenants from production.");
+    } finally {
+      setLoadingAvailableTennants(false);
+    }
+  }
+
+  async function startImport(): Promise<void> {
+    if (!selectedProdTennant) return;
+
+    setImportingProdTennant(true);
+    setImportFinished(false);
+    setImportLogs(["Initializing import..."]);
+    setMongoError(undefined);
+
+    try {
+      const result = await onImportProdTennant(environment.key, {
+        tennant: selectedProdTennant
+      });
+
+      const logs: string[] = [];
+      result.collections.forEach(col => {
+        logs.push(`${col.collection} imported successfully (${col.count} entit${col.count === 1 ? 'y' : 'ies'})`);
+      });
+      logs.push(`Successfully imported ${result.importedDocuments} documents across ${result.importedCollections} collections.`);
+
+      setImportLogs(logs);
+      setImportFinished(true);
+      await loadCollections();
+
+      // Auto close after 3 seconds
+      setTimeout(() => {
+        setImportModalOpen(false);
+        setImportLogs([]);
+        setImportFinished(false);
+      }, 3000);
+    } catch (error) {
+      setImportLogs(prev => [...prev, `Error: ${toErrorMessage(error)}`]);
+    } finally {
+      setImportingProdTennant(false);
+    }
+  }
+
   function toggleDocument(index: number): void {
     setExpandedDocuments((current) => {
       const next = new Set(current);
@@ -1438,11 +1516,33 @@ function MongoInspector({
             {database}
           </Typography>
         </Box>
-        <Stack direction="row" spacing={1} sx={{ p: 1 }}>
-          <Button size="small" variant="outlined" disabled={loadingCollections} onClick={() => void loadCollections()} sx={smallButtonSx}>
-            Refresh
+        <Stack spacing={1} sx={{ p: 1 }}>
+          <Button
+            size="small"
+            variant="contained"
+            fullWidth
+            startIcon={<CloudDownloadIcon />}
+            onClick={() => {
+              setImportModalOpen(true);
+              void loadAvailableTennants();
+            }}
+            sx={{
+              ...smallButtonSx,
+              bgcolor: "rgba(0, 240, 255, 0.15)",
+              borderColor: "#00f0ff",
+              color: "#00f0ff",
+              fontWeight: 800,
+              "&:hover": { bgcolor: "rgba(0, 240, 255, 0.25)", borderColor: "#00f0ff" }
+            }}
+          >
+            Import Tennant
           </Button>
-          {loadingCollections ? <CircularProgress size={16} sx={{ alignSelf: "center" }} /> : null}
+          <Stack direction="row" spacing={1}>
+            <Button size="small" variant="outlined" disabled={loadingCollections} onClick={() => void loadCollections()} sx={{ ...smallButtonSx, flex: 1 }}>
+              Refresh
+            </Button>
+            {loadingCollections ? <CircularProgress size={16} sx={{ alignSelf: "center" }} /> : null}
+          </Stack>
         </Stack>
         {collections.length === 0 ? (
           <Box sx={{ px: 1.5, py: 1, color: "text.secondary", fontFamily: monoFont, fontSize: 13 }}>
@@ -1673,7 +1773,8 @@ function MongoInspector({
         </Box>
 
         <Box sx={{ borderTop: "1px solid #3b494b", bgcolor: "#151d1e", p: 1.5, maxHeight: "38%", overflow: "auto" }}>
-          <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", xl: "1fr 1fr 1fr" }, gap: 1.25 }}>
+          <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", xl: "1fr 1fr 1fr 1fr" }, gap: 1.25 }}>
+
             <MongoActionPanel title="Insert" onRun={() => void insertDocuments()} disabled={!selectedCollection}>
               <TextField multiline minRows={7} value={insertText} onChange={(event) => setInsertText(event.target.value)} sx={compactFieldSx} />
             </MongoActionPanel>
@@ -1698,6 +1799,93 @@ function MongoInspector({
           </Box>
         </Box>
       </Stack>
+
+      <Dialog
+        open={importModalOpen}
+        onClose={() => !importingProdTennant && setImportModalOpen(false)}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{ sx: { bgcolor: "#151d1e", backgroundImage: "none", border: "1px solid #3b494b" } }}
+      >
+        <DialogTitle sx={{ color: "#d7e3ee", fontFamily: monoFont, fontWeight: 900 }}>
+          IMPORT FROM PRODUCTION
+        </DialogTitle>
+        <DialogContent sx={{ minHeight: 120 }}>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2, fontFamily: monoFont }}>
+            Choose a tenant to import from production. This will upsert documents across all relevant collections.
+          </Typography>
+
+          {loadingAvailableTennants ? (
+            <Stack direction="row" spacing={2} alignItems="center" sx={{ py: 4, justifyContent: "center" }}>
+              <CircularProgress size={24} />
+              <Typography sx={{ fontFamily: monoFont, color: "text.secondary" }}>Fetching tenants...</Typography>
+            </Stack>
+          ) : availableTennants.length > 0 ? (
+            <List sx={{ bgcolor: "#0d1516", border: "1px solid #263334", maxHeight: 300, overflow: "auto", mb: 2, p: 0 }}>
+              {availableTennants.map((t) => (
+                <ListItemButton
+                  key={t.key}
+                  selected={selectedProdTennant === t.key}
+                  onClick={() => setSelectedProdTennant(t.key)}
+                  disabled={importingProdTennant}
+                  sx={{
+                    borderBottom: "1px solid #1a2425",
+                    "&.Mui-selected": { bgcolor: "rgba(0, 240, 255, 0.12)" },
+                    "&.Mui-selected:hover": { bgcolor: "rgba(0, 240, 255, 0.18)" }
+                  }}
+                >
+                  <ListItemText
+                    primary={t.name}
+                    secondary={t.key}
+                    primaryTypographyProps={{ sx: { color: "#d7e3ee", fontFamily: monoFont, fontWeight: 700, fontSize: 14 } }}
+                    secondaryTypographyProps={{ sx: { color: "#00f0ff", fontFamily: monoFont, fontSize: 11, opacity: 0.8 } }}
+                  />
+                </ListItemButton>
+              ))}
+            </List>
+          ) : (
+            <Typography sx={{ py: 4, textAlign: "center", color: "text.secondary", fontFamily: monoFont }}>No tenants found.</Typography>
+          )}
+
+          {importLogs.length > 0 && (
+            <Box sx={{ bgcolor: "#000", p: 1.5, borderRadius: 1, maxHeight: 200, overflow: "auto", border: "1px solid #263334", mt: 1 }}>
+              {importLogs.map((log, i) => (
+                <Typography key={i} sx={{ color: log.startsWith("Error") ? "#ffb4ab" : "#4edea3", fontFamily: monoFont, fontSize: 12, mb: 0.5 }}>
+                  {i === importLogs.length - 1 && importingProdTennant ? "> " : ""}{log}
+                </Typography>
+              ))}
+              {importingProdTennant && <CircularProgress size={10} sx={{ mt: 1, color: "#00f0ff" }} />}
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions sx={{ p: 2, borderTop: "1px solid #3b494b" }}>
+          <Button
+            onClick={() => setImportModalOpen(false)}
+            disabled={importingProdTennant}
+            sx={{ color: "text.secondary", fontFamily: monoFont, textTransform: "none" }}
+          >
+            {importFinished ? "Close" : "Cancel"}
+          </Button>
+          {!importFinished && (
+            <Button
+              variant="contained"
+              disabled={importingProdTennant || !selectedProdTennant || loadingAvailableTennants}
+              onClick={() => void startImport()}
+              startIcon={importingProdTennant ? <CircularProgress size={16} color="inherit" /> : <CloudDownloadIcon />}
+              sx={{
+                bgcolor: "#00f0ff",
+                color: "#000",
+                fontWeight: 800,
+                fontFamily: monoFont,
+                textTransform: "none",
+                "&:hover": { bgcolor: "#00dbe9" }
+              }}
+            >
+              Import
+            </Button>
+          )}
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

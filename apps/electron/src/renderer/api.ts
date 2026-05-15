@@ -15,6 +15,7 @@ import type {
   MongoDeleteResult,
   MongoDocumentsPage,
   MongoInsertResult,
+  MongoImportProdTennantResult,
   MongoPreview,
   MongoUpdateResult,
   StreamLogEvent,
@@ -223,6 +224,13 @@ export class ComposerApiClient {
     return this.request<MongoUpdateResult>(
       `/environments/${encodeURIComponent(key)}/mongo/collections/${encodeURIComponent(collection)}/documents`,
       { method: "PATCH", body: input }
+    );
+  }
+
+  importProdTennant(key: string, input: { tennant: string }): Promise<MongoImportProdTennantResult> {
+    return this.request<MongoImportProdTennantResult>(
+      `/environments/${encodeURIComponent(key)}/mongo/import-prod-tennant`,
+      { method: "POST", body: input }
     );
   }
 

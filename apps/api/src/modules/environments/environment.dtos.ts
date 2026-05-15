@@ -55,6 +55,11 @@ export const mongoUpdateDocumentsSchema = z.object({
 });
 export type MongoUpdateDocumentsPayload = z.infer<typeof mongoUpdateDocumentsSchema>;
 
+export const importProdTennantSchema = z.object({
+  tennant: z.string().regex(/^[a-z0-9][a-z0-9_-]*$/)
+});
+export type ImportProdTennantPayload = z.infer<typeof importProdTennantSchema>;
+
 export const gitPatchSchema = z.object({
   mode: z.enum(["delta", "full"]),
   data: z.string(),

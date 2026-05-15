@@ -45,6 +45,7 @@ services:
       NODE_ENV: ${NODE_ENV:-production}
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-12h}
+      SIGNATURE_SECRET: ${SIGNATURE_SECRET:-}
       SOURCE_REPO_URL: ${SOURCE_REPO_URL:-git@github.com:org/repo.git}
       BASE_ENV_PORT: ${BASE_ENV_PORT:-8001}
       ROOT_DOMAIN: ${ROOT_DOMAIN:-prmr.md}
@@ -63,7 +64,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "node -e \"require('http').get('http://127.0.0.1/health', r => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))\""
+          'node -e "require(''http'').get(''http://127.0.0.1/health'', r => process.exit(r.statusCode === 200 ? 0 : 1)).on(''error'', () => process.exit(1))"',
         ]
       interval: 5s
       timeout: 3s

@@ -200,6 +200,18 @@ export type MongoUpdateResult = {
   modifiedCount: number;
 };
 
+export type MongoImportProdTennantResult = {
+  tennant: string;
+  database: string;
+  importedCollections: number;
+  importedDocuments: number;
+  collections: Array<{
+    key: string;
+    collection: string;
+    count: number;
+  }>;
+};
+
 export type ContainerExecResult = {
   command: string;
   exitCode: number;

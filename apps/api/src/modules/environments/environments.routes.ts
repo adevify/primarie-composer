@@ -3,6 +3,7 @@ import z from "zod";
 import { EnvironmentsService } from "./environments.service.js";
 import {
   createEnvironmentSchema,
+  importProdTennantSchema,
   mongoCollectionNameSchema,
   mongoDeleteDocumentsSchema,
   mongoInsertDocumentsSchema,
@@ -248,6 +249,19 @@ export function createEnvironmentRouter(): Router {
       }
 
       return res.json(await service.updateMongoDocuments(req.params.key, collection.data, body.data, req.user!));
+    } catch (error) {
+      return next(error);
+    }
+  });
+
+  router.post("/:key/mongo/import-prod-tennant", async (req, res, next) => {
+    try {
+      const body = importProdTennantSchema.safeParse(req.body);
+      if (!body.success) {
+        return res.status(400).json({ error: body.error.flatten() });
+      }
+
+      return res.json(await service.importProdTennant(req.params.key, body.data, req.user!));
     } catch (error) {
       return next(error);
     }
