@@ -1098,13 +1098,13 @@ export class EnvironmentsService {
 
   async syncFiles(key: string, input: SyncFilesPayload, user?: AuthenticatedUser): Promise<EnvironmentRecord> {
     const current = await this.get(key);
-    const restoreStatus = syncRestoreStatus(current.status);
     logEnvironment("info", "sync_started", {
       key,
       branch: input.branch,
       commit: input.commit,
       files: syncPayloadChangeCount(input),
-      mode: syncPayloadMode(input)
+      mode: syncPayloadMode(input),
+      status: current.status
     });
 
     await this.logSystemEvent(key, "environment.files_sync_started", `Preparing environment with ${input.branch}@${input.commit}`, {
@@ -1119,7 +1119,6 @@ export class EnvironmentsService {
     });
 
     try {
-      await this.updateStatus(key, "checking_out");
       await this.publishEnvironmentAction("environment.files.sync", key, {
         source: {
           branch: input.branch,
@@ -1145,8 +1144,7 @@ export class EnvironmentsService {
             ...record.source,
             branch: input.branch,
             commit: input.commit
-          },
-          status: restoreStatus
+          }
         };
       });
       logEnvironment("info", "sync_completed", { key, files: syncPayloadChangeCount(input), mode: syncPayloadMode(input), status: updated.status });
@@ -1162,7 +1160,6 @@ export class EnvironmentsService {
         message,
         outputTail
       });
-      await this.updateStatus(key, restoreStatus).catch(() => undefined);
       await this.logSystemEvent(key, "environment.files_sync_failed", [`Environment sync failed: ${message}`, outputTail].filter(Boolean).join("\n"), {
         level: "error",
         actor: user ? actorFromUser(user) : undefined,
@@ -1171,7 +1168,7 @@ export class EnvironmentsService {
           commit: input.commit,
           mode: syncPayloadMode(input),
           files: input.patch.changedFiles.map((path) => ({ path, status: "patched" })),
-          restoredStatus: restoreStatus,
+          preservedStatus: current.status,
           outputTail
         }
       }).catch(() => undefined);
@@ -1750,13 +1747,6 @@ function throwIfAborted(signal?: AbortSignal): void {
   if (signal?.aborted) {
     throw Object.assign(new Error("Action aborted"), { status: 499 });
   }
-}
-
-function syncRestoreStatus(status: EnvironmentRecord["status"]): EnvironmentRecord["status"] {
-  if (status === "checking_out" || status === "applying_changes") {
-    return "running";
-  }
-  return status;
 }
 
 function prepareStatusFromLog(log: string): EnvironmentRecord["status"] | undefined {
