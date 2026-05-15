@@ -378,12 +378,7 @@ async function parseResponse<T>(response: Response): Promise<T> {
   const data = parseJsonBody(text);
 
   if (!response.ok) {
-    const message =
-      isRecord(data) && typeof data.error === "string"
-        ? data.error
-        : response.status === 401
-          ? "Unauthorized or expired session."
-          : `Request failed with status ${response.status}.`;
+    const message = responseErrorMessage(data, response.status);
     throw new ApiError(message, response.status, data);
   }
 
@@ -404,4 +399,31 @@ function parseJsonBody(text: string): unknown {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
+}
+
+function responseErrorMessage(data: unknown, status: number): string {
+  const base =
+    isRecord(data) && typeof data.error === "string"
+      ? data.error
+      : status === 401
+        ? "Unauthorized or expired session."
+        : `Request failed with status ${status}.`;
+  const detail = responseErrorDetail(data);
+
+  if (!detail || base.includes(detail)) {
+    return base;
+  }
+  return `${base}\n${detail}`;
+}
+
+function responseErrorDetail(data: unknown): string | undefined {
+  if (!isRecord(data) || !isRecord(data.details)) {
+    return undefined;
+  }
+
+  const outputTail = typeof data.details.outputTail === "string" ? data.details.outputTail.trim() : "";
+  if (outputTail) {
+    return outputTail;
+  }
+  return undefined;
 }

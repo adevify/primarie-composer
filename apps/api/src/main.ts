@@ -46,8 +46,9 @@ app.use("/environments", authenticateJwt, createEnvironmentRouter());
 app.use((err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   const message = err instanceof Error ? err.message : "Unexpected error";
   const status = typeof err === "object" && err !== null && "status" in err ? Number((err as { status: unknown }).status) : 500;
-  logApi(status >= 500 ? "error" : "warn", "request_failed", { status, message });
-  res.status(Number.isInteger(status) && status >= 400 ? status : 500).json({ error: message });
+  const details = errorResponseDetails(err);
+  logApi(status >= 500 ? "error" : "warn", "request_failed", { status, message, details });
+  res.status(Number.isInteger(status) && status >= 400 ? status : 500).json(details ? { error: message, details } : { error: message });
 });
 
 await connect();
@@ -79,6 +80,27 @@ function logApi(level: "info" | "warn" | "error", event: string, details: Record
     event,
     ...details
   }));
+}
+
+function errorResponseDetails(error: unknown): Record<string, unknown> | undefined {
+  if (typeof error !== "object" || error === null) {
+    return undefined;
+  }
+
+  const details: Record<string, unknown> = {};
+  const output = "output" in error && typeof error.output === "string" ? error.output : "";
+  if (output) {
+    details.outputTail = tailText(output);
+  }
+  if ("hostActionId" in error && typeof error.hostActionId === "string") {
+    details.hostActionId = error.hostActionId;
+  }
+
+  return Object.keys(details).length > 0 ? details : undefined;
+}
+
+function tailText(value: string, maxLength = 4000): string {
+  return value.length > maxLength ? value.slice(-maxLength) : value;
 }
 
 async function recoverInterruptedCreates(): Promise<void> {

@@ -920,19 +920,22 @@ export default function App() {
   }
 
   async function syncRepoSnapshot(snapshot: RepoSyncSnapshot): Promise<void> {
+    void snapshot;
     const activeEnvironmentKey = activeEnvironmentKeyRef.current;
     if (!api || !repoPath || !activeEnvironmentKey) {
       return;
     }
+    if (!electronBridge) {
+      throw new Error("Electron preload bridge is unavailable.");
+    }
 
-    const currentSnapshot = await refreshSyncSnapshot(snapshot);
-    const baseSignature = gitBaseSignature(currentSnapshot.gitState);
+    const latestGitState = await electronBridge.getGitState(repoPath);
+    setGitState(latestGitState);
+    const baseSignature = gitBaseSignature(latestGitState);
     const shouldForceFull = forceFullPatchRef.current.has(activeEnvironmentKey);
     const baseChanged = lastSyncedBaseRef.current.get(activeEnvironmentKey) !== baseSignature;
     const shouldSendFullPatch = shouldForceFull || baseChanged;
-    const patch = shouldSendFullPatch
-      ? await electronBridge.readGitPatch(repoPath, "full")
-      : currentSnapshot.patch;
+    const patch = await electronBridge.readGitPatch(repoPath, shouldSendFullPatch ? "full" : "delta");
 
     if (!shouldSendFullPatch && patch.isEmpty) {
       return;
@@ -940,13 +943,13 @@ export default function App() {
 
     try {
       await api.syncFiles(activeEnvironmentKey, {
-        branch: currentSnapshot.gitState.branch,
-        commit: currentSnapshot.gitState.commit,
+        branch: latestGitState.branch,
+        commit: latestGitState.commit,
         patch,
         resetBeforeApply: shouldSendFullPatch
       });
       await electronBridge.commitPatchBaseline(repoPath, patch.currentSha256);
-      recordPatchSyncEvent(activeEnvironmentKey, currentSnapshot.gitState, patch, "sent", shouldSendFullPatch);
+      recordPatchSyncEvent(activeEnvironmentKey, latestGitState, patch, "sent", shouldSendFullPatch);
       forceFullPatchRef.current.delete(activeEnvironmentKey);
       lastSyncedBaseRef.current.set(activeEnvironmentKey, baseSignature);
 
@@ -958,22 +961,12 @@ export default function App() {
       }));
     } catch (error) {
       const message = toErrorMessage(error);
-      recordPatchSyncEvent(activeEnvironmentKey, currentSnapshot.gitState, patch, "failed", shouldSendFullPatch, message);
+      recordPatchSyncEvent(activeEnvironmentKey, latestGitState, patch, "failed", shouldSendFullPatch, message);
       pushSyncError(message);
       if (isUnauthorized(error)) {
         logout();
       }
     }
-  }
-
-  async function refreshSyncSnapshot(snapshot: RepoSyncSnapshot): Promise<RepoSyncSnapshot> {
-    if (!electronBridge || !repoPath) {
-      return snapshot;
-    }
-
-    const gitState = await electronBridge.getGitState(repoPath);
-    setGitState(gitState);
-    return { gitState, patch: snapshot.patch };
   }
 
   async function forceSyncEnvironment(key: string): Promise<void> {
