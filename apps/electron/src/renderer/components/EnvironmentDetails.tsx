@@ -191,12 +191,7 @@ export function EnvironmentDetails({
 
     return [...historical, ...liveMapped];
   }, [actionLogs, actionLogsPage?.items, selectedAction?.createdAt, liveLogSessions, selectedActionId]);
-  const showActionLogsInPrimaryTerminal = !selectedContainer && shouldShowLifecycleLogsInPrimaryTerminal(environment?.status);
-  const displayedPrimaryLogs = displayedLiveLogs.length
-    ? displayedLiveLogs
-    : showActionLogsInPrimaryTerminal && displayedActionLogs.length > 0
-      ? displayedActionLogs
-      : logTailEntries;
+  const displayedPrimaryLogs = displayedLiveLogs.length ? displayedLiveLogs : logTailEntries;
 
   useEffect(() => {
     if (!open || !environment) {
@@ -232,7 +227,7 @@ export function EnvironmentDetails({
   }, [activeTabs, utilityTab]);
 
   useEffect(() => {
-    if (!open || !environment || (utilityTab !== "actions" && !(utilityTab === "logs" && shouldShowLifecycleLogsInPrimaryTerminal(environment.status)))) {
+    if (!open || !environment || utilityTab !== "actions") {
       return;
     }
 
@@ -257,12 +252,12 @@ export function EnvironmentDetails({
   }, [open, environment?.key, focusAction?.action.id, focusAction?.token]);
 
   useEffect(() => {
-    if (!open || !selectedActionId || (utilityTab !== "actions" && !(utilityTab === "logs" && shouldShowLifecycleLogsInPrimaryTerminal(environment?.status)))) {
+    if (!open || !selectedActionId || utilityTab !== "actions") {
       return;
     }
 
     void loadActionLogs(selectedActionId);
-  }, [open, selectedActionId, utilityTab, environment?.status]);
+  }, [open, selectedActionId, utilityTab]);
 
   useEffect(() => {
     if (!open || !environment || environment.status !== "running" || !selectedContainer) {
@@ -835,15 +830,11 @@ export function EnvironmentDetails({
               {utilityTab === "logs" ? (
                 <LogTerminal
                   logs={displayedPrimaryLogs}
-                  emptyText={showActionLogsInPrimaryTerminal ? "Waiting for registered action log output." : environment.status === "running" ? "No log tail loaded yet." : "Start the environment to read logs."}
+                  emptyText={environment.status === "running" ? "No log tail loaded yet." : "Start the environment to read logs."}
                   compact
-                  hasOlder={!showActionLogsInPrimaryTerminal && logTailHasMore && displayedLiveLogs.length === 0}
+                  hasOlder={logTailHasMore && displayedLiveLogs.length === 0}
                   loadingOlder={loadingLogTail}
-                  onReachTop={() => {
-                    if (!showActionLogsInPrimaryTerminal) {
-                      void loadOlderLogTail();
-                    }
-                  }}
+                  onReachTop={() => void loadOlderLogTail()}
                 />
               ) : null}
 
@@ -2197,16 +2188,6 @@ function canInspectContainers(status: EnvironmentRecord["status"]): boolean {
 
 function shouldPollContainers(status: EnvironmentRecord["status"]): boolean {
   return status === "starting" || status === "failed" || status === "stopped";
-}
-
-function shouldShowLifecycleLogsInPrimaryTerminal(status?: EnvironmentRecord["status"]): boolean {
-  return status === "creating"
-    || status === "cloning"
-    || status === "checking_out"
-    || status === "applying_changes"
-    || status === "starting"
-    || status === "removing"
-    || status === "failed";
 }
 
 function syncResultColor(result: FileSyncEvent["result"]): string {
